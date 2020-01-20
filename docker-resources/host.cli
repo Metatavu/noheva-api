@@ -1,0 +1,2 @@
+embed-server --server-config=standalone-full-ha.xml
+/subsystem=undertow/server=default-server/host=muisti-api:add(alias=["${env.API_HOST}"],default-web-module="muisti-api.war")
