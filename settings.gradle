@@ -1,2 +1,3 @@
 rootProject.name = 'muisti-api'
 include 'api-spec'
+include 'api-client'

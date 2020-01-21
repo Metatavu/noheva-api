@@ -1,0 +1,43 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+}
+
+plugins {
+    id "org.openapi.generator" version "4.2.2"
+}
+
+apply plugin: 'kotlin'
+
+repositories {
+    jcenter()
+}
+
+sourceSets {
+    generated{
+        kotlin.srcDir "$buildDir/generated/src/main/kotlin/"
+    }
+}
+
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile "com.squareup.moshi:moshi-kotlin:1.8.0"
+    compile "com.squareup.moshi:moshi-adapters:1.8.0"
+    compile "com.squareup.okhttp3:okhttp:4.2.2"
+}
+
+openApiGenerate {
+    generatorName = "kotlin"
+    inputSpec = "$rootDir/specs/swagger.yaml".toString()
+    outputDir = "$buildDir/generated".toString()
+    packageName = "fi.metatavu.muisti.api.client"
+    configOptions = [
+            library: "jvm-okhttp4"
+    ]
+}
+
+compileKotlin.source sourceSets.generated.kotlin
+compileKotlin.dependsOn tasks.openApiGenerate
