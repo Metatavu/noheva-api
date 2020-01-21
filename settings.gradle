@@ -1,0 +1,2 @@
+rootProject.name = 'muisti-api'
+include 'api-spec'

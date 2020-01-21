@@ -2,7 +2,6 @@ buildscript {
   ext.kotlin_version = '1.3.61'
   ext.wildfly_version = '18.0.1.Final'
   ext.keycloak_version = '8.0.1'
-  ext.jsr305_version = "3.0.2"
 
   repositories {
     jcenter()
@@ -14,11 +13,6 @@ buildscript {
   }
 }
 
-plugins {
-  id "org.openapi.generator" version "4.2.2"
-}
-
-apply plugin: 'java-gradle-plugin'
 apply plugin: 'kotlin'
 apply plugin: 'war'
 apply plugin: 'docker-compose'
@@ -45,8 +39,9 @@ dependencies {
   compileOnly "org.keycloak:keycloak-core:$keycloak_version"
   compileOnly "org.keycloak:keycloak-adapter-spi:$keycloak_version"
 
+  compile project(':api-spec')
+
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-  compile "com.google.code.findbugs:jsr305:$jsr305_version"
 
   testImplementation "org.junit.jupiter:junit-jupiter:5.5.2"
 }
@@ -61,20 +56,3 @@ tasks.test {
 dockerCompose {
   buildBeforeUp = true
 }
-
-openApiGenerate {
-  generatorName = "jaxrs-spec"
-  inputSpec = "$rootDir/specs/swagger.yaml".toString()
-  outputDir = "$rootDir/src/gen/java/main".toString()
-  apiPackage = "fi.metatavu.muisti.api.spec"
-  invokerPackage = "fi.metatavu.muisti.api.spec.invoker"
-  modelPackage = "fi.metatavu.muisti.api.spec.model"
-  configOptions = [
-      dateLibrary: "java8",
-      interfaceOnly: "true",
-      returnResponse: "true",
-      useSwaggerAnnotations: "false"
-  ]
-}
-
-compileJava.dependsOn tasks.openApiGenerate
