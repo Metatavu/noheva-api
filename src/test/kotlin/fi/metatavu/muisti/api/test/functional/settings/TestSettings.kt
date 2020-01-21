@@ -10,7 +10,7 @@ import org.apache.commons.lang3.math.NumberUtils
 object TestSettings {
 
     val apiBasePath: String
-        get() = "http://localhost:8080/v1"
+        get() = "http://localhost:1234/v1"
 
     val keycloakHost: String
         get() = "http://test-keycloak:8080/auth"

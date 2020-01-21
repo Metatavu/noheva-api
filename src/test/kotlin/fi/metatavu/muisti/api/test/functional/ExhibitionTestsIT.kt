@@ -16,8 +16,6 @@ public class ExhibitionTestsIT {
 
     @Test
     fun testCreateExhibition() {
-        // Thread.sleep(60 * 1000 * 5 * 60);
-
         TestBuilder().use {
             val admin = it.admin()!!
             assertNotNull(admin)
