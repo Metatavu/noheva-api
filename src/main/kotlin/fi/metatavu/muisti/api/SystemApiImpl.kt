@@ -1,6 +1,6 @@
 package fi.metatavu.muisti.api
 
-import fi.metatavu.muisti.api.spec.V1Api
+import fi.metatavu.muisti.api.spec.SystemApi
 
 import java.util.UUID
 import java.util.stream.Collectors
@@ -14,13 +14,13 @@ import javax.ws.rs.core.Response
 
 
 /**
- * REST endpoints
+ * System API REST endpoints
  *
  * @author Antti Leppä
  */
 @RequestScoped
 @Stateful
-open class V1ApiImpl(): V1Api {
+open class SystemApiImpl(): SystemApi {
 
     override fun ping(): Response? {
         return Response.ok("pong").build()

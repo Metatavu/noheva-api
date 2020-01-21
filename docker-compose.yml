@@ -25,10 +25,13 @@ services:
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: admin
       JDBC_PARAMS: "verifyServerCertificate=false&useSSL=false"
+      KEYCLOAK_IMPORT: /opt/docker/kc.json
     ports:
       - 8080:8080
     depends_on:
       - keycloak-mysql
+    volumes:
+      - ./test-volumes/keycloak:/opt/docker
   muisti-api:
     build: .
     ports:

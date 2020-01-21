@@ -3,7 +3,203 @@ info:
   version: 1.0.0
   title: Muisti API
 paths:
-  /v1/system/ping:
+
+  /exhibitions:
+    get:
+      operationId: listExhibitions
+      summary: List exhibitions.
+      description: Lists a exhibition
+      tags:
+        - Exhibitions
+      responses:
+        "200":
+          description: A exhibition list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Exhibition"
+        "400":
+          description: Invalid request was sent to the server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Attempted to make a call with unauthorized client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: createExhibition
+      summary: Create a exhibition.
+      description: Creates new exhibition
+      tags:
+        - Exhibitions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Exhibition"
+        description: Payload
+        required: true
+      responses:
+        "200":
+          description: Created exhibition
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Exhibition"
+        "400":
+          description: Invalid request was sent to the server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Attempted to make a call with unauthorized client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /exhibitions/{exhibitionId}:
+    get:
+      operationId: findExhibition
+      summary: Find a exhibition.
+      description: Finds a exhibition by id
+      tags:
+        - Exhibitions
+      parameters:
+        - name: exhibitionId
+          required: true
+          in: path
+          description: exhibition id
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: A exhibition
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Exhibition"
+        "400":
+          description: Invalid request was sent to the server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Attempted to make a call with unauthorized client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      operationId: updateExhibition
+      summary: Updates exhibition.
+      description: Updates exhibition
+      tags:
+        - Exhibitions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Exhibition"
+        description: Payload
+        required: true
+      parameters:
+        - name: exhibitionId
+          required: true
+          in: path
+          description: exhibition id
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Updated exhibition
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Exhibition"
+        "400":
+          description: Invalid request was sent to the server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Attempted to make a call with unauthorized client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: deleteExhibition
+      summary: Deletes exhibition.
+      description: Delets exhibition
+      tags:
+        - Exhibitions
+      parameters:
+        - name: exhibitionId
+          required: true
+          in: path
+          description: exhibition id
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Success
+        "400":
+          description: Invalid request was sent to the server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Attempted to make a call with unauthorized client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /system/ping:
     get:
       summary: System ping endpoint
       operationId: ping
@@ -24,6 +220,17 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
+    Exhibition:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
     Error:
       type: object
       required:

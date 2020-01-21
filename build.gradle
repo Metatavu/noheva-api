@@ -25,6 +25,7 @@ repositories {
 
 dependencies {
   implementation platform("org.wildfly:wildfly-spec-api:$wildfly_version")
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
   compileOnly 'org.jboss.spec.javax.servlet:jboss-servlet-api_4.0_spec'
   compileOnly 'org.jboss.resteasy:resteasy-jaxrs'
@@ -39,18 +40,18 @@ dependencies {
   compileOnly "org.keycloak:keycloak-core:$keycloak_version"
   compileOnly "org.keycloak:keycloak-adapter-spi:$keycloak_version"
 
-  compile project(':api-spec')
+  implementation project(':api-spec')
+  implementation "org.apache.commons:commons-lang3"
+  implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.1'
 
-  implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-
-  testImplementation "org.junit.jupiter:junit-jupiter:5.5.2"
+  testImplementation 'junit:junit:4.12'
+  compile "fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:1.0.4"
+  testCompile project(':api-client')
 }
 
-tasks.test {
-	useJUnitPlatform()
-	testLogging {
-		events("passed", "skipped", "failed")
-	}
+test {
+  useJUnit()
+  maxHeapSize = '1G'
 }
 
 dockerCompose {
