@@ -230,6 +230,20 @@ components:
           format: uuid
         name:
           type: string
+        creatorId:
+          type: string
+          format: uuid
+        lastModifierId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+          description: Created date
+        modifiedAt:
+          type: string
+          format: date-time
+          description: Date modified
 
     Error:
       type: object

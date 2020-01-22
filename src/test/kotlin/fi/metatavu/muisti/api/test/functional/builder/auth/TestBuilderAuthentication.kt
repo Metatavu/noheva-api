@@ -36,7 +36,8 @@ class TestBuilderAuthentication: AuthorizedTestBuilderAuthentication<ApiClient> 
   }
 
   override fun createClient(accessToken: String): ApiClient {
-    return ApiClient(TestSettings.apiBasePath);
+    val result = ApiClient(TestSettings.apiBasePath);
+    return result
   }
 
 }

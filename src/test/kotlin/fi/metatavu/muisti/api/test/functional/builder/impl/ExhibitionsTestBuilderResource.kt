@@ -37,7 +37,8 @@ public class ExhibitionsTestBuilderResource(testBuilder: AbstractTestBuilder<Api
     }
 
     override protected fun getApi(): ExhibitionsApi {
-        return ExhibitionsApi(TestSettings.apiBasePath)
+        val apiClient = apiClient()
+        // return ExhibitionsApi(TestSettings.apiBasePath)
     }
 
     override fun clean(exhibition: Exhibition) {

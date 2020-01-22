@@ -22,9 +22,9 @@ services:
       DB_DATABASE: keycloak
       DB_USER: keycloak
       DB_PASSWORD: password
+      JDBC_PARAMS: "verifyServerCertificate=false&useSSL=false"
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: admin
-      JDBC_PARAMS: "verifyServerCertificate=false&useSSL=false"
       KEYCLOAK_IMPORT: /opt/docker/kc.json
     ports:
       - 8080:8080
@@ -43,6 +43,6 @@ services:
       API_CLUSTER_PASSWORD: 4a0fc96f-c8d4-45c9-af69-4b7edd62df0d
       API_DB_HOST: muisti-api-mysql
       API_DB_NAME: muisti-api
-      API_DB_USERNAME: root
+      API_DB_USERNAME: muisti-api
       API_DB_PASSWORD: password
       KUBERNETES_NAMESPACE: test

@@ -19,7 +19,7 @@ RUN curl -o /tmp/mysql-module.zip -L https://static.metatavu.io/wildfly/wildfly-
 RUN curl -o /tmp/keycloak-module.zip -L https://downloads.jboss.org/keycloak/${KEYCLOAK_MODULE_VERSION}/adapters/keycloak-oidc/keycloak-wildfly-adapter-dist-${KEYCLOAK_MODULE_VERSION}.zip
 
 RUN unzip -o /tmp/keycloak-module.zip -d /opt/jboss/wildfly/
-#RUN unzip -o /tmp/mysql-module.zip -d /opt/jboss/wildfly/
+RUN unzip -o /tmp/mysql-module.zip -d /opt/jboss/wildfly/
 
 RUN /opt/jboss/wildfly/bin/jboss-cli.sh --file=/opt/docker/host.cli
 RUN /opt/jboss/wildfly/bin/jboss-cli.sh --file=/opt/docker/jdbc.cli
