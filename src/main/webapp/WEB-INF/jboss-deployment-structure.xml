@@ -10,6 +10,7 @@
       <module name="org.keycloak.keycloak-authz-client"/>
       <module name="org.keycloak.keycloak-adapter-core"/>
       <module name="org.keycloak.keycloak-adapter-spi"/>
+      <module name="com.fasterxml.jackson.datatype.jackson-datatype-jsr310"/>
     </dependencies>
   </deployment>
 </jboss-deployment-structure>

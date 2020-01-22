@@ -9,12 +9,13 @@ services:
       MYSQL_PASSWORD: password
   muisti-api-mysql:
     image: mysql:5.7
+    command: --lower_case_table_names=1
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: muisti-api
       MYSQL_USER: muisti-api
       MYSQL_PASSWORD: password
-  keycloak:
+  test-keycloak:
     image: jboss/keycloak:8.0.1
     environment:
       DB_VENDOR: MYSQL
@@ -38,6 +39,7 @@ services:
       - 1234:8080
     depends_on:
       - muisti-api-mysql
+      - test-keycloak
     environment:
       API_HOST: localhost
       API_CLUSTER_PASSWORD: 4a0fc96f-c8d4-45c9-af69-4b7edd62df0d
@@ -45,4 +47,8 @@ services:
       API_DB_NAME: muisti-api
       API_DB_USERNAME: muisti-api
       API_DB_PASSWORD: password
+      KEYCLOAK_SECRET: a1d94fb9-0f35-42e8-a56a-001ffab13e6e
+      KEYCLOAK_REALM: muisti
+      KEYCLOAK_RESOURCE: api
+      KEYCLOAK_URL: http://test-keycloak:8080/auth
       KUBERNETES_NAMESPACE: test

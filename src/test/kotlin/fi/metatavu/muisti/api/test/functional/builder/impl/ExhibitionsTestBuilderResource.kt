@@ -2,6 +2,7 @@ package fi.metatavu.muisti.api.test.functional.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.AbstractApiTestBuilderResource
+import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 
@@ -11,8 +12,12 @@ import fi.metatavu.muisti.api.client.apis.ExhibitionsApi
 import fi.metatavu.muisti.api.test.functional.impl.ApiTestBuilderResource
 
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
+import org.slf4j.LoggerFactory
 
-public class ExhibitionsTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>?, apiClient: ApiClient) : ApiTestBuilderResource<Exhibition, ApiClient?>(testBuilder, apiClient) {
+class ExhibitionsTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>?, accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<Exhibition, ApiClient?>(testBuilder, apiClient) {
+
+    private val logger = LoggerFactory.getLogger(javaClass)
+    private val accessTokenProvider: AccessTokenProvider? = accessTokenProvider
 
     /**
      * Creates new exhibition with default values
@@ -37,8 +42,47 @@ public class ExhibitionsTestBuilderResource(testBuilder: AbstractTestBuilder<Api
     }
 
     override protected fun getApi(): ExhibitionsApi {
-        val apiClient = apiClient()
-        // return ExhibitionsApi(TestSettings.apiBasePath)
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println(accessTokenProvider?.accessToken)
+
+        ApiClient.accessToken = accessTokenProvider?.accessToken
+
+        Thread.sleep(1000 * 60)
+
+        System.out.println(ApiClient.accessToken)
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+        System.out.println("ASDASDASDASDASDASDASDASDASD")
+
+        return ExhibitionsApi(TestSettings.apiBasePath)
     }
 
     override fun clean(exhibition: Exhibition) {

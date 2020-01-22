@@ -16,13 +16,6 @@ repositories {
     jcenter()
 }
 
-sourceSets {
-    generated{
-        java.srcDir "$buildDir/generated/src/gen/java/"
-    }
-}
-
-
 dependencies {
     implementation platform("org.wildfly:wildfly-spec-api:$wildfly_version")
 
@@ -48,5 +41,10 @@ openApiGenerate {
     ]
 }
 
-compileJava.source sourceSets.generated.java
-compileJava.dependsOn tasks.openApiGenerate
+task copyGeneratedCode(type: Copy) {
+    from "$buildDir/generated/src/gen"
+    into "src/main"
+    dependsOn tasks.openApiGenerate
+}
+
+compileJava.dependsOn tasks.copyGeneratedCode

@@ -7,6 +7,7 @@ ADD --chown=jboss ./docker-resources/jboss-cli.properties /opt/docker/jboss-cli.
 ADD --chown=jboss ./docker-resources/host.cli /opt/docker/host.cli
 ADD --chown=jboss ./docker-resources/kubernets-jgroups.cli /opt/docker/kubernets-jgroups.cli
 ADD --chown=jboss ./docker-resources/jdbc.cli /opt/docker/jdbc.cli
+ADD --chown=jboss ./docker-resources/keycloak.cli /opt/docker/keycloak.cli
 ADD --chown=jboss ./docker-resources/interfaces.cli /opt/docker/interfaces.cli
 
 RUN chmod a+x /opt/docker/entrypoint.sh
@@ -26,7 +27,7 @@ RUN /opt/jboss/wildfly/bin/jboss-cli.sh --file=/opt/docker/jdbc.cli
 RUN /opt/jboss/wildfly/bin/jboss-cli.sh --file=/opt/docker/kubernets-jgroups.cli
 RUN /opt/jboss/wildfly/bin/jboss-cli.sh --file=/opt/docker/interfaces.cli
 RUN /opt/jboss/wildfly/bin/jboss-cli.sh --properties=/opt/docker/jboss-cli.properties --file=/opt/jboss/wildfly/bin/adapter-elytron-install-offline.cli
-
+RUN /opt/jboss/wildfly/bin/jboss-cli.sh --file=/opt/docker/keycloak.cli
 RUN rm /tmp/*.zip
 
 EXPOSE 8080

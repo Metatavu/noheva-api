@@ -18,9 +18,12 @@ import fi.metatavu.muisti.api.test.functional.settings.TestSettings
  */
 class TestBuilderAuthentication: AuthorizedTestBuilderAuthentication<ApiClient> {
 
+  private var accessTokenProvider: AccessTokenProvider? = null
   private val exhibitions: ExhibitionsTestBuilderResource? = null
 
-  constructor(testBuilder: AbstractTestBuilder<ApiClient>, accessTokenProvider: AccessTokenProvider) : super(testBuilder, accessTokenProvider)
+  constructor(testBuilder: AbstractTestBuilder<ApiClient>, accessTokenProvider: AccessTokenProvider) : super(testBuilder, accessTokenProvider) {
+    this.accessTokenProvider = accessTokenProvider
+  }
 
   /**
    * Returns test builder resource for exhibitions
@@ -32,11 +35,12 @@ class TestBuilderAuthentication: AuthorizedTestBuilderAuthentication<ApiClient> 
   fun exhibitions(): ExhibitionsTestBuilderResource? {
     return if (exhibitions != null) {
       exhibitions
-    } else ExhibitionsTestBuilderResource(getTestBuilder(), createClient())
+    } else ExhibitionsTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
   }
 
   override fun createClient(accessToken: String): ApiClient {
-    val result = ApiClient(TestSettings.apiBasePath);
+    val result = ApiClient(TestSettings.apiBasePath)
+    ApiClient.accessToken = accessToken
     return result
   }
 

@@ -14,13 +14,6 @@ repositories {
     jcenter()
 }
 
-sourceSets {
-    generated{
-        kotlin.srcDir "$buildDir/generated/src/main/kotlin/"
-    }
-}
-
-
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
@@ -35,9 +28,15 @@ openApiGenerate {
     outputDir = "$buildDir/generated".toString()
     packageName = "fi.metatavu.muisti.api.client"
     configOptions = [
-            library: "jvm-okhttp4"
+            library: "jvm-okhttp4",
+            dateLibrary: "string"
     ]
 }
 
-compileKotlin.source sourceSets.generated.kotlin
-compileKotlin.dependsOn tasks.openApiGenerate
+task copyGeneratedCode(type: Copy) {
+    from "$buildDir/generated/src/main"
+    into "src/main"
+    dependsOn tasks.openApiGenerate
+}
+
+compileKotlin.dependsOn tasks.copyGeneratedCode
