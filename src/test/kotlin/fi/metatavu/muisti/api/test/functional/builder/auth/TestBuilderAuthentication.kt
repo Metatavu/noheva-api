@@ -16,14 +16,16 @@ import fi.metatavu.muisti.api.test.functional.settings.TestSettings
  *
  * @author Antti Leppä
  */
-class TestBuilderAuthentication: AuthorizedTestBuilderAuthentication<ApiClient> {
+class TestBuilderAuthentication
+/**
+ * Constructor
+ *
+ * @param testBuilder test builder instance
+ * @param accessTokenProvider access token provider
+ */(testBuilder: AbstractTestBuilder<ApiClient>, accessTokenProvider: AccessTokenProvider) : AuthorizedTestBuilderAuthentication<ApiClient>(testBuilder, accessTokenProvider) {
 
-  private var accessTokenProvider: AccessTokenProvider? = null
-  private val exhibitions: ExhibitionsTestBuilderResource? = null
-
-  constructor(testBuilder: AbstractTestBuilder<ApiClient>, accessTokenProvider: AccessTokenProvider) : super(testBuilder, accessTokenProvider) {
-    this.accessTokenProvider = accessTokenProvider
-  }
+  private var accessTokenProvider: AccessTokenProvider? = accessTokenProvider
+  private var exhibitions: ExhibitionsTestBuilderResource? = null
 
   /**
    * Returns test builder resource for exhibitions
@@ -32,12 +34,20 @@ class TestBuilderAuthentication: AuthorizedTestBuilderAuthentication<ApiClient> 
    * @throws IOException thrown when authentication fails
    */
   @kotlin.jvm.Throws(IOException::class)
-  fun exhibitions(): ExhibitionsTestBuilderResource? {
-    return if (exhibitions != null) {
-      exhibitions
-    } else ExhibitionsTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+  fun exhibitions(): ExhibitionsTestBuilderResource {
+    if (exhibitions == null) {
+      exhibitions = ExhibitionsTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+    }
+
+    return exhibitions!!
   }
 
+  /**
+   * Creates a API client
+   *
+   * @param accessToken access token
+   * @return API client
+   */
   override fun createClient(accessToken: String): ApiClient {
     val result = ApiClient(TestSettings.apiBasePath)
     ApiClient.accessToken = accessToken

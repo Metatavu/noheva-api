@@ -21,7 +21,6 @@ import javax.ws.rs.core.Response
 
 import fi.metatavu.muisti.api.spec.model.Error
 
-
 /**
  * Abstract base class for all API services
  *
@@ -29,7 +28,14 @@ import fi.metatavu.muisti.api.spec.model.Error
  */
 abstract class AbstractApi {
 
-    protected fun <E> getListParameter(parameter: List<String?>?, translate: Function<String?, E>): List<E>? {
+    /**
+     * Returns list parameter as <E> translated by given translate function.
+     *
+     * @param parameter parameter as string list
+     * @param translate translate function
+     * @return list of <E>
+     */
+    protected fun <E> getListParameter(parameter: List<String?>?, translate: Function<String, E>): List<E>? {
         if (parameter == null) {
             return null
         }
@@ -38,7 +44,7 @@ abstract class AbstractApi {
                 .filter { css: String? -> StringUtils.isNoneEmpty(css) }
                 .forEach { filter: String? -> merged.addAll(Arrays.asList(*StringUtils.split(filter, ','))) }
         return merged.stream()
-                .map { t: String? -> translate.apply(t) }
+                .map { t: String -> translate.apply(t) }
                 .collect(Collectors.toList())
     }
 
@@ -48,8 +54,8 @@ abstract class AbstractApi {
      * @param parameter list parameter as string
      * @param translate translate function
      * @return list of <E>
-    </E></E> */
-    protected fun <E> getListParameter(parameter: String?, translate: Function<String?, E>): List<E>? {
+     */
+    protected fun <E> getListParameter(parameter: String?, translate: Function<String, E>): List<E>? {
         return if (parameter == null) {
             null
         } else getListParameter(Arrays.asList(*StringUtils.split(parameter, ',')), translate)
@@ -59,12 +65,12 @@ abstract class AbstractApi {
      * Parses CSV enum parameter from string list into enum list
      *
      * @param enumType target enum class
-     * @param parameters string values
+     * @param parameter string values
      * @return list of enums
      * @throws IllegalArgumentException if parameters contain invalid values
      */
-    protected fun <T : Enum<T>?> getEnumListParameter(enumType: Class<T>?, parameter: List<String?>?): List<T>? {
-        return getListParameter(parameter, Function { name: String? -> java.lang.Enum.valueOf(enumType, name) })
+    protected fun <T : Enum<T?>?> getEnumListParameter(enumType: Class<T>?, parameter: List<String>?): List<T>? {
+        return getListParameter(parameter, Function { name: String -> java.lang.Enum.valueOf(enumType, name) })
     }
 
     /**
@@ -86,7 +92,7 @@ abstract class AbstractApi {
      * @return current http servlet request
      */
     protected val httpServletRequest: HttpServletRequest
-        protected get() = ResteasyProviderFactory.getContextData(HttpServletRequest::class.java)
+        get() = ResteasyProviderFactory.getContextData(HttpServletRequest::class.java)
 
     /**
      * Returns logged user id
@@ -94,7 +100,7 @@ abstract class AbstractApi {
      * @return logged user id
      */
     protected val loggerUserId: UUID?
-        protected get() {
+        get() {
             val httpServletRequest = httpServletRequest
             val remoteUser = httpServletRequest.remoteUser ?: return null
             return UUID.fromString(remoteUser)
@@ -260,7 +266,7 @@ abstract class AbstractApi {
     /**
      * Returns whether logged user has at least one of specified organization roles
      *
-     * @param role role
+     * @param roles roles
      * @return whether logged user has specified organization role or not
      */
     protected fun hasOrganizationRole(vararg roles: String?): Boolean {
@@ -279,7 +285,7 @@ abstract class AbstractApi {
      * Return keycloak authorization client
      */
     protected val authzClient: AuthzClient?
-        protected get() {
+        get() {
             val clientAuthorizationContext: ClientAuthorizationContext = authorizationContext ?: return null
             return clientAuthorizationContext.getClient()
         }
@@ -315,10 +321,10 @@ abstract class AbstractApi {
      * Returns keycloak security context from request or null if not available
      */
     private val keycloakSecurityContext: KeycloakSecurityContext?
-        private get() {
+        get() {
             val request = httpServletRequest
             val userPrincipal = request.userPrincipal
-            val kcPrincipal = userPrincipal as KeycloakPrincipal<*> ?: return null
+            val kcPrincipal = userPrincipal as KeycloakPrincipal<*>
             return kcPrincipal.keycloakSecurityContext
         }
 
@@ -326,7 +332,7 @@ abstract class AbstractApi {
      * Return keycloak authorization client context or null if not available
      */
     private val authorizationContext: ClientAuthorizationContext?
-        private get() {
+        get() {
             val keycloakSecurityContext = keycloakSecurityContext ?: return null
             return keycloakSecurityContext.authorizationContext as ClientAuthorizationContext
         }
@@ -337,7 +343,7 @@ abstract class AbstractApi {
      * @return access token
      */
     protected val accessToken: AccessToken?
-        protected get() {
+        get() {
             val keycloakSecurityContext = keycloakSecurityContext ?: return null
             return keycloakSecurityContext.token
         }

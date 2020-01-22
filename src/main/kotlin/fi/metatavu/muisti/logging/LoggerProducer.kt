@@ -13,6 +13,7 @@ import javax.enterprise.inject.spi.InjectionPoint
  */
 @Dependent
 class LoggerProducer {
+
     /**
      * Producer for Logger object
      *

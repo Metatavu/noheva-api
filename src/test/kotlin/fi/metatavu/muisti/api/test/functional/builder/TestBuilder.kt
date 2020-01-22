@@ -34,28 +34,18 @@ class TestBuilder: AbstractTestBuilder<ApiClient> () {
      * @throws IOException
      */
     @kotlin.jvm.Throws(IOException::class)
-    fun admin(): TestBuilderAuthentication? {
-        logger.info("INCOMING 1");
+    fun admin(): TestBuilderAuthentication {
+        if (admin == null) {
+            val authServerUrl = TestSettings.keycloakHost
+            val realm = TestSettings.keycloakRealm
+            val clientId = TestSettings.keycloakClientId
+            val adminUser = TestSettings.keycloakAdminUser
+            val adminPassword = TestSettings.keycloakAdminPass
+            val clientSecret = TestSettings.keycloakClientSecret
 
-        if (admin != null) {
-            return admin
+            admin = TestBuilderAuthentication(this, KeycloakAccessTokenProvider(authServerUrl, realm, clientId, adminUser, adminPassword, clientSecret))
         }
 
-        logger.info("INCOMING 2");
-
-        val authServerUrl = TestSettings.keycloakHost
-        val realm = TestSettings.keycloakRealm
-        val clientId = TestSettings.keycloakClientId
-        val adminUser = TestSettings.keycloakAdminUser
-        val adminPassword = TestSettings.keycloakAdminPass
-        val clientSecret = TestSettings.keycloakClientSecret
-
-        logger.info("INCOMING 3");
-
-        admin = TestBuilderAuthentication(this, KeycloakAccessTokenProvider(authServerUrl, realm, clientId, adminUser, adminPassword, clientSecret))
-
-        logger.info("INCOMING 4");
-
-        return admin
+        return admin!!
     }
 }

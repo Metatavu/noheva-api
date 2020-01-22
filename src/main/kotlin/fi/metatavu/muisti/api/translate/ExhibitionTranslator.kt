@@ -2,6 +2,9 @@ package fi.metatavu.muisti.api.translate
 
 import javax.enterprise.context.ApplicationScoped
 
+/**
+ * Translator for translating JPA exhibition entities into REST resources
+ */
 @ApplicationScoped
 open class ExhibitionTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.Exhibition, fi.metatavu.muisti.api.spec.model.Exhibition>() {
 

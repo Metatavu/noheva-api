@@ -5,6 +5,6 @@ package fi.metatavu.muisti.api.test.functional
  *
  * @author Antti Leppä
  */
-public abstract class AbstractFunctionalTest {
+abstract class AbstractFunctionalTest {
 
 }

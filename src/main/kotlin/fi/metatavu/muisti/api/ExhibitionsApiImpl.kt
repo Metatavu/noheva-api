@@ -35,22 +35,16 @@ open class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     private lateinit var exhibitionTranslator: ExhibitionTranslator
 
     override fun createExhibition(payload: Exhibition?): Response? {
-        logger.info("INCOMMING CALL 1")
-
         if (payload == null) {
             return createBadRequest("Missing request body")
         }
-
-        logger.info("INCOMMING CALL 2")
 
         val userId = loggerUserId
         if (userId == null) {
             return createUnauthorized("Unauthorized")
         }
-        logger.info("INCOMMING CALL 3")
 
         val exhibition = exhibitionController.createExhibition(payload.name, userId)
-        logger.info("INCOMMING CALL 4")
 
         return createOk(exhibitionTranslator.translate(exhibition))
     }

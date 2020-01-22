@@ -70,7 +70,7 @@ task waitApiUp() {
   }
 }
 
-boolean doHead(url) {
+static boolean doHead(url) {
   def connection = new URL(url).openConnection()
   connection.requestMethod = 'GET'
   try {
@@ -88,5 +88,5 @@ test {
 
 dockerCompose {
   buildBeforeUp = true
-  captureContainersOutput = true
+  captureContainersOutput = false
 }

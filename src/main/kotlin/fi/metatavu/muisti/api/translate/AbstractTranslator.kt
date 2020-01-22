@@ -6,9 +6,8 @@ import java.util.stream.Collectors
  * Abstract translator class
  *
  * @author Antti Leppä
- * @author Heikki Kurhinen
  */
-open abstract class AbstractTranslator<E, R> {
+abstract class AbstractTranslator<E, R> {
 
     abstract fun translate(entity: E?): R?
 
@@ -18,6 +17,7 @@ open abstract class AbstractTranslator<E, R> {
      * @param entities list of entities to translate
      * @return List of translated entities
      */
+    @Suppress("UNCHECKED_CAST")
     open fun translate(entities: List<E>): List<R> {
         return entities.stream()
           .map { entity: E -> this.translate(entity) }

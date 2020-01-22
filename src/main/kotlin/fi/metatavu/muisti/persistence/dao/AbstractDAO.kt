@@ -18,7 +18,7 @@ import javax.persistence.TypedQuery
  *
  * @param <T> entity type
 </T> */
-open abstract class AbstractDAO<T>() {
+abstract class AbstractDAO<T>() {
 
     @Inject
     private lateinit var logger: Logger
@@ -32,7 +32,7 @@ open abstract class AbstractDAO<T>() {
      * @param id entity id
      * @return entity or null if non found
      */
-    open fun findById(id: UUID): T {
+    open fun findById(id: UUID): T? {
         return entityManager.find(genericTypeClass, id)
     }
 
@@ -42,7 +42,7 @@ open abstract class AbstractDAO<T>() {
      * @param id entity id
      * @return entity or null if non found
      */
-    open fun findById(id: Long): T {
+    open fun findById(id: Long): T? {
         return entityManager.find(genericTypeClass, id)
     }
 
@@ -51,6 +51,7 @@ open abstract class AbstractDAO<T>() {
      *
      * @return all entities from database
      */
+    @Suppress("UNCHECKED_CAST")
     open fun listAll(): List<T> {
         val genericTypeClass: Class<*>? = genericTypeClass
         val query: Query = entityManager.createQuery("select o from " + genericTypeClass!!.name + " o")
@@ -64,6 +65,7 @@ open abstract class AbstractDAO<T>() {
      * @param maxResults max results
      * @return all entities from database limited by firstResult and maxResults parameters
      */
+    @Suppress("UNCHECKED_CAST")
     open fun listAll(firstResult: Int, maxResults: Int): List<T> {
         val genericTypeClass: Class<*>? = genericTypeClass
         val query: Query = entityManager.createQuery("select o from " + genericTypeClass!!.name + " o")
@@ -115,7 +117,12 @@ open abstract class AbstractDAO<T>() {
         return list[list.size - 1]
     }
 
-    protected open val genericTypeClass: Class<T>?
+    /**
+     * Returns DAO class
+     *
+     * @returns DAO class
+     */
+    private val genericTypeClass: Class<T>?
         get() {
             val genericSuperclass = javaClass.genericSuperclass
             if (genericSuperclass is ParameterizedType) {
@@ -128,7 +135,13 @@ open abstract class AbstractDAO<T>() {
             return null
         }
 
-    protected open fun getFirstTypeArgument(parameterizedType: ParameterizedType): Class<T> {
+    /**
+     * Returns first type argument for parameterized type
+     *
+     * @return first type argument for parameterized type
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun getFirstTypeArgument(parameterizedType: ParameterizedType): Class<T> {
         return parameterizedType.actualTypeArguments[0] as Class<T>
     }
 

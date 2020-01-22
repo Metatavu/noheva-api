@@ -14,6 +14,9 @@ import fi.metatavu.muisti.api.test.functional.impl.ApiTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.slf4j.LoggerFactory
 
+/**
+ * Test builder resource for handling exhibitions
+ */
 class ExhibitionsTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>?, accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<Exhibition, ApiClient?>(testBuilder, apiClient) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -35,58 +38,19 @@ class ExhibitionsTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?
      * @return created exhibition
      */
     fun create(name: String): Exhibition {
-        val payload: Exhibition = Exhibition(name)
+        val payload = Exhibition(name)
         val result: Exhibition = this.getApi().createExhibition(payload)
         addClosable(result)
         return result
     }
 
-    override protected fun getApi(): ExhibitionsApi {
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println(accessTokenProvider?.accessToken)
-
+    override fun getApi(): ExhibitionsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-
-        Thread.sleep(1000 * 60)
-
-        System.out.println(ApiClient.accessToken)
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-        System.out.println("ASDASDASDASDASDASDASDASDASD")
-
         return ExhibitionsApi(TestSettings.apiBasePath)
     }
 
     override fun clean(exhibition: Exhibition) {
-
+        this.getApi().deleteExhibition(exhibition.id!!)
     }
 
 }
