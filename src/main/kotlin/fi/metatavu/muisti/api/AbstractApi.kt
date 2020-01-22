@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.api
 
+import fi.metatavu.muisti.api.spec.model.Error
 import org.apache.commons.lang3.EnumUtils
 import org.apache.commons.lang3.StringUtils
 import org.jboss.resteasy.spi.ResteasyProviderFactory
@@ -8,18 +9,12 @@ import org.keycloak.KeycloakSecurityContext
 import org.keycloak.authorization.client.AuthzClient
 import org.keycloak.authorization.client.ClientAuthorizationContext
 import org.keycloak.representations.AccessToken
-import java.io.ByteArrayInputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.UnsupportedEncodingException
 import java.time.OffsetDateTime
 import java.util.*
 import java.util.function.Function
 import java.util.stream.Collectors
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.core.Response
-
-import fi.metatavu.muisti.api.spec.model.Error
 
 /**
  * Abstract base class for all API services
@@ -69,7 +64,7 @@ abstract class AbstractApi {
      * @return list of enums
      * @throws IllegalArgumentException if parameters contain invalid values
      */
-    protected fun <T : Enum<T?>?> getEnumListParameter(enumType: Class<T>?, parameter: List<String>?): List<T>? {
+    protected fun <T : Enum<T?>?> getEnumListParameter(enumType: Class<T>, parameter: List<String>?): List<T>? {
         return getListParameter(parameter, Function { name: String -> java.lang.Enum.valueOf(enumType, name) })
     }
 
@@ -165,12 +160,7 @@ abstract class AbstractApi {
      * @return response
      */
     protected fun createBadRequest(message: String): Response {
-        val entity = Error()
-        entity.message = message
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity(entity)
-                .build()
+        return createError(Response.Status.BAD_REQUEST, message)
     }
 
     /**
@@ -180,12 +170,7 @@ abstract class AbstractApi {
      * @return response
      */
     protected fun createNotFound(message: String): Response {
-        val entity = Error()
-        entity.message = message
-        return Response
-                .status(Response.Status.NOT_FOUND)
-                .entity(entity)
-                .build()
+        return createError(Response.Status.NOT_FOUND, message)
     }
 
     /**
@@ -195,12 +180,7 @@ abstract class AbstractApi {
      * @return response
      */
     protected fun createConflict(message: String): Response {
-        val entity = Error()
-        entity.message = message
-        return Response
-                .status(Response.Status.CONFLICT)
-                .entity(entity)
-                .build()
+        return createError(Response.Status.CONFLICT, message)
     }
 
     /**
@@ -210,12 +190,7 @@ abstract class AbstractApi {
      * @return response
      */
     protected fun createNotImplemented(message: String): Response {
-        val entity = Error()
-        entity.message = message
-        return Response
-                .status(Response.Status.NOT_IMPLEMENTED)
-                .entity(entity)
-                .build()
+        return createError(Response.Status.NOT_IMPLEMENTED, message)
     }
 
     /**
@@ -225,12 +200,7 @@ abstract class AbstractApi {
      * @return response
      */
     protected fun createInternalServerError(message: String): Response {
-        val entity = Error()
-        entity.message = message
-        return Response
-                .status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(entity)
-                .build()
+        return createError(Response.Status.INTERNAL_SERVER_ERROR, message)
     }
 
     /**
@@ -240,12 +210,7 @@ abstract class AbstractApi {
      * @return response
      */
     protected fun createForbidden(message: String): Response {
-        val entity = Error()
-        entity.message = message
-        return Response
-                .status(Response.Status.FORBIDDEN)
-                .entity(entity)
-                .build()
+        return createError(Response.Status.FORBIDDEN, message)
     }
 
     /**
@@ -255,10 +220,25 @@ abstract class AbstractApi {
      * @return response
      */
     protected fun createUnauthorized(message: String): Response {
+        return createError(Response.Status.UNAUTHORIZED, message)
+    }
+
+    /**
+     * Constructs an error response
+     *
+     * @param status status code
+     * @param message message
+     *
+     * @return error response
+     */
+    private fun createError(status: Response.Status, message: String): Response {
         val entity = Error()
+
         entity.message = message
+        entity.code = status.statusCode
+
         return Response
-                .status(Response.Status.UNAUTHORIZED)
+                .status(status)
                 .entity(entity)
                 .build()
     }

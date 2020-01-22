@@ -4,16 +4,13 @@ import fi.metatavu.muisti.api.spec.ExhibitionsApi
 import fi.metatavu.muisti.api.spec.model.Exhibition
 import fi.metatavu.muisti.api.translate.ExhibitionTranslator
 import fi.metatavu.muisti.exhibitions.ExhibitionController
+import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
-
-import java.util.UUID
+import java.util.*
 import java.util.stream.Collectors
 import javax.ejb.Stateful
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
-import javax.validation.Valid
-import javax.ws.rs.Consumes
-import javax.ws.rs.Produces
 import javax.ws.rs.core.Response
 
 /**
@@ -37,6 +34,10 @@ open class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     override fun createExhibition(payload: Exhibition?): Response? {
         if (payload == null) {
             return createBadRequest("Missing request body")
+        }
+
+        if (StringUtils.isBlank(payload.name)) {
+            return createBadRequest("Missing exhibition name")
         }
 
         val userId = loggerUserId
@@ -63,14 +64,20 @@ open class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun listExhibitions(): Response? {
-        return createOk(exhibitionController.listExhibitions().stream().map {
+        val result = exhibitionController.listExhibitions().stream().map {
             exhibitionTranslator.translate(it)
-        })
+        }.collect(Collectors.toList())
+
+        return createOk(result)
     }
 
     override fun updateExhibition(exhibitionId: UUID?, payload: Exhibition?): Response? {
         if (payload == null) {
             return createBadRequest("Missing request body")
+        }
+
+        if (StringUtils.isBlank(payload.name)) {
+            return createBadRequest("Missing exhibition name")
         }
 
         if (exhibitionId == null) {
