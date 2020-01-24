@@ -28,7 +28,7 @@ dependencies {
 
 openApiGenerate {
     generatorName = "jaxrs-spec"
-    inputSpec = "$rootDir/specs/swagger.yaml".toString()
+    inputSpec = "$rootDir/muisti-api-spec/swagger.yaml".toString()
     outputDir = "$buildDir/generated".toString()
     apiPackage = "fi.metatavu.muisti.api.spec"
     invokerPackage = "fi.metatavu.muisti.api.spec.invoker"

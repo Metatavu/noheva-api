@@ -24,7 +24,7 @@ dependencies {
 
 openApiGenerate {
     generatorName = "kotlin"
-    inputSpec = "$rootDir/specs/swagger.yaml".toString()
+    inputSpec = "$rootDir/muisti-api-spec/swagger.yaml".toString()
     outputDir = "$buildDir/generated".toString()
     packageName = "fi.metatavu.muisti.api.client"
     configOptions = [
