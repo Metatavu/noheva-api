@@ -1,15 +1,13 @@
 package fi.metatavu.muisti.api.test.functional.auth
 
-import java.io.IOException
-
-import fi.metatavu.muisti.api.test.functional.impl.ExhibitionsTestBuilderResource
-import fi.metatavu.muisti.api.client.infrastructure.ApiClient
-
 import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.jaxrs.test.functional.builder.auth.AuthorizedTestBuilderAuthentication
-
+import fi.metatavu.muisti.api.client.infrastructure.ApiClient
+import fi.metatavu.muisti.api.test.functional.impl.ExhibitionsTestBuilderResource
+import fi.metatavu.muisti.api.test.functional.impl.VisitorSessionTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
+import java.io.IOException
 
 /**
  * Test builder authentication
@@ -26,6 +24,7 @@ class TestBuilderAuthentication
 
   private var accessTokenProvider: AccessTokenProvider? = accessTokenProvider
   private var exhibitions: ExhibitionsTestBuilderResource? = null
+  private var visitorSessions: VisitorSessionTestBuilderResource? = null
 
   /**
    * Returns test builder resource for exhibitions
@@ -40,6 +39,21 @@ class TestBuilderAuthentication
     }
 
     return exhibitions!!
+  }
+
+  /**
+   * Returns test builder resource for visitorSessions
+   *
+   * @return test builder resource for visitorSessions
+   * @throws IOException thrown when authentication fails
+   */
+  @kotlin.jvm.Throws(IOException::class)
+  fun visitorSessions(): VisitorSessionTestBuilderResource {
+    if (visitorSessions == null) {
+      visitorSessions = VisitorSessionTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+    }
+
+    return visitorSessions!!
   }
 
   /**

@@ -2,8 +2,11 @@ package fi.metatavu.muisti.api
 
 import fi.metatavu.muisti.api.spec.ExhibitionsApi
 import fi.metatavu.muisti.api.spec.model.Exhibition
+import fi.metatavu.muisti.api.spec.model.VisitorSession
 import fi.metatavu.muisti.api.translate.ExhibitionTranslator
+import fi.metatavu.muisti.api.translate.VisitorSessionTranslator
 import fi.metatavu.muisti.exhibitions.ExhibitionController
+import fi.metatavu.muisti.sessions.VisitorSessionController
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import java.util.*
@@ -30,6 +33,14 @@ open class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     @Inject
     private lateinit var exhibitionTranslator: ExhibitionTranslator
+
+    @Inject
+    private lateinit var visitorSessionController: VisitorSessionController
+
+    @Inject
+    private lateinit var visitorSessionTranslator: VisitorSessionTranslator
+
+    /* Exhibitions */
 
     override fun createExhibition(payload: Exhibition?): Response? {
         if (payload == null) {
@@ -117,6 +128,134 @@ open class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         exhibitionController.deleteExhibition(exhibition)
 
         return createNoContent()
+    }
+
+    /* VisitorSessions */
+
+    override fun listVisitorSessions(exhibitionId: UUID?): Response {
+        if (exhibitionId == null) {
+            return createNotFound("Exhibition not found")
+        }
+
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId)
+        if (exhibition == null) {
+            return createNotFound("Exhibition $exhibitionId not found")
+        }
+
+        val userId = loggerUserId
+        if (userId == null) {
+            return createUnauthorized("Unauthorized")
+        }
+
+        val visitorSessions = visitorSessionController.listVisitorSessions(exhibition)
+
+        return createOk(visitorSessions.map (visitorSessionTranslator::translate))
+
+    }
+
+    override fun createVisitorSession(exhibitionId: UUID?, payload: VisitorSession?): Response {
+        if (payload == null) {
+            return createBadRequest("Missing request body")
+        }
+
+        if (exhibitionId == null) {
+            return createNotFound("Exhibition not found")
+        }
+
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId)
+        if (exhibition == null) {
+            return createNotFound("Exhibition $exhibitionId not found")
+        }
+
+        val userId = loggerUserId
+        if (userId == null) {
+            return createUnauthorized("Unauthorized")
+        }
+
+        val visitorSession = visitorSessionController.createVisitorSession(exhibition, payload.state, userId)
+        visitorSessionController.setVisitorSessionUsers(visitorSession, payload.users)
+        visitorSessionController.setVisitorSessionVariables(visitorSession, payload.variables)
+
+        return createOk(visitorSessionTranslator.translate(visitorSession))
+    }
+
+    override fun findVisitorSession(exhibitionId: UUID?, visitorSessionId: UUID?): Response {
+        if (exhibitionId == null || visitorSessionId == null) {
+            return createNotFound("Exhibition not found")
+        }
+
+        val userId = loggerUserId
+        if (userId == null) {
+            return createUnauthorized("Unauthorized")
+        }
+
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId)
+        if (exhibition == null) {
+            return createNotFound("Exhibition $exhibitionId not found")
+        }
+
+        val visitorSession = visitorSessionController.findVisitorSessionById(visitorSessionId)
+        if (visitorSession == null) {
+            return createNotFound("Visitor session $visitorSessionId not found")
+        }
+
+        return createOk(visitorSessionTranslator.translate(visitorSession))
+    }
+
+    override fun deleteVisitorSession(exhibitionId: UUID?, visitorSessionId: UUID?): Response {
+        if (exhibitionId == null || visitorSessionId == null) {
+            return createNotFound("Exhibition not found")
+        }
+
+        val userId = loggerUserId
+        if (userId == null) {
+            return createUnauthorized("Unauthorized")
+        }
+
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId)
+        if (exhibition == null) {
+            return createNotFound("Exhibition $exhibitionId not found")
+        }
+
+        val visitorSession = visitorSessionController.findVisitorSessionById(visitorSessionId)
+        if (visitorSession == null) {
+            return createNotFound("Visitor session $visitorSessionId not found")
+        }
+
+        visitorSessionController.deleteVisitorSession(visitorSession)
+
+        return createNoContent()
+    }
+
+    override fun updateVisitorSession(exhibitionId: UUID?, visitorSessionId: UUID?, payload: VisitorSession?): Response {
+        if (payload == null) {
+            return createBadRequest("Missing request body")
+        }
+
+        if (exhibitionId == null || visitorSessionId == null) {
+            return createNotFound("Exhibition not found")
+        }
+
+        val userId = loggerUserId
+        if (userId == null) {
+            return createUnauthorized("Unauthorized")
+        }
+
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId)
+        if (exhibition == null) {
+            return createNotFound("Exhibition $exhibitionId not found")
+        }
+
+        val visitorSession = visitorSessionController.findVisitorSessionById(visitorSessionId)
+        if (visitorSession == null) {
+            return createNotFound("Visitor session $visitorSessionId not found")
+        }
+
+        val result = visitorSessionController.updateVisitorSession(visitorSession, payload.state, userId)
+        visitorSessionController.setVisitorSessionUsers(result, payload.users)
+        visitorSessionController.setVisitorSessionVariables(result, payload.variables)
+
+        return createOk(visitorSessionTranslator.translate(result))
     }
 
 }
