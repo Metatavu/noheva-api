@@ -1,8 +1,9 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
     <changeSet id="exhibitions" author="antti.leppa">
-
         <createTable tableName="exhibition">
             <column name="id" type="binary(16)">
                 <constraints nullable="false" primaryKey="true"/>
@@ -23,6 +24,63 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+    </changeSet>
+
+    <changeSet id="visitorsessions" author="antti.leppa">
+        <createTable tableName="visitorsession">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="state" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exhibition_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VISITORSESSION_EXHIBITION_ID" referencedColumnNames="id" referencedTableName="exhibition"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="visitorsessionvariable">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value" type="longtext">
+                <constraints nullable="false"/>
+            </column>
+            <column name="visitorSession_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VISITOR_SESSION_VARIABLE_VISITORSESSION_ID" referencedColumnNames="id" referencedTableName="visitorsession"/>
+            </column>
+        </createTable>
+        
+        <createTable tableName="visitorsessionuser">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="userId" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tagId" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="visitorSession_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VISITOR_SESSION_USER_VISITORSESSION_ID" referencedColumnNames="id" referencedTableName="visitorsession"/>
+            </column>
+        </createTable>
+
     </changeSet>
 
 </databaseChangeLog>
