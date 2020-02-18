@@ -14,7 +14,7 @@ import java.util.*
 class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
 
     @Test
-    fun testCreateExhibitionRoomn() {
+    fun testCreateExhibitionRoom() {
         TestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibition.id!!, "name")

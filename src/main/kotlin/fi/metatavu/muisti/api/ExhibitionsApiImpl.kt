@@ -2,9 +2,11 @@ package fi.metatavu.muisti.api
 
 import fi.metatavu.muisti.api.spec.ExhibitionsApi
 import fi.metatavu.muisti.api.spec.model.*
+import fi.metatavu.muisti.api.translate.ExhibitionDeviceGroupTranslator
 import fi.metatavu.muisti.api.translate.ExhibitionRoomTranslator
 import fi.metatavu.muisti.api.translate.ExhibitionTranslator
 import fi.metatavu.muisti.api.translate.VisitorSessionTranslator
+import fi.metatavu.muisti.devices.ExhibitionDeviceGroupController
 import fi.metatavu.muisti.exhibitions.ExhibitionController
 import fi.metatavu.muisti.exhibitions.ExhibitionRoomController
 import fi.metatavu.muisti.sessions.VisitorSessionController
@@ -46,6 +48,12 @@ open class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     @Inject
     private lateinit var exhibitionRoomTranslator: ExhibitionRoomTranslator
+
+    @Inject
+    private lateinit var exhibitionDeviceGroupController: ExhibitionDeviceGroupController
+
+    @Inject
+    private lateinit var exhibitionDeviceGroupTranslator: ExhibitionDeviceGroupTranslator
 
     /* Exhibitions */
 
@@ -365,25 +373,80 @@ open class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    /* Device groups */
+    /* Exhibition device groups */
 
-    override fun createDeviceGroup(exhibitionId: UUID?, deviceGroup: DeviceGroup?): Response {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun createExhibitionDeviceGroup(exhibitionId: UUID?, payload: ExhibitionDeviceGroup?): Response {
+        if (payload == null) {
+            return createBadRequest("Missing request body")
+        }
+
+        if (exhibitionId == null) {
+            return createNotFound("Exhibition not found")
+        }
+
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val userId = loggerUserId ?: return createUnauthorized("Unauthorized")
+        val exhibitionDeviceGroup = exhibitionDeviceGroupController.createExhibitionDeviceGroup(exhibition, payload.name, userId)
+
+        return createOk(exhibitionDeviceGroupTranslator.translate(exhibitionDeviceGroup))
     }
 
-    override fun findDeviceGroup(exhibitionId: UUID?, deviceGroupId: UUID?): Response {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun findExhibitionDeviceGroup(exhibitionId: UUID?, deviceGroupId: UUID?): Response {
+        if (exhibitionId == null || deviceGroupId == null) {
+            return createNotFound("Exhibition not found")
+        }
+
+        loggerUserId ?: return createUnauthorized("Unauthorized")
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibitionDeviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createNotFound("Room $deviceGroupId not found")
+
+        if (!exhibitionDeviceGroup.exhibition?.id?.equals(exhibition.id)!!) {
+            return createNotFound("Room not found")
+        }
+
+        return createOk(exhibitionDeviceGroupTranslator.translate(exhibitionDeviceGroup))
     }
 
-    override fun listDeviceGroups(exhibitionId: UUID?): Response {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun listExhibitionDeviceGroups(exhibitionId: UUID?): Response {
+        if (exhibitionId == null) {
+            return createNotFound("Exhibition not found")
+        }
+
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibitionDeviceGroups = exhibitionDeviceGroupController.listExhibitionDeviceGroups(exhibition)
+
+        return createOk(exhibitionDeviceGroups.map (exhibitionDeviceGroupTranslator::translate))
     }
 
-    override fun updateDeviceGroup(exhibitionId: UUID?, deviceGroupId: UUID?, deviceGroup: DeviceGroup?): Response {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun updateExhibitionDeviceGroup(exhibitionId: UUID?, deviceGroupId: UUID?, payload: ExhibitionDeviceGroup?): Response {
+        if (payload == null) {
+            return createBadRequest("Missing request body")
+        }
+
+        if (exhibitionId == null || deviceGroupId == null) {
+            return createNotFound("Exhibition not found")
+        }
+
+        val userId = loggerUserId ?: return createUnauthorized("Unauthorized")
+
+        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibitionDeviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createNotFound("Room $deviceGroupId not found")
+        val result = exhibitionDeviceGroupController.updateExhibitionDeviceGroup(exhibitionDeviceGroup, payload.name, userId)
+
+        return createOk(exhibitionDeviceGroupTranslator.translate(result))
     }
 
-    override fun deleteDeviceGroup(exhibitionId: UUID?, deviceGroupId: UUID?): Response {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun deleteExhibitionDeviceGroup(exhibitionId: UUID?, deviceGroupId: UUID?): Response {
+        if (exhibitionId == null || deviceGroupId == null) {
+            return createNotFound("Exhibition not found")
+        }
+
+        loggerUserId ?: return createUnauthorized("Unauthorized")
+        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibitionDeviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createNotFound("Room $deviceGroupId not found")
+
+        exhibitionDeviceGroupController.deleteExhibitionDeviceGroup(exhibitionDeviceGroup)
+
+        return createNoContent()
     }
 }

@@ -8,7 +8,7 @@ import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 
 /**
- * Controller for exhibitions
+ * Controller for exhibition rooms
  */
 @ApplicationScoped
 open class ExhibitionRoomController() {
@@ -17,11 +17,11 @@ open class ExhibitionRoomController() {
     private lateinit var exhibitionRoomDAO: ExhibitionRoomDAO
 
     /**
-     * Creates new exhibition
+     * Creates new exhibition room
      *
-     * @param name exhibition name
+     * @param name room name
      * @param creatorId creating user id
-     * @return created exhibition
+     * @return created exhibition room
      */
     open fun createExhibitionRoom(exhibition: Exhibition, name: String, creatorId: UUID): ExhibitionRoom {
         return exhibitionRoomDAO.create(UUID.randomUUID(), exhibition, name, creatorId, creatorId)
@@ -38,7 +38,7 @@ open class ExhibitionRoomController() {
     }
 
     /**
-     * Lists rooms in an exhibitions in a system
+     * Lists rooms in an exhibitions
      *
      * @returns all rooms in an exhibition
      */
@@ -50,7 +50,7 @@ open class ExhibitionRoomController() {
      * Updates an exhibition room
      *
      * @param exhibitionRoom exhibition room to be updated
-     * @param name new name for exhibition
+     * @param name room name
      * @param modifierId modifying user id
      * @return updated exhibition
      */
