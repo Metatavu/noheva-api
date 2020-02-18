@@ -3,6 +3,9 @@ buildscript {
   ext.wildfly_version = '18.0.1.Final'
   ext.keycloak_version = '8.0.1'
   ext.liquibase_version = "3.8.0"
+  ext.awssdk_version = "1.11.673"
+  ext.jackson_version = "2.9.10"
+  ext.slf4j_version = "1.6.1"
 
   repositories {
     jcenter()
@@ -31,8 +34,10 @@ repositories {
 dependencies {
   kapt "org.hibernate:hibernate-jpamodelgen:5.4.11.Final"
 
+  implementation project(':api-spec')
+
   implementation platform("org.wildfly:wildfly-spec-api:$wildfly_version")
-  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+  implementation platform("com.amazonaws:aws-java-sdk-bom:$awssdk_version")
 
   compileOnly 'org.jboss.spec.javax.servlet:jboss-servlet-api_4.0_spec'
   compileOnly 'org.jboss.resteasy:resteasy-jaxrs'
@@ -48,19 +53,21 @@ dependencies {
   compileOnly "org.keycloak:keycloak-core:$keycloak_version"
   compileOnly "org.keycloak:keycloak-adapter-spi:$keycloak_version"
   compileOnly "org.keycloak:keycloak-authz-client:$keycloak_version"
-  compileOnly group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.1'
+  compileOnly "org.slf4j:slf4j-simple:$slf4j_version"
   compileOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+  compileOnly "org.apache.commons:commons-lang3"
 
+  implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+  implementation "com.amazonaws:aws-java-sdk-s3"
   implementation "org.liquibase:liquibase-cdi:$liquibase_version"
 
-  testImplementation "org.apache.commons:commons-lang3"
-  compileOnly "org.apache.commons:commons-lang3"
-  implementation project(':api-spec')
+  testImplementation project(':api-client')
 
+  testImplementation "org.apache.commons:commons-lang3"
   testImplementation 'junit:junit:4.12'
   testImplementation 'org.hamcrest:hamcrest:2.2'
   testImplementation "fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:1.0.4"
-  testCompile project(':api-client')
 }
 
 task waitApiUp() {

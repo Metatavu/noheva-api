@@ -52,3 +52,7 @@ services:
       KEYCLOAK_RESOURCE: api
       KEYCLOAK_URL: http://test-keycloak:8080/auth
       KUBERNETES_NAMESPACE: test
+      FILE_STORAGE_PROVIDER: LOCAL
+      LOCAL_FILE_STORAGE_PATH: /opt/uploads
+    volumes:
+      - ./test-volumes/uploads:/opt/uploads
