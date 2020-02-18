@@ -6,16 +6,14 @@ import java.io.InputStream
 /**
  * Class representing a file uploaded into the system but not yet persisted into the database
  *
- * @author Antti Leppä
- */
-open class InputFile
-/**
  * Constructor
  *
  * @param folder folder the file is stored in
  * @param meta file meta
  * @param data file data
- */(
+ * @author Antti Leppä
+ */
+open class InputFile (
         /**
          * Returns folder the file is stored in
          *
