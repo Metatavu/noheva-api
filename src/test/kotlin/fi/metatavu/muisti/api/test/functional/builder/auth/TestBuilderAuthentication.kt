@@ -4,6 +4,7 @@ import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.jaxrs.test.functional.builder.auth.AuthorizedTestBuilderAuthentication
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
+import fi.metatavu.muisti.api.test.functional.impl.ExhibitionRoomTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.impl.ExhibitionsTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.impl.VisitorSessionTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
@@ -25,6 +26,7 @@ class TestBuilderAuthentication
   private var accessTokenProvider: AccessTokenProvider? = accessTokenProvider
   private var exhibitions: ExhibitionsTestBuilderResource? = null
   private var visitorSessions: VisitorSessionTestBuilderResource? = null
+  private var exhibitionRooms: ExhibitionRoomTestBuilderResource? = null
 
   /**
    * Returns test builder resource for exhibitions
@@ -54,6 +56,21 @@ class TestBuilderAuthentication
     }
 
     return visitorSessions!!
+  }
+
+  /**
+   * Returns test builder resource for exhibitionRooms
+   *
+   * @return test builder resource for exhibitionRooms
+   * @throws IOException thrown when authentication fails
+   */
+  @kotlin.jvm.Throws(IOException::class)
+  fun exhibitionRooms(): ExhibitionRoomTestBuilderResource {
+    if (exhibitionRooms == null) {
+      exhibitionRooms = ExhibitionRoomTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+    }
+
+    return exhibitionRooms!!
   }
 
   /**

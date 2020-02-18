@@ -1,11 +1,12 @@
 package fi.metatavu.muisti.api
 
 import fi.metatavu.muisti.api.spec.ExhibitionsApi
-import fi.metatavu.muisti.api.spec.model.Exhibition
-import fi.metatavu.muisti.api.spec.model.VisitorSession
+import fi.metatavu.muisti.api.spec.model.*
+import fi.metatavu.muisti.api.translate.ExhibitionRoomTranslator
 import fi.metatavu.muisti.api.translate.ExhibitionTranslator
 import fi.metatavu.muisti.api.translate.VisitorSessionTranslator
 import fi.metatavu.muisti.exhibitions.ExhibitionController
+import fi.metatavu.muisti.exhibitions.ExhibitionRoomController
 import fi.metatavu.muisti.sessions.VisitorSessionController
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
@@ -39,6 +40,12 @@ open class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     @Inject
     private lateinit var visitorSessionTranslator: VisitorSessionTranslator
+
+    @Inject
+    private lateinit var exhibitionRoomController: ExhibitionRoomController
+
+    @Inject
+    private lateinit var exhibitionRoomTranslator: ExhibitionRoomTranslator
 
     /* Exhibitions */
 
@@ -258,4 +265,125 @@ open class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         return createOk(visitorSessionTranslator.translate(result))
     }
 
+    /* Rooms */
+
+    override fun createExhibitionRoom(exhibitionId: UUID?, payload: ExhibitionRoom?): Response {
+        if (payload == null) {
+            return createBadRequest("Missing request body")
+        }
+
+        if (exhibitionId == null) {
+            return createNotFound("Exhibition not found")
+        }
+
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val userId = loggerUserId ?: return createUnauthorized("Unauthorized")
+
+        val exhibitionRoom = exhibitionRoomController.createExhibitionRoom(exhibition, payload.name, userId)
+
+        return createOk(exhibitionRoomTranslator.translate(exhibitionRoom))
+    }
+
+    override fun findExhibitionRoom(exhibitionId: UUID?, roomId: UUID?): Response {
+        if (exhibitionId == null || roomId == null) {
+            return createNotFound("Exhibition not found")
+        }
+
+        loggerUserId ?: return createUnauthorized("Unauthorized")
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibitionRoom = exhibitionRoomController.findExhibitionRoomById(roomId) ?: return createNotFound("Room $roomId not found")
+
+        if (!exhibitionRoom.exhibition?.id?.equals(exhibition.id)!!) {
+            return createNotFound("Room not found")
+        }
+
+        return createOk(exhibitionRoomTranslator.translate(exhibitionRoom))
+    }
+
+    override fun listExhibitionRooms(exhibitionId: UUID?): Response {
+        if (exhibitionId == null) {
+            return createNotFound("Exhibition not found")
+        }
+
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibitionRooms = exhibitionRoomController.listExhibitionRooms(exhibition)
+
+        return createOk(exhibitionRooms.map (exhibitionRoomTranslator::translate))
+    }
+
+    override fun updateExhibitionRoom(exhibitionId: UUID?, roomId: UUID?, payload: ExhibitionRoom?): Response {
+        if (payload == null) {
+            return createBadRequest("Missing request body")
+        }
+
+        if (exhibitionId == null || roomId == null) {
+            return createNotFound("Exhibition not found")
+        }
+
+        val userId = loggerUserId ?: return createUnauthorized("Unauthorized")
+
+        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibitionRoom = exhibitionRoomController.findExhibitionRoomById(roomId) ?: return createNotFound("Room $roomId not found")
+        val result = exhibitionRoomController.updateExhibitionRoom(exhibitionRoom, payload.name, userId)
+
+        return createOk(exhibitionRoomTranslator.translate(result))
+    }
+
+    override fun deleteExhibitionRoom(exhibitionId: UUID?, roomId: UUID?): Response {
+        if (exhibitionId == null || roomId == null) {
+            return createNotFound("Exhibition not found")
+        }
+
+        loggerUserId ?: return createUnauthorized("Unauthorized")
+        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibitionRoom = exhibitionRoomController.findExhibitionRoomById(roomId) ?: return createNotFound("Room $roomId not found")
+
+        exhibitionRoomController.deleteExhibitionRoom(exhibitionRoom)
+
+        return createNoContent()
+    }
+
+    /* Devices */
+
+    override fun createDevice(exhibitionId: UUID?, device: Device?): Response {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun findDevice(exhibitionId: UUID?, deviceId: UUID?): Response {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun listDevices(exhibitionId: UUID?): Response {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun updateDevice(exhibitionId: UUID?, deviceId: UUID?, device: Device?): Response {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun deleteDevice(exhibitionId: UUID?, deviceId: UUID?): Response {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    /* Device groups */
+
+    override fun createDeviceGroup(exhibitionId: UUID?, deviceGroup: DeviceGroup?): Response {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun findDeviceGroup(exhibitionId: UUID?, deviceGroupId: UUID?): Response {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun listDeviceGroups(exhibitionId: UUID?): Response {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun updateDeviceGroup(exhibitionId: UUID?, deviceGroupId: UUID?, deviceGroup: DeviceGroup?): Response {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun deleteDeviceGroup(exhibitionId: UUID?, deviceGroupId: UUID?): Response {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 }

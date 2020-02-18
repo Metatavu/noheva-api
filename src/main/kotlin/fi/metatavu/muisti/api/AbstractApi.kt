@@ -22,7 +22,7 @@ import javax.ws.rs.core.Response
  * @author Antti Leppä
  */
 abstract class AbstractApi {
-
+    
     /**
      * Returns list parameter as <E> translated by given translate function.
      *
