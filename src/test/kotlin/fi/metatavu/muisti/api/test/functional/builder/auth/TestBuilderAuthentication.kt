@@ -4,6 +4,7 @@ import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.jaxrs.test.functional.builder.auth.AuthorizedTestBuilderAuthentication
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
+import fi.metatavu.muisti.api.test.functional.builder.impl.FileTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.impl.ExhibitionRoomTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.impl.ExhibitionsTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.impl.VisitorSessionTestBuilderResource
@@ -14,19 +15,19 @@ import java.io.IOException
  * Test builder authentication
  *
  * @author Antti Leppä
- */
-class TestBuilderAuthentication
-/**
+ *
  * Constructor
  *
  * @param testBuilder test builder instance
  * @param accessTokenProvider access token provider
- */(testBuilder: AbstractTestBuilder<ApiClient>, accessTokenProvider: AccessTokenProvider) : AuthorizedTestBuilderAuthentication<ApiClient>(testBuilder, accessTokenProvider) {
+ */
+class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, accessTokenProvider: AccessTokenProvider) : AuthorizedTestBuilderAuthentication<ApiClient>(testBuilder, accessTokenProvider) {
 
   private var accessTokenProvider: AccessTokenProvider? = accessTokenProvider
   private var exhibitions: ExhibitionsTestBuilderResource? = null
   private var visitorSessions: VisitorSessionTestBuilderResource? = null
   private var exhibitionRooms: ExhibitionRoomTestBuilderResource? = null
+  private var files: FileTestBuilderResource? = null
 
   /**
    * Returns test builder resource for exhibitions
@@ -71,6 +72,21 @@ class TestBuilderAuthentication
     }
 
     return exhibitionRooms!!
+  }
+
+  /**
+   * Returns test builder resource for files
+   *
+   * @return test builder resource for files
+   * @throws IOException thrown when authentication fails
+   */
+  @kotlin.jvm.Throws(IOException::class)
+  fun files(): FileTestBuilderResource {
+    if (files == null) {
+      files = FileTestBuilderResource(getTestBuilder())
+    }
+
+    return files!!
   }
 
   /**
