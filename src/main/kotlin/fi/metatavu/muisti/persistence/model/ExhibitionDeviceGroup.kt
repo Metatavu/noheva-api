@@ -6,12 +6,12 @@ import javax.persistence.*
 import javax.validation.constraints.NotEmpty
 
 /**
- * JPA entity representing exhibition room
+ * JPA entity representing exhibition device group
  *
  * @author Antti Leppä
  */
 @Entity
-open class ExhibitionRoom {
+open class ExhibitionDeviceGroup {
 
     @Id
     var id: UUID? = null
