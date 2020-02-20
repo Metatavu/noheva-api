@@ -1,8 +1,4 @@
-.gradle
 .idea
 build
-gradle
-gradlew
-gradlew.bat
 api-client/src/
 api-spec/src/
