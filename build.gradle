@@ -21,11 +21,15 @@ buildscript {
   }
 }
 
+plugins {
+  id 'jacoco'
+  id 'com.github.kt3k.coveralls' version '2.8.4'
+}
+
 apply plugin: 'kotlin'
 apply plugin: 'war'
 apply plugin: 'docker-compose'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'jacoco'
 apply plugin: "com.dorongold.task-tree"
 
 sourceCompatibility = 11
@@ -99,6 +103,7 @@ static boolean doHead(url) {
   try {
     connection.responseCode == 200
   } catch (IOException error) {
+    error.printStackTrace()
     false
   }
 }
@@ -119,6 +124,10 @@ dockerCompose {
 
 composeUp {
   dependsOn tasks.unzipJacoco
+}
+
+coveralls {
+  sourceDirs += ['src/main/kotlin']
 }
 
 test {
