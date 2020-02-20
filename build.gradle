@@ -103,7 +103,6 @@ static boolean doHead(url) {
   try {
     connection.responseCode == 200
   } catch (IOException error) {
-    error.printStackTrace()
     false
   }
 }
@@ -111,7 +110,8 @@ static boolean doHead(url) {
 static void waitUrl(url) {
   println "Waiting for ${url} ..."
   while (!doHead(url)) {
-    sleep(100)
+    println "Waiting ${url}..."
+    sleep(1000)
   }
   println "${url} is up!"
 }
