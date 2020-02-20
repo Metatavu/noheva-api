@@ -23,7 +23,7 @@ object TestSettings {
      * Returns Keycloak host
      */
     val keycloakHost: String
-        get() = "http://test-keycloak:8080/auth"
+        get() = "http://localhost:8080/auth"
 
     /**
      * Returns Keycloak realm
