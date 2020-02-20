@@ -91,6 +91,7 @@ jacoco {
 task unzipJacoco(type: Copy) {
   doFirst {
     mkdir "$buildDir/jacoco"
+    commandLine('chmod',  '777', "$buildDir/jacoco")
   }
 
   from zipTree(configurations.jacocoAgent.singleFile)
@@ -110,7 +111,6 @@ static boolean doHead(url) {
 static void waitUrl(url) {
   println "Waiting for ${url} ..."
   while (!doHead(url)) {
-    println "Waiting ${url}..."
     sleep(1000)
   }
   println "${url} is up!"
