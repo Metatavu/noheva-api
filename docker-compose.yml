@@ -54,5 +54,8 @@ services:
       KUBERNETES_NAMESPACE: test
       FILE_STORAGE_PROVIDER: LOCAL
       LOCAL_FILE_STORAGE_PATH: /opt/uploads
+      JAVA_OPTS: '-javaagent:/opt/jacoco-jacocoagent.jar=output=file,append=false,dumponexit=true,destfile=/opt/jacoco/it.exec'
     volumes:
       - ./test-volumes/uploads:/opt/uploads
+      - $JACOCO_AGENT:/opt/jacoco-jacocoagent.jar
+      - $JACOCO:/opt/jacoco
