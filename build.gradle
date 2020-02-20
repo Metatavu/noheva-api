@@ -88,12 +88,14 @@ jacoco {
   toolVersion = "0.8.5"
 }
 
-task unzipJacoco(type: Copy) {
+task mkdirJacoco(type: Exec) {
   doFirst {
     mkdir "$buildDir/jacoco"
-    commandLine('chmod',  '777', "$buildDir/jacoco")
+    commandLine 'chmod', '777', "$buildDir/jacoco"
   }
+}
 
+task unzipJacoco(type: Copy) {
   from zipTree(configurations.jacocoAgent.singleFile)
   into "$buildDir/jacocoagent"
 }
@@ -123,6 +125,7 @@ dockerCompose {
 }
 
 composeUp {
+  dependsOn tasks.mkdirJacoco
   dependsOn tasks.unzipJacoco
 }
 
