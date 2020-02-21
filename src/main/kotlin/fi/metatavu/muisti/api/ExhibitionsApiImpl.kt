@@ -26,6 +26,9 @@ import javax.ws.rs.core.Response
 @Stateful
 class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
+    private val EXHIBITION_NOT_FOUND = "Exhibition not found"
+    private val UNAUTHORIZED = "Unauthorized"
+
     @Inject
     private lateinit var logger: Logger
 
@@ -72,7 +75,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         val userId = loggerUserId
         if (userId == null) {
-            return createUnauthorized("Unauthorized")
+            return createUnauthorized(UNAUTHORIZED)
         }
 
         val exhibition = exhibitionController.createExhibition(payload.name, userId)
@@ -82,7 +85,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun findExhibition(exhibitionId: UUID?): Response? {
         if (exhibitionId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)
@@ -111,12 +114,12 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         }
 
         if (exhibitionId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
         val userId = loggerUserId
         if (userId == null) {
-            return createUnauthorized("Unauthorized")
+            return createUnauthorized(UNAUTHORIZED)
         }
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)
@@ -131,12 +134,12 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun deleteExhibition(exhibitionId: UUID?): Response? {
         if (exhibitionId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
         val userId = loggerUserId
         if (userId == null) {
-            return createUnauthorized("Unauthorized")
+            return createUnauthorized(UNAUTHORIZED)
         }
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)
@@ -153,7 +156,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun listVisitorSessions(exhibitionId: UUID?): Response {
         if (exhibitionId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)
@@ -163,7 +166,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         val userId = loggerUserId
         if (userId == null) {
-            return createUnauthorized("Unauthorized")
+            return createUnauthorized(UNAUTHORIZED)
         }
 
         val visitorSessions = visitorSessionController.listVisitorSessions(exhibition)
@@ -178,7 +181,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         }
 
         if (exhibitionId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)
@@ -188,7 +191,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         val userId = loggerUserId
         if (userId == null) {
-            return createUnauthorized("Unauthorized")
+            return createUnauthorized(UNAUTHORIZED)
         }
 
         val visitorSession = visitorSessionController.createVisitorSession(exhibition, payload.state, userId)
@@ -200,12 +203,12 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun findVisitorSession(exhibitionId: UUID?, visitorSessionId: UUID?): Response {
         if (exhibitionId == null || visitorSessionId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
         val userId = loggerUserId
         if (userId == null) {
-            return createUnauthorized("Unauthorized")
+            return createUnauthorized(UNAUTHORIZED)
         }
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)
@@ -223,12 +226,12 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun deleteVisitorSession(exhibitionId: UUID?, visitorSessionId: UUID?): Response {
         if (exhibitionId == null || visitorSessionId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
         val userId = loggerUserId
         if (userId == null) {
-            return createUnauthorized("Unauthorized")
+            return createUnauthorized(UNAUTHORIZED)
         }
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)
@@ -252,12 +255,12 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         }
 
         if (exhibitionId == null || visitorSessionId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
         val userId = loggerUserId
         if (userId == null) {
-            return createUnauthorized("Unauthorized")
+            return createUnauthorized(UNAUTHORIZED)
         }
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)
@@ -285,11 +288,11 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         }
 
         if (exhibitionId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val userId = loggerUserId ?: return createUnauthorized("Unauthorized")
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
 
         val exhibitionRoom = exhibitionRoomController.createExhibitionRoom(exhibition, payload.name, userId)
 
@@ -298,10 +301,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun findExhibitionRoom(exhibitionId: UUID?, roomId: UUID?): Response {
         if (exhibitionId == null || roomId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
-        loggerUserId ?: return createUnauthorized("Unauthorized")
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionRoom = exhibitionRoomController.findExhibitionRoomById(roomId) ?: return createNotFound("Room $roomId not found")
 
@@ -314,7 +317,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun listExhibitionRooms(exhibitionId: UUID?): Response {
         if (exhibitionId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
@@ -329,10 +332,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         }
 
         if (exhibitionId == null || roomId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
-        val userId = loggerUserId ?: return createUnauthorized("Unauthorized")
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionRoom = exhibitionRoomController.findExhibitionRoomById(roomId) ?: return createNotFound("Room $roomId not found")
@@ -343,10 +346,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun deleteExhibitionRoom(exhibitionId: UUID?, roomId: UUID?): Response {
         if (exhibitionId == null || roomId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
-        loggerUserId ?: return createUnauthorized("Unauthorized")
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionRoom = exhibitionRoomController.findExhibitionRoomById(roomId) ?: return createNotFound("Room $roomId not found")
 
@@ -367,7 +370,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         }
 
         if (exhibitionId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
         val exhibitionGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(payload.groupId)
@@ -376,7 +379,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         }
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val userId = loggerUserId ?: return createUnauthorized("Unauthorized")
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val location = payload.location
 
         val exhibitionDevice = exhibitionDeviceController.createExhibitionDevice(exhibition, exhibitionGroup, payload.name, location, userId)
@@ -386,10 +389,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun findExhibitionDevice(exhibitionId: UUID?, deviceId: UUID?): Response {
         if (exhibitionId == null || deviceId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
-        loggerUserId ?: return createUnauthorized("Unauthorized")
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(deviceId) ?: return createNotFound("Device $deviceId not found")
 
@@ -402,7 +405,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun listExhibitionDevices(exhibitionId: UUID?, exhibitionDeviceGroupId: UUID?): Response {
         if (exhibitionId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
@@ -423,7 +426,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         }
 
         if (exhibitionId == null || deviceId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
         val exhibitionGroup: fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup?
@@ -434,7 +437,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             }
         }
 
-        val userId = loggerUserId ?: return createUnauthorized("Unauthorized")
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(deviceId) ?: return createNotFound("Device $deviceId not found")
@@ -446,10 +449,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun deleteExhibitionDevice(exhibitionId: UUID?, deviceId: UUID?): Response {
         if (exhibitionId == null || deviceId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
-        loggerUserId ?: return createUnauthorized("Unauthorized")
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(deviceId) ?: return createNotFound("Device $deviceId not found")
 
@@ -466,11 +469,11 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         }
 
         if (exhibitionId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val userId = loggerUserId ?: return createUnauthorized("Unauthorized")
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.createExhibitionDeviceGroup(exhibition, payload.name, userId)
 
         return createOk(exhibitionDeviceGroupTranslator.translate(exhibitionDeviceGroup))
@@ -478,10 +481,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun findExhibitionDeviceGroup(exhibitionId: UUID?, deviceGroupId: UUID?): Response {
         if (exhibitionId == null || deviceGroupId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
-        loggerUserId ?: return createUnauthorized("Unauthorized")
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createNotFound("Room $deviceGroupId not found")
 
@@ -494,7 +497,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun listExhibitionDeviceGroups(exhibitionId: UUID?): Response {
         if (exhibitionId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
@@ -509,10 +512,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         }
 
         if (exhibitionId == null || deviceGroupId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
-        val userId = loggerUserId ?: return createUnauthorized("Unauthorized")
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createNotFound("Room $deviceGroupId not found")
@@ -523,10 +526,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun deleteExhibitionDeviceGroup(exhibitionId: UUID?, deviceGroupId: UUID?): Response {
         if (exhibitionId == null || deviceGroupId == null) {
-            return createNotFound("Exhibition not found")
+            return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
-        loggerUserId ?: return createUnauthorized("Unauthorized")
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createNotFound("Room $deviceGroupId not found")
 
@@ -534,4 +537,5 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         return createNoContent()
     }
+
 }
