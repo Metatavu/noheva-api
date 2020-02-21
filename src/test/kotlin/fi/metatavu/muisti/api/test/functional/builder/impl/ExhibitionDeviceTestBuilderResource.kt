@@ -6,6 +6,7 @@ import fi.metatavu.muisti.api.client.apis.ExhibitionDevicesApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.ExhibitionDevice
+import fi.metatavu.muisti.api.client.models.Point
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -27,7 +28,7 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: AbstractTestBuilder<ApiCl
      * @return created exhibition Device
      */
     fun create(exhibitionId: UUID, groupId: UUID): ExhibitionDevice {
-        return create(exhibitionId, groupId,"default device")
+        return create(exhibitionId, groupId,"default device", null)
     }
 
     /**
@@ -36,10 +37,11 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: AbstractTestBuilder<ApiCl
      * @param exhibitionId exhibition id
      * @param groupId group id
      * @param name name
+     * @param location location
      * @return created exhibition Device
      */
-    fun create(exhibitionId: UUID, groupId: UUID, name: String): ExhibitionDevice {
-        val payload = ExhibitionDevice(groupId, name, null, exhibitionId)
+    fun create(exhibitionId: UUID, groupId: UUID, name: String, location: Point?): ExhibitionDevice {
+        val payload = ExhibitionDevice(groupId, name, null, exhibitionId, location)
         val result: ExhibitionDevice = this.getApi().createExhibitionDevice(exhibitionId, payload)
         addClosable(result)
         return result
@@ -167,10 +169,11 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: AbstractTestBuilder<ApiCl
      * @param exhibitionId exhibition id
      * @param groupId group id
      * @param name name
+     * @param location location
      */
-    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, groupId: UUID, name: String) {
+    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, groupId: UUID, name: String, location: Point?) {
         try {
-            create(exhibitionId, groupId, name)
+            create(exhibitionId, groupId, name, location)
             fail(String.format("Expected create to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)

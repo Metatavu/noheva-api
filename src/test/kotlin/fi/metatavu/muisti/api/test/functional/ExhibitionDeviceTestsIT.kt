@@ -1,6 +1,7 @@
 package fi.metatavu.muisti.api.test.functional
 
 import fi.metatavu.muisti.api.client.models.ExhibitionDevice
+import fi.metatavu.muisti.api.client.models.Point
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -19,8 +20,8 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
-            assertNotNull(it.admin().exhibitionDevices().create(exhibitionId, group.id!!, "name"))
-            it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, UUID.randomUUID(), "name")
+            assertNotNull(it.admin().exhibitionDevices().create(exhibitionId, group.id!!, "name", null))
+            it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, UUID.randomUUID(), "name", null)
         }
    }
 
@@ -78,18 +79,22 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val group1 = it.admin().exhibitionDeviceGroups().create(exhibitionId)
             val nonExistingGroupId = UUID.randomUUID()
 
-            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, group1.id!!, "created name")
+            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, group1.id!!, "created name", Point(-123.0, 234.0))
             val createdExhibitionDeviceId = createdExhibitionDevice.id!!
 
             val foundCreatedExhibitionDevice = it.admin().exhibitionDevices().findExhibitionDevice(exhibitionId, createdExhibitionDeviceId)
             assertEquals(createdExhibitionDevice.id, foundCreatedExhibitionDevice?.id)
             assertEquals("created name", createdExhibitionDevice.name)
+            assertEquals(-123.0, createdExhibitionDevice.location?.x)
+            assertEquals(234.0, createdExhibitionDevice.location?.y)
 
-            val updatedExhibitionDevice = it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId, ExhibitionDevice(group1.id!!, "updated name", createdExhibitionDeviceId))
+            val updatedExhibitionDevice = it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId, ExhibitionDevice(group1.id!!, "updated name", createdExhibitionDeviceId, exhibitionId, Point(123.2, -234.4)))
             val foundUpdatedExhibitionDevice = it.admin().exhibitionDevices().findExhibitionDevice(exhibitionId, createdExhibitionDeviceId)
 
             assertEquals(updatedExhibitionDevice!!.id, foundUpdatedExhibitionDevice?.id)
             assertEquals("updated name", updatedExhibitionDevice.name)
+            assertEquals(123.2, updatedExhibitionDevice.location?.x)
+            assertEquals(-234.4, updatedExhibitionDevice.location?.y)
 
             it.admin().exhibitionDevices().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDevice(group1.id!!, "name", createdExhibitionDeviceId))
             it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, ExhibitionDevice(nonExistingGroupId, "updated name", createdExhibitionDeviceId))

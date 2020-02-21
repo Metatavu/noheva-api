@@ -27,16 +27,20 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
      * @param exhibition exhibition
      * @param exhibitionDeviceGroup exhibitionDeviceGroup
      * @param name name
+     * @param locationX location x
+     * @param locationY location y
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created exhibitionDevice
      */
-    fun create(id: UUID, exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, name: String, creatorId: UUID, lastModifierId: UUID): ExhibitionDevice {
+    fun create(id: UUID, exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, name: String, locationX: Double?, locationY: Double?, creatorId: UUID, lastModifierId: UUID): ExhibitionDevice {
         val exhibitionDevice = ExhibitionDevice()
         exhibitionDevice.id = id
         exhibitionDevice.name = name
         exhibitionDevice.exhibition = exhibition
         exhibitionDevice.exhibitionDeviceGroup = exhibitionDeviceGroup
+        exhibitionDevice.locationX = locationX
+        exhibitionDevice.locationY = locationY
         exhibitionDevice.creatorId = creatorId
         exhibitionDevice.lastModifierId = lastModifierId
         return persist(exhibitionDevice)
@@ -79,6 +83,32 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
     fun updateName(exhibitionDevice: ExhibitionDevice, name: String, lastModifierId: UUID): ExhibitionDevice {
         exhibitionDevice.lastModifierId = lastModifierId
         exhibitionDevice.name = name
+        return persist(exhibitionDevice)
+    }
+
+    /**
+     * Updates location x
+     *
+     * @param locationX location X
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionDevice
+     */
+    fun updateLocationX(exhibitionDevice: ExhibitionDevice, locationX: Double?, lastModifierId: UUID): ExhibitionDevice {
+        exhibitionDevice.lastModifierId = lastModifierId
+        exhibitionDevice.locationX = locationX
+        return persist(exhibitionDevice)
+    }
+
+    /**
+     * Updates location y
+     *
+     * @param locationY location y
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionDevice
+     */
+    fun updateLocationY(exhibitionDevice: ExhibitionDevice, locationY: Double?, lastModifierId: UUID): ExhibitionDevice {
+        exhibitionDevice.lastModifierId = lastModifierId
+        exhibitionDevice.locationY = locationY
         return persist(exhibitionDevice)
     }
 

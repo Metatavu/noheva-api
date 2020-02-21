@@ -26,6 +26,10 @@ class ExhibitionDevice {
     @Column(nullable = false)
     var name: String? = null
 
+    var locationX: Double? = null
+
+    var locationY: Double? = null
+
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null
 
