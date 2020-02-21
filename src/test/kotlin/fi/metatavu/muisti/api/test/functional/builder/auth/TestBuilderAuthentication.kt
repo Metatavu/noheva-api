@@ -5,10 +5,7 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.jaxrs.test.functional.builder.auth.AuthorizedTestBuilderAuthentication
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.test.functional.builder.impl.FileTestBuilderResource
-import fi.metatavu.muisti.api.test.functional.impl.ExhibitionDeviceGroupTestBuilderResource
-import fi.metatavu.muisti.api.test.functional.impl.ExhibitionRoomTestBuilderResource
-import fi.metatavu.muisti.api.test.functional.impl.ExhibitionsTestBuilderResource
-import fi.metatavu.muisti.api.test.functional.impl.VisitorSessionTestBuilderResource
+import fi.metatavu.muisti.api.test.functional.impl.*
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import java.io.IOException
 
@@ -29,6 +26,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   private var visitorSessions: VisitorSessionTestBuilderResource? = null
   private var exhibitionRooms: ExhibitionRoomTestBuilderResource? = null
   private var exhibitionDeviceGroups: ExhibitionDeviceGroupTestBuilderResource? = null
+  private var exhibitionDevices: ExhibitionDeviceTestBuilderResource? = null
   private var files: FileTestBuilderResource? = null
 
   /**
@@ -74,6 +72,21 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
     }
 
     return exhibitionRooms!!
+  }
+
+  /**
+   * Returns test builder resource for exhibitionDevices
+   *
+   * @return test builder resource for exhibitionDevices
+   * @throws IOException thrown when authentication fails
+   */
+  @kotlin.jvm.Throws(IOException::class)
+  fun exhibitionDevices(): ExhibitionDeviceTestBuilderResource {
+    if (exhibitionDevices == null) {
+      exhibitionDevices = ExhibitionDeviceTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+    }
+
+    return exhibitionDevices!!
   }
 
   /**
