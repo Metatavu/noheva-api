@@ -5,6 +5,7 @@ import fi.metatavu.muisti.api.spec.model.*
 import fi.metatavu.muisti.api.translate.*
 import fi.metatavu.muisti.devices.ExhibitionDeviceController
 import fi.metatavu.muisti.devices.ExhibitionDeviceGroupController
+import fi.metatavu.muisti.devices.ExhibitionDeviceModelController
 import fi.metatavu.muisti.exhibitions.ExhibitionController
 import fi.metatavu.muisti.exhibitions.ExhibitionRoomController
 import fi.metatavu.muisti.sessions.VisitorSessionController
@@ -61,6 +62,12 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     @Inject
     private lateinit var exhibitionDeviceTranslator: ExhibitionDeviceTranslator
+
+    @Inject
+    private lateinit var exhibitionDeviceModelController: ExhibitionDeviceModelController
+
+    @Inject
+    private lateinit var exhibitionDeviceModelTranslator: ExhibitionDeviceModelTranslator
 
     /* Exhibitions */
 
@@ -373,16 +380,13 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
-        val exhibitionGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(payload.groupId)
-        if (exhibitionGroup == null) {
-            return createBadRequest("Invalid exhibition group id ${payload.groupId}")
-        }
-
+        val exhibitionGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(payload.groupId) ?: return createBadRequest("Invalid exhibition group id ${payload.groupId}")
+        val model = exhibitionDeviceModelController.findExhibitionDeviceModelById(payload.modelId) ?: return createBadRequest("Device model $payload.modelId not found")
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val location = payload.location
 
-        val exhibitionDevice = exhibitionDeviceController.createExhibitionDevice(exhibition, exhibitionGroup, payload.name, location, userId)
+        val exhibitionDevice = exhibitionDeviceController.createExhibitionDevice(exhibition, exhibitionGroup, model, payload.name, location, userId)
 
         return createOk(exhibitionDeviceTranslator.translate(exhibitionDevice))
     }
@@ -437,12 +441,13 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             }
         }
 
+        val model = exhibitionDeviceModelController.findExhibitionDeviceModelById(payload.modelId) ?: return createBadRequest("Device model $payload.modelId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(deviceId) ?: return createNotFound("Device $deviceId not found")
         val location = payload.location
-        val result = exhibitionDeviceController.updateExhibitionDevice(exhibitionDevice, payload.name, location, userId)
+        val result = exhibitionDeviceController.updateExhibitionDevice(exhibitionDevice, model, payload.name, location, userId)
 
         return createOk(exhibitionDeviceTranslator.translate(result))
     }
@@ -537,5 +542,98 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         return createNoContent()
     }
+
+    /* Device models */
+
+    override fun createExhibitionDeviceModel(exhibitionId: UUID?, payload: ExhibitionDeviceModel?): Response {
+        if (payload == null) {
+            return createBadRequest("Missing request body")
+        }
+
+        if (exhibitionId == null) {
+            return createNotFound(EXHIBITION_NOT_FOUND)
+        }
+
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val manufacturer = payload.manufacturer
+        val model = payload.model
+        val dimensionWidth = payload.dimensions.width
+        val dimensionHeight = payload.dimensions.height
+        val resolutionX = payload.resolution.x
+        val resolutionY = payload.resolution.y
+        val capabilityTouch = payload.capabilities.touch
+
+        val exhibitionDeviceModel = exhibitionDeviceModelController.createExhibitionDeviceModel(exhibition, manufacturer, model, dimensionWidth, dimensionHeight, resolutionX, resolutionY, capabilityTouch, userId)
+
+        return createOk(exhibitionDeviceModelTranslator.translate(exhibitionDeviceModel))
+    }
+
+    override fun findExhibitionDeviceModel(exhibitionId: UUID?, deviceModelId: UUID?): Response {
+        if (exhibitionId == null || deviceModelId == null) {
+            return createNotFound(EXHIBITION_NOT_FOUND)
+        }
+
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibitionDeviceModel = exhibitionDeviceModelController.findExhibitionDeviceModelById(deviceModelId) ?: return createNotFound("Room $deviceModelId not found")
+
+        if (!exhibitionDeviceModel.exhibition?.id?.equals(exhibition.id)!!) {
+            return createNotFound("Room not found")
+        }
+
+        return createOk(exhibitionDeviceModelTranslator.translate(exhibitionDeviceModel))
+    }
+
+    override fun listExhibitionDeviceModels(exhibitionId: UUID?): Response {
+        if (exhibitionId == null) {
+            return createNotFound(EXHIBITION_NOT_FOUND)
+        }
+
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibitionDeviceModels = exhibitionDeviceModelController.listExhibitionDeviceModels(exhibition)
+
+        return createOk(exhibitionDeviceModels.map (exhibitionDeviceModelTranslator::translate))
+    }
+
+    override fun updateExhibitionDeviceModel(exhibitionId: UUID?, deviceModelId: UUID?, payload: ExhibitionDeviceModel?): Response {
+        if (payload == null) {
+            return createBadRequest("Missing request body")
+        }
+
+        if (exhibitionId == null || deviceModelId == null) {
+            return createNotFound(EXHIBITION_NOT_FOUND)
+        }
+
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val manufacturer = payload.manufacturer
+        val model = payload.model
+        val dimensionWidth = payload.dimensions.width
+        val dimensionHeight = payload.dimensions.height
+        val resolutionX = payload.resolution.x
+        val resolutionY = payload.resolution.y
+        val capabilityTouch = payload.capabilities.touch
+
+        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibitionDeviceModel = exhibitionDeviceModelController.findExhibitionDeviceModelById(deviceModelId) ?: return createNotFound("Room $deviceModelId not found")
+        val result = exhibitionDeviceModelController.updateExhibitionDeviceModel(exhibitionDeviceModel, manufacturer, model, dimensionWidth, dimensionHeight, resolutionX, resolutionY, capabilityTouch, userId)
+
+        return createOk(exhibitionDeviceModelTranslator.translate(result))
+    }
+
+    override fun deleteExhibitionDeviceModel(exhibitionId: UUID?, deviceModelId: UUID?): Response {
+        if (exhibitionId == null || deviceModelId == null) {
+            return createNotFound(EXHIBITION_NOT_FOUND)
+        }
+
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibitionDeviceModel = exhibitionDeviceModelController.findExhibitionDeviceModelById(deviceModelId) ?: return createNotFound("Room $deviceModelId not found")
+
+        exhibitionDeviceModelController.deleteExhibitionDeviceModel(exhibitionDeviceModel)
+
+        return createNoContent()
+    }
+
 
 }

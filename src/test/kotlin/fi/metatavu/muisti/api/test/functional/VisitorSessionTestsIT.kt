@@ -108,7 +108,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
             val updateUsers = arrayOf(VisitorSessionUser(visitor3Id, visitor3Tag), VisitorSessionUser(visitor2Id, visitor2Tag))
             val updateVariables = arrayOf(VisitorSessionVariable("key3", "val3"), VisitorSessionVariable("key2", "val2"))
-            val updatedVisitorSession = it.admin().visitorSessions().updateVisitorSession(exhibitionId, VisitorSession(updateUsers, createdVisitorSessionId, exhibitionId, VisitorSessionState.cOMPLETE, updateVariables, exhibitionId))
+            val updatedVisitorSession = it.admin().visitorSessions().updateVisitorSession(exhibitionId, VisitorSession(VisitorSessionState.cOMPLETE, updateUsers, createdVisitorSessionId, exhibitionId, updateVariables, exhibitionId))
             val foundUpdatedVisitorSession = it.admin().visitorSessions().findVisitorSession(exhibitionId, createdVisitorSessionId)
 
             assertEquals(updatedVisitorSession!!.id, foundUpdatedVisitorSession?.id)
@@ -120,7 +120,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
             assertEquals("val3", updatedVisitorSession.variables!!.find { it.name.equals("key3") }!!.value)
             assertEquals("val2", updatedVisitorSession.variables!!.find { it.name.equals("key2") }!!.value)
 
-            it.admin().visitorSessions().assertUpdateFail(404, nonExistingExhibitionId, VisitorSession(createUsers, nonExistingExhibitionId, exhibitionId, VisitorSessionState.cOMPLETE, createVariables, exhibitionId))
+            it.admin().visitorSessions().assertUpdateFail(404, nonExistingExhibitionId, VisitorSession(VisitorSessionState.cOMPLETE, createUsers, nonExistingExhibitionId, exhibitionId, createVariables, exhibitionId))
         }
     }
 

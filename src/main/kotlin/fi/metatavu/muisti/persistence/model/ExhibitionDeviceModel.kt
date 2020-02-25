@@ -6,12 +6,12 @@ import javax.persistence.*
 import javax.validation.constraints.NotEmpty
 
 /**
- * JPA entity representing exhibition device
+ * JPA entity representing exhibition device group
  *
  * @author Antti Leppä
  */
 @Entity
-class ExhibitionDevice {
+class ExhibitionDeviceModel {
 
     @Id
     var id: UUID? = null
@@ -19,19 +19,24 @@ class ExhibitionDevice {
     @ManyToOne
     var exhibition: Exhibition? = null
 
-    @ManyToOne
-    var exhibitionDeviceGroup: ExhibitionDeviceGroup? = null
-
-    @ManyToOne
-    var exhibitionDeviceModel: ExhibitionDeviceModel? = null
+    @NotEmpty
+    @Column(nullable = false)
+    var manufacturer: String? = null
 
     @NotEmpty
     @Column(nullable = false)
-    var name: String? = null
+    var model: String? = null
 
-    var locationX: Double? = null
+    var dimensionWidth: Double? = null
 
-    var locationY: Double? = null
+    var dimensionHeight: Double? = null
+
+    var resolutionX: Double? = null
+
+    var resolutionY: Double? = null
+
+    @Column(nullable = false)
+    var capabilityTouch: Boolean = false
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null

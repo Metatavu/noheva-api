@@ -1,9 +1,6 @@
 package fi.metatavu.muisti.persistence.dao
 
-import fi.metatavu.muisti.persistence.model.Exhibition
-import fi.metatavu.muisti.persistence.model.ExhibitionDevice
-import fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup
-import fi.metatavu.muisti.persistence.model.ExhibitionDevice_
+import fi.metatavu.muisti.persistence.model.*
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
@@ -26,6 +23,7 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
      * @param id id
      * @param exhibition exhibition
      * @param exhibitionDeviceGroup exhibitionDeviceGroup
+     * @param exhibitionDeviceModel exhibitionDeviceModel
      * @param name name
      * @param locationX location x
      * @param locationY location y
@@ -33,12 +31,13 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
      * @param lastModifierId last modifier's id
      * @return created exhibitionDevice
      */
-    fun create(id: UUID, exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, name: String, locationX: Double?, locationY: Double?, creatorId: UUID, lastModifierId: UUID): ExhibitionDevice {
+    fun create(id: UUID, exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, exhibitionDeviceModel: ExhibitionDeviceModel, name: String, locationX: Double?, locationY: Double?, creatorId: UUID, lastModifierId: UUID): ExhibitionDevice {
         val exhibitionDevice = ExhibitionDevice()
         exhibitionDevice.id = id
         exhibitionDevice.name = name
         exhibitionDevice.exhibition = exhibition
         exhibitionDevice.exhibitionDeviceGroup = exhibitionDeviceGroup
+        exhibitionDevice.exhibitionDeviceModel = exhibitionDeviceModel
         exhibitionDevice.locationX = locationX
         exhibitionDevice.locationY = locationY
         exhibitionDevice.creatorId = creatorId
@@ -71,6 +70,20 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
 
         val query: TypedQuery<ExhibitionDevice> = entityManager.createQuery<ExhibitionDevice>(criteria)
         return query.getResultList()
+    }
+
+    /**
+     * Updates exhibition device model
+     *
+     * @param exhibitionDevice exhibitionDevice
+     * @param exhibitionDeviceModel model
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionDevice
+     */
+    fun updateExhibitionDeviceModel(exhibitionDevice: ExhibitionDevice, exhibitionDeviceModel: ExhibitionDeviceModel, lastModifierId: UUID): ExhibitionDevice {
+        exhibitionDevice.lastModifierId = lastModifierId
+        exhibitionDevice.exhibitionDeviceModel = exhibitionDeviceModel
+        return persist(exhibitionDevice)
     }
 
     /**
