@@ -42,7 +42,7 @@ class VisitorSessionTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      * @return created visitor session
      */
     fun create(exhibitionId: UUID, state: VisitorSessionState, users: Array<VisitorSessionUser>, variables: Array<VisitorSessionVariable>): VisitorSession {
-        val payload = VisitorSession(users, null, exhibitionId, state, variables, exhibitionId)
+        val payload = VisitorSession(state, users, null, exhibitionId, variables, exhibitionId)
         val result: VisitorSession = this.getApi().createVisitorSession(exhibitionId, payload)
         addClosable(result)
         return result

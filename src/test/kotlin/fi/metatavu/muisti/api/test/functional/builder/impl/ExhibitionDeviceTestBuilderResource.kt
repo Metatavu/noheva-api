@@ -27,8 +27,8 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: AbstractTestBuilder<ApiCl
      * @param groupId group id
      * @return created exhibition Device
      */
-    fun create(exhibitionId: UUID, groupId: UUID): ExhibitionDevice {
-        return create(exhibitionId, groupId,"default device", null)
+    fun create(exhibitionId: UUID, groupId: UUID, modelId: UUID): ExhibitionDevice {
+        return create(exhibitionId, groupId, modelId, "default device", null)
     }
 
     /**
@@ -40,8 +40,8 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: AbstractTestBuilder<ApiCl
      * @param location location
      * @return created exhibition Device
      */
-    fun create(exhibitionId: UUID, groupId: UUID, name: String, location: Point?): ExhibitionDevice {
-        val payload = ExhibitionDevice(groupId, name, null, exhibitionId, location)
+    fun create(exhibitionId: UUID, groupId: UUID, modelId: UUID, name: String, location: Point?): ExhibitionDevice {
+        val payload = ExhibitionDevice(groupId, modelId, name, null, exhibitionId, location)
         val result: ExhibitionDevice = this.getApi().createExhibitionDevice(exhibitionId, payload)
         addClosable(result)
         return result
@@ -167,13 +167,14 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: AbstractTestBuilder<ApiCl
      *
      * @param expectedStatus expected status
      * @param exhibitionId exhibition id
-     * @param groupId group id
+     * @param groupId group
+     * @param modelId model
      * @param name name
      * @param location location
      */
-    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, groupId: UUID, name: String, location: Point?) {
+    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, groupId: UUID, modelId: UUID, name: String, location: Point?) {
         try {
-            create(exhibitionId, groupId, name, location)
+            create(exhibitionId, groupId, modelId, name, location)
             fail(String.format("Expected create to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)

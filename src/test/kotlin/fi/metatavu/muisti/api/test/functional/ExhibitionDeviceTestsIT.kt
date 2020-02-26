@@ -20,8 +20,10 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
-            assertNotNull(it.admin().exhibitionDevices().create(exhibitionId, group.id!!, "name", null))
-            it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, UUID.randomUUID(), "name", null)
+            val model = it.admin().exhibitionDeviceModels().create(exhibitionId)
+            assertNotNull(it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!, "name", null))
+            it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, UUID.randomUUID(), model.id!!,"name", null)
+            it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, group.id!!, UUID.randomUUID(),"name", null)
         }
    }
 
@@ -31,9 +33,10 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
+            val model = it.admin().exhibitionDeviceModels().create(exhibitionId)
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingExhibitionDeviceId = UUID.randomUUID()
-            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, group.id!!)
+            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!)
             val createdExhibitionDeviceId = createdExhibitionDevice.id!!
 
             it.admin().exhibitionDevices().assertFindFail(404, exhibitionId, nonExistingExhibitionDeviceId)
@@ -50,12 +53,13 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val exhibitionId = exhibition.id!!
             val group1 = it.admin().exhibitionDeviceGroups().create(exhibitionId)
             val group2 = it.admin().exhibitionDeviceGroups().create(exhibitionId)
+            val model = it.admin().exhibitionDeviceModels().create(exhibitionId)
             val nonExistingExhibitionId = UUID.randomUUID()
 
             it.admin().exhibitionDevices().assertListFail(404, nonExistingExhibitionId, null)
             assertEquals(0, it.admin().exhibitionDevices().listExhibitionDevices(exhibitionId, null).size)
 
-            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, group1.id!!)
+            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, group1.id!!, model.id!!)
             val createdExhibitionDeviceId = createdExhibitionDevice.id!!
 
             it.admin().exhibitionDevices().assertCount(1, exhibitionId, null)
@@ -77,9 +81,12 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val group1 = it.admin().exhibitionDeviceGroups().create(exhibitionId)
+            val model1 = it.admin().exhibitionDeviceModels().create(exhibitionId)
+            val model2 = it.admin().exhibitionDeviceModels().create(exhibitionId)
             val nonExistingGroupId = UUID.randomUUID()
+            val nonExistingModelId = UUID.randomUUID()
 
-            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, group1.id!!, "created name", Point(-123.0, 234.0))
+            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, group1.id!!, model1.id!!,"created name", Point(-123.0, 234.0))
             val createdExhibitionDeviceId = createdExhibitionDevice.id!!
 
             val foundCreatedExhibitionDevice = it.admin().exhibitionDevices().findExhibitionDevice(exhibitionId, createdExhibitionDeviceId)
@@ -87,17 +94,20 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             assertEquals("created name", createdExhibitionDevice.name)
             assertEquals(-123.0, createdExhibitionDevice.location?.x)
             assertEquals(234.0, createdExhibitionDevice.location?.y)
+            assertEquals(model1.id, createdExhibitionDevice.modelId)
 
-            val updatedExhibitionDevice = it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId, ExhibitionDevice(group1.id!!, "updated name", createdExhibitionDeviceId, exhibitionId, Point(123.2, -234.4)))
+            val updatedExhibitionDevice = it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId, ExhibitionDevice(group1.id!!, model2.id!!, "updated name", createdExhibitionDeviceId, exhibitionId, Point(123.2, -234.4)))
             val foundUpdatedExhibitionDevice = it.admin().exhibitionDevices().findExhibitionDevice(exhibitionId, createdExhibitionDeviceId)
 
             assertEquals(updatedExhibitionDevice!!.id, foundUpdatedExhibitionDevice?.id)
             assertEquals("updated name", updatedExhibitionDevice.name)
             assertEquals(123.2, updatedExhibitionDevice.location?.x)
             assertEquals(-234.4, updatedExhibitionDevice.location?.y)
+            assertEquals(model2.id, updatedExhibitionDevice.modelId)
 
-            it.admin().exhibitionDevices().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDevice(group1.id!!, "name", createdExhibitionDeviceId))
-            it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, ExhibitionDevice(nonExistingGroupId, "updated name", createdExhibitionDeviceId))
+            it.admin().exhibitionDevices().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDevice(group1.id!!, model2.id!!,"name", createdExhibitionDeviceId))
+            it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, ExhibitionDevice(nonExistingGroupId, model2.id!!,"updated name", createdExhibitionDeviceId))
+            it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, ExhibitionDevice(group1.id!!, nonExistingModelId,"updated name", createdExhibitionDeviceId))
         }
     }
 
@@ -109,7 +119,8 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingSessionVariableId = UUID.randomUUID()
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
-            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, group.id!!)
+            val model = it.admin().exhibitionDeviceModels().create(exhibitionId)
+            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!)
             val createdExhibitionDeviceId = createdExhibitionDevice.id!!
 
             assertNotNull(it.admin().exhibitionDevices().findExhibitionDevice(exhibitionId, createdExhibitionDeviceId))

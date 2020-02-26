@@ -5,6 +5,7 @@ import fi.metatavu.muisti.persistence.dao.ExhibitionDeviceDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionDevice
 import fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup
+import fi.metatavu.muisti.persistence.model.ExhibitionDeviceModel
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -28,8 +29,8 @@ class ExhibitionDeviceController() {
      * @param creatorId creating user id
      * @return created exhibition device 
      */
-    fun createExhibitionDevice(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, name: String, location: Point?, creatorId: UUID): ExhibitionDevice {
-        return exhibitionDeviceDAO.create(UUID.randomUUID(), exhibition, exhibitionDeviceGroup, name, location?.x, location?.y, creatorId, creatorId)
+    fun createExhibitionDevice(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, exhibitionDeviceModel: ExhibitionDeviceModel, name: String, location: Point?, creatorId: UUID): ExhibitionDevice {
+        return exhibitionDeviceDAO.create(UUID.randomUUID(), exhibition, exhibitionDeviceGroup, exhibitionDeviceModel, name, location?.x, location?.y, creatorId, creatorId)
     }
 
     /**
@@ -57,13 +58,15 @@ class ExhibitionDeviceController() {
      * @param exhibitionDevice exhibition device  to be updated
      * @param name name
      * @param location location
+     * @param exhibitionDeviceModel model
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionDevice(exhibitionDevice: ExhibitionDevice, name: String, location: Point?, modifierId: UUID): ExhibitionDevice {
+    fun updateExhibitionDevice(exhibitionDevice: ExhibitionDevice, exhibitionDeviceModel: ExhibitionDeviceModel, name: String, location: Point?, modifierId: UUID): ExhibitionDevice {
       var result = exhibitionDeviceDAO.updateName(exhibitionDevice, name, modifierId)
       result = exhibitionDeviceDAO.updateLocationX(result, location?.x, modifierId)
       result = exhibitionDeviceDAO.updateLocationY(result, location?.y, modifierId)
+      result = exhibitionDeviceDAO.updateExhibitionDeviceModel(result, exhibitionDeviceModel, modifierId)
       return result
     }
 

@@ -166,4 +166,46 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="devicemodels" author="antti.leppa">
+        <createTable tableName="exhibitiondevicemodel">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="manufacturer" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="model" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="dimensionWidth" type="double"/>
+            <column name="dimensionHeight" type="double"/>
+            <column name="resolutionX" type="double"/>
+            <column name="resolutionY" type="double"/>
+            <column name="capabilityTouch" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exhibition_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_EXHIBITION_DEVICE_MODEL_EXHIBITION_ID" referencedColumnNames="id" referencedTableName="exhibition"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addColumn tableName="exhibitiondevice">
+            <column name="exhibitionDeviceModel_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_EXHIBITION_DEVICE_EXHIBITION_DEVICE_MODEL_ID" referencedColumnNames="id" referencedTableName="exhibitiondevicemodel"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
