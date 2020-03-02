@@ -30,7 +30,7 @@ class ExhibitionPageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<A
     fun create(exhibitionId: UUID): ExhibitionPageLayout {
         val properties: Array<ExhibitionPageLayoutViewProperty> = arrayOf()
         val children: Array<ExhibitionPageLayoutView> = arrayOf()
-        return create(exhibitionId, "default page layout", ExhibitionPageLayoutView(UUID.randomUUID(), "TextView", properties, children))
+        return create(exhibitionId, "default page layout", ExhibitionPageLayoutView("defaultid", "TextView", properties, children))
     }
 
     /**
