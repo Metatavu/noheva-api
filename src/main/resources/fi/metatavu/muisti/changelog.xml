@@ -237,4 +237,42 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="pages" author="antti.leppa">
+        <createTable tableName="exhibitionpage">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="resources" type="longtext">
+                <constraints nullable="false"/>
+            </column>
+            <column name="events" type="longtext">
+                <constraints nullable="false"/>
+            </column>
+            <column name="eventTriggers" type="longtext">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exhibition_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_EXHIBITION_PAGE_EXHIBITION_ID" referencedColumnNames="id" referencedTableName="exhibition"/>
+            </column>
+            <column name="layout_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_EXHIBITION_PAGE_LAYOUT_ID" referencedColumnNames="id" referencedTableName="exhibitionpagelayout"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>

@@ -29,6 +29,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   private var exhibitionDeviceModels: ExhibitionDeviceModelTestBuilderResource? = null
   private var exhibitionDevices: ExhibitionDeviceTestBuilderResource? = null
   private var exhibitionPageLayouts: ExhibitionPageLayoutTestBuilderResource? = null
+  private var exhibitionPages: ExhibitionPageTestBuilderResource? = null
   private var files: FileTestBuilderResource? = null
 
   /**
@@ -134,6 +135,21 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
     }
 
     return exhibitionPageLayouts!!
+  }
+
+  /**
+   * Returns test builder resource for exhibitionPages
+   *
+   * @return test builder resource for exhibitionPages
+   * @throws IOException thrown when authentication fails
+   */
+  @kotlin.jvm.Throws(IOException::class)
+  fun exhibitionPages(): ExhibitionPageTestBuilderResource {
+    if (exhibitionPages == null) {
+      exhibitionPages = ExhibitionPageTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+    }
+
+    return exhibitionPages!!
   }
 
   /**

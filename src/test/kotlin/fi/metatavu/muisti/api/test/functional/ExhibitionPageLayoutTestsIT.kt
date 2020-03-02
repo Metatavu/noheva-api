@@ -71,8 +71,8 @@ class ExhibitionPageLayoutTestsIT: AbstractFunctionalTest() {
             val nonExistingExhibitionId = UUID.randomUUID()
 
             val createdProperties = arrayOf(ExhibitionPageLayoutViewProperty("name", "true", ExhibitionPageLayoutViewPropertyType.boolean))
-            val createdChildren = arrayOf(ExhibitionPageLayoutView(UUID.randomUUID(), "child", arrayOf(), arrayOf()))
-            val createdData = ExhibitionPageLayoutView(UUID.randomUUID(), "created widget", createdProperties, createdChildren)
+            val createdChildren = arrayOf(ExhibitionPageLayoutView("childid", "child", arrayOf(), arrayOf()))
+            val createdData = ExhibitionPageLayoutView("rootid", "created widget", createdProperties, createdChildren)
 
             val createdExhibitionPageLayout = it.admin().exhibitionPageLayouts().create(exhibitionId, "created name", createdData)
             val createdExhibitionPageLayoutId = createdExhibitionPageLayout.id!!
@@ -91,7 +91,7 @@ class ExhibitionPageLayoutTestsIT: AbstractFunctionalTest() {
 
             val updatedProperties = arrayOf(ExhibitionPageLayoutViewProperty("uname", "str", ExhibitionPageLayoutViewPropertyType.string))
             val updatedChildren = arrayOf<ExhibitionPageLayoutView>()
-            val updatedData = ExhibitionPageLayoutView(UUID.randomUUID(), "updated widget", updatedProperties, updatedChildren)
+            val updatedData = ExhibitionPageLayoutView("updatedid", "updated widget", updatedProperties, updatedChildren)
 
             val updatedExhibitionPageLayout = it.admin().exhibitionPageLayouts().updateExhibitionPageLayout(exhibitionId, ExhibitionPageLayout("updated name", updatedData, createdExhibitionPageLayoutId))
             val foundUpdatedExhibitionPageLayout = it.admin().exhibitionPageLayouts().findExhibitionPageLayout(exhibitionId, createdExhibitionPageLayoutId)
