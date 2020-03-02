@@ -48,7 +48,7 @@ class ExhibitionPageController() {
     }
 
     /**
-     * Lists pages in an exhibitions
+     * Lists pages in an exhibition
      *
      * @returns all pages in an exhibition
      */
