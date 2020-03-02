@@ -521,10 +521,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionDeviceModel = exhibitionDeviceModelController.findExhibitionDeviceModelById(deviceModelId) ?: return createNotFound("Room $deviceModelId not found")
+        val exhibitionDeviceModel = exhibitionDeviceModelController.findExhibitionDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
 
         if (!exhibitionDeviceModel.exhibition?.id?.equals(exhibition.id)!!) {
-            return createNotFound("Room not found")
+            return createNotFound("Device model not found")
         }
 
         return createOk(exhibitionDeviceModelTranslator.translate(exhibitionDeviceModel))
@@ -560,7 +560,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val capabilityTouch = payload.capabilities.touch
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionDeviceModel = exhibitionDeviceModelController.findExhibitionDeviceModelById(deviceModelId) ?: return createNotFound("Room $deviceModelId not found")
+        val exhibitionDeviceModel = exhibitionDeviceModelController.findExhibitionDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
         val result = exhibitionDeviceModelController.updateExhibitionDeviceModel(exhibitionDeviceModel, manufacturer, model, dimensionWidth, dimensionHeight, resolutionX, resolutionY, capabilityTouch, userId)
 
         return createOk(exhibitionDeviceModelTranslator.translate(result))
@@ -573,7 +573,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionDeviceModel = exhibitionDeviceModelController.findExhibitionDeviceModelById(deviceModelId) ?: return createNotFound("Room $deviceModelId not found")
+        val exhibitionDeviceModel = exhibitionDeviceModelController.findExhibitionDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
 
         exhibitionDeviceModelController.deleteExhibitionDeviceModel(exhibitionDeviceModel)
 
@@ -600,7 +600,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         pageLayoutId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionPageLayout = exhibitionPageLayoutController.findExhibitionPageLayoutById(pageLayoutId) ?: return createNotFound("Room $pageLayoutId not found")
+        val exhibitionPageLayout = exhibitionPageLayoutController.findExhibitionPageLayoutById(pageLayoutId) ?: return createNotFound("Layout $pageLayoutId not found")
 
         if (!exhibitionPageLayout.exhibition?.id?.equals(exhibition.id)!!) {
             return createNotFound("Room not found")
@@ -627,7 +627,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val data = payload.data
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionPageLayout = exhibitionPageLayoutController.findExhibitionPageLayoutById(pageLayoutId) ?: return createNotFound("Room $pageLayoutId not found")
+        val exhibitionPageLayout = exhibitionPageLayoutController.findExhibitionPageLayoutById(pageLayoutId) ?: return createNotFound("Layout $pageLayoutId not found")
         val result = exhibitionPageLayoutController.updateExhibitionPageLayout(exhibitionPageLayout, name, data, userId)
 
         return createOk(exhibitionPageLayoutTranslator.translate(result))
@@ -638,7 +638,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         pageLayoutId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionPageLayout = exhibitionPageLayoutController.findExhibitionPageLayoutById(pageLayoutId) ?: return createNotFound("Room $pageLayoutId not found")
+        val exhibitionPageLayout = exhibitionPageLayoutController.findExhibitionPageLayoutById(pageLayoutId) ?: return createNotFound("Layout $pageLayoutId not found")
 
         exhibitionPageLayoutController.deleteExhibitionPageLayout(exhibitionPageLayout)
 
@@ -668,7 +668,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         pageId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionPage = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Room $pageId not found")
+        val exhibitionPage = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
 
         if (!exhibitionPage.exhibition?.id?.equals(exhibition.id)!!) {
             return createNotFound("Room not found")
@@ -698,7 +698,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val eventTriggers = payload.eventTriggers
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionPage = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Room $pageId not found")
+        val exhibitionPage = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
         val result = exhibitionPageController.updateExhibitionPage(exhibitionPage, layout, name, resources, events, eventTriggers, userId)
 
         return createOk(exhibitionPageTranslator.translate(result))
@@ -709,7 +709,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         pageId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionPage = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Room $pageId not found")
+        val exhibitionPage = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
 
         exhibitionPageController.deleteExhibitionPage(exhibitionPage)
 

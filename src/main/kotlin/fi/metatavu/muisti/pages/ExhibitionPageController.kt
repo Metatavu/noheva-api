@@ -48,12 +48,21 @@ class ExhibitionPageController() {
     }
 
     /**
-     * Lists page s in an exhibitions
+     * Lists pages in an exhibitions
      *
      * @returns all pages in an exhibition
      */
     fun listExhibitionPages(exhibition: Exhibition): List<ExhibitionPage> {
         return exhibitionPageDAO.listByExhibition(exhibition)
+    }
+
+    /**
+     * Lists pages by layout
+     *
+     * @returns all pages with given layout
+     */
+    fun listExhibitionLayoutPages(exhibitionPageLayout: ExhibitionPageLayout): List<ExhibitionPage> {
+        return exhibitionPageDAO.listByLayout(exhibitionPageLayout)
     }
 
     /**
@@ -69,12 +78,12 @@ class ExhibitionPageController() {
      * @return updated exhibition
      */
     fun updateExhibitionPage(exhibitionPage: ExhibitionPage, layout: ExhibitionPageLayout, name: String, resources: List<ExhibitionPageResource>, events: List<ExhibitionPageEvent>, eventTriggers:  ExhibitionPageEventTriggers, modifierId: UUID): ExhibitionPage {
-        exhibitionPageDAO.updateName(exhibitionPage, name, modifierId)
-        exhibitionPageDAO.updateLayout(exhibitionPage, layout, modifierId)
-        exhibitionPageDAO.updateResources(exhibitionPage, getDataAsString(resources), modifierId)
-        exhibitionPageDAO.updateEvents(exhibitionPage, getDataAsString(events), modifierId)
-        exhibitionPageDAO.updateEventTriggers(exhibitionPage, getDataAsString(eventTriggers), modifierId)
-        return exhibitionPage
+        var result = exhibitionPageDAO.updateName(exhibitionPage, name, modifierId)
+        result = exhibitionPageDAO.updateLayout(result, layout, modifierId)
+        result = exhibitionPageDAO.updateResources(result, getDataAsString(resources), modifierId)
+        result = exhibitionPageDAO.updateEvents(result, getDataAsString(events), modifierId)
+        result = exhibitionPageDAO.updateEventTriggers(result, getDataAsString(eventTriggers), modifierId)
+        return result
     }
 
     /**

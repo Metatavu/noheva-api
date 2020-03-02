@@ -16,6 +16,9 @@ import javax.inject.Inject
 class ExhibitionPageLayoutController() {
 
     @Inject
+    private lateinit var exhibitionPageController: ExhibitionPageController
+
+    @Inject
     private lateinit var exhibitionPageLayoutDAO: ExhibitionPageLayoutDAO
 
     /**
@@ -70,6 +73,9 @@ class ExhibitionPageLayoutController() {
      * @param exhibitionPageLayout exhibition page layout to be deleted
      */
     fun deleteExhibitionPageLayout(exhibitionPageLayout: ExhibitionPageLayout) {
+        exhibitionPageController.listExhibitionLayoutPages(exhibitionPageLayout)
+            .forEach(exhibitionPageController::deleteExhibitionPage)
+
         return exhibitionPageLayoutDAO.delete(exhibitionPageLayout)
     }
 

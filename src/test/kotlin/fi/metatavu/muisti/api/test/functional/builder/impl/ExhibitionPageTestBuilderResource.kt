@@ -5,15 +5,13 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.ExhibitionPagesApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
-import fi.metatavu.muisti.api.client.models.ExhibitionPage
-import fi.metatavu.muisti.api.client.models.ExhibitionPageEvent
-import fi.metatavu.muisti.api.client.models.ExhibitionPageEventTriggers
-import fi.metatavu.muisti.api.client.models.ExhibitionPageResource
+import fi.metatavu.muisti.api.client.models.*
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.slf4j.LoggerFactory
 import java.util.*
+
 
 /**
  * Test builder resource for handling exhibitionPages
@@ -30,22 +28,27 @@ class ExhibitionPageTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      * @return created exhibition Page
      */
     fun create(exhibitionId: UUID, layoutId: UUID): ExhibitionPage {
-        return create(exhibitionId, layoutId,"default page", arrayOf<ExhibitionPageResource>(), ExhibitionPageEventTriggers(), arrayOf<ExhibitionPageEvent>())
+        return create(exhibitionId, ExhibitionPage(
+            layoutId = layoutId,
+            name = "default page",
+            resources = arrayOf<ExhibitionPageResource>(),
+            events = arrayOf<ExhibitionPageEvent>(),
+            eventTriggers = ExhibitionPageEventTriggers(
+                click = arrayOf<ExhibitionPageEventClickTrigger>(),
+                timed = arrayOf<ExhibitionPageEventTimedTrigger>()
+            )
+        ))
     }
 
     /**
      * Creates new exhibition page
      *
      * @param exhibitionId exhibition id
-     * @param layoutId layout id
-     * @param name name
-     * @param resources resources
-     * @param events events
-     * @param eventTriggers eventTriggers
+     * @param payload payload
      * @return created exhibition page
      */
-    fun create(exhibitionId: UUID, layoutId: UUID, name: String, resources: Array<ExhibitionPageResource>, eventTriggers: ExhibitionPageEventTriggers, events: Array<ExhibitionPageEvent>): ExhibitionPage {
-        val result: ExhibitionPage = this.getApi().createExhibitionPage(exhibitionId, ExhibitionPage(layoutId, name, resources, eventTriggers, events))
+    fun create(exhibitionId: UUID, payload: ExhibitionPage): ExhibitionPage {
+        val result: ExhibitionPage = this.getApi().createExhibitionPage(exhibitionId, payload)
         addClosable(result)
         return result
     }
@@ -167,15 +170,11 @@ class ExhibitionPageTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      *
      * @param expectedStatus expected status
      * @param exhibitionId exhibition id
-     * @param layoutId layout id
-     * @param name name
-     * @param resources resources
-     * @param events events
-     * @param eventTriggers eventTriggers
+     * @param payload payload
      */
-    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, layoutId: UUID, name: String, resources: Array<ExhibitionPageResource>, eventTriggers: ExhibitionPageEventTriggers, events: Array<ExhibitionPageEvent>) {
+    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, payload: ExhibitionPage) {
         try {
-            create(exhibitionId, layoutId, name, resources, eventTriggers, events)
+            create(exhibitionId, payload)
             fail(String.format("Expected create to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)

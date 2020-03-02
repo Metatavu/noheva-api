@@ -64,6 +64,23 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
     }
 
     /**
+     * Lists ExhibitionPages by layout
+     *
+     * @param layout layout
+     * @return List of ExhibitionPages
+     */
+    fun listByLayout(layout: ExhibitionPageLayout): List<ExhibitionPage> {
+        val entityManager = getEntityManager()
+        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteria: CriteriaQuery<ExhibitionPage> = criteriaBuilder.createQuery(ExhibitionPage::class.java)
+        val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)
+        criteria.select(root)
+        criteria.where(criteriaBuilder.equal(root.get(ExhibitionPage_.layout), layout))
+        val query: TypedQuery<ExhibitionPage> = entityManager.createQuery<ExhibitionPage>(criteria)
+        return query.getResultList()
+    }
+
+    /**
      * Updates layout
      *
      * @param layout layout

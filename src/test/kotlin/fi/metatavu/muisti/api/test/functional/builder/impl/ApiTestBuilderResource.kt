@@ -2,7 +2,6 @@ package fi.metatavu.muisti.api.test.functional.impl
 
 import com.squareup.moshi.Moshi
 import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
-
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.Error
