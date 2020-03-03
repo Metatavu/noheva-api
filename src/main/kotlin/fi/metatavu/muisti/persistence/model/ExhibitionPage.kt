@@ -36,11 +36,6 @@ class ExhibitionPage {
     @Lob
     var eventTriggers: String? = null
 
-    @NotEmpty
-    @Column(nullable = false)
-    @Lob
-    var events: String? = null
-
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null
 

@@ -80,41 +80,35 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val navigatePage = it.admin().exhibitionPages().create(exhibitionId, createLayoutId)
             val navigatePageId = navigatePage.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
-            val createResource = ExhibitionPageResource("createresid","https://example.com/image.png")
+            val createResource = ExhibitionPageResource(
+                id = "createresid",
+                data = "https://example.com/image.png",
+                type = ExhibitionPageResourceType.image
+            )
+
             val createEvent = ExhibitionPageEvent(
-                id ="createeventid",
                 type = ExhibitionPageEventType.navigate,
                 properties = arrayOf(
                     ExhibitionPageEventProperty(
-                        name = ExhibitionPageEventPropertyName.navigatePageId,
-                        type = ExhibitionPageEventPropertyType.page,
+                        name = "pageId",
+                        type = ExhibitionPageEventPropertyType.string,
                         value = navigatePageId.toString()
                     )
                 )
             )
 
-            val createEventTriggerTimed = ExhibitionPageEventTimedTrigger(
-                id = "createtimedeventtriggerid",
-                eventId = "createeventid",
+            val createEventTrigger = ExhibitionPageEventTrigger(
+                events = arrayOf(createEvent),
+                clickViewId =  "createviewid",
                 delay = 0.0,
                 next = arrayOf()
-            )
-
-            val createEventTriggerClick = ExhibitionPageEventClickTrigger(
-                id = "createclicktriggerid",
-                eventId = "createeventid",
-                viewId =  "createviewid"
             )
 
             val createPage = ExhibitionPage(
                 layoutId = createLayoutId,
                 name = "create page",
                 resources = arrayOf(createResource),
-                events = arrayOf(createEvent),
-                eventTriggers = ExhibitionPageEventTriggers(
-                    click = arrayOf(createEventTriggerClick),
-                    timed = arrayOf(createEventTriggerTimed)
-                )
+                eventTriggers = arrayOf(createEventTrigger)
             )
 
             val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, createPage)
@@ -124,34 +118,31 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             assertEquals(createPage.name, createdExhibitionPage.name)
             assertEquals(createPage.layoutId, createdExhibitionPage.layoutId)
             assertJsonsEqual(createdExhibitionPage, foundCreatedExhibitionPage)
-            assertJsonsEqual(createPage.events, createdExhibitionPage.events)
             assertJsonsEqual(createPage.eventTriggers, createdExhibitionPage.eventTriggers)
             assertJsonsEqual(createPage.resources, createdExhibitionPage.resources)
 
-            val updateResource = ExhibitionPageResource("updateresid","https://example.com/updated.png")
+            val updateResource = ExhibitionPageResource(
+                id = "updateresid",
+                data = "https://example.com/updated.png",
+                type = ExhibitionPageResourceType.video
+            )
+
             val updateEvent = ExhibitionPageEvent(
-                    id ="updateeventid",
-                    type = ExhibitionPageEventType.hide,
-                    properties = arrayOf(
-                            ExhibitionPageEventProperty(
-                                    name = ExhibitionPageEventPropertyName.hideViewid,
-                                    type = ExhibitionPageEventPropertyType.view,
-                                    value = "updateview"
-                            )
+                type = ExhibitionPageEventType.hide,
+                properties = arrayOf(
+                    ExhibitionPageEventProperty(
+                        name = "background",
+                        type = ExhibitionPageEventPropertyType.color,
+                        value = "#fff"
                     )
+                )
             )
 
-            val updateEventTriggerTimed = ExhibitionPageEventTimedTrigger(
-                id = "updatetimedeventtriggerid",
-                eventId = "updateeventid",
-                delay = 1.0,
+            val updateEventTrigger = ExhibitionPageEventTrigger(
+                events = arrayOf(updateEvent),
+                clickViewId =  "updateviewid",
+                delay = 2.0,
                 next = arrayOf()
-            )
-
-            val updateEventTriggerClick = ExhibitionPageEventClickTrigger(
-                id = "updateclicktriggerid",
-                eventId = "updateeventid",
-                viewId =  "updateviewid"
             )
 
             val updatePage = ExhibitionPage(
@@ -159,11 +150,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 layoutId = updateLayoutId,
                 name = "update page",
                 resources = arrayOf(updateResource),
-                events = arrayOf(updateEvent),
-                eventTriggers = ExhibitionPageEventTriggers(
-                    click = arrayOf(updateEventTriggerClick),
-                    timed = arrayOf(updateEventTriggerTimed)
-                )
+                eventTriggers = arrayOf(updateEventTrigger)
             )
 
             val updatedExhibitionPage = it.admin().exhibitionPages().updateExhibitionPage(exhibitionId, updatePage)
@@ -174,7 +161,6 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             assertEquals(updatePage.name, updatedExhibitionPage!!.name)
             assertEquals(updatePage.layoutId, updatedExhibitionPage.layoutId)
             assertJsonsEqual(updatedExhibitionPage, updatedExhibitionPage)
-            assertJsonsEqual(updatePage.events, updatedExhibitionPage.events)
             assertJsonsEqual(updatePage.eventTriggers, updatedExhibitionPage.eventTriggers)
             assertJsonsEqual(updatePage.resources, updatedExhibitionPage.resources)
 

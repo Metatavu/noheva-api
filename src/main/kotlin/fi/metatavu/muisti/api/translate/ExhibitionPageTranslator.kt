@@ -2,8 +2,7 @@ package fi.metatavu.muisti.api.translate
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import fi.metatavu.muisti.api.spec.model.ExhibitionPageEvent
-import fi.metatavu.muisti.api.spec.model.ExhibitionPageEventTriggers
+import fi.metatavu.muisti.api.spec.model.ExhibitionPageEventTrigger
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageResource
 import javax.enterprise.context.ApplicationScoped
 
@@ -24,7 +23,6 @@ class ExhibitionPageTranslator: AbstractTranslator<fi.metatavu.muisti.persistenc
         result.layoutId = entity.layout?.id
         result.name = entity.name
         result.resources = getResources(entity.resources)
-        result.events = getEvents(entity.events)
         result.eventTriggers = getEventTriggers(entity.eventTriggers)
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
@@ -52,22 +50,10 @@ class ExhibitionPageTranslator: AbstractTranslator<fi.metatavu.muisti.persistenc
      * @param eventTriggers event triggers string
      * @return event triggers object
      */
-    private fun getEventTriggers(eventTriggers: String?): ExhibitionPageEventTriggers {
-        eventTriggers ?: return ExhibitionPageEventTriggers()
+    private fun getEventTriggers(eventTriggers: String?): List<ExhibitionPageEventTrigger> {
+        eventTriggers ?: return listOf()
         val objectMapper = ObjectMapper()
         return objectMapper.readValue(eventTriggers)
-    }
-
-    /**
-     * Reads events string as list of page events
-     *
-     * @param events events string
-     * @return JSON list of page events
-     */
-    private fun getEvents(events: String?): List<ExhibitionPageEvent> {
-        events ?: return listOf()
-        val objectMapper = ObjectMapper()
-        return objectMapper.readValue(events)
     }
 
 }

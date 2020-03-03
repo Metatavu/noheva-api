@@ -26,20 +26,18 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      * @param layout layout
      * @param name name
      * @param resources resources
-     * @param events events
      * @param eventTriggers event triggers
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created exhibitionPage
      */
-    fun create(id: UUID, exhibition: Exhibition, layout: ExhibitionPageLayout, name: String, resources: String, events: String, eventTriggers: String, creatorId: UUID, lastModifierId: UUID): ExhibitionPage {
+    fun create(id: UUID, exhibition: Exhibition, layout: ExhibitionPageLayout, name: String, resources: String, eventTriggers: String, creatorId: UUID, lastModifierId: UUID): ExhibitionPage {
         val exhibitionPage = ExhibitionPage()
         exhibitionPage.id = id
         exhibitionPage.layout = layout
         exhibitionPage.name = name
         exhibitionPage.eventTriggers = eventTriggers
         exhibitionPage.resources = resources
-        exhibitionPage.events = events
         exhibitionPage.exhibition = exhibition
         exhibitionPage.creatorId = creatorId
         exhibitionPage.lastModifierId = lastModifierId
@@ -116,19 +114,6 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
     fun updateResources(exhibitionPage: ExhibitionPage, resources: String, lastModifierId: UUID): ExhibitionPage {
         exhibitionPage.lastModifierId = lastModifierId
         exhibitionPage.resources = resources
-        return persist(exhibitionPage)
-    }
-
-    /**
-     * Updates events
-     *
-     * @param events events
-     * @param lastModifierId last modifier's id
-     * @return updated exhibitionPage
-     */
-    fun updateEvents(exhibitionPage: ExhibitionPage, events: String, lastModifierId: UUID): ExhibitionPage {
-        exhibitionPage.lastModifierId = lastModifierId
-        exhibitionPage.events = events
         return persist(exhibitionPage)
     }
 

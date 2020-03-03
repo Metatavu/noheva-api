@@ -1,8 +1,7 @@
 package fi.metatavu.muisti.pages
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import fi.metatavu.muisti.api.spec.model.ExhibitionPageEvent
-import fi.metatavu.muisti.api.spec.model.ExhibitionPageEventTriggers
+import fi.metatavu.muisti.api.spec.model.ExhibitionPageEventTrigger
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageResource
 import fi.metatavu.muisti.persistence.dao.ExhibitionPageDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
@@ -27,13 +26,12 @@ class ExhibitionPageController() {
      * @param layout layout
      * @param name name
      * @param resources resources
-     * @param events events
      * @param eventTriggers event triggers
      * @param creatorId creating user id
      * @return created exhibition page 
      */
-    fun createExhibitionPage(exhibition: Exhibition, layout: ExhibitionPageLayout, name: String, resources: List<ExhibitionPageResource>, events: List<ExhibitionPageEvent>, eventTriggers:  ExhibitionPageEventTriggers, creatorId: UUID): ExhibitionPage {
-        return exhibitionPageDAO.create(UUID.randomUUID(), exhibition, layout, name, getDataAsString(resources), getDataAsString(events), getDataAsString(eventTriggers), creatorId, creatorId)
+    fun createExhibitionPage(exhibition: Exhibition, layout: ExhibitionPageLayout, name: String, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, creatorId: UUID): ExhibitionPage {
+        return exhibitionPageDAO.create(UUID.randomUUID(), exhibition, layout, name, getDataAsString(resources), getDataAsString(eventTriggers), creatorId, creatorId)
     }
 
 
@@ -72,16 +70,14 @@ class ExhibitionPageController() {
      * @param layout layout
      * @param name name
      * @param resources resources
-     * @param events events
      * @param eventTriggers event triggers
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionPage(exhibitionPage: ExhibitionPage, layout: ExhibitionPageLayout, name: String, resources: List<ExhibitionPageResource>, events: List<ExhibitionPageEvent>, eventTriggers:  ExhibitionPageEventTriggers, modifierId: UUID): ExhibitionPage {
+    fun updateExhibitionPage(exhibitionPage: ExhibitionPage, layout: ExhibitionPageLayout, name: String, resources: List<ExhibitionPageResource>, eventTriggers: List<ExhibitionPageEventTrigger>, modifierId: UUID): ExhibitionPage {
         var result = exhibitionPageDAO.updateName(exhibitionPage, name, modifierId)
         result = exhibitionPageDAO.updateLayout(result, layout, modifierId)
         result = exhibitionPageDAO.updateResources(result, getDataAsString(resources), modifierId)
-        result = exhibitionPageDAO.updateEvents(result, getDataAsString(events), modifierId)
         result = exhibitionPageDAO.updateEventTriggers(result, getDataAsString(eventTriggers), modifierId)
         return result
     }

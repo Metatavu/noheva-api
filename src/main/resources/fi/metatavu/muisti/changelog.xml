@@ -275,4 +275,10 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="pagesdropevents" author="antti.leppa">
+        <dropColumn tableName="exhibitionpage">
+            <column name="events"/>
+        </dropColumn>
+    </changeSet>
+
 </databaseChangeLog>
