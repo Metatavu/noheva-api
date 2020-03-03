@@ -5,7 +5,7 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.ExhibitionPagesApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
-import fi.metatavu.muisti.api.client.models.*
+import fi.metatavu.muisti.api.client.models.ExhibitionPage
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -31,12 +31,8 @@ class ExhibitionPageTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
         return create(exhibitionId, ExhibitionPage(
             layoutId = layoutId,
             name = "default page",
-            resources = arrayOf<ExhibitionPageResource>(),
-            events = arrayOf<ExhibitionPageEvent>(),
-            eventTriggers = ExhibitionPageEventTriggers(
-                click = arrayOf<ExhibitionPageEventClickTrigger>(),
-                timed = arrayOf<ExhibitionPageEventTimedTrigger>()
-            )
+            resources = arrayOf(),
+            eventTriggers = arrayOf()
         ))
     }
 

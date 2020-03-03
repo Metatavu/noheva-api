@@ -655,10 +655,9 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val name = payload.name
         val resources = payload.resources
-        val events = payload.events
         val eventTriggers = payload.eventTriggers
 
-        val exhibitionPage = exhibitionPageController.createExhibitionPage(exhibition, layout, name, resources, events, eventTriggers, userId)
+        val exhibitionPage = exhibitionPageController.createExhibitionPage(exhibition, layout, name, resources, eventTriggers, userId)
 
         return createOk(exhibitionPageTranslator.translate(exhibitionPage))
     }
@@ -694,12 +693,11 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val layout = exhibitionPageLayoutController.findExhibitionPageLayoutById(payload.layoutId) ?: return createBadRequest("Layout $payload.layoutId not found")
         val name = payload.name
         val resources = payload.resources
-        val events = payload.events
         val eventTriggers = payload.eventTriggers
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionPage = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
-        val result = exhibitionPageController.updateExhibitionPage(exhibitionPage, layout, name, resources, events, eventTriggers, userId)
+        val result = exhibitionPageController.updateExhibitionPage(exhibitionPage, layout, name, resources, eventTriggers, userId)
 
         return createOk(exhibitionPageTranslator.translate(result))
     }
