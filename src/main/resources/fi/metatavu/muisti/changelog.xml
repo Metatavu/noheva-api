@@ -281,4 +281,12 @@
         </dropColumn>
     </changeSet>
 
+    <changeSet id="nonexhibitionpagelayouts" author="antti.leppa">
+        <dropForeignKeyConstraint baseTableName="exhibitionpage" constraintName="FK_EXHIBITION_PAGE_LAYOUT_ID"/>
+        <dropForeignKeyConstraint baseTableName="exhibitionpagelayout" constraintName="FK_EXHIBITION_PAGE_LAYOUT_EXHIBITION_ID"/>
+        <dropColumn tableName="exhibitionpagelayout" columnName="exhibition_id"/>
+        <renameTable oldTableName="exhibitionpagelayout" newTableName="pagelayout" />
+        <addForeignKeyConstraint baseTableName="exhibitionpage" baseColumnNames="layout_id" constraintName="FK_PAGE_LAYOUT_ID" referencedTableName="pagelayout" referencedColumnNames="id"/>
+    </changeSet>
+
 </databaseChangeLog>

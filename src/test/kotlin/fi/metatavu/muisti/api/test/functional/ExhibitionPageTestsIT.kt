@@ -18,7 +18,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
         TestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
-            val layout = it.admin().exhibitionPageLayouts().create(exhibitionId)
+            val layout = it.admin().pageLayouts().create(exhibitionId)
             val layoutId = layout.id!!
             val createdExhibitionPage = it.admin().exhibitionPages().create(exhibition.id!!, layoutId)
             assertNotNull(createdExhibitionPage)
@@ -31,7 +31,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
         TestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
-            val layout = it.admin().exhibitionPageLayouts().create(exhibitionId)
+            val layout = it.admin().pageLayouts().create(exhibitionId)
             val layoutId = layout.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingExhibitionPageId = UUID.randomUUID()
@@ -50,7 +50,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
         TestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
-            val layout = it.admin().exhibitionPageLayouts().create(exhibitionId)
+            val layout = it.admin().pageLayouts().create(exhibitionId)
             val layoutId = layout.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
 
@@ -72,9 +72,9 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
         TestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
-            val createLayout = it.admin().exhibitionPageLayouts().create(exhibitionId)
+            val createLayout = it.admin().pageLayouts().create(exhibitionId)
             val createLayoutId = createLayout.id!!
-            val updateLayout = it.admin().exhibitionPageLayouts().create(exhibitionId)
+            val updateLayout = it.admin().pageLayouts().create(exhibitionId)
             val updateLayoutId = updateLayout.id!!
 
             val navigatePage = it.admin().exhibitionPages().create(exhibitionId, createLayoutId)
@@ -174,7 +174,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
         TestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
-            val layout = it.admin().exhibitionPageLayouts().create(exhibitionId)
+            val layout = it.admin().pageLayouts().create(exhibitionId)
             val layoutId = layout.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingSessionVariableId = UUID.randomUUID()

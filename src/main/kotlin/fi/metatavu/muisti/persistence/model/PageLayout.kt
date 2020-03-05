@@ -11,7 +11,7 @@ import javax.validation.constraints.NotEmpty
  * @author Antti Leppä
  */
 @Entity
-class ExhibitionPageLayout {
+class PageLayout {
 
     @Id
     var id: UUID? = null

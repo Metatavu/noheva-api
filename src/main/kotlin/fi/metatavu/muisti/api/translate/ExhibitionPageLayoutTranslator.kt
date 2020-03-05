@@ -1,21 +1,21 @@
 package fi.metatavu.muisti.api.translate
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import fi.metatavu.muisti.api.spec.model.ExhibitionPageLayoutView
+import fi.metatavu.muisti.api.spec.model.PageLayoutView
 import javax.enterprise.context.ApplicationScoped
 
 /**
  * Translator for translating JPA exhibition page layout entities into REST resources
  */
 @ApplicationScoped
-class ExhibitionPageLayoutTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.ExhibitionPageLayout, fi.metatavu.muisti.api.spec.model.ExhibitionPageLayout>() {
+class PageLayoutTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.PageLayout, fi.metatavu.muisti.api.spec.model.PageLayout>() {
 
-    override fun translate(entity: fi.metatavu.muisti.persistence.model.ExhibitionPageLayout?): fi.metatavu.muisti.api.spec.model.ExhibitionPageLayout? {
+    override fun translate(entity: fi.metatavu.muisti.persistence.model.PageLayout?): fi.metatavu.muisti.api.spec.model.PageLayout? {
         if (entity == null) {
             return null
         }
 
-        val result = fi.metatavu.muisti.api.spec.model.ExhibitionPageLayout()
+        val result = fi.metatavu.muisti.api.spec.model.PageLayout()
         result.id = entity.id
         result.exhibitionId = entity.exhibition?.id
         result.name = entity.name
@@ -34,9 +34,9 @@ class ExhibitionPageLayoutTranslator: AbstractTranslator<fi.metatavu.muisti.pers
      * @param data view
      * @return JSON string
      */
-    private fun getData(data: String?): ExhibitionPageLayoutView {
+    private fun getData(data: String?): PageLayoutView {
         val objectMapper = ObjectMapper()
-        return objectMapper.readValue(data, ExhibitionPageLayoutView::class.java)
+        return objectMapper.readValue(data, PageLayoutView::class.java)
     }
 
 }

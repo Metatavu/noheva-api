@@ -1,8 +1,8 @@
 package fi.metatavu.muisti.persistence.dao
 
 import fi.metatavu.muisti.persistence.model.Exhibition
-import fi.metatavu.muisti.persistence.model.ExhibitionPageLayout
-import fi.metatavu.muisti.persistence.model.ExhibitionPageLayout_
+import fi.metatavu.muisti.persistence.model.PageLayout
+import fi.metatavu.muisti.persistence.model.PageLayout_
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
@@ -10,15 +10,15 @@ import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.Root
 
 /**
- * DAO class for ExhibitionPageLayout
+ * DAO class for PageLayout
  *
  * @author Antti Leppä
  */
 @ApplicationScoped
-class ExhibitionPageLayoutDAO() : AbstractDAO<ExhibitionPageLayout>() {
+class PageLayoutDAO() : AbstractDAO<PageLayout>() {
 
     /**
-     * Creates new ExhibitionPageLayout
+     * Creates new PageLayout
      *
      * @param id id
      * @param exhibition exhibition
@@ -26,33 +26,33 @@ class ExhibitionPageLayoutDAO() : AbstractDAO<ExhibitionPageLayout>() {
      * @param data data
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
-     * @return created exhibitionPageLayout
+     * @return created pageLayout
      */
-    fun create(id: UUID, exhibition: Exhibition, name: String, data: String, creatorId: UUID, lastModifierId: UUID): ExhibitionPageLayout {
-        val exhibitionPageLayout = ExhibitionPageLayout()
-        exhibitionPageLayout.id = id
-        exhibitionPageLayout.name = name
-        exhibitionPageLayout.data = data
-        exhibitionPageLayout.exhibition = exhibition
-        exhibitionPageLayout.creatorId = creatorId
-        exhibitionPageLayout.lastModifierId = lastModifierId
-        return persist(exhibitionPageLayout)
+    fun create(id: UUID, exhibition: Exhibition, name: String, data: String, creatorId: UUID, lastModifierId: UUID): PageLayout {
+        val pageLayout = PageLayout()
+        pageLayout.id = id
+        pageLayout.name = name
+        pageLayout.data = data
+        pageLayout.exhibition = exhibition
+        pageLayout.creatorId = creatorId
+        pageLayout.lastModifierId = lastModifierId
+        return persist(pageLayout)
     }
 
     /**
-     * Lists ExhibitionPageLayouts by exhibition
+     * Lists PageLayouts by exhibition
      *
      * @param exhibition exhibition
-     * @return List of ExhibitionPageLayouts
+     * @return List of PageLayouts
      */
-    fun listByExhibition(exhibition: Exhibition): List<ExhibitionPageLayout> {
+    fun listByExhibition(exhibition: Exhibition): List<PageLayout> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
-        val criteria: CriteriaQuery<ExhibitionPageLayout> = criteriaBuilder.createQuery(ExhibitionPageLayout::class.java)
-        val root: Root<ExhibitionPageLayout> = criteria.from(ExhibitionPageLayout::class.java)
+        val criteria: CriteriaQuery<PageLayout> = criteriaBuilder.createQuery(PageLayout::class.java)
+        val root: Root<PageLayout> = criteria.from(PageLayout::class.java)
         criteria.select(root)
-        criteria.where(criteriaBuilder.equal(root.get(ExhibitionPageLayout_.exhibition), exhibition))
-        val query: TypedQuery<ExhibitionPageLayout> = entityManager.createQuery<ExhibitionPageLayout>(criteria)
+        criteria.where(criteriaBuilder.equal(root.get(PageLayout_.exhibition), exhibition))
+        val query: TypedQuery<PageLayout> = entityManager.createQuery<PageLayout>(criteria)
         return query.getResultList()
     }
 
@@ -61,12 +61,12 @@ class ExhibitionPageLayoutDAO() : AbstractDAO<ExhibitionPageLayout>() {
      *
      * @param name name
      * @param lastModifierId last modifier's id
-     * @return updated exhibitionPageLayout
+     * @return updated pageLayout
      */
-    fun updateName(exhibitionPageLayout: ExhibitionPageLayout, name: String, lastModifierId: UUID): ExhibitionPageLayout {
-        exhibitionPageLayout.lastModifierId = lastModifierId
-        exhibitionPageLayout.name = name
-        return persist(exhibitionPageLayout)
+    fun updateName(pageLayout: PageLayout, name: String, lastModifierId: UUID): PageLayout {
+        pageLayout.lastModifierId = lastModifierId
+        pageLayout.name = name
+        return persist(pageLayout)
     }
 
     /**
@@ -74,12 +74,12 @@ class ExhibitionPageLayoutDAO() : AbstractDAO<ExhibitionPageLayout>() {
      *
      * @param data data
      * @param lastModifierId last modifier's id
-     * @return updated exhibitionPageLayout
+     * @return updated pageLayout
      */
-    fun updateData(exhibitionPageLayout: ExhibitionPageLayout, data: String, lastModifierId: UUID): ExhibitionPageLayout {
-        exhibitionPageLayout.lastModifierId = lastModifierId
-        exhibitionPageLayout.data = data
-        return persist(exhibitionPageLayout)
+    fun updateData(pageLayout: PageLayout, data: String, lastModifierId: UUID): PageLayout {
+        pageLayout.lastModifierId = lastModifierId
+        pageLayout.data = data
+        return persist(pageLayout)
     }
 
 }

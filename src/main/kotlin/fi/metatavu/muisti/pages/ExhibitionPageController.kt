@@ -6,7 +6,7 @@ import fi.metatavu.muisti.api.spec.model.ExhibitionPageResource
 import fi.metatavu.muisti.persistence.dao.ExhibitionPageDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionPage
-import fi.metatavu.muisti.persistence.model.ExhibitionPageLayout
+import fi.metatavu.muisti.persistence.model.PageLayout
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -30,7 +30,7 @@ class ExhibitionPageController() {
      * @param creatorId creating user id
      * @return created exhibition page 
      */
-    fun createExhibitionPage(exhibition: Exhibition, layout: ExhibitionPageLayout, name: String, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, creatorId: UUID): ExhibitionPage {
+    fun createExhibitionPage(exhibition: Exhibition, layout: PageLayout, name: String, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, creatorId: UUID): ExhibitionPage {
         return exhibitionPageDAO.create(UUID.randomUUID(), exhibition, layout, name, getDataAsString(resources), getDataAsString(eventTriggers), creatorId, creatorId)
     }
 
@@ -59,8 +59,8 @@ class ExhibitionPageController() {
      *
      * @returns all pages with given layout
      */
-    fun listExhibitionLayoutPages(exhibitionPageLayout: ExhibitionPageLayout): List<ExhibitionPage> {
-        return exhibitionPageDAO.listByLayout(exhibitionPageLayout)
+    fun listExhibitionLayoutPages(pageLayout: PageLayout): List<ExhibitionPage> {
+        return exhibitionPageDAO.listByLayout(pageLayout)
     }
 
     /**
@@ -74,7 +74,7 @@ class ExhibitionPageController() {
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionPage(exhibitionPage: ExhibitionPage, layout: ExhibitionPageLayout, name: String, resources: List<ExhibitionPageResource>, eventTriggers: List<ExhibitionPageEventTrigger>, modifierId: UUID): ExhibitionPage {
+    fun updateExhibitionPage(exhibitionPage: ExhibitionPage, layout: PageLayout, name: String, resources: List<ExhibitionPageResource>, eventTriggers: List<ExhibitionPageEventTrigger>, modifierId: UUID): ExhibitionPage {
         var result = exhibitionPageDAO.updateName(exhibitionPage, name, modifierId)
         result = exhibitionPageDAO.updateLayout(result, layout, modifierId)
         result = exhibitionPageDAO.updateResources(result, getDataAsString(resources), modifierId)
