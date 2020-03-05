@@ -10,7 +10,7 @@ import org.junit.Test
 import java.util.*
 
 /**
- * Test class for testing exhibition pageLayout API
+ * Test class for testing exhibition page layout API
  *
  * @author Antti Leppä
  */
@@ -57,12 +57,18 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             val createdChildren = arrayOf(PageLayoutView("childid", "child", arrayOf(), arrayOf()))
             val createdData = PageLayoutView("rootid", "created widget", createdProperties, createdChildren)
 
-            val createdPageLayout = it.admin().pageLayouts().create(PageLayout(name = "created name", data = createdData))
+            val createdPageLayout = it.admin().pageLayouts().create(PageLayout(
+                name = "created name",
+                data = createdData,
+                thumbnailUrl = "http://example.com/thumbnail.png"
+            ))
+
             val createdPageLayoutId = createdPageLayout.id!!
 
             val foundCreatedPageLayout = it.admin().pageLayouts().findPageLayout(createdPageLayoutId)
             assertEquals(createdPageLayout.id, foundCreatedPageLayout?.id)
             assertEquals("created name", createdPageLayout.name)
+            assertEquals("http://example.com/thumbnail.png", createdPageLayout.thumbnailUrl)
             assertEquals("created widget", createdPageLayout.data.widget)
             assertEquals(1, createdPageLayout.data.properties.size)
             assertEquals("name", createdPageLayout.data.properties[0].name)
@@ -71,16 +77,27 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             assertEquals(1, createdPageLayout.data.children.size)
             assertEquals(createdChildren[0].id, createdPageLayout.data.children[0].id)
 
-
             val updatedProperties = arrayOf(PageLayoutViewProperty("uname", "str", PageLayoutViewPropertyType.string))
             val updatedChildren = arrayOf<PageLayoutView>()
-            val updatedData = PageLayoutView("updatedid", "updated widget", updatedProperties, updatedChildren)
+            val updatedData = PageLayoutView(
+                id = "updatedid",
+                widget = "updated widget",
+                properties = updatedProperties,
+                children = updatedChildren
+            )
 
-            val updatedPageLayout = it.admin().pageLayouts().updatePageLayout(PageLayout("updated name", updatedData, createdPageLayoutId))
+            val updatedPageLayout = it.admin().pageLayouts().updatePageLayout(PageLayout(
+                id = createdPageLayoutId,
+                name = "updated name",
+                data = updatedData,
+                thumbnailUrl = "http://example.com/updated.png"
+            ))
+
             val foundUpdatedPageLayout = it.admin().pageLayouts().findPageLayout(createdPageLayoutId)
 
             assertEquals(updatedPageLayout!!.id, foundUpdatedPageLayout?.id)
             assertEquals("updated name", updatedPageLayout.name)
+            assertEquals("http://example.com/updated.png", updatedPageLayout.thumbnailUrl)
             assertEquals("updated widget", updatedPageLayout.data.widget)
             assertEquals(1, updatedPageLayout.data.properties.size)
             assertEquals("uname", updatedPageLayout.data.properties[0].name)

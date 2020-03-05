@@ -289,4 +289,10 @@
         <addForeignKeyConstraint baseTableName="exhibitionpage" baseColumnNames="layout_id" constraintName="FK_PAGE_LAYOUT_ID" referencedTableName="pagelayout" referencedColumnNames="id"/>
     </changeSet>
 
+    <changeSet id="layoutthumbnailurl" author="antti.leppa">
+        <addColumn tableName="pagelayout">
+            <column name="thumbnailUrl" type="varchar(191)"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

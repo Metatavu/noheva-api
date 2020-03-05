@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.model
 
+import org.hibernate.validator.constraints.URL
 import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*
@@ -24,6 +25,9 @@ class PageLayout {
     @Column(nullable = false)
     @Lob
     var data: String? = null
+
+    @URL
+    var thumbnailUrl: String? = null
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null

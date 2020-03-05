@@ -32,8 +32,9 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val name = payload.name
         val data = payload.data
+        val thumbnailUrl = payload.thumbnailUrl
 
-        val pageLayout = pageLayoutController.createPageLayout(name, data, userId)
+        val pageLayout = pageLayoutController.createPageLayout(name, data, thumbnailUrl, userId)
 
         return createOk(pageLayoutTranslator.translate(pageLayout))
     }
@@ -57,9 +58,10 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val name = payload.name
         val data = payload.data
+        val thumbnailUrl = payload.thumbnailUrl
 
         val pageLayout = pageLayoutController.findPageLayoutById(pageLayoutId) ?: return createNotFound("Layout $pageLayoutId not found")
-        val result = pageLayoutController.updatePageLayout(pageLayout, name, data, userId)
+        val result = pageLayoutController.updatePageLayout(pageLayout, name, data, thumbnailUrl, userId)
 
         return createOk(pageLayoutTranslator.translate(result))
     }

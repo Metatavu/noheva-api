@@ -25,11 +25,12 @@ class PageLayoutController() {
      *
      * @param name name
      * @param data data
+     * @param thumbnailUrl thumbnail URL
      * @param creatorId creating user id
      * @return created exhibition page layout
      */
-    fun createPageLayout(name: String, data: PageLayoutView, creatorId: UUID): PageLayout {
-        return pageLayoutDAO.create(UUID.randomUUID(), name, getDataAsString(data), creatorId, creatorId)
+    fun createPageLayout(name: String, data: PageLayoutView, thumbnailUrl: String?, creatorId: UUID): PageLayout {
+        return pageLayoutDAO.create(UUID.randomUUID(), name, getDataAsString(data), thumbnailUrl, creatorId, creatorId)
     }
 
     /**
@@ -57,12 +58,14 @@ class PageLayoutController() {
      * @param pageLayout exhibition page layout to be updated
      * @param name name
      * @param data data
+     * @param thumbnailUrl thumbnail URL
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updatePageLayout(pageLayout: PageLayout, name: String, data: PageLayoutView, modifierId: UUID): PageLayout {
+    fun updatePageLayout(pageLayout: PageLayout, name: String, data: PageLayoutView, thumbnailUrl: String?, modifierId: UUID): PageLayout {
         pageLayoutDAO.updateName(pageLayout, name, modifierId)
         pageLayoutDAO.updateData(pageLayout, getDataAsString(data), modifierId)
+        pageLayoutDAO.updateThumbnailUrl(pageLayout, thumbnailUrl, modifierId)
         return pageLayout
     }
 
