@@ -22,7 +22,10 @@ import javax.ws.rs.core.Response
  * @author Antti Leppä
  */
 abstract class AbstractApi {
-    
+
+    protected val EXHIBITION_NOT_FOUND = "Exhibition not found"
+    protected val UNAUTHORIZED = "Unauthorized"
+
     /**
      * Returns list parameter as <E> translated by given translate function.
      *

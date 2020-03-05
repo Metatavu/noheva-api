@@ -5,6 +5,7 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.jaxrs.test.functional.builder.auth.AuthorizedTestBuilderAuthentication
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.test.functional.builder.impl.FileTestBuilderResource
+import fi.metatavu.muisti.api.test.functional.builder.impl.PageLayoutTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.impl.*
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import java.io.IOException
@@ -28,7 +29,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   private var exhibitionDeviceGroups: ExhibitionDeviceGroupTestBuilderResource? = null
   private var exhibitionDeviceModels: ExhibitionDeviceModelTestBuilderResource? = null
   private var exhibitionDevices: ExhibitionDeviceTestBuilderResource? = null
-  private var exhibitionPageLayouts: ExhibitionPageLayoutTestBuilderResource? = null
+  private var pageLayouts: PageLayoutTestBuilderResource? = null
   private var exhibitionPages: ExhibitionPageTestBuilderResource? = null
   private var files: FileTestBuilderResource? = null
 
@@ -123,18 +124,18 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   }
 
   /**
-   * Returns test builder resource for exhibitionPageLayouts
+   * Returns test builder resource for pageLayouts
    *
-   * @return test builder resource for exhibitionPageLayouts
+   * @return test builder resource for pageLayouts
    * @throws IOException thrown when authentication fails
    */
   @kotlin.jvm.Throws(IOException::class)
-  fun exhibitionPageLayouts(): ExhibitionPageLayoutTestBuilderResource {
-    if (exhibitionPageLayouts == null) {
-      exhibitionPageLayouts = ExhibitionPageLayoutTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+  fun pageLayouts(): PageLayoutTestBuilderResource {
+    if (pageLayouts == null) {
+      pageLayouts = PageLayoutTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
     }
 
-    return exhibitionPageLayouts!!
+    return pageLayouts!!
   }
 
   /**

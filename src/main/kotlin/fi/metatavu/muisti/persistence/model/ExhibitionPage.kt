@@ -20,7 +20,7 @@ class ExhibitionPage {
     var exhibition: Exhibition? = null
 
     @ManyToOne
-    var layout: ExhibitionPageLayout? = null
+    var layout: PageLayout? = null
 
     @NotEmpty
     @Column(nullable = false)

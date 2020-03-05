@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.model
 
+import org.hibernate.validator.constraints.URL
 import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*
@@ -11,13 +12,10 @@ import javax.validation.constraints.NotEmpty
  * @author Antti Leppä
  */
 @Entity
-class ExhibitionPageLayout {
+class PageLayout {
 
     @Id
     var id: UUID? = null
-
-    @ManyToOne
-    var exhibition: Exhibition? = null
 
     @NotEmpty
     @Column(nullable = false)
@@ -27,6 +25,9 @@ class ExhibitionPageLayout {
     @Column(nullable = false)
     @Lob
     var data: String? = null
+
+    @URL
+    var thumbnailUrl: String? = null
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null

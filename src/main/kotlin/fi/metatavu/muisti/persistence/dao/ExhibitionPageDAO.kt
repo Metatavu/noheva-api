@@ -2,8 +2,8 @@ package fi.metatavu.muisti.persistence.dao
 
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionPage
-import fi.metatavu.muisti.persistence.model.ExhibitionPageLayout
 import fi.metatavu.muisti.persistence.model.ExhibitionPage_
+import fi.metatavu.muisti.persistence.model.PageLayout
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
@@ -31,7 +31,7 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      * @param lastModifierId last modifier's id
      * @return created exhibitionPage
      */
-    fun create(id: UUID, exhibition: Exhibition, layout: ExhibitionPageLayout, name: String, resources: String, eventTriggers: String, creatorId: UUID, lastModifierId: UUID): ExhibitionPage {
+    fun create(id: UUID, exhibition: Exhibition, layout: PageLayout, name: String, resources: String, eventTriggers: String, creatorId: UUID, lastModifierId: UUID): ExhibitionPage {
         val exhibitionPage = ExhibitionPage()
         exhibitionPage.id = id
         exhibitionPage.layout = layout
@@ -67,7 +67,7 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      * @param layout layout
      * @return List of ExhibitionPages
      */
-    fun listByLayout(layout: ExhibitionPageLayout): List<ExhibitionPage> {
+    fun listByLayout(layout: PageLayout): List<ExhibitionPage> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionPage> = criteriaBuilder.createQuery(ExhibitionPage::class.java)
@@ -85,7 +85,7 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      * @param lastModifierId last modifier's id
      * @return updated exhibitionPage
      */
-    fun updateLayout(exhibitionPage: ExhibitionPage, layout: ExhibitionPageLayout, lastModifierId: UUID): ExhibitionPage {
+    fun updateLayout(exhibitionPage: ExhibitionPage, layout: PageLayout, lastModifierId: UUID): ExhibitionPage {
         exhibitionPage.lastModifierId = lastModifierId
         exhibitionPage.layout = layout
         return persist(exhibitionPage)
