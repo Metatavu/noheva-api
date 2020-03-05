@@ -29,9 +29,6 @@ import javax.ws.rs.core.Response
 @Stateful
 class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
-    private val EXHIBITION_NOT_FOUND = "Exhibition not found"
-    private val UNAUTHORIZED = "Unauthorized"
-
     @Inject
     private lateinit var logger: Logger
 
@@ -73,9 +70,6 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     @Inject
     private lateinit var pageLayoutController: PageLayoutController
-
-    @Inject
-    private lateinit var pageLayoutTranslator: PageLayoutTranslator
 
     @Inject
     private lateinit var exhibitionPageController: ExhibitionPageController
@@ -576,71 +570,6 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val exhibitionDeviceModel = exhibitionDeviceModelController.findExhibitionDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
 
         exhibitionDeviceModelController.deleteExhibitionDeviceModel(exhibitionDeviceModel)
-
-        return createNoContent()
-    }
-
-    /* Page layouts */
-
-    override fun createPageLayout(exhibitionId: UUID?, payload: PageLayout?): Response {
-        payload ?: return createBadRequest("Missing request body")
-        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-        val name = payload.name
-        val data = payload.data
-
-        val pageLayout = pageLayoutController.createPageLayout(exhibition, name, data, userId)
-
-        return createOk(pageLayoutTranslator.translate(pageLayout))
-    }
-
-    override fun findPageLayout(exhibitionId: UUID?, pageLayoutId: UUID?): Response {
-        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        pageLayoutId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val pageLayout = pageLayoutController.findPageLayoutById(pageLayoutId) ?: return createNotFound("Layout $pageLayoutId not found")
-
-        if (!pageLayout.exhibition?.id?.equals(exhibition.id)!!) {
-            return createNotFound("Room not found")
-        }
-
-        return createOk(pageLayoutTranslator.translate(pageLayout))
-    }
-
-    override fun listPageLayouts(exhibitionId: UUID?): Response {
-        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
-        val pageLayouts = pageLayoutController.listPageLayouts(exhibition)
-
-        return createOk(pageLayouts.map (pageLayoutTranslator::translate))
-    }
-
-    override fun updatePageLayout(exhibitionId: UUID?, pageLayoutId: UUID?, payload: PageLayout?): Response {
-        payload ?: return createBadRequest("Missing request body")
-        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        pageLayoutId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-
-        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-        val name = payload.name
-        val data = payload.data
-
-        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val pageLayout = pageLayoutController.findPageLayoutById(pageLayoutId) ?: return createNotFound("Layout $pageLayoutId not found")
-        val result = pageLayoutController.updatePageLayout(pageLayout, name, data, userId)
-
-        return createOk(pageLayoutTranslator.translate(result))
-    }
-
-    override fun deletePageLayout(exhibitionId: UUID?, pageLayoutId: UUID?): Response {
-        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        pageLayoutId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val pageLayout = pageLayoutController.findPageLayoutById(pageLayoutId) ?: return createNotFound("Layout $pageLayoutId not found")
-
-        pageLayoutController.deletePageLayout(pageLayout)
 
         return createNoContent()
     }

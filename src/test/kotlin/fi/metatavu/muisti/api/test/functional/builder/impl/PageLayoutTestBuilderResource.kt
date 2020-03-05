@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.api.test.functional.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
@@ -8,6 +8,7 @@ import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.PageLayout
 import fi.metatavu.muisti.api.client.models.PageLayoutView
 import fi.metatavu.muisti.api.client.models.PageLayoutViewProperty
+import fi.metatavu.muisti.api.test.functional.impl.ApiTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -22,81 +23,76 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
-     * Creates new exhibition PageLayout with default values
+     * Creates new exhibition page layout with default values
      *
-     * @param exhibitionId
-     * @return created exhibition PageLayout
+     * @return created exhibition page layout
      */
-    fun create(exhibitionId: UUID): PageLayout {
+    fun create(): PageLayout {
         val properties: Array<PageLayoutViewProperty> = arrayOf()
         val children: Array<PageLayoutView> = arrayOf()
-        return create(exhibitionId, "default page layout", PageLayoutView("defaultid", "TextView", properties, children))
+        return create(PageLayout(
+            name = "default page layout",
+            data = PageLayoutView("defaultid", "TextView", properties, children)
+        ))
     }
 
     /**
-     * Creates new exhibition PageLayout
+     * Creates new exhibition page layout
      *
-     * @param exhibitionId exhibition id
-     * @param name name
-     * @param data data
-     * @return created exhibition PageLayout
+     * @param payload payload
+     * @return created exhibition page layout
      */
-    fun create(exhibitionId: UUID, name: String, data: PageLayoutView): PageLayout {
-        val result: PageLayout = this.getApi().createPageLayout(exhibitionId, PageLayout(name, data))
+    fun create(payload: PageLayout): PageLayout {
+        val result: PageLayout = this.getApi().createPageLayout(payload)
         addClosable(result)
         return result
     }
 
     /**
-     * Finds exhibition PageLayout
+     * Finds exhibition page layout
      *
-     * @param exhibitionId exhibition id
-     * @param pageLayoutId exhibition PageLayout id
-     * @return exhibition PageLayout
+     * @param pageLayoutId exhibition page layout
+     * @return exhibition page layout
      */
-    fun findPageLayout(exhibitionId: UUID, pageLayoutId: UUID): PageLayout? {
-        return api.findPageLayout(exhibitionId, pageLayoutId)
+    fun findPageLayout(pageLayoutId: UUID): PageLayout? {
+        return api.findPageLayout(pageLayoutId)
     }
 
     /**
-     * Lists exhibition PageLayouts
+     * Lists exhibition page layouts
      *
-     * @param exhibitionId exhibition id
-     * @return exhibition PageLayouts
+     * @return exhibition page layouts
      */
-    fun listPageLayouts(exhibitionId: UUID): Array<PageLayout> {
-        return api.listPageLayouts(exhibitionId)
+    fun listPageLayouts(): Array<PageLayout> {
+        return api.listPageLayouts()
     }
 
     /**
-     * Updates exhibition PageLayout
+     * Updates exhibition page layout
      *
-     * @param exhibitionId exhibition id
      * @param body update body
-     * @return updated exhibition PageLayout
+     * @return updated exhibition page layout
      */
-    fun updatePageLayout(exhibitionId: UUID, body: PageLayout): PageLayout? {
-        return api.updatePageLayout(exhibitionId, body.id!!, body)
+    fun updatePageLayout(body: PageLayout): PageLayout? {
+        return api.updatePageLayout(body.id!!, body)
     }
 
     /**
-     * Deletes a pageLayout from the API
+     * Deletes a page layout from the API
      *
-     * @param exhibitionId exhibition id
-     * @param pageLayout pageLayout to be deleted
+     * @param pageLayout page layout to be deleted
      */
-    fun delete(exhibitionId: UUID, pageLayout: PageLayout) {
-        delete(exhibitionId, pageLayout.id!!)
+    fun delete(pageLayout: PageLayout) {
+        delete(pageLayout.id!!)
     }
 
     /**
-     * Deletes a pageLayout from the API
+     * Deletes a page layout from the API
      *
-     * @param exhibitionId exhibition id
-     * @param pageLayoutId pageLayout id to be deleted
+     * @param pageLayoutId page layout id to be deleted
      */
-    fun delete(exhibitionId: UUID, pageLayoutId: UUID) {
-        api.deletePageLayout(exhibitionId, pageLayoutId)
+    fun delete(pageLayoutId: UUID) {
+        api.deletePageLayout(pageLayoutId)
         removeCloseable { closable: Any ->
             if (closable !is PageLayout) {
                 return@removeCloseable false
@@ -108,36 +104,33 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
     }
 
     /**
-     * Asserts pageLayout count within the system
+     * Asserts page layout count within the system
      *
      * @param expected expected count
-     * @param exhibitionId exhibition id
      */
-    fun assertCount(expected: Int, exhibitionId: UUID) {
-        assertEquals(expected, api.listPageLayouts(exhibitionId).size)
+    fun assertCount(expected: Int) {
+        assertEquals(expected, api.listPageLayouts().size)
     }
 
     /**
      * Asserts find fails with given status
      *
      * @param expectedStatus expected status code
-     * @param exhibitionId exhibition id
      * @param pageLayoutId pageLayout id
      */
-    fun assertFindFailStatus(expectedStatus: Int, exhibitionId: UUID, pageLayoutId: UUID) {
-        assertFindFailStatus(expectedStatus, exhibitionId, pageLayoutId)
+    fun assertFindFailStatus(expectedStatus: Int, pageLayoutId: UUID) {
+        assertFindFailStatus(expectedStatus, pageLayoutId)
     }
 
     /**
      * Asserts find status fails with given status code
      *
      * @param expectedStatus expected status
-     * @param exhibitionId exhibition id
      * @param pageLayoutId pageLayout id
      */
-    fun assertFindFail(expectedStatus: Int, exhibitionId: UUID, pageLayoutId: UUID) {
+    fun assertFindFail(expectedStatus: Int, pageLayoutId: UUID) {
         try {
-            api.findPageLayout(exhibitionId, pageLayoutId)
+            api.findPageLayout(pageLayoutId)
             fail(String.format("Expected find to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)
@@ -148,11 +141,10 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
      * Asserts list status fails with given status code
      *
      * @param expectedStatus expected status
-     * @param exhibitionId exhibition id
      */
-    fun assertListFail(expectedStatus: Int, exhibitionId: UUID) {
+    fun assertListFail(expectedStatus: Int) {
         try {
-            api.listPageLayouts(exhibitionId)
+            api.listPageLayouts()
             fail(String.format("Expected list to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)
@@ -163,13 +155,11 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
      * Asserts create fails with given status
      *
      * @param expectedStatus expected status
-     * @param exhibitionId exhibition id
-     * @param name name
-     * @param data data
+     * @param payload payload
      */
-    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, name: String, data: PageLayoutView) {
+    fun assertCreateFail(expectedStatus: Int, payload: PageLayout) {
         try {
-            create(exhibitionId, name, data)
+            create(payload)
             fail(String.format("Expected create to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)
@@ -180,12 +170,11 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
      * Asserts update fails with given status
      *
      * @param expectedStatus expected status
-     * @param exhibitionId exhibition id
      * @param body body
      */
-    fun assertUpdateFail(expectedStatus: Int, exhibitionId: UUID, body: PageLayout) {
+    fun assertUpdateFail(expectedStatus: Int, body: PageLayout) {
         try {
-            updatePageLayout(exhibitionId, body)
+            updatePageLayout(body)
             fail(String.format("Expected update to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)
@@ -196,12 +185,11 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
      * Asserts delete fails with given status
      *
      * @param expectedStatus expected status
-     * @param exhibitionId exhibition id
      * @param id id
      */
-    fun assertDeleteFail(expectedStatus: Int, exhibitionId: UUID, id: UUID) {
+    fun assertDeleteFail(expectedStatus: Int, id: UUID) {
         try {
-            delete(exhibitionId, id)
+            delete(id)
             fail(String.format("Expected delete to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)
@@ -209,7 +197,7 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
     }
 
     override fun clean(pageLayout: PageLayout) {
-        this.getApi().deletePageLayout(pageLayout.exhibitionId!!, pageLayout.id!!)
+        this.getApi().deletePageLayout(pageLayout.id!!)
     }
 
     override fun getApi(): PageLayoutsApi {

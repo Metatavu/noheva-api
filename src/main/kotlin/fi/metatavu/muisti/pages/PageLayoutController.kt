@@ -3,7 +3,6 @@ package fi.metatavu.muisti.pages
 import com.fasterxml.jackson.databind.ObjectMapper
 import fi.metatavu.muisti.api.spec.model.PageLayoutView
 import fi.metatavu.muisti.persistence.dao.PageLayoutDAO
-import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.PageLayout
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
@@ -29,8 +28,8 @@ class PageLayoutController() {
      * @param creatorId creating user id
      * @return created exhibition page layout
      */
-    fun createPageLayout(exhibition: Exhibition, name: String, data: PageLayoutView, creatorId: UUID): PageLayout {
-        return pageLayoutDAO.create(UUID.randomUUID(), exhibition, name, getDataAsString(data), creatorId, creatorId)
+    fun createPageLayout(name: String, data: PageLayoutView, creatorId: UUID): PageLayout {
+        return pageLayoutDAO.create(UUID.randomUUID(), name, getDataAsString(data), creatorId, creatorId)
     }
 
     /**
@@ -44,12 +43,12 @@ class PageLayoutController() {
     }
 
     /**
-     * Lists page layouts in an exhibitions
+     * Lists all page layouts
      *
-     * @returns all pageLayouts in an exhibition
+     * @returns all page layouts
      */
-    fun listPageLayouts(exhibition: Exhibition): List<PageLayout> {
-        return pageLayoutDAO.listByExhibition(exhibition)
+    fun listPageLayouts(): List<PageLayout> {
+        return pageLayoutDAO.listAll()
     }
 
     /**

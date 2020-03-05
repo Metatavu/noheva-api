@@ -16,9 +16,6 @@ class PageLayout {
     @Id
     var id: UUID? = null
 
-    @ManyToOne
-    var exhibition: Exhibition? = null
-
     @NotEmpty
     @Column(nullable = false)
     var name: String? = null
