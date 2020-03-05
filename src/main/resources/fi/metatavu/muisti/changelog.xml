@@ -286,7 +286,7 @@
         <dropForeignKeyConstraint baseTableName="exhibitionpagelayout" constraintName="FK_EXHIBITION_PAGE_LAYOUT_EXHIBITION_ID"/>
         <dropColumn tableName="exhibitionpagelayout" columnName="exhibition_id"/>
         <renameTable oldTableName="exhibitionpagelayout" newTableName="pagelayout" />
-        <addForeignKeyConstraint baseTableName="exhibitionpage" baseColumnNames="layout_id" constraintName="FK_PAGE_LAYOUT_ID" referencedTableName="pagelayout" referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="exhibitionpage" baseColumnNames="layout_id" constraintName="FK_EXHIBITION_PAGE_PAGE_LAYOUT_ID" referencedTableName="pagelayout" referencedColumnNames="id"/>
     </changeSet>
 
     <changeSet id="layoutthumbnailurl" author="antti.leppa">

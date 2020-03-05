@@ -5,7 +5,7 @@ import java.util.*
 import javax.enterprise.context.ApplicationScoped
 
 /**
- * DAO class for PageLayout
+ * DAO class for page layout
  *
  * @author Antti Leppä
  */
