@@ -87,7 +87,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             )
 
             val createEvent = ExhibitionPageEvent(
-                type = ExhibitionPageEventType.navigate,
+                action = ExhibitionPageEventActionType.navigate,
                 properties = arrayOf(
                     ExhibitionPageEventProperty(
                         name = "pageId",
@@ -100,7 +100,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val createEventTrigger = ExhibitionPageEventTrigger(
                 events = arrayOf(createEvent),
                 clickViewId =  "createviewid",
-                delay = 0.0,
+                delay = 0,
                 next = arrayOf()
             )
 
@@ -128,7 +128,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             )
 
             val updateEvent = ExhibitionPageEvent(
-                type = ExhibitionPageEventType.hide,
+                action = ExhibitionPageEventActionType.hide,
                 properties = arrayOf(
                     ExhibitionPageEventProperty(
                         name = "background",
@@ -141,7 +141,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val updateEventTrigger = ExhibitionPageEventTrigger(
                 events = arrayOf(updateEvent),
                 clickViewId =  "updateviewid",
-                delay = 2.0,
+                delay = 2,
                 next = arrayOf()
             )
 
