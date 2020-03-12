@@ -8,7 +8,7 @@ import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.ExhibitionDeviceModel
 import fi.metatavu.muisti.api.client.models.ExhibitionDeviceModelCapabilities
 import fi.metatavu.muisti.api.client.models.ExhibitionDeviceModelDimensions
-import fi.metatavu.muisti.api.client.models.ExhibitionDeviceModelResolution
+import fi.metatavu.muisti.api.client.models.ExhibitionDeviceModelDisplayMetrics
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -29,22 +29,23 @@ class ExhibitionDeviceModelTestBuilderResource(testBuilder: AbstractTestBuilder<
      * @return created exhibition DeviceModel
      */
     fun create(exhibitionId: UUID): ExhibitionDeviceModel {
-        return create(exhibitionId, "default manufacturer", "default model", ExhibitionDeviceModelDimensions(), ExhibitionDeviceModelResolution(), ExhibitionDeviceModelCapabilities(true))
+        return create(exhibitionId, ExhibitionDeviceModel(
+            manufacturer = "default manufacturer",
+            model = "default model",
+            dimensions = ExhibitionDeviceModelDimensions(),
+            displayMetrics = ExhibitionDeviceModelDisplayMetrics(),
+            capabilities = ExhibitionDeviceModelCapabilities( touch = true)
+        ))
     }
 
     /**
      * Creates new exhibition DeviceModel
      *
      * @param exhibitionId exhibition id
-     * @param manufacturer manufacturer
-     * @param model model
-     * @param dimensions dimensions
-     * @param resolution resolution
-     * @param capabilities capabilities
+     * @param payload payload
      * @return created exhibition DeviceModel
      */
-    fun create(exhibitionId: UUID, manufacturer: String, model: String, dimensions: ExhibitionDeviceModelDimensions, resolution: ExhibitionDeviceModelResolution, capabilities: ExhibitionDeviceModelCapabilities): ExhibitionDeviceModel {
-        val payload = ExhibitionDeviceModel(manufacturer, model, dimensions, resolution, capabilities, null, exhibitionId)
+    fun create(exhibitionId: UUID, payload: ExhibitionDeviceModel): ExhibitionDeviceModel {
         val result: ExhibitionDeviceModel = this.getApi().createExhibitionDeviceModel(exhibitionId, payload)
         addClosable(result)
         return result
@@ -167,16 +168,12 @@ class ExhibitionDeviceModelTestBuilderResource(testBuilder: AbstractTestBuilder<
      *
      * @param expectedStatus expected status
      * @param exhibitionId exhibition id
-     * @param manufacturer manufacturer
-     * @param model model
-     * @param dimensions dimensions
-     * @param resolution resolution
-     * @param capabilities capabilities
+     * @param payload payload
      * @return created exhibition DeviceModel
      */
-    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, manufacturer: String, model: String, dimensions: ExhibitionDeviceModelDimensions, resolution: ExhibitionDeviceModelResolution, capabilities: ExhibitionDeviceModelCapabilities) {
+    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, payload: ExhibitionDeviceModel) {
         try {
-            create(exhibitionId, manufacturer, model, dimensions, resolution, capabilities)
+            create(exhibitionId, payload)
             fail(String.format("Expected create to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)

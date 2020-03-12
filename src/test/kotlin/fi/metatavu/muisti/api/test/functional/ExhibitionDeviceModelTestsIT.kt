@@ -3,7 +3,7 @@ package fi.metatavu.muisti.api.test.functional
 import fi.metatavu.muisti.api.client.models.ExhibitionDeviceModel
 import fi.metatavu.muisti.api.client.models.ExhibitionDeviceModelCapabilities
 import fi.metatavu.muisti.api.client.models.ExhibitionDeviceModelDimensions
-import fi.metatavu.muisti.api.client.models.ExhibitionDeviceModelResolution
+import fi.metatavu.muisti.api.client.models.ExhibitionDeviceModelDisplayMetrics
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -21,14 +21,31 @@ class ExhibitionDeviceModelTestsIT: AbstractFunctionalTest() {
         TestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val dimensions = ExhibitionDeviceModelDimensions(8000.0, 6000.0)
-            val resolution = ExhibitionDeviceModelResolution(12288.0, 8192.0)
+            val displayMetrics = ExhibitionDeviceModelDisplayMetrics(
+                heightPixels = 12288,
+                widthPixels = 8192,
+                density = 3.5,
+                xdpi = 515.154,
+                ydpi = 514.597
+            )
+
             val capabilities = ExhibitionDeviceModelCapabilities(false)
-            val createdExhibitionDeviceModel = it.admin().exhibitionDeviceModels().create(exhibition.id!!, "manu", "model", dimensions, resolution, capabilities)
+            val createdExhibitionDeviceModel = it.admin().exhibitionDeviceModels().create(exhibition.id!!, ExhibitionDeviceModel(
+                manufacturer = "manu",
+                model = "model",
+                dimensions = dimensions,
+                displayMetrics = displayMetrics,
+                capabilities = capabilities
+            ))
+
             assertNotNull(createdExhibitionDeviceModel)
             assertEquals(8000.0, createdExhibitionDeviceModel.dimensions.width)
             assertEquals(6000.0, createdExhibitionDeviceModel.dimensions.height)
-            assertEquals(12288.0, createdExhibitionDeviceModel.resolution.x)
-            assertEquals(8192.0, createdExhibitionDeviceModel.resolution.y)
+            assertEquals(12288, createdExhibitionDeviceModel.displayMetrics.heightPixels)
+            assertEquals(8192, createdExhibitionDeviceModel.displayMetrics.widthPixels)
+            assertEquals(3.5, createdExhibitionDeviceModel.displayMetrics.density)
+            assertEquals(515.154, createdExhibitionDeviceModel.displayMetrics.xdpi)
+            assertEquals(514.597, createdExhibitionDeviceModel.displayMetrics.ydpi)
             assertEquals(false, createdExhibitionDeviceModel.capabilities.touch)
             assertEquals("manu", createdExhibitionDeviceModel.manufacturer)
             assertEquals("model", createdExhibitionDeviceModel.model)
@@ -82,9 +99,22 @@ class ExhibitionDeviceModelTestsIT: AbstractFunctionalTest() {
             val nonExistingExhibitionId = UUID.randomUUID()
 
             val createDimensions = ExhibitionDeviceModelDimensions(8000.0, 6000.0)
-            val createResolution = ExhibitionDeviceModelResolution(12288.0, 8192.0)
+            val createDisplayMetrics = ExhibitionDeviceModelDisplayMetrics(
+                heightPixels = 12288,
+                widthPixels = 8192,
+                density = 3.5,
+                xdpi = 515.154,
+                ydpi = 514.597
+            )
+
             val createCapabilities = ExhibitionDeviceModelCapabilities(false)
-            val createdExhibitionDeviceModel = it.admin().exhibitionDeviceModels().create(exhibition.id!!, "manu", "model", createDimensions, createResolution, createCapabilities)
+            val createdExhibitionDeviceModel = it.admin().exhibitionDeviceModels().create(exhibition.id!!, ExhibitionDeviceModel(
+                manufacturer = "manu",
+                model = "model",
+                dimensions = createDimensions,
+                displayMetrics = createDisplayMetrics,
+                capabilities = createCapabilities
+            ))
 
             val createdExhibitionDeviceModelId = createdExhibitionDeviceModel.id!!
 
@@ -93,28 +123,42 @@ class ExhibitionDeviceModelTestsIT: AbstractFunctionalTest() {
             assertNotNull(createdExhibitionDeviceModel)
             assertEquals(8000.0, createdExhibitionDeviceModel.dimensions.width)
             assertEquals(6000.0, createdExhibitionDeviceModel.dimensions.height)
-            assertEquals(12288.0, createdExhibitionDeviceModel.resolution.x)
-            assertEquals(8192.0, createdExhibitionDeviceModel.resolution.y)
+            assertEquals(12288, createdExhibitionDeviceModel.displayMetrics.heightPixels)
+            assertEquals(8192, createdExhibitionDeviceModel.displayMetrics.widthPixels)
+            assertEquals(3.5, createdExhibitionDeviceModel.displayMetrics.density)
+            assertEquals(515.154, createdExhibitionDeviceModel.displayMetrics.xdpi)
+            assertEquals(514.597, createdExhibitionDeviceModel.displayMetrics.ydpi)
+
             assertEquals(false, createdExhibitionDeviceModel.capabilities.touch)
             assertEquals("manu", createdExhibitionDeviceModel.manufacturer)
             assertEquals("model", createdExhibitionDeviceModel.model)
 
             val updateDimensions = ExhibitionDeviceModelDimensions(5000.0, 4000.0)
-            val updateResolution = ExhibitionDeviceModelResolution(8288.0, 2192.0)
+            val updateDisplayMetrics = ExhibitionDeviceModelDisplayMetrics(
+                    heightPixels = 22288,
+                    widthPixels = 2192,
+                    density = 2.5,
+                    xdpi = 215.154,
+                    ydpi = 214.597
+            )
+
             val updateCapabilities = ExhibitionDeviceModelCapabilities(true)
-            val updatedExhibitionDeviceModel = it.admin().exhibitionDeviceModels().updateExhibitionDeviceModel(exhibitionId, ExhibitionDeviceModel("altmanu", "altmodel", updateDimensions, updateResolution, updateCapabilities, createdExhibitionDeviceModelId))
+            val updatedExhibitionDeviceModel = it.admin().exhibitionDeviceModels().updateExhibitionDeviceModel(exhibitionId, ExhibitionDeviceModel("altmanu", "altmodel", updateDimensions, updateDisplayMetrics, updateCapabilities, createdExhibitionDeviceModelId))
             val foundUpdatedExhibitionDeviceModel = it.admin().exhibitionDeviceModels().findExhibitionDeviceModel(exhibitionId, createdExhibitionDeviceModelId)
 
             assertEquals(updatedExhibitionDeviceModel!!.id, foundUpdatedExhibitionDeviceModel?.id)
             assertEquals(5000.0, updatedExhibitionDeviceModel.dimensions.width)
             assertEquals(4000.0, updatedExhibitionDeviceModel.dimensions.height)
-            assertEquals(8288.0, updatedExhibitionDeviceModel.resolution.x)
-            assertEquals(2192.0, updatedExhibitionDeviceModel.resolution.y)
+            assertEquals(22288, updatedExhibitionDeviceModel.displayMetrics.heightPixels)
+            assertEquals(2192, updatedExhibitionDeviceModel.displayMetrics.widthPixels)
+            assertEquals(2.5, updatedExhibitionDeviceModel.displayMetrics.density)
+            assertEquals(215.154, updatedExhibitionDeviceModel.displayMetrics.xdpi)
+            assertEquals(214.597, updatedExhibitionDeviceModel.displayMetrics.ydpi)
             assertEquals(true, updatedExhibitionDeviceModel.capabilities.touch)
             assertEquals("altmanu", updatedExhibitionDeviceModel.manufacturer)
             assertEquals("altmodel", updatedExhibitionDeviceModel.model)
 
-            it.admin().exhibitionDeviceModels().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDeviceModel("altmanu", "altmodel", updateDimensions, updateResolution, updateCapabilities, createdExhibitionDeviceModelId))
+            it.admin().exhibitionDeviceModels().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDeviceModel("altmanu", "altmodel", updateDimensions, updateDisplayMetrics, updateCapabilities, createdExhibitionDeviceModelId))
         }
     }
 

@@ -31,9 +31,15 @@ class ExhibitionDeviceModel {
 
     var dimensionHeight: Double? = null
 
-    var resolutionX: Double? = null
+    var heightPixels: Int? = null
 
-    var resolutionY: Double? = null
+    var widthPixels: Int? = null
+
+    var density: Double? = null
+
+    var xdpi: Double? = null
+
+    var ydpi: Double? = null
 
     @Column(nullable = false)
     var capabilityTouch: Boolean = false

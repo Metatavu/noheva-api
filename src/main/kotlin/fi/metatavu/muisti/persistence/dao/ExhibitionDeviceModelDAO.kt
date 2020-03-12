@@ -26,22 +26,28 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
      * @param model device model
      * @param dimensionWidth device physical width
      * @param dimensionHeight device physical height
-     * @param resolutionX device x-resolution
-     * @param resolutionY device y-resolution
+     * @param widthPixels device x-resolution
+     * @param heightPixels device y-resolution
+     * @param density density
+     * @param xdpi xdpi
+     * @param ydpi ydpi
      * @param capabilityTouch whether device has touch capability
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created exhibitionDeviceModel
      */
-    fun create(id: UUID, exhibition: Exhibition, manufacturer: String, model: String, dimensionWidth: Double?, dimensionHeight: Double?, resolutionX: Double?, resolutionY: Double?, capabilityTouch: Boolean, creatorId: UUID, lastModifierId: UUID): ExhibitionDeviceModel {
+    fun create(id: UUID, exhibition: Exhibition, manufacturer: String, model: String, dimensionWidth: Double?, dimensionHeight: Double?, widthPixels: Int?, heightPixels: Int?, density: Double?, xdpi: Double?, ydpi: Double?, capabilityTouch: Boolean, creatorId: UUID, lastModifierId: UUID): ExhibitionDeviceModel {
         val exhibitionDeviceModel = ExhibitionDeviceModel()
         exhibitionDeviceModel.id = id
         exhibitionDeviceModel.manufacturer = manufacturer
         exhibitionDeviceModel.model = model
         exhibitionDeviceModel.dimensionWidth = dimensionWidth
         exhibitionDeviceModel.dimensionHeight = dimensionHeight
-        exhibitionDeviceModel.resolutionX = resolutionX
-        exhibitionDeviceModel.resolutionY = resolutionY
+        exhibitionDeviceModel.heightPixels = heightPixels
+        exhibitionDeviceModel.widthPixels = widthPixels
+        exhibitionDeviceModel.density = density
+        exhibitionDeviceModel.xdpi = xdpi
+        exhibitionDeviceModel.ydpi = ydpi
         exhibitionDeviceModel.capabilityTouch = capabilityTouch
         exhibitionDeviceModel.exhibition = exhibition
         exhibitionDeviceModel.creatorId = creatorId
@@ -69,6 +75,7 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
     /**
      * Updates manufacturer
      *
+     * @param exhibitionDeviceModel exhibition device model
      * @param manufacturer manufacturer
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
@@ -82,7 +89,7 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
     /**
      * Updates model
      *
-     * @param model model
+     * @param exhibitionDeviceModel exhibition device model
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
      */
@@ -95,6 +102,7 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
     /**
      * Updates dimension width
      *
+     * @param exhibitionDeviceModel exhibition device model
      * @param dimensionWidth dimensionWidth
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
@@ -108,6 +116,7 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
     /**
      * Updates dimension height
      *
+     * @param exhibitionDeviceModel exhibition device model
      * @param dimensionHeight dimensionHeight
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
@@ -119,34 +128,79 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
     }
 
     /**
-     * Updates resolution x
+     * Updates height pixels
      *
-     * @param resolutionX resolutionX
+     * @param exhibitionDeviceModel exhibition device model
+     * @param heightPixels heightPixels
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
      */
-    fun updateResolutionX(exhibitionDeviceModel: ExhibitionDeviceModel, resolutionX: Double?, lastModifierId: UUID): ExhibitionDeviceModel {
+    fun updateHeightPixels(exhibitionDeviceModel: ExhibitionDeviceModel, heightPixels: Int?, lastModifierId: UUID): ExhibitionDeviceModel {
         exhibitionDeviceModel.lastModifierId = lastModifierId
-        exhibitionDeviceModel.resolutionX = resolutionX
+        exhibitionDeviceModel.heightPixels = heightPixels
         return persist(exhibitionDeviceModel)
     }
 
     /**
-     * Updates resolution y
+     * Updates width pixels
      *
-     * @param resolutionY resolutionY
+     * @param exhibitionDeviceModel exhibition device model
+     * @param widthPixels widthPixels
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
      */
-    fun updateResolutionY(exhibitionDeviceModel: ExhibitionDeviceModel, resolutionY: Double?, lastModifierId: UUID): ExhibitionDeviceModel {
+    fun updateWidthPixels(exhibitionDeviceModel: ExhibitionDeviceModel, widthPixels: Int?, lastModifierId: UUID): ExhibitionDeviceModel {
         exhibitionDeviceModel.lastModifierId = lastModifierId
-        exhibitionDeviceModel.resolutionY = resolutionY
+        exhibitionDeviceModel.widthPixels = widthPixels
+        return persist(exhibitionDeviceModel)
+    }
+
+    /**
+     * Updates density
+     *
+     * @param exhibitionDeviceModel exhibition device model
+     * @param density density
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionDeviceModel
+     */
+    fun updateDensity(exhibitionDeviceModel: ExhibitionDeviceModel, density: Double?, lastModifierId: UUID): ExhibitionDeviceModel {
+        exhibitionDeviceModel.lastModifierId = lastModifierId
+        exhibitionDeviceModel.density = density
+        return persist(exhibitionDeviceModel)
+    }
+
+    /**
+     * Updates xdpi
+     *
+     * @param exhibitionDeviceModel exhibition device model
+     * @param xdpi xdpi
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionDeviceModel
+     */
+    fun updateXdpi(exhibitionDeviceModel: ExhibitionDeviceModel, xdpi: Double?, lastModifierId: UUID): ExhibitionDeviceModel {
+        exhibitionDeviceModel.lastModifierId = lastModifierId
+        exhibitionDeviceModel.xdpi = xdpi
+        return persist(exhibitionDeviceModel)
+    }
+
+    /**
+     * Updates ydpi
+     *
+     * @param exhibitionDeviceModel exhibition device model
+     * @param ydpi ydpi
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionDeviceModel
+     */
+    fun updateYdpi(exhibitionDeviceModel: ExhibitionDeviceModel, ydpi: Double?, lastModifierId: UUID): ExhibitionDeviceModel {
+        exhibitionDeviceModel.lastModifierId = lastModifierId
+        exhibitionDeviceModel.ydpi = ydpi
         return persist(exhibitionDeviceModel)
     }
 
     /**
      * Updates capability touch
      *
+     * @param exhibitionDeviceModel exhibition device model
      * @param capabilityTouch capabilityTouch
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel

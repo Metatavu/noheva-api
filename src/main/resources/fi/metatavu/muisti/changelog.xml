@@ -295,4 +295,25 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="devicedisplaymetrics" author="antti.leppa">
+        <addColumn tableName="exhibitiondevicemodel">
+            <column name="heightPixels" type="INTEGER"/>
+            <column name="widthPixels" type="INTEGER"/>
+            <column name="density" type="DOUBLE"/>
+            <column name="xdpi" type="DOUBLE"/>
+            <column name="ydpi" type="DOUBLE"/>
+        </addColumn>
+
+        <sql>UPDATE exhibitiondevicemodel set heightPixels = resolutionY</sql>
+        <sql>UPDATE exhibitiondevicemodel set widthPixels = resolutionX</sql>
+
+        <dropColumn tableName="exhibitiondevicemodel">
+            <column name="resolutionY"/>
+        </dropColumn>
+
+        <dropColumn tableName="exhibitiondevicemodel">
+            <column name="resolutionX"/>
+        </dropColumn>
+    </changeSet>
+
 </databaseChangeLog>
