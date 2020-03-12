@@ -75,6 +75,7 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
     /**
      * Updates manufacturer
      *
+     * @param exhibitionDeviceModel exhibition device model
      * @param manufacturer manufacturer
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
@@ -88,7 +89,7 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
     /**
      * Updates model
      *
-     * @param model model
+     * @param exhibitionDeviceModel exhibition device model
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
      */
@@ -101,6 +102,7 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
     /**
      * Updates dimension width
      *
+     * @param exhibitionDeviceModel exhibition device model
      * @param dimensionWidth dimensionWidth
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
@@ -114,6 +116,7 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
     /**
      * Updates dimension height
      *
+     * @param exhibitionDeviceModel exhibition device model
      * @param dimensionHeight dimensionHeight
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
@@ -127,6 +130,7 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
     /**
      * Updates height pixels
      *
+     * @param exhibitionDeviceModel exhibition device model
      * @param heightPixels heightPixels
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
@@ -140,6 +144,7 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
     /**
      * Updates width pixels
      *
+     * @param exhibitionDeviceModel exhibition device model
      * @param widthPixels widthPixels
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
@@ -153,6 +158,7 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
     /**
      * Updates density
      *
+     * @param exhibitionDeviceModel exhibition device model
      * @param density density
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
@@ -166,6 +172,7 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
     /**
      * Updates xdpi
      *
+     * @param exhibitionDeviceModel exhibition device model
      * @param xdpi xdpi
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
@@ -179,6 +186,7 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
     /**
      * Updates ydpi
      *
+     * @param exhibitionDeviceModel exhibition device model
      * @param ydpi ydpi
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
@@ -192,6 +200,7 @@ class ExhibitionDeviceModelDAO() : AbstractDAO<ExhibitionDeviceModel>() {
     /**
      * Updates capability touch
      *
+     * @param exhibitionDeviceModel exhibition device model
      * @param capabilityTouch capabilityTouch
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceModel
