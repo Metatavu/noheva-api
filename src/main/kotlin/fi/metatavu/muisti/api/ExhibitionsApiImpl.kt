@@ -499,11 +499,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val model = payload.model
         val dimensionWidth = payload.dimensions.width
         val dimensionHeight = payload.dimensions.height
-        val resolutionX = payload.resolution.x
-        val resolutionY = payload.resolution.y
+        val displayMetrics = payload.displayMetrics
         val capabilityTouch = payload.capabilities.touch
 
-        val exhibitionDeviceModel = exhibitionDeviceModelController.createExhibitionDeviceModel(exhibition, manufacturer, model, dimensionWidth, dimensionHeight, resolutionX, resolutionY, capabilityTouch, userId)
+        val exhibitionDeviceModel = exhibitionDeviceModelController.createExhibitionDeviceModel(exhibition, manufacturer, model, dimensionWidth, dimensionHeight, displayMetrics, capabilityTouch, userId)
 
         return createOk(exhibitionDeviceModelTranslator.translate(exhibitionDeviceModel))
     }
@@ -549,13 +548,12 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val model = payload.model
         val dimensionWidth = payload.dimensions.width
         val dimensionHeight = payload.dimensions.height
-        val resolutionX = payload.resolution.x
-        val resolutionY = payload.resolution.y
+        val displayMetrics = payload.displayMetrics
         val capabilityTouch = payload.capabilities.touch
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDeviceModel = exhibitionDeviceModelController.findExhibitionDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
-        val result = exhibitionDeviceModelController.updateExhibitionDeviceModel(exhibitionDeviceModel, manufacturer, model, dimensionWidth, dimensionHeight, resolutionX, resolutionY, capabilityTouch, userId)
+        val result = exhibitionDeviceModelController.updateExhibitionDeviceModel(exhibitionDeviceModel, manufacturer, model, dimensionWidth, dimensionHeight, displayMetrics, capabilityTouch, userId)
 
         return createOk(exhibitionDeviceModelTranslator.translate(result))
     }

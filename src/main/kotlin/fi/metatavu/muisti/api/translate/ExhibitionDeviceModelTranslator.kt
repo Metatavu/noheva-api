@@ -2,7 +2,7 @@ package fi.metatavu.muisti.api.translate
 
 import fi.metatavu.muisti.api.spec.model.ExhibitionDeviceModelCapabilities
 import fi.metatavu.muisti.api.spec.model.ExhibitionDeviceModelDimensions
-import fi.metatavu.muisti.api.spec.model.ExhibitionDeviceModelResolution
+import fi.metatavu.muisti.api.spec.model.ExhibitionDeviceModelDisplayMetrics
 import javax.enterprise.context.ApplicationScoped
 
 /**
@@ -23,9 +23,12 @@ class ExhibitionDeviceModelTranslator: AbstractTranslator<fi.metatavu.muisti.per
         dimensions.height = entity.dimensionHeight
         dimensions.width = entity.dimensionWidth
 
-        val resolution = ExhibitionDeviceModelResolution()
-        resolution.x = entity.resolutionX
-        resolution.y = entity.resolutionY
+        val displayMetrics = ExhibitionDeviceModelDisplayMetrics()
+        displayMetrics.heightPixels = entity.heightPixels
+        displayMetrics.widthPixels = entity.widthPixels
+        displayMetrics.density = entity.density
+        displayMetrics.xdpi = entity.xdpi
+        displayMetrics.ydpi = entity.ydpi
 
         val result = fi.metatavu.muisti.api.spec.model.ExhibitionDeviceModel()
         result.id = entity.id
@@ -34,7 +37,7 @@ class ExhibitionDeviceModelTranslator: AbstractTranslator<fi.metatavu.muisti.per
         result.model = entity.model
         result.capabilities = capabilities
         result.dimensions = dimensions
-        result.resolution = resolution
+        result.displayMetrics = displayMetrics
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
         result.createdAt = entity.createdAt
