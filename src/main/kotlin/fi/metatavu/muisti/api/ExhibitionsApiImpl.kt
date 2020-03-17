@@ -626,13 +626,14 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val layout = pageLayoutController.findPageLayoutById(payload.layoutId) ?: return createBadRequest("Layout $payload.layoutId not found")
+        val device = exhibitionDeviceController.findExhibitionDeviceById(payload.deviceId) ?: return createBadRequest("Device ${payload.deviceId} not found")
         val name = payload.name
         val resources = payload.resources
         val eventTriggers = payload.eventTriggers
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionPage = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
-        val result = exhibitionPageController.updateExhibitionPage(exhibitionPage, layout, name, resources, eventTriggers, userId)
+        val result = exhibitionPageController.updateExhibitionPage(exhibitionPage, device, layout, name, resources, eventTriggers, userId)
 
         return createOk(exhibitionPageTranslator.translate(result))
     }

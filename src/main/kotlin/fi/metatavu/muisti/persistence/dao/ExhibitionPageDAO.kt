@@ -47,7 +47,7 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      * Lists ExhibitionPages by exhibition
      *
      * @param exhibition exhibition
-     * @param ExhibitionDevice filter by exhibition device. Ignored if null is passed
+     * @param exhibitionDevice filter by exhibition device. Ignored if null is passed
      * @return List of ExhibitionPages
      */
     fun listByExhibition(exhibition: Exhibition, exhibitionDevice : ExhibitionDevice?): List<ExhibitionPage> {
@@ -96,6 +96,19 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
     fun updateLayout(exhibitionPage: ExhibitionPage, layout: PageLayout, lastModifierId: UUID): ExhibitionPage {
         exhibitionPage.lastModifierId = lastModifierId
         exhibitionPage.layout = layout
+        return persist(exhibitionPage)
+    }
+
+    /**
+     * Updates device
+     *
+     * @param device device
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionPage
+     */
+    fun updateDevice(exhibitionPage: ExhibitionPage, device: ExhibitionDevice, lastModifierId: UUID): ExhibitionPage {
+        exhibitionPage.lastModifierId = lastModifierId
+        exhibitionPage.device = device
         return persist(exhibitionPage)
     }
 

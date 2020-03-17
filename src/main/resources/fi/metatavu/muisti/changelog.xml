@@ -316,4 +316,14 @@
         </dropColumn>
     </changeSet>
 
+    <changeSet id="deviceidtoexhibitionpage" author="jari.nykanen">
+        <sql>DELETE FROM exhibitionpage</sql>
+
+        <addColumn tableName="exhibitionpage">
+            <column name="device_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_EXHIBITION_PAGE_DEVICE_ID" referencedColumnNames="id" referencedTableName="exhibitiondevice"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
