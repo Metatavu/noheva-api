@@ -27,7 +27,6 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 @Stateful
-
 class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     @Inject
