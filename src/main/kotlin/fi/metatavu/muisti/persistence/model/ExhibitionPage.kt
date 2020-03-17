@@ -20,6 +20,9 @@ class ExhibitionPage {
     var exhibition: Exhibition? = null
 
     @ManyToOne
+    var device: ExhibitionDevice? = null
+
+    @ManyToOne
     var layout: PageLayout? = null
 
     @NotEmpty

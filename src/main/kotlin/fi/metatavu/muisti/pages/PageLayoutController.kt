@@ -44,6 +44,16 @@ class PageLayoutController() {
     }
 
     /**
+     * Finds an exhibition page layout by device id
+     *
+     * @param id exhibition page layout id
+     * @return found exhibition page layout or null if not found
+     */
+    fun findPageLayoutByDeviceId(id: UUID): PageLayout? {
+        return pageLayoutDAO.findById(id)
+    }
+
+    /**
      * Lists all page layouts
      *
      * @returns all page layouts

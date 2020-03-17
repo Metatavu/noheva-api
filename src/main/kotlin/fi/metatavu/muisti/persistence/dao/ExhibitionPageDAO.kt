@@ -1,13 +1,11 @@
 package fi.metatavu.muisti.persistence.dao
 
-import fi.metatavu.muisti.persistence.model.Exhibition
-import fi.metatavu.muisti.persistence.model.ExhibitionPage
-import fi.metatavu.muisti.persistence.model.ExhibitionPage_
-import fi.metatavu.muisti.persistence.model.PageLayout
+import fi.metatavu.muisti.persistence.model.*
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
 import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 
 /**
@@ -31,9 +29,10 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      * @param lastModifierId last modifier's id
      * @return created exhibitionPage
      */
-    fun create(id: UUID, exhibition: Exhibition, layout: PageLayout, name: String, resources: String, eventTriggers: String, creatorId: UUID, lastModifierId: UUID): ExhibitionPage {
+    fun create(id: UUID, exhibition: Exhibition, device : ExhibitionDevice, layout: PageLayout, name: String, resources: String, eventTriggers: String, creatorId: UUID, lastModifierId: UUID): ExhibitionPage {
         val exhibitionPage = ExhibitionPage()
         exhibitionPage.id = id
+        exhibitionPage.device = device
         exhibitionPage.layout = layout
         exhibitionPage.name = name
         exhibitionPage.eventTriggers = eventTriggers
@@ -48,17 +47,26 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      * Lists ExhibitionPages by exhibition
      *
      * @param exhibition exhibition
+     * @param ExhibitionDevice filter by exhibition device. Ignored if null is passed
      * @return List of ExhibitionPages
      */
-    fun listByExhibition(exhibition: Exhibition): List<ExhibitionPage> {
+    fun listByExhibition(exhibition: Exhibition, exhibitionDevice : ExhibitionDevice?): List<ExhibitionPage> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionPage> = criteriaBuilder.createQuery(ExhibitionPage::class.java)
         val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)
+
+        val restrictions = ArrayList<Predicate>()
+        restrictions.add(criteriaBuilder.equal(root.get(ExhibitionPage_.exhibition), exhibition))
+
+        if(exhibitionDevice != null){
+            restrictions.add(criteriaBuilder.equal(root.get(ExhibitionPage_.device), exhibitionDevice))
+        }
+
         criteria.select(root)
-        criteria.where(criteriaBuilder.equal(root.get(ExhibitionPage_.exhibition), exhibition))
+        criteria.where(*restrictions.toTypedArray())
         val query: TypedQuery<ExhibitionPage> = entityManager.createQuery<ExhibitionPage>(criteria)
-        return query.getResultList()
+        return query.resultList
     }
 
     /**

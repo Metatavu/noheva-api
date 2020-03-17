@@ -27,6 +27,7 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 @Stateful
+
 class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     @Inject
@@ -579,12 +580,13 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val layout = pageLayoutController.findPageLayoutById(payload.layoutId) ?: return createBadRequest("Layout $payload.layoutId not found")
+        val deviceId = exhibitionDeviceController.findExhibitionDeviceById(payload.deviceId) ?: return createBadRequest("Device $payload.deviceId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val name = payload.name
         val resources = payload.resources
         val eventTriggers = payload.eventTriggers
 
-        val exhibitionPage = exhibitionPageController.createExhibitionPage(exhibition, layout, name, resources, eventTriggers, userId)
+        val exhibitionPage = exhibitionPageController.createExhibitionPage(exhibition, deviceId, layout, name, resources, eventTriggers, userId)
 
         return createOk(exhibitionPageTranslator.translate(exhibitionPage))
     }
@@ -603,10 +605,16 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         return createOk(exhibitionPageTranslator.translate(exhibitionPage))
     }
 
-    override fun listExhibitionPages(exhibitionId: UUID?): Response {
+    override fun listExhibitionPages(exhibitionId: UUID?, exhibitionDeviceId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionPages = exhibitionPageController.listExhibitionPages(exhibition)
+
+        var  exhibitionDevice : fi.metatavu.muisti.persistence.model.ExhibitionDevice? = null
+        if (exhibitionDeviceId != null) {
+            exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(exhibitionDeviceId)
+        }
+
+        val exhibitionPages = exhibitionPageController.listExhibitionPages(exhibition, exhibitionDevice)
 
         return createOk(exhibitionPages.map (exhibitionPageTranslator::translate))
     }

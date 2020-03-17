@@ -20,6 +20,7 @@ class ExhibitionPageTranslator: AbstractTranslator<fi.metatavu.muisti.persistenc
         val result = fi.metatavu.muisti.api.spec.model.ExhibitionPage()
         result.id = entity.id
         result.exhibitionId = entity.exhibition?.id
+        result.deviceId = entity.device?.id
         result.layoutId = entity.layout?.id
         result.name = entity.name
         result.resources = getResources(entity.resources)

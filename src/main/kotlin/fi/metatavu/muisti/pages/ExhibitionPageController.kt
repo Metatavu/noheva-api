@@ -5,6 +5,7 @@ import fi.metatavu.muisti.api.spec.model.ExhibitionPageEventTrigger
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageResource
 import fi.metatavu.muisti.persistence.dao.ExhibitionPageDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
+import fi.metatavu.muisti.persistence.model.ExhibitionDevice
 import fi.metatavu.muisti.persistence.model.ExhibitionPage
 import fi.metatavu.muisti.persistence.model.PageLayout
 import java.util.*
@@ -30,8 +31,8 @@ class ExhibitionPageController() {
      * @param creatorId creating user id
      * @return created exhibition page 
      */
-    fun createExhibitionPage(exhibition: Exhibition, layout: PageLayout, name: String, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, creatorId: UUID): ExhibitionPage {
-        return exhibitionPageDAO.create(UUID.randomUUID(), exhibition, layout, name, getDataAsString(resources), getDataAsString(eventTriggers), creatorId, creatorId)
+    fun createExhibitionPage(exhibition: Exhibition, device: ExhibitionDevice, layout: PageLayout, name: String, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, creatorId: UUID): ExhibitionPage {
+        return exhibitionPageDAO.create(UUID.randomUUID(), exhibition, device, layout, name, getDataAsString(resources), getDataAsString(eventTriggers), creatorId, creatorId)
     }
 
 
@@ -50,8 +51,8 @@ class ExhibitionPageController() {
      *
      * @returns all pages in an exhibition
      */
-    fun listExhibitionPages(exhibition: Exhibition): List<ExhibitionPage> {
-        return exhibitionPageDAO.listByExhibition(exhibition)
+    fun listExhibitionPages(exhibition: Exhibition, exhibitionDevice: ExhibitionDevice?): List<ExhibitionPage> {
+        return exhibitionPageDAO.listByExhibition(exhibition, exhibitionDevice)
     }
 
     /**
