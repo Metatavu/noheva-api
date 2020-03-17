@@ -53,7 +53,7 @@ class ExhibitionPageController() {
      * @returns all pages in an exhibition
      */
     fun listExhibitionPages(exhibition: Exhibition, exhibitionDevice: ExhibitionDevice?): List<ExhibitionPage> {
-        return exhibitionPageDAO.listByExhibition(exhibition, exhibitionDevice)
+        return exhibitionPageDAO.list(exhibition, exhibitionDevice)
     }
 
     /**
