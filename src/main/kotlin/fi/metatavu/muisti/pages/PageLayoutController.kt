@@ -2,6 +2,7 @@ package fi.metatavu.muisti.pages
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import fi.metatavu.muisti.api.spec.model.PageLayoutView
+import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.persistence.dao.PageLayoutDAO
 import fi.metatavu.muisti.persistence.model.PageLayout
 import java.util.*
@@ -26,11 +27,12 @@ class PageLayoutController() {
      * @param name name
      * @param data data
      * @param thumbnailUrl thumbnail URL
+     * @param screenOrientation screen orientation
      * @param creatorId creating user id
      * @return created exhibition page layout
      */
-    fun createPageLayout(name: String, data: PageLayoutView, thumbnailUrl: String?, creatorId: UUID): PageLayout {
-        return pageLayoutDAO.create(UUID.randomUUID(), name, getDataAsString(data), thumbnailUrl, creatorId, creatorId)
+    fun createPageLayout(name: String, data: PageLayoutView, thumbnailUrl: String?, screenOrientation: ScreenOrientation, creatorId: UUID): PageLayout {
+        return pageLayoutDAO.create(UUID.randomUUID(), name, getDataAsString(data), thumbnailUrl, screenOrientation, creatorId, creatorId)
     }
 
     /**
@@ -59,13 +61,15 @@ class PageLayoutController() {
      * @param name name
      * @param data data
      * @param thumbnailUrl thumbnail URL
+     * @param screenOrientation screen orientation
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updatePageLayout(pageLayout: PageLayout, name: String, data: PageLayoutView, thumbnailUrl: String?, modifierId: UUID): PageLayout {
+    fun updatePageLayout(pageLayout: PageLayout, name: String, data: PageLayoutView, thumbnailUrl: String?, screenOrientation: ScreenOrientation, modifierId: UUID): PageLayout {
         pageLayoutDAO.updateName(pageLayout, name, modifierId)
         pageLayoutDAO.updateData(pageLayout, getDataAsString(data), modifierId)
         pageLayoutDAO.updateThumbnailUrl(pageLayout, thumbnailUrl, modifierId)
+        pageLayoutDAO.updateScreenOrientation(pageLayout, screenOrientation, modifierId)
         return pageLayout
     }
 

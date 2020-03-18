@@ -316,4 +316,18 @@
         </dropColumn>
     </changeSet>
 
+    <changeSet id="screenorientations" author="jari.nykanen">
+        <addColumn tableName="exhibitiondevice">
+            <column name="screenOrientation" type="varchar(20)" defaultValue="portrait">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="pagelayout">
+            <column name="screenOrientation" type="varchar(20)" defaultValue="portrait">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

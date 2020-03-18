@@ -328,8 +328,9 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val location = payload.location
+        val screenOrientation = payload.screenOrientation
 
-        val exhibitionDevice = exhibitionDeviceController.createExhibitionDevice(exhibition, exhibitionGroup, model, payload.name, location, userId)
+        val exhibitionDevice = exhibitionDeviceController.createExhibitionDevice(exhibition, exhibitionGroup, model, payload.name, location, screenOrientation, userId)
 
         return createOk(exhibitionDeviceTranslator.translate(exhibitionDevice))
     }
@@ -390,7 +391,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(deviceId) ?: return createNotFound("Device $deviceId not found")
         val location = payload.location
-        val result = exhibitionDeviceController.updateExhibitionDevice(exhibitionDevice, model, payload.name, location, userId)
+        val screenOrientation = payload.screenOrientation
+        val result = exhibitionDeviceController.updateExhibitionDevice(exhibitionDevice, model, payload.name, location, screenOrientation, userId)
 
         return createOk(exhibitionDeviceTranslator.translate(result))
     }

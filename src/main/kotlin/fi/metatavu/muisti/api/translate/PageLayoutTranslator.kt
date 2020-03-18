@@ -16,6 +16,7 @@ class PageLayoutTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.mo
         result.name = entity.name
         result.data = getData(entity.data)
         result.thumbnailUrl = entity.thumbnailUrl
+        result.screenOrientation = entity.screenOrientation
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
         result.createdAt = entity.createdAt
