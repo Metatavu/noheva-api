@@ -10,7 +10,7 @@ import kotlin.streams.toList
  * Translator for translating JPA visitor session entities into REST resources
  */
 @ApplicationScoped
-open class VisitorSessionTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.VisitorSession, fi.metatavu.muisti.api.spec.model.VisitorSession>() {
+class VisitorSessionTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.VisitorSession, fi.metatavu.muisti.api.spec.model.VisitorSession>() {
 
     @Inject
     private lateinit var visitorSessionVariableDAO: VisitorSessionVariableDAO
@@ -18,11 +18,7 @@ open class VisitorSessionTranslator: AbstractTranslator<fi.metatavu.muisti.persi
     @Inject
     private lateinit var visitorSessionUserDAO: VisitorSessionUserDAO
 
-    override fun translate(entity: fi.metatavu.muisti.persistence.model.VisitorSession?): fi.metatavu.muisti.api.spec.model.VisitorSession? {
-        if (entity == null) {
-            return null
-        }
-
+    override fun translate(entity: fi.metatavu.muisti.persistence.model.VisitorSession): fi.metatavu.muisti.api.spec.model.VisitorSession {
         val variables = visitorSessionVariableDAO.listByVisitorSession(entity).stream()
             .map ( this::tranlateVariable )
             .toList()

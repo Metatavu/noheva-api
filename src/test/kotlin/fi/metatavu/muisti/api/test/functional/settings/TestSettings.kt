@@ -55,4 +55,10 @@ object TestSettings {
     val keycloakAdminPass: String
         get() = "test"
 
+    val mqttServerUrl: String
+        get() = "localhost"
+
+    val mqttTopic: String
+        get() = "test"
+
 }

@@ -10,6 +10,7 @@ import fi.metatavu.muisti.exhibitions.ExhibitionController
 import fi.metatavu.muisti.exhibitions.ExhibitionRoomController
 import fi.metatavu.muisti.pages.ExhibitionPageController
 import fi.metatavu.muisti.pages.PageLayoutController
+import fi.metatavu.muisti.realtime.RealtimeNotificationController
 import fi.metatavu.muisti.sessions.VisitorSessionController
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
@@ -76,6 +77,9 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     @Inject
     private lateinit var exhibitionPageTranslator: ExhibitionPageTranslator
+
+    @Inject
+    private lateinit var realtimeNotificationController: RealtimeNotificationController
 
     /* Exhibitions */
 
@@ -587,6 +591,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val eventTriggers = payload.eventTriggers
 
         val exhibitionPage = exhibitionPageController.createExhibitionPage(exhibition, layout, name, resources, eventTriggers, userId)
+        realtimeNotificationController.notifyExhibitionPageCreate(exhibitionId, exhibitionPage.id!!)
 
         return createOk(exhibitionPageTranslator.translate(exhibitionPage))
     }
@@ -626,9 +631,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionPage = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
-        val result = exhibitionPageController.updateExhibitionPage(exhibitionPage, layout, name, resources, eventTriggers, userId)
+        val updatedPage = exhibitionPageController.updateExhibitionPage(exhibitionPage, layout, name, resources, eventTriggers, userId)
+        realtimeNotificationController.notifyExhibitionPageUpdate(exhibitionId, pageId)
 
-        return createOk(exhibitionPageTranslator.translate(result))
+        return createOk(exhibitionPageTranslator.translate(updatedPage))
     }
 
     override fun deleteExhibitionPage(exhibitionId: UUID?, pageId: UUID?): Response {
@@ -637,8 +643,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionPage = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
-
         exhibitionPageController.deleteExhibitionPage(exhibitionPage)
+        realtimeNotificationController.notifyExhibitionPageDelete(exhibitionId, pageId)
 
         return createNoContent()
     }

@@ -10,9 +10,7 @@ import javax.enterprise.context.ApplicationScoped
 @ApplicationScoped
 class PageLayoutTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.PageLayout, fi.metatavu.muisti.api.spec.model.PageLayout>() {
 
-    override fun translate(entity: fi.metatavu.muisti.persistence.model.PageLayout?): fi.metatavu.muisti.api.spec.model.PageLayout? {
-        entity?: return null
-
+    override fun translate(entity: fi.metatavu.muisti.persistence.model.PageLayout): fi.metatavu.muisti.api.spec.model.PageLayout {
         val result = fi.metatavu.muisti.api.spec.model.PageLayout()
         result.id = entity.id
         result.name = entity.name

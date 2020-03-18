@@ -11,11 +11,7 @@ import javax.enterprise.context.ApplicationScoped
 @ApplicationScoped
 class ExhibitionDeviceModelTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.ExhibitionDeviceModel, fi.metatavu.muisti.api.spec.model.ExhibitionDeviceModel>() {
 
-    override fun translate(entity: fi.metatavu.muisti.persistence.model.ExhibitionDeviceModel?): fi.metatavu.muisti.api.spec.model.ExhibitionDeviceModel? {
-        if (entity == null) {
-            return null
-        }
-
+    override fun translate(entity: fi.metatavu.muisti.persistence.model.ExhibitionDeviceModel): fi.metatavu.muisti.api.spec.model.ExhibitionDeviceModel {
         val capabilities = ExhibitionDeviceModelCapabilities()
         capabilities.touch = entity.capabilityTouch
 
