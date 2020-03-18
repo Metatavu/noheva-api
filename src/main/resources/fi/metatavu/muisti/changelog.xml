@@ -330,4 +330,11 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="screenorientationdefaults" author="antti.leppa">
+        <sql>UPDATE exhibitiondevice SET screenOrientation = 'PORTRAIT'</sql>
+        <sql>UPDATE pagelayout SET screenOrientation = 'PORTRAIT'</sql>
+        <dropDefaultValue tableName="exhibitiondevice" columnName="screenOrientation" />
+        <dropDefaultValue tableName="pagelayout" columnName="screenOrientation" />
+    </changeSet>
+
 </databaseChangeLog>
