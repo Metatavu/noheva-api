@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.dao
 
+import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.persistence.model.*
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
@@ -27,11 +28,12 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
      * @param name name
      * @param locationX location x
      * @param locationY location y
+     * @param screenOrientation screen orientation
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created exhibitionDevice
      */
-    fun create(id: UUID, exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, exhibitionDeviceModel: ExhibitionDeviceModel, name: String, locationX: Double?, locationY: Double?, creatorId: UUID, lastModifierId: UUID): ExhibitionDevice {
+    fun create(id: UUID, exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, exhibitionDeviceModel: ExhibitionDeviceModel, name: String, locationX: Double?, locationY: Double?, screenOrientation: ScreenOrientation, creatorId: UUID, lastModifierId: UUID): ExhibitionDevice {
         val exhibitionDevice = ExhibitionDevice()
         exhibitionDevice.id = id
         exhibitionDevice.name = name
@@ -40,6 +42,7 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
         exhibitionDevice.exhibitionDeviceModel = exhibitionDeviceModel
         exhibitionDevice.locationX = locationX
         exhibitionDevice.locationY = locationY
+        exhibitionDevice.screenOrientation = screenOrientation
         exhibitionDevice.creatorId = creatorId
         exhibitionDevice.lastModifierId = lastModifierId
         return persist(exhibitionDevice)
@@ -122,6 +125,19 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
     fun updateLocationY(exhibitionDevice: ExhibitionDevice, locationY: Double?, lastModifierId: UUID): ExhibitionDevice {
         exhibitionDevice.lastModifierId = lastModifierId
         exhibitionDevice.locationY = locationY
+        return persist(exhibitionDevice)
+    }
+
+    /**
+     * Updates screen orientation
+     *
+     * @param screenOrientation screen orientation
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionDevice
+     */
+    fun updateScreenOrientation(exhibitionDevice: ExhibitionDevice, screenOrientation: ScreenOrientation, lastModifierId: UUID): ExhibitionDevice {
+        exhibitionDevice.lastModifierId = lastModifierId
+        exhibitionDevice.screenOrientation = screenOrientation
         return persist(exhibitionDevice)
     }
 

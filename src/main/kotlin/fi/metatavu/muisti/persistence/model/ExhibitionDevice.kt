@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.model
 
+import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*
@@ -32,6 +33,9 @@ class ExhibitionDevice {
     var locationX: Double? = null
 
     var locationY: Double? = null
+
+    @Column(nullable = false)
+    var screenOrientation: ScreenOrientation? = null
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null

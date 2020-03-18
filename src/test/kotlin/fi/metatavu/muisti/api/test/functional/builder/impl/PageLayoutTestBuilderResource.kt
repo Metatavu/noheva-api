@@ -8,6 +8,7 @@ import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.PageLayout
 import fi.metatavu.muisti.api.client.models.PageLayoutView
 import fi.metatavu.muisti.api.client.models.PageLayoutViewProperty
+import fi.metatavu.muisti.api.client.models.ScreenOrientation
 import fi.metatavu.muisti.api.test.functional.impl.ApiTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
@@ -32,7 +33,8 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
         val children: Array<PageLayoutView> = arrayOf()
         return create(PageLayout(
             name = "default page layout",
-            data = PageLayoutView("defaultid", "TextView", properties, children)
+            data = PageLayoutView("defaultid", "TextView", properties, children),
+            screenOrientation = ScreenOrientation.portrait
         ))
     }
 
