@@ -34,6 +34,7 @@ class ExhibitionDevice {
 
     var locationY: Double? = null
 
+    @Enumerated (EnumType.STRING)
     @Column(nullable = false)
     var screenOrientation: ScreenOrientation? = null
 
