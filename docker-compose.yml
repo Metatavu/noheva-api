@@ -33,6 +33,10 @@ services:
       - keycloak-mysql
     volumes:
       - ./test-volumes/keycloak:/opt/docker
+  test-mqtt:
+    image: eclipse-mosquitto
+    ports:
+      - 1883:1883
   muisti-api:
     build: .
     ports:
@@ -40,6 +44,7 @@ services:
     depends_on:
       - muisti-api-mysql
       - test-keycloak
+      - test-mqtt
     environment:
       API_HOST: localhost
       API_CLUSTER_PASSWORD: 4a0fc96f-c8d4-45c9-af69-4b7edd62df0d
@@ -55,6 +60,8 @@ services:
       FILE_STORAGE_PROVIDER: LOCAL
       LOCAL_FILE_STORAGE_PATH: /opt/uploads
       JAVA_OPTS: '-javaagent:/opt/jacoco-jacocoagent.jar=output=file,append=false,dumponexit=true,destfile=/opt/jacoco/it.exec'
+      MQTT_SERVER_URL: test-mqtt
+      MQTT_TOPIC: test
     volumes:
       - ./test-volumes/uploads:/opt/uploads
       - $JACOCO_AGENT:/opt/jacoco-jacocoagent.jar
