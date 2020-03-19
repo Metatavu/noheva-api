@@ -58,7 +58,7 @@ class RealtimeNotificationController {
     }
 
     /**
-     * Notify subscribers about new page creation
+     * Notify subscribers about new visitor session creation
      *
      * @param exhibitionId exhibition id
      * @param id page id
@@ -71,7 +71,7 @@ class RealtimeNotificationController {
     }
 
     /**
-     * Notify subscribers about new page creation
+     * Notify subscribers about visitor session update
      *
      * @param exhibitionId exhibition id
      * @param id page id
@@ -86,7 +86,7 @@ class RealtimeNotificationController {
     }
 
     /**
-     * Notify subscribers about new page deletion
+     * Notify subscribers about visitor session deletion
      *
      * @param exhibitionId exhibition id
      * @param id page id
