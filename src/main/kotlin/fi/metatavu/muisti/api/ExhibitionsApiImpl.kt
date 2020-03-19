@@ -181,6 +181,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         visitorSessionController.setVisitorSessionUsers(visitorSession, payload.users)
         visitorSessionController.setVisitorSessionVariables(visitorSession, payload.variables)
 
+        realtimeNotificationController.notifyExhibitionVisitorSessionCreate(exhibitionId,  visitorSession.id!!)
+
         return createOk(visitorSessionTranslator.translate(visitorSession))
     }
 
@@ -207,6 +209,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         visitorSessionController.deleteVisitorSession(visitorSession)
 
+        realtimeNotificationController.notifyExhibitionVisitorSessionDelete(exhibitionId,  visitorSessionId)
+
         return createNoContent()
     }
 
@@ -224,8 +228,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val visitorSession = visitorSessionController.findVisitorSessionById(visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
 
         val result = visitorSessionController.updateVisitorSession(visitorSession, payload.state, userId)
-        visitorSessionController.setVisitorSessionUsers(result, payload.users)
-        visitorSessionController.setVisitorSessionVariables(result, payload.variables)
+        val usersChanged = visitorSessionController.setVisitorSessionUsers(result, payload.users)
+        val variablesChanged = visitorSessionController.setVisitorSessionVariables(result, payload.variables)
+
+        realtimeNotificationController.notifyExhibitionVisitorSessionUpdate(exhibitionId,  visitorSessionId, variablesChanged, usersChanged)
 
         return createOk(visitorSessionTranslator.translate(result))
     }

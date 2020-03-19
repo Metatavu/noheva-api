@@ -1,9 +1,7 @@
 package fi.metatavu.muisti.realtime
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import fi.metatavu.muisti.api.spec.model.MqttExhibitionPageCreate
-import fi.metatavu.muisti.api.spec.model.MqttExhibitionPageDelete
-import fi.metatavu.muisti.api.spec.model.MqttExhibitionPageUpdate
+import fi.metatavu.muisti.api.spec.model.*
 import fi.metatavu.muisti.realtime.mqtt.MqttController
 import fi.metatavu.muisti.realtime.mqtt.MqttMessage
 import java.util.*
@@ -57,6 +55,47 @@ class RealtimeNotificationController {
         mqttMessage.exhibitionId = exhibitionId
         mqttMessage.id = id
         publishMqttTransactionSuccess("pages/delete", mqttMessage)
+    }
+
+    /**
+     * Notify subscribers about new page creation
+     *
+     * @param exhibitionId exhibition id
+     * @param id page id
+     */
+    fun notifyExhibitionVisitorSessionCreate(exhibitionId: UUID, id: UUID) {
+        val mqttMessage = MqttExhibitionVisitorSessionCreate()
+        mqttMessage.exhibitionId = exhibitionId
+        mqttMessage.id = id
+        publishMqttTransactionSuccess("visitorsessions/create", mqttMessage)
+    }
+
+    /**
+     * Notify subscribers about new page creation
+     *
+     * @param exhibitionId exhibition id
+     * @param id page id
+     */
+    fun notifyExhibitionVisitorSessionUpdate(exhibitionId: UUID, id: UUID, variablesChanged: Boolean, usersChanged: Boolean) {
+        val mqttMessage = MqttExhibitionVisitorSessionUpdate()
+        mqttMessage.exhibitionId = exhibitionId
+        mqttMessage.id = id
+        mqttMessage.variablesChanged = variablesChanged
+        mqttMessage.usersChanged = usersChanged
+        publishMqttTransactionSuccess("visitorsessions/update", mqttMessage)
+    }
+
+    /**
+     * Notify subscribers about new page deletion
+     *
+     * @param exhibitionId exhibition id
+     * @param id page id
+     */
+    fun notifyExhibitionVisitorSessionDelete(exhibitionId: UUID, id: UUID) {
+        val mqttMessage = MqttExhibitionVisitorSessionDelete()
+        mqttMessage.exhibitionId = exhibitionId
+        mqttMessage.id = id
+        publishMqttTransactionSuccess("visitorsessions/delete", mqttMessage)
     }
 
     /**
