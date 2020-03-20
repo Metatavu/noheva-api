@@ -4,6 +4,7 @@ import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.jaxrs.test.functional.builder.auth.AuthorizedTestBuilderAuthentication
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
+import fi.metatavu.muisti.api.test.functional.builder.impl.DeviceModelTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.builder.impl.FileTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.builder.impl.PageLayoutTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.impl.*
@@ -27,7 +28,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   private var visitorSessions: VisitorSessionTestBuilderResource? = null
   private var exhibitionRooms: ExhibitionRoomTestBuilderResource? = null
   private var exhibitionDeviceGroups: ExhibitionDeviceGroupTestBuilderResource? = null
-  private var exhibitionDeviceModels: ExhibitionDeviceModelTestBuilderResource? = null
+  private var deviceModels: DeviceModelTestBuilderResource? = null
   private var exhibitionDevices: ExhibitionDeviceTestBuilderResource? = null
   private var pageLayouts: PageLayoutTestBuilderResource? = null
   private var exhibitionPages: ExhibitionPageTestBuilderResource? = null
@@ -115,12 +116,12 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
    * @throws IOException thrown when authentication fails
    */
   @kotlin.jvm.Throws(IOException::class)
-  fun exhibitionDeviceModels(): ExhibitionDeviceModelTestBuilderResource {
-    if (exhibitionDeviceModels == null) {
-      exhibitionDeviceModels = ExhibitionDeviceModelTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+  fun deviceModels(): DeviceModelTestBuilderResource {
+    if (deviceModels == null) {
+      deviceModels = DeviceModelTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
     }
 
-    return exhibitionDeviceModels!!
+    return deviceModels!!
   }
 
   /**

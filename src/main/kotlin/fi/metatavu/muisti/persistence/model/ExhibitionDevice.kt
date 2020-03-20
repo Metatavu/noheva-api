@@ -24,7 +24,7 @@ class ExhibitionDevice {
     var exhibitionDeviceGroup: ExhibitionDeviceGroup? = null
 
     @ManyToOne
-    var exhibitionDeviceModel: ExhibitionDeviceModel? = null
+    var deviceModel: DeviceModel? = null
 
     @NotEmpty
     @Column(nullable = false)
