@@ -3,10 +3,10 @@ package fi.metatavu.muisti.devices
 import fi.metatavu.muisti.api.spec.model.Point
 import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.persistence.dao.ExhibitionDeviceDAO
+import fi.metatavu.muisti.persistence.model.DeviceModel
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionDevice
 import fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup
-import fi.metatavu.muisti.persistence.model.ExhibitionDeviceModel
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -31,8 +31,8 @@ class ExhibitionDeviceController() {
      * @param creatorId creating user id
      * @return created exhibition device 
      */
-    fun createExhibitionDevice(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, exhibitionDeviceModel: ExhibitionDeviceModel, name: String, location: Point?, screenOrientation: ScreenOrientation, creatorId: UUID): ExhibitionDevice {
-        return exhibitionDeviceDAO.create(UUID.randomUUID(), exhibition, exhibitionDeviceGroup, exhibitionDeviceModel, name, location?.x, location?.y, screenOrientation, creatorId, creatorId)
+    fun createExhibitionDevice(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, name: String, location: Point?, screenOrientation: ScreenOrientation, creatorId: UUID): ExhibitionDevice {
+        return exhibitionDeviceDAO.create(UUID.randomUUID(), exhibition, exhibitionDeviceGroup, deviceModel, name, location?.x, location?.y, screenOrientation, creatorId, creatorId)
     }
 
     /**
@@ -61,16 +61,16 @@ class ExhibitionDeviceController() {
      * @param name name
      * @param location location
      * @param screenOrientation screen orientation
-     * @param exhibitionDeviceModel model
+     * @param deviceModel model
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionDevice(exhibitionDevice: ExhibitionDevice, exhibitionDeviceModel: ExhibitionDeviceModel, name: String, location: Point?, screenOrientation: ScreenOrientation, modifierId: UUID): ExhibitionDevice {
+    fun updateExhibitionDevice(exhibitionDevice: ExhibitionDevice, deviceModel: DeviceModel, name: String, location: Point?, screenOrientation: ScreenOrientation, modifierId: UUID): ExhibitionDevice {
         var result = exhibitionDeviceDAO.updateName(exhibitionDevice, name, modifierId)
         result = exhibitionDeviceDAO.updateLocationX(result, location?.x, modifierId)
         result = exhibitionDeviceDAO.updateLocationY(result, location?.y, modifierId)
         result = exhibitionDeviceDAO.updateScreenOrientation(result, screenOrientation, modifierId)
-        result = exhibitionDeviceDAO.updateExhibitionDeviceModel(result, exhibitionDeviceModel, modifierId)
+        result = exhibitionDeviceDAO.updateExhibitionDeviceModel(result, deviceModel, modifierId)
         return result
     }
 

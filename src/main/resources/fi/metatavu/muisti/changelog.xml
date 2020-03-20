@@ -337,4 +337,13 @@
         <dropDefaultValue tableName="pagelayout" columnName="screenOrientation" />
     </changeSet>
 
+    <changeSet id="devicemodelsoutofexhibition" author="antti.leppa">
+        <dropForeignKeyConstraint baseTableName="exhibitiondevice" constraintName="FK_EXHIBITION_DEVICE_EXHIBITION_DEVICE_MODEL_ID"/>
+        <renameColumn tableName="exhibitiondevice" columnDataType="binary(16)" newColumnName="deviceModel_id" oldColumnName="exhibitionDeviceModel_id" />
+        <dropForeignKeyConstraint baseTableName="exhibitiondevicemodel" constraintName="FK_EXHIBITION_DEVICE_MODEL_EXHIBITION_ID"/>
+        <dropColumn tableName="exhibitiondevicemodel" columnName="exhibition_id"/>
+        <renameTable oldTableName="exhibitiondevicemodel" newTableName="devicemodel" />
+        <addForeignKeyConstraint baseTableName="exhibitiondevice" baseColumnNames="deviceModel_id" constraintName="FK_EXHIBITION_DEVICE_DEVICE_MODEL_ID" referencedTableName="devicemodel" referencedColumnNames="id"/>
+    </changeSet>
+
 </databaseChangeLog>
