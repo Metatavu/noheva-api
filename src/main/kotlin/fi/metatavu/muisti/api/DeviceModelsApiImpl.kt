@@ -29,10 +29,7 @@ class DeviceModelsApiImpl: DeviceModelsApi, AbstractApi() {
     /* Device models */
 
     override fun createDeviceModel(payload: DeviceModel?): Response {
-        if (payload == null) {
-            return createBadRequest("Missing request body")
-        }
-
+        payload ?: return createBadRequest("Missing request body")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val manufacturer = payload.manufacturer
         val model = payload.model
@@ -40,20 +37,14 @@ class DeviceModelsApiImpl: DeviceModelsApi, AbstractApi() {
         val dimensionHeight = payload.dimensions.height
         val displayMetrics = payload.displayMetrics
         val capabilityTouch = payload.capabilities.touch
-
         val deviceModel = deviceModelController.createDeviceModel(manufacturer, model, dimensionWidth, dimensionHeight, displayMetrics, capabilityTouch, userId)
-
         return createOk(deviceModelTranslator.translate(deviceModel))
     }
 
     override fun findDeviceModel(deviceModelId: UUID?): Response {
-        if (deviceModelId == null) {
-            return createNotFound(DEVICE_MODEL_NOT_FOUND)
-        }
-
+        deviceModelId ?: return createNotFound(DEVICE_MODEL_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
-
         return createOk(deviceModelTranslator.translate(deviceModel))
     }
 
@@ -64,14 +55,8 @@ class DeviceModelsApiImpl: DeviceModelsApi, AbstractApi() {
     }
 
     override fun updateDeviceModel(deviceModelId: UUID?, payload: DeviceModel?): Response {
-        if (payload == null) {
-            return createBadRequest("Missing request body")
-        }
-
-        if (deviceModelId == null) {
-            return createNotFound(DEVICE_MODEL_NOT_FOUND)
-        }
-
+        payload ?: return createBadRequest("Missing request body")
+        deviceModelId ?: return createNotFound(DEVICE_MODEL_NOT_FOUND)
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val manufacturer = payload.manufacturer
         val model = payload.model
@@ -87,15 +72,10 @@ class DeviceModelsApiImpl: DeviceModelsApi, AbstractApi() {
     }
 
     override fun deleteDeviceModel(deviceModelId: UUID?): Response {
-        if (deviceModelId == null) {
-            return createNotFound(DEVICE_MODEL_NOT_FOUND)
-        }
-
+        deviceModelId ?: return createNotFound(DEVICE_MODEL_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
-
         deviceModelController.deleteDeviceModel(deviceModel)
-
         return createNoContent()
     }
 
