@@ -6,13 +6,9 @@ import javax.enterprise.context.ApplicationScoped
  * Translator for translating JPA exhibition entities into REST resources
  */
 @ApplicationScoped
-open class ExhibitionTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.Exhibition, fi.metatavu.muisti.api.spec.model.Exhibition>() {
+class ExhibitionTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.Exhibition, fi.metatavu.muisti.api.spec.model.Exhibition>() {
 
-    override fun translate(entity: fi.metatavu.muisti.persistence.model.Exhibition?): fi.metatavu.muisti.api.spec.model.Exhibition? {
-        if (entity == null) {
-            return null
-        }
-
+    override fun translate(entity: fi.metatavu.muisti.persistence.model.Exhibition): fi.metatavu.muisti.api.spec.model.Exhibition {
         val result: fi.metatavu.muisti.api.spec.model.Exhibition = fi.metatavu.muisti.api.spec.model.Exhibition()
         result.setId(entity.id)
         result.setName(entity.name)

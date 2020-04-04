@@ -9,11 +9,7 @@ import javax.enterprise.context.ApplicationScoped
 @ApplicationScoped
 class ExhibitionDeviceTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.ExhibitionDevice, fi.metatavu.muisti.api.spec.model.ExhibitionDevice>() {
 
-    override fun translate(entity: fi.metatavu.muisti.persistence.model.ExhibitionDevice?): fi.metatavu.muisti.api.spec.model.ExhibitionDevice? {
-        if (entity == null) {
-            return null
-        }
-
+    override fun translate(entity: fi.metatavu.muisti.persistence.model.ExhibitionDevice): fi.metatavu.muisti.api.spec.model.ExhibitionDevice {
         val location = Point()
         location.x = entity.locationX
         location.y = entity.locationY
@@ -23,12 +19,13 @@ class ExhibitionDeviceTranslator: AbstractTranslator<fi.metatavu.muisti.persiste
         result.exhibitionId = entity.exhibition?.id
         result.name = entity.name
         result.groupId = entity.exhibitionDeviceGroup?.id
-        result.modelId = entity.exhibitionDeviceModel?.id
+        result.modelId = entity.deviceModel?.id
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
         result.createdAt = entity.createdAt
         result.modifiedAt = entity.modifiedAt
         result.location = location
+        result.screenOrientation = entity.screenOrientation
 
         return result
     }

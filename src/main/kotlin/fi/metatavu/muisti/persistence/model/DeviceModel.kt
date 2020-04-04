@@ -6,18 +6,15 @@ import javax.persistence.*
 import javax.validation.constraints.NotEmpty
 
 /**
- * JPA entity representing exhibition device group
+ * JPA entity representing device model
  *
  * @author Antti Leppä
  */
 @Entity
-class ExhibitionDeviceModel {
+class DeviceModel {
 
     @Id
     var id: UUID? = null
-
-    @ManyToOne
-    var exhibition: Exhibition? = null
 
     @NotEmpty
     @Column(nullable = false)

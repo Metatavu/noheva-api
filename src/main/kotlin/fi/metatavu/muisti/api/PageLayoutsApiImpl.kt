@@ -33,8 +33,9 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
         val name = payload.name
         val data = payload.data
         val thumbnailUrl = payload.thumbnailUrl
+        val screenOrientation = payload.screenOrientation
 
-        val pageLayout = pageLayoutController.createPageLayout(name, data, thumbnailUrl, userId)
+        val pageLayout = pageLayoutController.createPageLayout(name, data, thumbnailUrl, screenOrientation, userId)
 
         return createOk(pageLayoutTranslator.translate(pageLayout))
     }
@@ -59,9 +60,10 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
         val name = payload.name
         val data = payload.data
         val thumbnailUrl = payload.thumbnailUrl
+        val screenOrientation = payload.screenOrientation
 
         val pageLayout = pageLayoutController.findPageLayoutById(pageLayoutId) ?: return createNotFound("Layout $pageLayoutId not found")
-        val result = pageLayoutController.updatePageLayout(pageLayout, name, data, thumbnailUrl, userId)
+        val result = pageLayoutController.updatePageLayout(pageLayout, name, data, thumbnailUrl, screenOrientation, userId)
 
         return createOk(pageLayoutTranslator.translate(result))
     }

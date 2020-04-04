@@ -9,7 +9,7 @@ import java.util.stream.Collectors
  */
 abstract class AbstractTranslator<E, R> {
 
-    abstract fun translate(entity: E?): R?
+    abstract fun translate(entity: E): R
 
     /**
      * Translates list of entities

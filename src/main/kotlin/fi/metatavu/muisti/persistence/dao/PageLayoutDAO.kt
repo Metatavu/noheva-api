@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.dao
 
+import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.persistence.model.PageLayout
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
@@ -19,16 +20,18 @@ class PageLayoutDAO() : AbstractDAO<PageLayout>() {
      * @param name name
      * @param data data
      * @param thumbnailUrl thumbnail URL
+     * @param screenOrientation screen orientation
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created pageLayout
      */
-    fun create(id: UUID, name: String, data: String, thumbnailUrl: String?, creatorId: UUID, lastModifierId: UUID): PageLayout {
+    fun create(id: UUID, name: String, data: String, thumbnailUrl: String?, screenOrientation: ScreenOrientation, creatorId: UUID, lastModifierId: UUID): PageLayout {
         val pageLayout = PageLayout()
         pageLayout.id = id
         pageLayout.name = name
         pageLayout.data = data
         pageLayout.thumbnailUrl = thumbnailUrl
+        pageLayout.screenOrientation = screenOrientation
         pageLayout.creatorId = creatorId
         pageLayout.lastModifierId = lastModifierId
         return persist(pageLayout)
@@ -70,6 +73,19 @@ class PageLayoutDAO() : AbstractDAO<PageLayout>() {
     fun updateThumbnailUrl(pageLayout: PageLayout, thumbnailUrl: String?, lastModifierId: UUID): PageLayout {
         pageLayout.lastModifierId = lastModifierId
         pageLayout.thumbnailUrl = thumbnailUrl
+        return persist(pageLayout)
+    }
+
+    /**
+     * Updates screen orientation
+     *
+     * @param screenOrientation screen orientation
+     * @param lastModifierId last modifier's id
+     * @return updated pageLayout
+     */
+    fun updateScreenOrientation(pageLayout: PageLayout, screenOrientation: ScreenOrientation, lastModifierId: UUID): PageLayout {
+        pageLayout.lastModifierId = lastModifierId
+        pageLayout.screenOrientation = screenOrientation
         return persist(pageLayout)
     }
 

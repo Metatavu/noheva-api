@@ -16,16 +16,22 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
     @Test
     fun testCreateExhibitionPage() {
         TestBuilder().use {
+            val createdPageSubscription = it.mqtt().subscribe<MqttExhibitionPageCreate>(MqttExhibitionPageCreate::class.java,"pages/create")
+
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val layout = it.admin().pageLayouts().create()
             val layoutId = layout.id!!
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
-            val model = it.admin().exhibitionDeviceModels().create(exhibitionId)
-            val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
+            val groupId: UUID = group.id!!
+            val model = it.admin().deviceModels().create()
+            val modelId = model.id!!
+            val deviceId = it.admin().exhibitionDevices().create(exhibitionId, groupId, modelId).id!!
             val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId)
             assertNotNull(createdExhibitionPage)
             it.admin().exhibitions().assertCreateFail(400, "")
+
+            assertJsonsEqual(listOf(MqttExhibitionPageCreate(exhibitionId = exhibitionId, id = createdExhibitionPage.id)), createdPageSubscription.getMessages(1))
         }
    }
 
@@ -40,7 +46,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val nonExistingExhibitionPageId = UUID.randomUUID()
 
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
-            val model = it.admin().exhibitionDeviceModels().create(exhibitionId)
+            val model = it.admin().deviceModels().create()
             val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
 
             val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId)
@@ -63,7 +69,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val nonExistingExhibitionId = UUID.randomUUID()
 
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
-            val model = it.admin().exhibitionDeviceModels().create(exhibitionId)
+            val model = it.admin().deviceModels().create()
             val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
 
             it.admin().exhibitionPages().assertListFail(404, nonExistingExhibitionId, deviceId)
@@ -82,6 +88,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
     @Test
     fun testUpdateExhibition() {
         TestBuilder().use {
+            val updatedPageSubscription = it.mqtt().subscribe<MqttExhibitionPageUpdate>(MqttExhibitionPageUpdate::class.java,"pages/update")
+
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val createLayout = it.admin().pageLayouts().create()
@@ -90,7 +98,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val updateLayoutId = updateLayout.id!!
 
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
-            val model = it.admin().exhibitionDeviceModels().create(exhibitionId)
+            val model = it.admin().deviceModels().create()
             val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
 
             val navigatePage = it.admin().exhibitionPages().create(exhibitionId, createLayoutId, deviceId)
@@ -184,12 +192,16 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
             it.admin().exhibitionPages().assertUpdateFail(404, nonExistingExhibitionId, updatePage)
             it.admin().exhibitionPages().assertUpdateFail(400, exhibitionId, updatePage.copy( layoutId = UUID.randomUUID()))
+
+            assertJsonsEqual(listOf(MqttExhibitionPageUpdate(exhibitionId = exhibitionId, id = createdExhibitionPage.id)), updatedPageSubscription.getMessages(1))
         }
     }
 
     @Test
     fun testDeleteExhibition() {
         TestBuilder().use {
+            val deletePageSubscription = it.mqtt().subscribe<MqttExhibitionPageDelete>(MqttExhibitionPageDelete::class.java,"pages/delete")
+
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val layout = it.admin().pageLayouts().create()
@@ -198,7 +210,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val nonExistingSessionVariableId = UUID.randomUUID()
 
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
-            val model = it.admin().exhibitionDeviceModels().create(exhibitionId)
+            val model = it.admin().deviceModels().create()
             val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
 
             val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId)
@@ -212,6 +224,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             it.admin().exhibitionPages().delete(exhibitionId, createdExhibitionPage)
 
             it.admin().exhibitionPages().assertDeleteFail(404, exhibitionId, createdExhibitionPageId)
+
+            assertJsonsEqual(listOf(MqttExhibitionPageDelete(exhibitionId = exhibitionId, id = createdExhibitionPage.id)), deletePageSubscription.getMessages(1))
         }
     }
 

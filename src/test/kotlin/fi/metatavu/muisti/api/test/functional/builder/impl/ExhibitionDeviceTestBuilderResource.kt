@@ -6,7 +6,7 @@ import fi.metatavu.muisti.api.client.apis.ExhibitionDevicesApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.ExhibitionDevice
-import fi.metatavu.muisti.api.client.models.Point
+import fi.metatavu.muisti.api.client.models.ScreenOrientation
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -21,28 +21,34 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: AbstractTestBuilder<ApiCl
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
-     * Creates new exhibition Device with default values
+     * Creates new exhibition device using default values
      *
      * @param exhibitionId exhibition id
      * @param groupId group id
-     * @return created exhibition Device
+     * @param modelId model id
+     * @return created exhibition device
      */
     fun create(exhibitionId: UUID, groupId: UUID, modelId: UUID): ExhibitionDevice {
-        return create(exhibitionId, groupId, modelId, "default device", null)
+        val result: ExhibitionDevice = this.api.createExhibitionDevice(exhibitionId, ExhibitionDevice(
+            groupId = groupId,
+            modelId = modelId,
+            name = "Default",
+            screenOrientation = ScreenOrientation.portrait
+        ))
+
+        addClosable(result)
+        return result
     }
 
     /**
      * Creates new exhibition Device
      *
      * @param exhibitionId exhibition id
-     * @param groupId group id
-     * @param name name
-     * @param location location
+     * @param payload payload
      * @return created exhibition Device
      */
-    fun create(exhibitionId: UUID, groupId: UUID, modelId: UUID, name: String, location: Point?): ExhibitionDevice {
-        val payload = ExhibitionDevice(groupId, modelId, name, null, exhibitionId, location)
-        val result: ExhibitionDevice = this.getApi().createExhibitionDevice(exhibitionId, payload)
+    fun create(exhibitionId: UUID, payload: ExhibitionDevice): ExhibitionDevice {
+        val result: ExhibitionDevice = this.api.createExhibitionDevice(exhibitionId, payload)
         addClosable(result)
         return result
     }
@@ -167,14 +173,11 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: AbstractTestBuilder<ApiCl
      *
      * @param expectedStatus expected status
      * @param exhibitionId exhibition id
-     * @param groupId group
-     * @param modelId model
-     * @param name name
-     * @param location location
+     * @param payload payload
      */
-    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, groupId: UUID, modelId: UUID, name: String, location: Point?) {
+    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, payload: ExhibitionDevice) {
         try {
-            create(exhibitionId, groupId, modelId, name, location)
+            create(exhibitionId, payload)
             fail(String.format("Expected create to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)

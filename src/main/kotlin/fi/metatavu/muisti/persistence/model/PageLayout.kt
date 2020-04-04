@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.model
 
+import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import org.hibernate.validator.constraints.URL
 import java.time.OffsetDateTime
 import java.util.*
@@ -28,6 +29,10 @@ class PageLayout {
 
     @URL
     var thumbnailUrl: String? = null
+
+    @Enumerated (EnumType.STRING)
+    @Column(nullable = false)
+    var screenOrientation: ScreenOrientation? = null
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null

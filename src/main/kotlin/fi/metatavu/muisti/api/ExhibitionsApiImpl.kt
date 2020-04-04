@@ -3,13 +3,14 @@ package fi.metatavu.muisti.api
 import fi.metatavu.muisti.api.spec.ExhibitionsApi
 import fi.metatavu.muisti.api.spec.model.*
 import fi.metatavu.muisti.api.translate.*
+import fi.metatavu.muisti.devices.DeviceModelController
 import fi.metatavu.muisti.devices.ExhibitionDeviceController
 import fi.metatavu.muisti.devices.ExhibitionDeviceGroupController
-import fi.metatavu.muisti.devices.ExhibitionDeviceModelController
 import fi.metatavu.muisti.exhibitions.ExhibitionController
 import fi.metatavu.muisti.exhibitions.ExhibitionRoomController
 import fi.metatavu.muisti.pages.ExhibitionPageController
 import fi.metatavu.muisti.pages.PageLayoutController
+import fi.metatavu.muisti.realtime.RealtimeNotificationController
 import fi.metatavu.muisti.sessions.VisitorSessionController
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
@@ -27,6 +28,7 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 @Stateful
+@Suppress("unused")
 class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     @Inject
@@ -63,12 +65,6 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     private lateinit var exhibitionDeviceTranslator: ExhibitionDeviceTranslator
 
     @Inject
-    private lateinit var exhibitionDeviceModelController: ExhibitionDeviceModelController
-
-    @Inject
-    private lateinit var exhibitionDeviceModelTranslator: ExhibitionDeviceModelTranslator
-
-    @Inject
     private lateinit var pageLayoutController: PageLayoutController
 
     @Inject
@@ -76,6 +72,12 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     @Inject
     private lateinit var exhibitionPageTranslator: ExhibitionPageTranslator
+
+    @Inject
+    private lateinit var deviceModelController: DeviceModelController
+
+    @Inject
+    private lateinit var realtimeNotificationController: RealtimeNotificationController
 
     /* Exhibitions */
 
@@ -177,6 +179,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         visitorSessionController.setVisitorSessionUsers(visitorSession, payload.users)
         visitorSessionController.setVisitorSessionVariables(visitorSession, payload.variables)
 
+        realtimeNotificationController.notifyExhibitionVisitorSessionCreate(exhibitionId,  visitorSession.id!!)
+
         return createOk(visitorSessionTranslator.translate(visitorSession))
     }
 
@@ -203,6 +207,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         visitorSessionController.deleteVisitorSession(visitorSession)
 
+        realtimeNotificationController.notifyExhibitionVisitorSessionDelete(exhibitionId,  visitorSessionId)
+
         return createNoContent()
     }
 
@@ -220,8 +226,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val visitorSession = visitorSessionController.findVisitorSessionById(visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
 
         val result = visitorSessionController.updateVisitorSession(visitorSession, payload.state, userId)
-        visitorSessionController.setVisitorSessionUsers(result, payload.users)
-        visitorSessionController.setVisitorSessionVariables(result, payload.variables)
+        val usersChanged = visitorSessionController.setVisitorSessionUsers(result, payload.users)
+        val variablesChanged = visitorSessionController.setVisitorSessionVariables(result, payload.variables)
+
+        realtimeNotificationController.notifyExhibitionVisitorSessionUpdate(exhibitionId,  visitorSessionId, variablesChanged, usersChanged)
 
         return createOk(visitorSessionTranslator.translate(result))
     }
@@ -320,12 +328,13 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         }
 
         val exhibitionGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(payload.groupId) ?: return createBadRequest("Invalid exhibition group id ${payload.groupId}")
-        val model = exhibitionDeviceModelController.findExhibitionDeviceModelById(payload.modelId) ?: return createBadRequest("Device model $payload.modelId not found")
+        val model = deviceModelController.findDeviceModelById(payload.modelId) ?: return createBadRequest("Device model $payload.modelId not found")
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val location = payload.location
+        val screenOrientation = payload.screenOrientation
 
-        val exhibitionDevice = exhibitionDeviceController.createExhibitionDevice(exhibition, exhibitionGroup, model, payload.name, location, userId)
+        val exhibitionDevice = exhibitionDeviceController.createExhibitionDevice(exhibition, exhibitionGroup, model, payload.name, location, screenOrientation, userId)
 
         return createOk(exhibitionDeviceTranslator.translate(exhibitionDevice))
     }
@@ -380,13 +389,14 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             }
         }
 
-        val model = exhibitionDeviceModelController.findExhibitionDeviceModelById(payload.modelId) ?: return createBadRequest("Device model $payload.modelId not found")
+        val model = deviceModelController.findDeviceModelById(payload.modelId) ?: return createBadRequest("Device model $payload.modelId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(deviceId) ?: return createNotFound("Device $deviceId not found")
         val location = payload.location
-        val result = exhibitionDeviceController.updateExhibitionDevice(exhibitionDevice, model, payload.name, location, userId)
+        val screenOrientation = payload.screenOrientation
+        val result = exhibitionDeviceController.updateExhibitionDevice(exhibitionDevice, model, payload.name, location, screenOrientation, userId)
 
         return createOk(exhibitionDeviceTranslator.translate(result))
     }
@@ -482,96 +492,6 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         return createNoContent()
     }
 
-    /* Device models */
-
-    override fun createExhibitionDeviceModel(exhibitionId: UUID?, payload: ExhibitionDeviceModel?): Response {
-        if (payload == null) {
-            return createBadRequest("Missing request body")
-        }
-
-        if (exhibitionId == null) {
-            return createNotFound(EXHIBITION_NOT_FOUND)
-        }
-
-        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-        val manufacturer = payload.manufacturer
-        val model = payload.model
-        val dimensionWidth = payload.dimensions.width
-        val dimensionHeight = payload.dimensions.height
-        val displayMetrics = payload.displayMetrics
-        val capabilityTouch = payload.capabilities.touch
-
-        val exhibitionDeviceModel = exhibitionDeviceModelController.createExhibitionDeviceModel(exhibition, manufacturer, model, dimensionWidth, dimensionHeight, displayMetrics, capabilityTouch, userId)
-
-        return createOk(exhibitionDeviceModelTranslator.translate(exhibitionDeviceModel))
-    }
-
-    override fun findExhibitionDeviceModel(exhibitionId: UUID?, deviceModelId: UUID?): Response {
-        if (exhibitionId == null || deviceModelId == null) {
-            return createNotFound(EXHIBITION_NOT_FOUND)
-        }
-
-        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionDeviceModel = exhibitionDeviceModelController.findExhibitionDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
-
-        if (!exhibitionDeviceModel.exhibition?.id?.equals(exhibition.id)!!) {
-            return createNotFound("Device model not found")
-        }
-
-        return createOk(exhibitionDeviceModelTranslator.translate(exhibitionDeviceModel))
-    }
-
-    override fun listExhibitionDeviceModels(exhibitionId: UUID?): Response {
-        if (exhibitionId == null) {
-            return createNotFound(EXHIBITION_NOT_FOUND)
-        }
-
-        val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionDeviceModels = exhibitionDeviceModelController.listExhibitionDeviceModels(exhibition)
-
-        return createOk(exhibitionDeviceModels.map (exhibitionDeviceModelTranslator::translate))
-    }
-
-    override fun updateExhibitionDeviceModel(exhibitionId: UUID?, deviceModelId: UUID?, payload: ExhibitionDeviceModel?): Response {
-        if (payload == null) {
-            return createBadRequest("Missing request body")
-        }
-
-        if (exhibitionId == null || deviceModelId == null) {
-            return createNotFound(EXHIBITION_NOT_FOUND)
-        }
-
-        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-        val manufacturer = payload.manufacturer
-        val model = payload.model
-        val dimensionWidth = payload.dimensions.width
-        val dimensionHeight = payload.dimensions.height
-        val displayMetrics = payload.displayMetrics
-        val capabilityTouch = payload.capabilities.touch
-
-        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionDeviceModel = exhibitionDeviceModelController.findExhibitionDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
-        val result = exhibitionDeviceModelController.updateExhibitionDeviceModel(exhibitionDeviceModel, manufacturer, model, dimensionWidth, dimensionHeight, displayMetrics, capabilityTouch, userId)
-
-        return createOk(exhibitionDeviceModelTranslator.translate(result))
-    }
-
-    override fun deleteExhibitionDeviceModel(exhibitionId: UUID?, deviceModelId: UUID?): Response {
-        if (exhibitionId == null || deviceModelId == null) {
-            return createNotFound(EXHIBITION_NOT_FOUND)
-        }
-
-        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionDeviceModel = exhibitionDeviceModelController.findExhibitionDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
-
-        exhibitionDeviceModelController.deleteExhibitionDeviceModel(exhibitionDeviceModel)
-
-        return createNoContent()
-    }
-
     /* Pages */
 
     override fun createExhibitionPage(exhibitionId: UUID?, payload: ExhibitionPage?): Response {
@@ -584,7 +504,6 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val name = payload.name
         val resources = payload.resources
         val eventTriggers = payload.eventTriggers
-
         val exhibitionPage = exhibitionPageController.createExhibitionPage(exhibition, deviceId, layout, name, resources, eventTriggers, userId)
 
         return createOk(exhibitionPageTranslator.translate(exhibitionPage))
@@ -632,9 +551,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionPage = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
-        val result = exhibitionPageController.updateExhibitionPage(exhibitionPage, device, layout, name, resources, eventTriggers, userId)
+        val updatedPage = exhibitionPageController.updateExhibitionPage(exhibitionPage, device, layout, name, resources, eventTriggers, userId)
+        realtimeNotificationController.notifyExhibitionPageUpdate(exhibitionId, pageId)
 
-        return createOk(exhibitionPageTranslator.translate(result))
+        return createOk(exhibitionPageTranslator.translate(updatedPage))
     }
 
     override fun deleteExhibitionPage(exhibitionId: UUID?, pageId: UUID?): Response {
@@ -643,8 +563,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionPage = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
-
         exhibitionPageController.deleteExhibitionPage(exhibitionPage)
+        realtimeNotificationController.notifyExhibitionPageDelete(exhibitionId, pageId)
 
         return createNoContent()
     }

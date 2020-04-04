@@ -6,13 +6,9 @@ import javax.enterprise.context.ApplicationScoped
  * Translator for translating JPA exhibition device group entities into REST resources
  */
 @ApplicationScoped
-open class ExhibitionDeviceGroupTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup, fi.metatavu.muisti.api.spec.model.ExhibitionDeviceGroup>() {
+class ExhibitionDeviceGroupTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup, fi.metatavu.muisti.api.spec.model.ExhibitionDeviceGroup>() {
 
-    override fun translate(entity: fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup?): fi.metatavu.muisti.api.spec.model.ExhibitionDeviceGroup? {
-        if (entity == null) {
-            return null
-        }
-
+    override fun translate(entity: fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup): fi.metatavu.muisti.api.spec.model.ExhibitionDeviceGroup {
         val result: fi.metatavu.muisti.api.spec.model.ExhibitionDeviceGroup = fi.metatavu.muisti.api.spec.model.ExhibitionDeviceGroup()
         result.id = entity.id
         result.exhibitionId = entity.exhibition?.id

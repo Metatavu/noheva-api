@@ -12,11 +12,7 @@ import javax.enterprise.context.ApplicationScoped
 @ApplicationScoped
 class ExhibitionPageTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.ExhibitionPage, fi.metatavu.muisti.api.spec.model.ExhibitionPage>() {
 
-    override fun translate(entity: fi.metatavu.muisti.persistence.model.ExhibitionPage?): fi.metatavu.muisti.api.spec.model.ExhibitionPage? {
-        if (entity == null) {
-            return null
-        }
-
+    override fun translate(entity: fi.metatavu.muisti.persistence.model.ExhibitionPage): fi.metatavu.muisti.api.spec.model.ExhibitionPage {
         val result = fi.metatavu.muisti.api.spec.model.ExhibitionPage()
         result.id = entity.id
         result.exhibitionId = entity.exhibition?.id

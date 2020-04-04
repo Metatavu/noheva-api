@@ -1,9 +1,6 @@
 package fi.metatavu.muisti.api.test.functional
 
-import fi.metatavu.muisti.api.client.models.PageLayout
-import fi.metatavu.muisti.api.client.models.PageLayoutView
-import fi.metatavu.muisti.api.client.models.PageLayoutViewProperty
-import fi.metatavu.muisti.api.client.models.PageLayoutViewPropertyType
+import fi.metatavu.muisti.api.client.models.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -60,7 +57,8 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             val createdPageLayout = it.admin().pageLayouts().create(PageLayout(
                 name = "created name",
                 data = createdData,
-                thumbnailUrl = "http://example.com/thumbnail.png"
+                thumbnailUrl = "http://example.com/thumbnail.png",
+                screenOrientation = ScreenOrientation.portrait
             ))
 
             val createdPageLayoutId = createdPageLayout.id!!
@@ -69,6 +67,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             assertEquals(createdPageLayout.id, foundCreatedPageLayout?.id)
             assertEquals("created name", createdPageLayout.name)
             assertEquals("http://example.com/thumbnail.png", createdPageLayout.thumbnailUrl)
+            assertEquals(ScreenOrientation.portrait, createdPageLayout.screenOrientation)
             assertEquals("created widget", createdPageLayout.data.widget)
             assertEquals(1, createdPageLayout.data.properties.size)
             assertEquals("name", createdPageLayout.data.properties[0].name)
@@ -90,7 +89,8 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
                 id = createdPageLayoutId,
                 name = "updated name",
                 data = updatedData,
-                thumbnailUrl = "http://example.com/updated.png"
+                thumbnailUrl = "http://example.com/updated.png",
+                screenOrientation = ScreenOrientation.landscape
             ))
 
             val foundUpdatedPageLayout = it.admin().pageLayouts().findPageLayout(createdPageLayoutId)
@@ -98,6 +98,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             assertEquals(updatedPageLayout!!.id, foundUpdatedPageLayout?.id)
             assertEquals("updated name", updatedPageLayout.name)
             assertEquals("http://example.com/updated.png", updatedPageLayout.thumbnailUrl)
+            assertEquals(ScreenOrientation.landscape, updatedPageLayout.screenOrientation)
             assertEquals("updated widget", updatedPageLayout.data.widget)
             assertEquals(1, updatedPageLayout.data.properties.size)
             assertEquals("uname", updatedPageLayout.data.properties[0].name)
