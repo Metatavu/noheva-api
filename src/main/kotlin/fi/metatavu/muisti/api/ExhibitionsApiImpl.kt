@@ -505,6 +505,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val resources = payload.resources
         val eventTriggers = payload.eventTriggers
         val exhibitionPage = exhibitionPageController.createExhibitionPage(exhibition, deviceId, layout, name, resources, eventTriggers, userId)
+        realtimeNotificationController.notifyExhibitionPageCreate(exhibitionId, exhibitionPage.id!!)
 
         return createOk(exhibitionPageTranslator.translate(exhibitionPage))
     }
