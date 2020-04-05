@@ -148,6 +148,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 events = arrayOf(updateEvent),
                 clickViewId =  "updateviewid",
                 delay = 2,
+                externalKeyCode = 55,
                 next = arrayOf()
             )
 
