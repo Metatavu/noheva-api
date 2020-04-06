@@ -348,12 +348,13 @@
 
     <changeSet id="deviceidtoexhibitionpage" author="jari.nykanen">
         <addColumn tableName="exhibitionpage">
-            <column name="device_id" type="binary(16)">
-                <constraints nullable="true" foreignKeyName="FK_EXHIBITION_PAGE_DEVICE_ID" referencedColumnNames="id" referencedTableName="exhibitiondevice"/>
-            </column>
+            <column name="device_id" type="binary(16)"/>
         </addColumn>
+
         <sql>UPDATE exhibitionpage SET device_id = (SELECT ID FROM exhibitiondevice LIMIT 1)</sql>
+
         <addNotNullConstraint columnDataType="binary(16)" tableName="exhibitionpage" columnName="device_id"/>
+        <addForeignKeyConstraint baseTableName="exhibitionpage" baseColumnNames="device_id" constraintName="FK_EXHIBITION_PAGE_DEVICE_ID" referencedTableName="exhibitiondevice" referencedColumnNames="id"/>
     </changeSet>
 
 </databaseChangeLog>
