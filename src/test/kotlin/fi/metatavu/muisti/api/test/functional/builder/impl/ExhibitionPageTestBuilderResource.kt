@@ -65,6 +65,7 @@ class ExhibitionPageTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      * Lists exhibition Pages
      *
      * @param exhibitionId exhibition id
+     * @param exhibitionDeviceId exhibition device id
      * @return exhibition Pages
      */
     fun listExhibitionPages(exhibitionId: UUID, exhibitionDeviceId: UUID): Array<ExhibitionPage> {
@@ -115,6 +116,7 @@ class ExhibitionPageTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      *
      * @param expected expected count
      * @param exhibitionId exhibition id
+     * @param exhibitionDeviceId exhibition device id
      */
     fun assertCount(expected: Int, exhibitionId: UUID, exhibitionDeviceId: UUID) {
         assertEquals(expected, api.listExhibitionPages(exhibitionId, exhibitionDeviceId).size)
@@ -151,6 +153,7 @@ class ExhibitionPageTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      * Asserts list status fails with given status code
      *
      * @param expectedStatus expected status
+     * @param exhibitionDeviceId exhibition device id
      * @param exhibitionId exhibition id
      */
     fun assertListFail(expectedStatus: Int, exhibitionId: UUID, exhibitionDeviceId: UUID) {

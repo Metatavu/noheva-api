@@ -89,6 +89,7 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
     /**
      * Updates layout
      *
+     * @param exhibitionPage exhibition page
      * @param layout layout
      * @param lastModifierId last modifier's id
      * @return updated exhibitionPage
@@ -102,6 +103,7 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
     /**
      * Updates device
      *
+     * @param exhibitionPage exhibition page
      * @param device device
      * @param lastModifierId last modifier's id
      * @return updated exhibitionPage
@@ -115,6 +117,7 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
     /**
      * Updates name
      *
+     * @param exhibitionPage exhibition page
      * @param name name
      * @param lastModifierId last modifier's id
      * @return updated exhibitionPage
@@ -128,6 +131,7 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
     /**
      * Updates resources
      *
+     * @param exhibitionPage exhibition page
      * @param resources resources
      * @param lastModifierId last modifier's id
      * @return updated exhibitionPage
@@ -141,6 +145,7 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
     /**
      * Updates event triggers
      *
+     * @param exhibitionPage exhibition page
      * @param eventTriggers event triggers
      * @param lastModifierId last modifier's id
      * @return updated exhibitionPage
