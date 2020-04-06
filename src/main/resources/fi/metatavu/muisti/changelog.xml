@@ -357,4 +357,15 @@
         <addForeignKeyConstraint baseTableName="exhibitionpage" baseColumnNames="device_id" constraintName="FK_EXHIBITION_PAGE_DEVICE_ID" referencedTableName="exhibitiondevice" referencedColumnNames="id"/>
     </changeSet>
 
+    <changeSet id="devicedimensionsupdate" author="jari.nykanen">
+        <renameColumn tableName="devicemodel" oldColumnName="dimensionWidth" newColumnName="deviceWidth" columnDataType="INTEGER"/>
+        <renameColumn tableName="devicemodel" oldColumnName="dimensionHeight" newColumnName="deviceHeight" columnDataType="INTEGER"/>
+
+        <addColumn tableName="devicemodel">
+            <column name="deviceDepth" type="INTEGER"/>
+            <column name="screenWidth" type="INTEGER"/>
+            <column name="screenHeight" type="INTEGER"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

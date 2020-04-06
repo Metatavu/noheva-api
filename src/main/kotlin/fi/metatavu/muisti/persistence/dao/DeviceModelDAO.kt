@@ -18,8 +18,11 @@ class DeviceModelDAO() : AbstractDAO<DeviceModel>() {
      * @param id id
      * @param manufacturer device manufacturer
      * @param model device model
-     * @param dimensionWidth device physical width
-     * @param dimensionHeight device physical height
+     * @param deviceWidth device physical width
+     * @param deviceHeight device physical height
+     * @param deviceDepth device physical depth
+     * @param screenWidth device screen physical height
+     * @param screenHeight device screen physical height
      * @param widthPixels device x-resolution
      * @param heightPixels device y-resolution
      * @param density density
@@ -30,13 +33,16 @@ class DeviceModelDAO() : AbstractDAO<DeviceModel>() {
      * @param lastModifierId last modifier's id
      * @return created deviceModel
      */
-    fun create(id: UUID, manufacturer: String, model: String, dimensionWidth: Double?, dimensionHeight: Double?, widthPixels: Int?, heightPixels: Int?, density: Double?, xdpi: Double?, ydpi: Double?, capabilityTouch: Boolean, creatorId: UUID, lastModifierId: UUID): DeviceModel {
+    fun create(id: UUID, manufacturer: String, model: String, deviceWidth: Double?, deviceHeight: Double?, deviceDepth: Double?, screenWidth: Double?, screenHeight: Double?, widthPixels: Int?, heightPixels: Int?, density: Double?, xdpi: Double?, ydpi: Double?, capabilityTouch: Boolean, creatorId: UUID, lastModifierId: UUID): DeviceModel {
         val deviceModel = DeviceModel()
         deviceModel.id = id
         deviceModel.manufacturer = manufacturer
         deviceModel.model = model
-        deviceModel.dimensionWidth = dimensionWidth
-        deviceModel.dimensionHeight = dimensionHeight
+        deviceModel.deviceWidth = deviceWidth
+        deviceModel.deviceHeight = deviceHeight
+        deviceModel.deviceDepth = deviceDepth
+        deviceModel.screenWidth = screenWidth
+        deviceModel.screenHeight = screenHeight
         deviceModel.heightPixels = heightPixels
         deviceModel.widthPixels = widthPixels
         deviceModel.density = density
@@ -76,30 +82,72 @@ class DeviceModelDAO() : AbstractDAO<DeviceModel>() {
     }
 
     /**
-     * Updates dimension width
+     * Updates device width
      *
      * @param deviceModel exhibition device model
-     * @param dimensionWidth dimensionWidth
+     * @param deviceWidth device width
      * @param lastModifierId last modifier's id
      * @return updated deviceModel
      */
-    fun updateDimensionWidth(deviceModel: DeviceModel, dimensionWidth: Double?, lastModifierId: UUID): DeviceModel {
+    fun updateDeviceWidth(deviceModel: DeviceModel, deviceWidth: Double?, lastModifierId: UUID): DeviceModel {
         deviceModel.lastModifierId = lastModifierId
-        deviceModel.dimensionWidth = dimensionWidth
+        deviceModel.deviceWidth = deviceWidth
         return persist(deviceModel)
     }
 
     /**
-     * Updates dimension height
+     * Updates device height
      *
      * @param deviceModel exhibition device model
-     * @param dimensionHeight dimensionHeight
+     * @param deviceHeight device height
      * @param lastModifierId last modifier's id
      * @return updated deviceModel
      */
-    fun updateDimensionHeight(deviceModel: DeviceModel, dimensionHeight: Double?, lastModifierId: UUID): DeviceModel {
+    fun updateDeviceHeight(deviceModel: DeviceModel, deviceHeight: Double?, lastModifierId: UUID): DeviceModel {
         deviceModel.lastModifierId = lastModifierId
-        deviceModel.dimensionHeight = dimensionHeight
+        deviceModel.deviceHeight = deviceHeight
+        return persist(deviceModel)
+    }
+
+    /**
+     * Updates device depth
+     *
+     * @param deviceModel exhibition device model
+     * @param deviceDepth device physical depth
+     * @param lastModifierId last modifier's id
+     * @return updated deviceModel
+     */
+    fun updateDeviceDepth(deviceModel: DeviceModel, deviceDepth: Double?, lastModifierId: UUID): DeviceModel {
+        deviceModel.lastModifierId = lastModifierId
+        deviceModel.deviceDepth = deviceDepth
+        return persist(deviceModel)
+    }
+
+    /**
+     * Updates screen physical width
+     *
+     * @param deviceModel exhibition device model
+     * @param screenWidth screen physical width
+     * @param lastModifierId last modifier's id
+     * @return updated deviceModel
+     */
+    fun updateScreenWidth(deviceModel: DeviceModel, screenWidth: Double?, lastModifierId: UUID): DeviceModel {
+        deviceModel.lastModifierId = lastModifierId
+        deviceModel.screenWidth = screenWidth
+        return persist(deviceModel)
+    }
+
+    /**
+     * Updates screen physical height
+     *
+     * @param deviceModel exhibition device model
+     * @param screenHeight screen physical height
+     * @param lastModifierId last modifier's id
+     * @return updated deviceModel
+     */
+    fun updateScreenHeight(deviceModel: DeviceModel, screenHeight: Double?, lastModifierId: UUID): DeviceModel {
+        deviceModel.lastModifierId = lastModifierId
+        deviceModel.screenHeight = screenHeight
         return persist(deviceModel)
     }
 

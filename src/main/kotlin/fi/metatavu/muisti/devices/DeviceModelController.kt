@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.devices
 
+import fi.metatavu.muisti.api.spec.model.DeviceModelDimensions
 import fi.metatavu.muisti.api.spec.model.DeviceModelDisplayMetrics
 import fi.metatavu.muisti.persistence.dao.DeviceModelDAO
 import fi.metatavu.muisti.persistence.model.DeviceModel
@@ -21,19 +22,21 @@ class DeviceModelController() {
      *
      * @param manufacturer device manufacturer
      * @param model device model
-     * @param dimensionWidth device physical width
-     * @param dimensionHeight device physical height
+     * @param dimensions device physical dimensions
      * @param displayMetrics display metrics
      * @param capabilityTouch whether device has touch capability
      * @param creatorId creating user id
      * @return created exhibition device model
      */
-    fun createDeviceModel(manufacturer: String, model: String, dimensionWidth: Double?, dimensionHeight: Double?, displayMetrics: DeviceModelDisplayMetrics, capabilityTouch: Boolean, creatorId: UUID): DeviceModel {
+    fun createDeviceModel(manufacturer: String, model: String, dimensions: DeviceModelDimensions, displayMetrics: DeviceModelDisplayMetrics, capabilityTouch: Boolean, creatorId: UUID): DeviceModel {
         return deviceModelDAO.create(UUID.randomUUID(),
                 manufacturer = manufacturer,
                 model = model,
-                dimensionWidth = dimensionWidth,
-                dimensionHeight = dimensionHeight,
+                deviceWidth = dimensions.deviceWidth,
+                deviceHeight = dimensions.deviceHeight,
+                deviceDepth = dimensions.deviceDepth,
+                screenWidth = dimensions.screenWidth,
+                screenHeight = dimensions.screenHeight,
                 widthPixels = displayMetrics.widthPixels,
                 heightPixels = displayMetrics.heightPixels,
                 density = displayMetrics.density,
@@ -69,18 +72,20 @@ class DeviceModelController() {
      * @param deviceModel exhibition device model to be updated
      * @param manufacturer device manufacturer
      * @param model device model
-     * @param dimensionWidth device physical width
-     * @param dimensionHeight device physical height
+     * @param dimensions device physical dimensions
      * @param displayMetrics display metrics
      * @param capabilityTouch whether device has touch capability
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateDeviceModel(deviceModel: DeviceModel, manufacturer: String, model: String, dimensionWidth: Double?, dimensionHeight: Double?, displayMetrics: DeviceModelDisplayMetrics, capabilityTouch: Boolean, modifierId: UUID): DeviceModel {
+    fun updateDeviceModel(deviceModel: DeviceModel, manufacturer: String, model: String, dimensions: DeviceModelDimensions, displayMetrics: DeviceModelDisplayMetrics, capabilityTouch: Boolean, modifierId: UUID): DeviceModel {
         deviceModelDAO.updateManufacturer(deviceModel, manufacturer, modifierId)
         deviceModelDAO.updateModel(deviceModel, model, modifierId)
-        deviceModelDAO.updateDimensionWidth(deviceModel, dimensionWidth, modifierId)
-        deviceModelDAO.updateDimensionHeight(deviceModel, dimensionHeight, modifierId)
+        deviceModelDAO.updateDeviceWidth(deviceModel, dimensions.deviceWidth, modifierId)
+        deviceModelDAO.updateDeviceHeight(deviceModel, dimensions.deviceHeight, modifierId)
+        deviceModelDAO.updateDeviceDepth(deviceModel, dimensions.deviceDepth, modifierId)
+        deviceModelDAO.updateScreenWidth(deviceModel, dimensions.screenWidth, modifierId)
+        deviceModelDAO.updateScreenHeight(deviceModel, dimensions.screenHeight, modifierId)
         deviceModelDAO.updateWidthPixels(deviceModel, displayMetrics.widthPixels, modifierId)
         deviceModelDAO.updateHeightPixels(deviceModel, displayMetrics.heightPixels, modifierId)
         deviceModelDAO.updateDensity(deviceModel, displayMetrics.density, modifierId)
