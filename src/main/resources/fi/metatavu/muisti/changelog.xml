@@ -346,4 +346,14 @@
         <addForeignKeyConstraint baseTableName="exhibitiondevice" baseColumnNames="deviceModel_id" constraintName="FK_EXHIBITION_DEVICE_DEVICE_MODEL_ID" referencedTableName="devicemodel" referencedColumnNames="id"/>
     </changeSet>
 
+    <changeSet id="deviceidtoexhibitionpage" author="jari.nykanen">
+        <addColumn tableName="exhibitionpage">
+            <column name="device_id" type="binary(16)">
+                <constraints nullable="true" foreignKeyName="FK_EXHIBITION_PAGE_DEVICE_ID" referencedColumnNames="id" referencedTableName="exhibitiondevice"/>
+            </column>
+        </addColumn>
+        <sql>UPDATE exhibitionpage SET device_id = (SELECT ID FROM exhibitiondevice LIMIT 1)</sql>
+        <addNotNullConstraint columnDataType="binary(16)" tableName="exhibitionpage" columnName="device_id"/>
+    </changeSet>
+
 </databaseChangeLog>
