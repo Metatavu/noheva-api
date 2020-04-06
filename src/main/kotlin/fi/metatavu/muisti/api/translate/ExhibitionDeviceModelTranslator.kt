@@ -16,8 +16,11 @@ class DeviceModelTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.m
         capabilities.touch = entity.capabilityTouch
 
         val dimensions = DeviceModelDimensions()
-        dimensions.height = entity.dimensionHeight
-        dimensions.width = entity.dimensionWidth
+        dimensions.deviceWidth = entity.deviceWidth
+        dimensions.deviceHeight = entity.deviceHeight
+        dimensions.deviceDepth = entity.deviceDepth
+        dimensions.screenWidth = entity.screenWidth
+        dimensions.screenHeight = entity.screenHeight
 
         val displayMetrics = DeviceModelDisplayMetrics()
         displayMetrics.heightPixels = entity.heightPixels

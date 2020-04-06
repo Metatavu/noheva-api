@@ -19,7 +19,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
     @Test
     fun testCreateDeviceModel() {
         TestBuilder().use {
-            val dimensions = DeviceModelDimensions(8000.0, 6000.0)
+            val dimensions = DeviceModelDimensions(8000.0, 6000.0, 1.0, 7900.0, 5900.0)
             val displayMetrics = DeviceModelDisplayMetrics(
                 heightPixels = 12288,
                 widthPixels = 8192,
@@ -38,8 +38,11 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             ))
 
             assertNotNull(createdDeviceModel)
-            assertEquals(8000.0, createdDeviceModel.dimensions.width)
-            assertEquals(6000.0, createdDeviceModel.dimensions.height)
+            assertEquals(8000.0, createdDeviceModel.dimensions.deviceWidth)
+            assertEquals(6000.0, createdDeviceModel.dimensions.deviceHeight)
+            assertEquals(1.0, createdDeviceModel.dimensions.deviceDepth)
+            assertEquals(7900.0, createdDeviceModel.dimensions.screenWidth)
+            assertEquals(5900.0, createdDeviceModel.dimensions.screenHeight)
             assertEquals(12288, createdDeviceModel.displayMetrics.heightPixels)
             assertEquals(8192, createdDeviceModel.displayMetrics.widthPixels)
             assertEquals(3.5, createdDeviceModel.displayMetrics.density)
@@ -79,7 +82,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
     @Test
     fun testUpdateExhibition() {
         TestBuilder().use {
-            val createDimensions = DeviceModelDimensions(8000.0, 6000.0)
+            val createDimensions = DeviceModelDimensions(8000.0, 6000.0, 1.0, 7900.0, 5900.0)
             val createDisplayMetrics = DeviceModelDisplayMetrics(
                 heightPixels = 12288,
                 widthPixels = 8192,
@@ -102,8 +105,11 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             val foundCreatedDeviceModel = it.admin().deviceModels().findDeviceModel(createdDeviceModelId)
             assertEquals(createdDeviceModel.id, foundCreatedDeviceModel?.id)
             assertNotNull(createdDeviceModel)
-            assertEquals(8000.0, createdDeviceModel.dimensions.width)
-            assertEquals(6000.0, createdDeviceModel.dimensions.height)
+            assertEquals(8000.0, createdDeviceModel.dimensions.deviceWidth)
+            assertEquals(6000.0, createdDeviceModel.dimensions.deviceHeight)
+            assertEquals(1.0, createdDeviceModel.dimensions.deviceDepth)
+            assertEquals(7900.0, createdDeviceModel.dimensions.screenWidth)
+            assertEquals(5900.0, createdDeviceModel.dimensions.screenHeight)
             assertEquals(12288, createdDeviceModel.displayMetrics.heightPixels)
             assertEquals(8192, createdDeviceModel.displayMetrics.widthPixels)
             assertEquals(3.5, createdDeviceModel.displayMetrics.density)
@@ -114,7 +120,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             assertEquals("manu", createdDeviceModel.manufacturer)
             assertEquals("model", createdDeviceModel.model)
 
-            val updateDimensions = DeviceModelDimensions(5000.0, 4000.0)
+            val updateDimensions = DeviceModelDimensions(5000.0, 4000.0, 2.0, 4900.0, 3900.0)
             val updateDisplayMetrics = DeviceModelDisplayMetrics(
                     heightPixels = 22288,
                     widthPixels = 2192,
@@ -128,8 +134,11 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             val foundUpdatedDeviceModel = it.admin().deviceModels().findDeviceModel(createdDeviceModelId)
 
             assertEquals(updatedDeviceModel!!.id, foundUpdatedDeviceModel?.id)
-            assertEquals(5000.0, updatedDeviceModel.dimensions.width)
-            assertEquals(4000.0, updatedDeviceModel.dimensions.height)
+            assertEquals(5000.0, updatedDeviceModel.dimensions.deviceWidth)
+            assertEquals(4000.0, updatedDeviceModel.dimensions.deviceHeight)
+            assertEquals(2.0, updatedDeviceModel.dimensions.deviceDepth)
+            assertEquals(4900.0, updatedDeviceModel.dimensions.screenWidth)
+            assertEquals(3900.0, updatedDeviceModel.dimensions.screenHeight)
             assertEquals(22288, updatedDeviceModel.displayMetrics.heightPixels)
             assertEquals(2192, updatedDeviceModel.displayMetrics.widthPixels)
             assertEquals(2.5, updatedDeviceModel.displayMetrics.density)
