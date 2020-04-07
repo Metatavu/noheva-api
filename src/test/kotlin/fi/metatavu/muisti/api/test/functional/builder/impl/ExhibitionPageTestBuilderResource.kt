@@ -25,12 +25,14 @@ class ExhibitionPageTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      *
      * @param exhibitionId
      * @param layoutId layout id
+     * @param contentVersionId content version id
      * @return created exhibition Page
      */
-    fun create(exhibitionId: UUID, layoutId: UUID, deviceId: UUID): ExhibitionPage {
+    fun create(exhibitionId: UUID, layoutId: UUID, deviceId: UUID, contentVersionId: UUID): ExhibitionPage {
         return create(exhibitionId, ExhibitionPage(
             layoutId = layoutId,
             deviceId = deviceId,
+            contentVersionId = contentVersionId,
             name = "default page",
             resources = arrayOf(),
             eventTriggers = arrayOf()

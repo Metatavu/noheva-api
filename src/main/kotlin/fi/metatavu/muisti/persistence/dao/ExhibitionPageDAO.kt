@@ -21,6 +21,7 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      *
      * @param id id
      * @param exhibition exhibition
+     * @param contentVersion content version
      * @param layout layout
      * @param name name
      * @param resources resources
@@ -29,11 +30,12 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      * @param lastModifierId last modifier's id
      * @return created exhibitionPage
      */
-    fun create(id: UUID, exhibition: Exhibition, device : ExhibitionDevice, layout: PageLayout, name: String, resources: String, eventTriggers: String, creatorId: UUID, lastModifierId: UUID): ExhibitionPage {
+    fun create(id: UUID, exhibition: Exhibition, contentVersion: ExhibitionContentVersion, device : ExhibitionDevice, layout: PageLayout, name: String, resources: String, eventTriggers: String, creatorId: UUID, lastModifierId: UUID): ExhibitionPage {
         val exhibitionPage = ExhibitionPage()
         exhibitionPage.id = id
         exhibitionPage.device = device
         exhibitionPage.layout = layout
+        exhibitionPage.contentVersion = contentVersion
         exhibitionPage.name = name
         exhibitionPage.eventTriggers = eventTriggers
         exhibitionPage.resources = resources
@@ -111,6 +113,20 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
     fun updateDevice(exhibitionPage: ExhibitionPage, device: ExhibitionDevice, lastModifierId: UUID): ExhibitionPage {
         exhibitionPage.lastModifierId = lastModifierId
         exhibitionPage.device = device
+        return persist(exhibitionPage)
+    }
+
+    /**
+     * Updates content version
+     *
+     * @param exhibitionPage exhibition page
+     * @param contentVersion content version
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionPage
+     */
+    fun updateContentVersion(exhibitionPage: ExhibitionPage, contentVersion: ExhibitionContentVersion, lastModifierId: UUID): ExhibitionPage {
+        exhibitionPage.lastModifierId = lastModifierId
+        exhibitionPage.contentVersion = contentVersion
         return persist(exhibitionPage)
     }
 

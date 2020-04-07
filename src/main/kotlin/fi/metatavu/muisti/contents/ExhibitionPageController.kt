@@ -1,13 +1,10 @@
-package fi.metatavu.muisti.pages
+package fi.metatavu.muisti.contents
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageEventTrigger
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageResource
 import fi.metatavu.muisti.persistence.dao.ExhibitionPageDAO
-import fi.metatavu.muisti.persistence.model.Exhibition
-import fi.metatavu.muisti.persistence.model.ExhibitionDevice
-import fi.metatavu.muisti.persistence.model.ExhibitionPage
-import fi.metatavu.muisti.persistence.model.PageLayout
+import fi.metatavu.muisti.persistence.model.*
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -26,14 +23,24 @@ class ExhibitionPageController() {
      *
      * @param device device
      * @param layout layout
+     * @param contentVersion content version
      * @param name name
      * @param resources resources
      * @param eventTriggers event triggers
      * @param creatorId creating user id
      * @return created exhibition page 
      */
-    fun createExhibitionPage(exhibition: Exhibition, device: ExhibitionDevice, layout: PageLayout, name: String, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, creatorId: UUID): ExhibitionPage {
-        return exhibitionPageDAO.create(UUID.randomUUID(), exhibition, device, layout, name, getDataAsString(resources), getDataAsString(eventTriggers), creatorId, creatorId)
+    fun createExhibitionPage(exhibition: Exhibition, device: ExhibitionDevice, layout: PageLayout, contentVersion: ExhibitionContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, creatorId: UUID): ExhibitionPage {
+        return exhibitionPageDAO.create(UUID.randomUUID(),
+                exhibition = exhibition,
+                device = device,
+                layout = layout,
+                contentVersion = contentVersion,
+                name = name,
+                resources = getDataAsString(resources),
+                eventTriggers = getDataAsString(eventTriggers),
+                creatorId = creatorId,
+                lastModifierId = creatorId)
     }
 
 
@@ -71,16 +78,18 @@ class ExhibitionPageController() {
      * @param exhibitionPage exhibition page  to be updated
      * @param device device
      * @param layout layout
+     * @param contentVersion content version
      * @param name name
      * @param resources resources
      * @param eventTriggers event triggers
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionPage(exhibitionPage: ExhibitionPage, device: ExhibitionDevice, layout: PageLayout, name: String, resources: List<ExhibitionPageResource>, eventTriggers: List<ExhibitionPageEventTrigger>, modifierId: UUID): ExhibitionPage {
+    fun updateExhibitionPage(exhibitionPage: ExhibitionPage, device: ExhibitionDevice, layout: PageLayout, contentVersion: ExhibitionContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers: List<ExhibitionPageEventTrigger>, modifierId: UUID): ExhibitionPage {
         var result = exhibitionPageDAO.updateName(exhibitionPage, name, modifierId)
         result = exhibitionPageDAO.updateLayout(result, layout, modifierId)
         result = exhibitionPageDAO.updateDevice(result, device, modifierId)
+        result = exhibitionPageDAO.updateContentVersion(result, contentVersion, modifierId)
         result = exhibitionPageDAO.updateResources(result, getDataAsString(resources), modifierId)
         result = exhibitionPageDAO.updateEventTriggers(result, getDataAsString(eventTriggers), modifierId)
         return result
