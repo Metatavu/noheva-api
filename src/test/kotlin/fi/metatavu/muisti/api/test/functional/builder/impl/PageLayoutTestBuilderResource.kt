@@ -34,7 +34,8 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
         return create(PageLayout(
             name = "default page layout",
             data = PageLayoutView("defaultid", "TextView", properties, children),
-            screenOrientation = ScreenOrientation.portrait
+            screenOrientation = ScreenOrientation.portrait,
+            modelId = UUID.randomUUID()
         ))
     }
 
@@ -65,8 +66,35 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
      *
      * @return exhibition page layouts
      */
+    fun listPageLayoutsByDeviceModelIdAndOrientation(deviceModelId : UUID, screenOrientation: ScreenOrientation): Array<PageLayout> {
+        return api.listPageLayouts(deviceModelId, screenOrientation.toString())
+    }
+
+    /**
+     * Lists exhibition page layouts
+     *
+     * @return exhibition page layouts
+     */
+    fun listPageLayoutsByDeviceModelId(deviceModelId : UUID): Array<PageLayout> {
+        return api.listPageLayouts(deviceModelId, null)
+    }
+
+    /**
+     * Lists exhibition page layouts
+     *
+     * @return exhibition page layouts
+     */
+    fun listPageLayoutsByOrientation(screenOrientation: ScreenOrientation): Array<PageLayout> {
+        return api.listPageLayouts(null, screenOrientation.toString())
+    }
+
+    /**
+     * Lists exhibition page layouts
+     *
+     * @return exhibition page layouts
+     */
     fun listPageLayouts(): Array<PageLayout> {
-        return api.listPageLayouts()
+        return api.listPageLayouts(null, null)
     }
 
     /**
@@ -111,7 +139,7 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
      * @param expected expected count
      */
     fun assertCount(expected: Int) {
-        assertEquals(expected, api.listPageLayouts().size)
+        assertEquals(expected, api.listPageLayouts(null, null).size)
     }
 
     /**
@@ -146,7 +174,7 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
      */
     fun assertListFail(expectedStatus: Int) {
         try {
-            api.listPageLayouts()
+            api.listPageLayouts(null, null)
             fail(String.format("Expected list to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)

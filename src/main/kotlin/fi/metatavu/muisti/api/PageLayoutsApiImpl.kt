@@ -2,12 +2,14 @@ package fi.metatavu.muisti.api
 
 import fi.metatavu.muisti.api.spec.PageLayoutsApi
 import fi.metatavu.muisti.api.spec.model.PageLayout
+import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.api.translate.PageLayoutTranslator
 import fi.metatavu.muisti.pages.PageLayoutController
 import java.util.*
 import javax.ejb.Stateful
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.ws.rs.PathParam
 import javax.ws.rs.core.Response
 
 /**
@@ -33,9 +35,10 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
         val name = payload.name
         val data = payload.data
         val thumbnailUrl = payload.thumbnailUrl
+        val modelId = payload.modelId
         val screenOrientation = payload.screenOrientation
 
-        val pageLayout = pageLayoutController.createPageLayout(name, data, thumbnailUrl, screenOrientation, userId)
+        val pageLayout = pageLayoutController.createPageLayout(name, data, thumbnailUrl, modelId, screenOrientation, userId)
 
         return createOk(pageLayoutTranslator.translate(pageLayout))
     }
@@ -47,9 +50,20 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
         return createOk(pageLayoutTranslator.translate(pageLayout))
     }
 
-    override fun listPageLayouts(): Response {
-        val pageLayouts = pageLayoutController.listPageLayouts()
-        return createOk(pageLayouts.map (pageLayoutTranslator::translate))
+    override fun listPageLayouts(deviceModelId: UUID?, screenOrientation: String?): Response? {
+        val result = if (deviceModelId !== null && screenOrientation !== null) {
+            val parsedOrientation = if (screenOrientation == "landscape") ScreenOrientation.LANDSCAPE else ScreenOrientation.PORTRAIT
+            pageLayoutController.findPageLayoutsByDeviceModelIdAndOrientation(deviceModelId, parsedOrientation)
+        } else if (deviceModelId !== null) {
+            pageLayoutController.findPageLayoutsByDeviceModelId(deviceModelId)
+        } else if (screenOrientation !== null) {
+            val parsedOrientation = if (screenOrientation == "landscape") ScreenOrientation.LANDSCAPE else ScreenOrientation.PORTRAIT
+            pageLayoutController.findPageLayoutsByScreenOrientation(parsedOrientation)
+        } else {
+            pageLayoutController.listPageLayouts()
+        }
+
+        return createOk(result.map (pageLayoutTranslator::translate))
     }
 
     override fun updatePageLayout(pageLayoutId: UUID?, payload: PageLayout?): Response {
@@ -60,10 +74,11 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
         val name = payload.name
         val data = payload.data
         val thumbnailUrl = payload.thumbnailUrl
+        val modelId = payload.modelId
         val screenOrientation = payload.screenOrientation
 
         val pageLayout = pageLayoutController.findPageLayoutById(pageLayoutId) ?: return createNotFound("Layout $pageLayoutId not found")
-        val result = pageLayoutController.updatePageLayout(pageLayout, name, data, thumbnailUrl, screenOrientation, userId)
+        val result = pageLayoutController.updatePageLayout(pageLayout, name, data, thumbnailUrl, modelId, screenOrientation, userId)
 
         return createOk(pageLayoutTranslator.translate(result))
     }

@@ -30,6 +30,9 @@ class PageLayout {
     @URL
     var thumbnailUrl: String? = null
 
+    @Column(nullable = false)
+    var modelId: UUID? = null
+
     @Enumerated (EnumType.STRING)
     @Column(nullable = false)
     var screenOrientation: ScreenOrientation? = null

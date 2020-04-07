@@ -368,4 +368,14 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="modelidtopagelayout" author="jari.nykanen">
+        <addColumn tableName="pagelayout">
+            <column name="modelId" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <sql>UPDATE pagelayout SET modelId = (SELECT ID FROM exhibitiondevice LIMIT 1)</sql>
+    </changeSet>
+
 </databaseChangeLog>

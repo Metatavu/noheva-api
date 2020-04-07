@@ -31,8 +31,8 @@ class PageLayoutController() {
      * @param creatorId creating user id
      * @return created exhibition page layout
      */
-    fun createPageLayout(name: String, data: PageLayoutView, thumbnailUrl: String?, screenOrientation: ScreenOrientation, creatorId: UUID): PageLayout {
-        return pageLayoutDAO.create(UUID.randomUUID(), name, getDataAsString(data), thumbnailUrl, screenOrientation, creatorId, creatorId)
+    fun createPageLayout(name: String, data: PageLayoutView, thumbnailUrl: String?, modelId: UUID, screenOrientation: ScreenOrientation, creatorId: UUID): PageLayout {
+        return pageLayoutDAO.create(UUID.randomUUID(), name, getDataAsString(data), thumbnailUrl, modelId, screenOrientation, creatorId, creatorId)
     }
 
     /**
@@ -43,6 +43,36 @@ class PageLayoutController() {
      */
     fun findPageLayoutById(id: UUID): PageLayout? {
         return pageLayoutDAO.findById(id)
+    }
+
+    /**
+     * Finds a list of exhibition page layouts by device model id and screen orientation
+     *
+     * @param deviceModelId device model id
+     * @param screenOrientation screen orientation
+     * @return list of exhibition page layouts
+     */
+    fun findPageLayoutsByDeviceModelIdAndOrientation(deviceModelId: UUID, screenOrientation: ScreenOrientation): List<PageLayout> {
+        return pageLayoutDAO.listByDeviceModelIdAndOrientation(deviceModelId, screenOrientation)
+    }
+
+    /**
+     * Finds a list of exhibition page layouts by device model id
+     * @param deviceModelId device model id
+     * @return list of exhibition page layouts
+     */
+    fun findPageLayoutsByDeviceModelId(deviceModelId: UUID): List<PageLayout> {
+        return pageLayoutDAO.listByDeviceModelId(deviceModelId)
+    }
+
+    /**
+     * Finds a list of exhibition page layouts by screen orientation
+     *
+     * @param screenOrientation screen orientation
+     * @return list of exhibition page layouts
+     */
+    fun findPageLayoutsByScreenOrientation(screenOrientation: ScreenOrientation): List<PageLayout> {
+        return pageLayoutDAO.listByScreenOrientation(screenOrientation)
     }
 
     /**
@@ -65,10 +95,11 @@ class PageLayoutController() {
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updatePageLayout(pageLayout: PageLayout, name: String, data: PageLayoutView, thumbnailUrl: String?, screenOrientation: ScreenOrientation, modifierId: UUID): PageLayout {
+    fun updatePageLayout(pageLayout: PageLayout, name: String, data: PageLayoutView, thumbnailUrl: String?, modelId: UUID, screenOrientation: ScreenOrientation, modifierId: UUID): PageLayout {
         pageLayoutDAO.updateName(pageLayout, name, modifierId)
         pageLayoutDAO.updateData(pageLayout, getDataAsString(data), modifierId)
         pageLayoutDAO.updateThumbnailUrl(pageLayout, thumbnailUrl, modifierId)
+        pageLayoutDAO.updateModelId(pageLayout, modelId, modifierId)
         pageLayoutDAO.updateScreenOrientation(pageLayout, screenOrientation, modifierId)
         return pageLayout
     }
