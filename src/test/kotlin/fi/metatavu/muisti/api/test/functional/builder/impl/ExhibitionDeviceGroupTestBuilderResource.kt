@@ -58,10 +58,11 @@ class ExhibitionDeviceGroupTestBuilderResource(testBuilder: AbstractTestBuilder<
      * Lists exhibition DeviceGroups
      *
      * @param exhibitionId exhibition id
+     * @param roomId filter by room id. Ignored if null
      * @return exhibition DeviceGroups
      */
-    fun listExhibitionDeviceGroups(exhibitionId: UUID): Array<ExhibitionDeviceGroup> {
-        return api.listExhibitionDeviceGroups(exhibitionId)
+    fun listExhibitionDeviceGroups(exhibitionId: UUID, roomId: UUID?): Array<ExhibitionDeviceGroup> {
+        return api.listExhibitionDeviceGroups(exhibitionId = exhibitionId, roomId = roomId)
     }
 
     /**
@@ -108,9 +109,10 @@ class ExhibitionDeviceGroupTestBuilderResource(testBuilder: AbstractTestBuilder<
      *
      * @param expected expected count
      * @param exhibitionId exhibition id
+     * @param roomId filter by room id. Ignored if null
      */
-    fun assertCount(expected: Int, exhibitionId: UUID) {
-        assertEquals(expected, api.listExhibitionDeviceGroups(exhibitionId).size)
+    fun assertCount(expected: Int, exhibitionId: UUID, roomId: UUID?) {
+        assertEquals(expected, api.listExhibitionDeviceGroups(exhibitionId = exhibitionId, roomId = roomId).size)
     }
 
     /**
@@ -145,10 +147,11 @@ class ExhibitionDeviceGroupTestBuilderResource(testBuilder: AbstractTestBuilder<
      *
      * @param expectedStatus expected status
      * @param exhibitionId exhibition id
+     * @param roomId filter by room id. Ignored if null
      */
-    fun assertListFail(expectedStatus: Int, exhibitionId: UUID) {
+    fun assertListFail(expectedStatus: Int, exhibitionId: UUID, roomId: UUID?) {
         try {
-            api.listExhibitionDeviceGroups(exhibitionId)
+            api.listExhibitionDeviceGroups(exhibitionId = exhibitionId, roomId = roomId)
             fail(String.format("Expected list to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)

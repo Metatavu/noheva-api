@@ -69,23 +69,32 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             val nonExistingExhibitionId = UUID.randomUUID()
             val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
             val floorId = floor.id!!
-            val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
-            val roomId = room.id!!
+            val room1 = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
+            val roomId1 = room1.id!!
+            val room2 = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
+            val roomId2 = room2.id!!
 
-            it.admin().exhibitionDeviceGroups().assertListFail(404, nonExistingExhibitionId)
-            assertEquals(0, it.admin().exhibitionDeviceGroups().listExhibitionDeviceGroups(exhibitionId).size)
+            it.admin().exhibitionDeviceGroups().assertListFail(expectedStatus = 404, exhibitionId = nonExistingExhibitionId, roomId = roomId1)
+            assertEquals(0, it.admin().exhibitionDeviceGroups().listExhibitionDeviceGroups(exhibitionId = exhibitionId, roomId = roomId1).size)
 
             val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(
                 exhibitionId = exhibitionId,
-                roomId = roomId
+                roomId = roomId1
             )
 
+            it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId2)
+            it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId2)
+
+            it.admin().exhibitionDeviceGroups().assertCount(1, exhibitionId = exhibitionId, roomId = roomId1)
+            it.admin().exhibitionDeviceGroups().assertCount(2, exhibitionId = exhibitionId, roomId = roomId2)
+            it.admin().exhibitionDeviceGroups().assertCount(3, exhibitionId = exhibitionId, roomId = null)
+
             val createdExhibitionDeviceGroupId = createdExhibitionDeviceGroup.id!!
-            val exhibitionDeviceGroups = it.admin().exhibitionDeviceGroups().listExhibitionDeviceGroups(exhibitionId)
+            val exhibitionDeviceGroups = it.admin().exhibitionDeviceGroups().listExhibitionDeviceGroups( exhibitionId = exhibitionId, roomId = roomId1)
             assertEquals(1, exhibitionDeviceGroups.size)
             assertEquals(createdExhibitionDeviceGroupId, exhibitionDeviceGroups[0].id)
             it.admin().exhibitionDeviceGroups().delete(exhibitionId, createdExhibitionDeviceGroupId)
-            assertEquals(0, it.admin().exhibitionDeviceGroups().listExhibitionDeviceGroups(exhibitionId).size)
+            assertEquals(0, it.admin().exhibitionDeviceGroups().listExhibitionDeviceGroups( exhibitionId = exhibitionId, roomId = roomId1).size)
         }
     }
 

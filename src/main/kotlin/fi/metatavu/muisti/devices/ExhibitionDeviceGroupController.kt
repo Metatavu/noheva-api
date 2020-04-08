@@ -40,12 +40,14 @@ class ExhibitionDeviceGroupController() {
     }
 
     /**
-     * Lists device groups in an exhibitions
+     * Lists exhibition device groups
      *
-     * @returns all deviceGroups in an exhibition
+     * @param exhibition exhibition
+     * @param room filter by room. Ignored if null
+     * @return List exhibition device groups
      */
-    fun listExhibitionDeviceGroups(exhibition: Exhibition): List<ExhibitionDeviceGroup> {
-        return exhibitionDeviceGroupDAO.listByExhibition(exhibition)
+    fun listExhibitionDeviceGroups(exhibition: Exhibition, room: ExhibitionRoom?): List<ExhibitionDeviceGroup> {
+        return exhibitionDeviceGroupDAO.list(exhibition, room)
     }
 
     /**
