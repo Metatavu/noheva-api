@@ -6,6 +6,7 @@ import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
 import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 
 /**
@@ -23,19 +24,19 @@ class PageLayoutDAO() : AbstractDAO<PageLayout>() {
      * @param name name
      * @param data data
      * @param thumbnailUrl thumbnail URL
-     * @param modelId device model id
+     * @param deviceModel device model
      * @param screenOrientation screen orientation
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created pageLayout
      */
-    fun create(id: UUID, name: String, data: String, thumbnailUrl: String?, modelId: UUID, screenOrientation: ScreenOrientation, creatorId: UUID, lastModifierId: UUID): PageLayout {
+    fun create(id: UUID, name: String, data: String, thumbnailUrl: String?, deviceModel: DeviceModel?, screenOrientation: ScreenOrientation, creatorId: UUID, lastModifierId: UUID): PageLayout {
         val pageLayout = PageLayout()
         pageLayout.id = id
         pageLayout.name = name
         pageLayout.data = data
         pageLayout.thumbnailUrl = thumbnailUrl
-        pageLayout.modelId = modelId
+        pageLayout.deviceModel = deviceModel
         pageLayout.screenOrientation = screenOrientation
         pageLayout.creatorId = creatorId
         pageLayout.lastModifierId = lastModifierId
@@ -82,15 +83,15 @@ class PageLayoutDAO() : AbstractDAO<PageLayout>() {
     }
 
     /**
-     * Updates model id
+     * Updates device model
      *
-     * @param modelId model id
+     * @param deviceModel device model
      * @param lastModifierId last modifier's id
      * @return updated pageLayout
      */
-    fun updateModelId(pageLayout: PageLayout, modelId: UUID, lastModifierId: UUID): PageLayout {
+    fun updateDeviceModel(pageLayout: PageLayout, deviceModel: DeviceModel, lastModifierId: UUID): PageLayout {
         pageLayout.lastModifierId = lastModifierId
-        pageLayout.modelId = modelId
+        pageLayout.deviceModel = deviceModel
         return persist(pageLayout)
     }
 
@@ -108,56 +109,30 @@ class PageLayoutDAO() : AbstractDAO<PageLayout>() {
     }
 
     /**
-     * List Page layouts by device model ID and screen orientation
+     * List Page layouts by device model and screen orientation
      *
-     * @param deviceModelId device model id
+     * @param deviceModel device model
      * @param screenOrientation screen orientation
      * @return list of page layouts
      */
-    fun listByDeviceModelIdAndOrientation(deviceModelId: UUID, screenOrientation: ScreenOrientation): List<PageLayout> {
+    fun list(deviceModel: DeviceModel?, screenOrientation: ScreenOrientation?): List<PageLayout> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<PageLayout> = criteriaBuilder.createQuery(PageLayout::class.java)
         val root: Root<PageLayout> = criteria.from(PageLayout::class.java)
-        criteria.select(root)
-        criteria.where(
-                criteriaBuilder.equal(root.get<String>(PageLayout_.MODEL_ID), deviceModelId),
-                criteriaBuilder.equal(root.get<String>(PageLayout_.SCREEN_ORIENTATION), screenOrientation)
-        )
-        val query: TypedQuery<PageLayout> = entityManager.createQuery<PageLayout>(criteria)
-        return query.resultList
-    }
 
-    /**
-     * List page layouts by device model id
-     *
-     * @param deviceModelId device model id
-     * @return list of page layouts
-     */
-    fun listByDeviceModelId(deviceModelId: UUID): List<PageLayout> {
-        val entityManager = getEntityManager()
-        val criteriaBuilder = entityManager.criteriaBuilder
-        val criteria: CriteriaQuery<PageLayout> = criteriaBuilder.createQuery(PageLayout::class.java)
-        val root: Root<PageLayout> = criteria.from(PageLayout::class.java)
-        criteria.select(root)
-        criteria.where(criteriaBuilder.equal(root.get<String>(PageLayout_.MODEL_ID), deviceModelId))
-        val query: TypedQuery<PageLayout> = entityManager.createQuery<PageLayout>(criteria)
-        return query.resultList
-    }
+        val restrictions = ArrayList<Predicate>()
 
-    /**
-     * List page layouts by screen orientation
-     *
-     * @param screenOrientation device orientation
-     * @return list of page layouts
-     */
-    fun listByScreenOrientation(screenOrientation: ScreenOrientation): List<PageLayout> {
-        val entityManager = getEntityManager()
-        val criteriaBuilder = entityManager.criteriaBuilder
-        val criteria: CriteriaQuery<PageLayout> = criteriaBuilder.createQuery(PageLayout::class.java)
-        val root: Root<PageLayout> = criteria.from(PageLayout::class.java)
+        if (deviceModel != null) {
+            restrictions.add(criteriaBuilder.equal(root.get(PageLayout_.deviceModel), deviceModel))
+        }
+
+        if (screenOrientation != null) {
+            restrictions.add(criteriaBuilder.equal(root.get(PageLayout_.screenOrientation), screenOrientation))
+        }
+
         criteria.select(root)
-        criteria.where(criteriaBuilder.equal(root.get<String>(PageLayout_.SCREEN_ORIENTATION), screenOrientation))
+        criteria.where(*restrictions.toTypedArray())
         val query: TypedQuery<PageLayout> = entityManager.createQuery<PageLayout>(criteria)
         return query.resultList
     }

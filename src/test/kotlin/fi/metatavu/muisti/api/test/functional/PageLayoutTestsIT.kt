@@ -16,7 +16,8 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
     @Test
     fun testCreatePageLayout() {
         TestBuilder().use {
-            val createdPageLayout = it.admin().pageLayouts().create()
+            val deviceModel = it.admin().deviceModels().create()
+            val createdPageLayout = it.admin().pageLayouts().create(deviceModel)
             assertNotNull(createdPageLayout)
             it.admin().exhibitions().assertCreateFail(400, "")
         }
@@ -26,7 +27,8 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
     fun testFindPageLayout() {
         TestBuilder().use {
             val nonExistingPageLayoutId = UUID.randomUUID()
-            val createdPageLayout = it.admin().pageLayouts().create()
+            val deviceModel = it.admin().deviceModels().create()
+            val createdPageLayout = it.admin().pageLayouts().create(deviceModel)
             val createdPageLayoutId = createdPageLayout.id!!
             it.admin().pageLayouts().assertFindFail(404, nonExistingPageLayoutId)
             assertNotNull(it.admin().pageLayouts().findPageLayout(createdPageLayoutId))
@@ -34,12 +36,15 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testListPageLayoutsByModelIdAndOrientation() {
+    fun testListPageLayouts() {
         TestBuilder().use {
             assertEquals(0, it.admin().pageLayouts().listPageLayouts().size)
 
-            val createdModelId = UUID.randomUUID()
-            val anotherCreatedModelId = UUID.randomUUID()
+            val deviceModel = it.admin().deviceModels().create()
+            val secondDeviceModel = it.admin().deviceModels().create()
+
+            val createdModelId = deviceModel.id!!
+            val anotherCreatedModelId = secondDeviceModel.id!!
 
             val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.boolean))
             val createdChildren = arrayOf(PageLayoutView("childid", "child", arrayOf(), arrayOf()))
@@ -53,11 +58,10 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
                     modelId = createdModelId
             )
 
-            val createdPageLayout = it.admin().pageLayouts().create(defaultPageLayout)
-            val secondCreatedPageLayout = it.admin().pageLayouts().create(defaultPageLayout)
-            val thirdCreatedPageLayout = it.admin().pageLayouts().create(defaultPageLayout)
-
-            val fourthCreatedPageLayout = it.admin().pageLayouts().create(PageLayout(
+            it.admin().pageLayouts().create(defaultPageLayout)
+            it.admin().pageLayouts().create(defaultPageLayout)
+            it.admin().pageLayouts().create(defaultPageLayout)
+            it.admin().pageLayouts().create(PageLayout(
                     name = "created name",
                     data = createdData,
                     thumbnailUrl = "http://example.com/thumbnail.png",
@@ -65,38 +69,32 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
                     modelId = anotherCreatedModelId
             ))
 
+            val portrait = ScreenOrientation.portrait.toString()
+            val landscape = ScreenOrientation.landscape.toString()
+
             val allPageLayouts = it.admin().pageLayouts().listPageLayouts()
             assertEquals(4, allPageLayouts.size)
 
-            val pageLayoutsByDeviceModelIdAndOrientation = it.admin().pageLayouts().listPageLayoutsByDeviceModelIdAndOrientation(createdModelId, ScreenOrientation.portrait)
+            val pageLayoutsByDeviceModelIdAndOrientation = it.admin().pageLayouts().listPageLayouts(createdModelId, portrait)
             assertEquals(3, pageLayoutsByDeviceModelIdAndOrientation.size)
 
-            val pageLayoutsByDeviceModelIdAndOrientation2 = it.admin().pageLayouts().listPageLayoutsByDeviceModelIdAndOrientation(anotherCreatedModelId, ScreenOrientation.landscape)
+            val pageLayoutsByDeviceModelIdAndOrientation2 = it.admin().pageLayouts().listPageLayouts(anotherCreatedModelId, landscape)
             assertEquals(1, pageLayoutsByDeviceModelIdAndOrientation2.size)
 
-            val pageLayoutsByDeviceModelIdAndIncorrectOrientation = it.admin().pageLayouts().listPageLayoutsByDeviceModelIdAndOrientation(createdModelId, ScreenOrientation.landscape)
+            val pageLayoutsByDeviceModelIdAndIncorrectOrientation = it.admin().pageLayouts().listPageLayouts(createdModelId, landscape)
             assertEquals(0, pageLayoutsByDeviceModelIdAndIncorrectOrientation.size)
 
-            val pageLayoutsByIncorrectDeviceModelId = it.admin().pageLayouts().listPageLayoutsByDeviceModelIdAndOrientation(UUID.randomUUID(), ScreenOrientation.portrait)
-            assertEquals(0, pageLayoutsByIncorrectDeviceModelId.size)
-
-            val pageLayoutsById = it.admin().pageLayouts().listPageLayoutsByDeviceModelId(createdModelId)
+            val pageLayoutsById = it.admin().pageLayouts().listPageLayouts(createdModelId, null)
             assertEquals(3, pageLayoutsById.size)
 
-            val pageLayoutsByIncorrectDeviceId = it.admin().pageLayouts().listPageLayoutsByDeviceModelId(UUID.randomUUID())
-            assertEquals(0, pageLayoutsByIncorrectDeviceId.size)
-
-            val pageLayoutsByOrientationPortrait = it.admin().pageLayouts().listPageLayoutsByOrientation(ScreenOrientation.portrait)
+            val pageLayoutsByOrientationPortrait = it.admin().pageLayouts().listPageLayouts(null, portrait)
             assertEquals(3, pageLayoutsByOrientationPortrait.size)
 
-            val pageLayoutsByOrientationLandscape = it.admin().pageLayouts().listPageLayoutsByOrientation(ScreenOrientation.landscape)
+            val pageLayoutsByOrientationLandscape = it.admin().pageLayouts().listPageLayouts(null, landscape)
             assertEquals(1, pageLayoutsByOrientationLandscape.size)
 
-            it.admin().pageLayouts().delete(createdPageLayout.id!!)
-            it.admin().pageLayouts().delete(secondCreatedPageLayout.id!!)
-            it.admin().pageLayouts().delete(thirdCreatedPageLayout.id!!)
-            it.admin().pageLayouts().delete(fourthCreatedPageLayout.id!!)
-            assertEquals(0, it.admin().pageLayouts().listPageLayouts().size)
+            it.admin().pageLayouts().assertListFail(400, UUID.randomUUID(), portrait)
+            it.admin().pageLayouts().assertListFail(400, createdModelId, "thisShouldThrowError")
         }
     }
 
@@ -106,7 +104,8 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.boolean))
             val createdChildren = arrayOf(PageLayoutView("childid", "child", arrayOf(), arrayOf()))
             val createdData = PageLayoutView("rootid", "created widget", createdProperties, createdChildren)
-            val createdDeviceModelId = UUID.randomUUID()
+            val createdDeviceModelId = it.admin().deviceModels().create().id!!
+            val updateDeviceModelId = it.admin().deviceModels().create().id!!
 
             val createdPageLayout = it.admin().pageLayouts().create(PageLayout(
                 name = "created name",
@@ -141,14 +140,13 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
                 children = updatedChildren
             )
 
-            val anotherCreatedDeviceModelId = UUID.randomUUID()
             val updatedPageLayout = it.admin().pageLayouts().updatePageLayout(PageLayout(
                 id = createdPageLayoutId,
                 name = "updated name",
                 data = updatedData,
                 thumbnailUrl = "http://example.com/updated.png",
                 screenOrientation = ScreenOrientation.landscape,
-                modelId = anotherCreatedDeviceModelId
+                modelId = updateDeviceModelId
             ))
 
             val foundUpdatedPageLayout = it.admin().pageLayouts().findPageLayout(createdPageLayoutId)
@@ -156,7 +154,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             assertEquals(updatedPageLayout!!.id, foundUpdatedPageLayout?.id)
             assertEquals("updated name", updatedPageLayout.name)
             assertEquals("http://example.com/updated.png", updatedPageLayout.thumbnailUrl)
-            assertEquals(anotherCreatedDeviceModelId, updatedPageLayout.modelId)
+            assertEquals(updateDeviceModelId, updatedPageLayout.modelId)
             assertEquals(ScreenOrientation.landscape, updatedPageLayout.screenOrientation)
             assertEquals("updated widget", updatedPageLayout.data.widget)
             assertEquals(1, updatedPageLayout.data.properties.size)
@@ -171,7 +169,8 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
     fun testDeleteExhibition() {
         TestBuilder().use {
             val nonExistingPageLayoutId = UUID.randomUUID()
-            val createdPageLayout = it.admin().pageLayouts().create()
+            val deviceModel = it.admin().deviceModels().create()
+            val createdPageLayout = it.admin().pageLayouts().create(deviceModel)
             val createdPageLayoutId = createdPageLayout.id!!
             assertNotNull(it.admin().pageLayouts().findPageLayout(createdPageLayoutId))
             it.admin().pageLayouts().assertDeleteFail(404, nonExistingPageLayoutId)

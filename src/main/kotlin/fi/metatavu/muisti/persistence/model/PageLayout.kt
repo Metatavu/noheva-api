@@ -30,8 +30,8 @@ class PageLayout {
     @URL
     var thumbnailUrl: String? = null
 
-    @Column(nullable = false)
-    var modelId: UUID? = null
+    @ManyToOne
+    var deviceModel: DeviceModel? = null
 
     @Enumerated (EnumType.STRING)
     @Column(nullable = false)
