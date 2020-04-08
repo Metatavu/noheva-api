@@ -704,9 +704,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun listExhibitionFloors(exhibitionId: UUID?): Response {
-        if (exhibitionId == null) {
-            return createNotFound(EXHIBITION_NOT_FOUND)
-        }
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionFloors = exhibitionFloorController.listExhibitionFloors(exhibition)
