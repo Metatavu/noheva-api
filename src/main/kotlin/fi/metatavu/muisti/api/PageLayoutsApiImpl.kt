@@ -4,8 +4,8 @@ import fi.metatavu.muisti.api.spec.PageLayoutsApi
 import fi.metatavu.muisti.api.spec.model.PageLayout
 import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.api.translate.PageLayoutTranslator
+import fi.metatavu.muisti.contents.PageLayoutController
 import fi.metatavu.muisti.devices.DeviceModelController
-import fi.metatavu.muisti.pages.PageLayoutController
 import fi.metatavu.muisti.persistence.model.DeviceModel
 import java.util.*
 import javax.ejb.Stateful
