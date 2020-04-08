@@ -19,6 +19,7 @@ class ExhibitionFloorController() {
     /**
      * Creates new exhibition floor
      *
+     * @param exhibition exhibition
      * @param name floor name
      * @param creatorId creating user id
      * @return created exhibition floor
@@ -38,8 +39,9 @@ class ExhibitionFloorController() {
     }
 
     /**
-     * Lists floors in an exhibitions
+     * Lists floors in an exhibition
      *
+     * @param exhibition exhibition
      * @returns all floors in an exhibition
      */
     fun listExhibitionFloors(exhibition: Exhibition): List<ExhibitionFloor> {

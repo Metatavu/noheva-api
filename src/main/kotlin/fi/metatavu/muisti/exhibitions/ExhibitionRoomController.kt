@@ -20,6 +20,8 @@ class ExhibitionRoomController() {
     /**
      * Creates new exhibition room
      *
+     * @param exhibition exhibition
+     * @param floor floor
      * @param name room name
      * @param creatorId creating user id
      * @return created exhibition room

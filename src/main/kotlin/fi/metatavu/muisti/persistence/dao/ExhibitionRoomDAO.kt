@@ -70,6 +70,7 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
     /**
      * Updates name
      *
+     * @param exhibitionRoom exhibition room to be updated
      * @param name name
      * @param lastModifierId last modifier's id
      * @return updated exhibitionRoom
@@ -83,6 +84,7 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
     /**
      * Updates floor
      *
+     * @param exhibitionRoom exhibition room to be updated
      * @param floor floor
      * @param lastModifierId last modifier's id
      * @return updated exhibitionRoom

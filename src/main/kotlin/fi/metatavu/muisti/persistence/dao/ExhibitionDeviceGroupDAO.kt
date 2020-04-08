@@ -70,6 +70,7 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
     /**
      * Updates name
      *
+     * @param exhibitionDeviceGroup exhibition device group to be updated
      * @param name name
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceGroup
@@ -83,6 +84,7 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
     /**
      * Updates room
      *
+     * @param exhibitionDeviceGroup exhibition device group to be updated
      * @param room room
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDeviceGroup

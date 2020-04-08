@@ -57,6 +57,7 @@ class ExhibitionFloorDAO() : AbstractDAO<ExhibitionFloor>() {
     /**
      * Updates name
      *
+     * @param exhibitionFloor exhibition floor to be updated
      * @param name name
      * @param lastModifierId last modifier's id
      * @return updated exhibitionFloor

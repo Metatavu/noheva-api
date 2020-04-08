@@ -20,8 +20,9 @@ class ExhibitionDeviceGroupController() {
     /**
      * Creates new exhibition device group
      *
-     * @param name device group name
+     * @param exhibition exhibition
      * @param room room the device group is in
+     * @param name device group name
      * @param creatorId creating user id
      * @return created exhibition device group
      */
@@ -55,6 +56,7 @@ class ExhibitionDeviceGroupController() {
      *
      * @param exhibitionDeviceGroup exhibition device group to be updated
      * @param name group name
+     * @param room room
      * @param modifierId modifying user id
      * @return updated exhibition
      */
