@@ -2,6 +2,7 @@ package fi.metatavu.muisti.exhibitions
 
 import fi.metatavu.muisti.persistence.dao.ExhibitionRoomDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
+import fi.metatavu.muisti.persistence.model.ExhibitionFloor
 import fi.metatavu.muisti.persistence.model.ExhibitionRoom
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
@@ -11,7 +12,7 @@ import javax.inject.Inject
  * Controller for exhibition rooms
  */
 @ApplicationScoped
-open class ExhibitionRoomController() {
+class ExhibitionRoomController() {
 
     @Inject
     private lateinit var exhibitionRoomDAO: ExhibitionRoomDAO
@@ -23,8 +24,8 @@ open class ExhibitionRoomController() {
      * @param creatorId creating user id
      * @return created exhibition room
      */
-    open fun createExhibitionRoom(exhibition: Exhibition, name: String, creatorId: UUID): ExhibitionRoom {
-        return exhibitionRoomDAO.create(UUID.randomUUID(), exhibition, name, creatorId, creatorId)
+    fun createExhibitionRoom(exhibition: Exhibition, floor: ExhibitionFloor, name: String, creatorId: UUID): ExhibitionRoom {
+        return exhibitionRoomDAO.create(id = UUID.randomUUID(), exhibition = exhibition, floor = floor, name = name, creatorId = creatorId, lastModifierId = creatorId)
     }
 
     /**
@@ -33,7 +34,7 @@ open class ExhibitionRoomController() {
      * @param id exhibition room id
      * @return found exhibition room or null if not found
      */
-    open fun findExhibitionRoomById(id: UUID): ExhibitionRoom? {
+    fun findExhibitionRoomById(id: UUID): ExhibitionRoom? {
         return exhibitionRoomDAO.findById(id)
     }
 
@@ -42,7 +43,7 @@ open class ExhibitionRoomController() {
      *
      * @returns all rooms in an exhibition
      */
-    open fun listExhibitionRooms(exhibition: Exhibition): List<ExhibitionRoom> {
+    fun listExhibitionRooms(exhibition: Exhibition): List<ExhibitionRoom> {
         return exhibitionRoomDAO.listByExhibition(exhibition)
     }
 
@@ -51,11 +52,14 @@ open class ExhibitionRoomController() {
      *
      * @param exhibitionRoom exhibition room to be updated
      * @param name room name
+     * @param floor floor
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    open fun updateExhibitionRoom(exhibitionRoom: ExhibitionRoom, name: String, modifierId: UUID): ExhibitionRoom {
-      return exhibitionRoomDAO.updateName(exhibitionRoom, name, modifierId)
+    fun updateExhibitionRoom(exhibitionRoom: ExhibitionRoom, floor: ExhibitionFloor, name: String, modifierId: UUID): ExhibitionRoom {
+      var result = exhibitionRoomDAO.updateName(exhibitionRoom, name, modifierId)
+      result = exhibitionRoomDAO.updateFloor(result, floor, modifierId)
+      return result
     }
 
     /**
@@ -63,7 +67,7 @@ open class ExhibitionRoomController() {
      *
      * @param exhibitionRoom exhibition room to be deleted
      */
-    open fun deleteExhibitionRoom(exhibitionRoom: ExhibitionRoom) {
+    fun deleteExhibitionRoom(exhibitionRoom: ExhibitionRoom) {
         return exhibitionRoomDAO.delete(exhibitionRoom)
     }
 

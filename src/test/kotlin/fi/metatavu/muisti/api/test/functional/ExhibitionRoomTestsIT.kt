@@ -17,7 +17,14 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
     fun testCreateExhibitionRoom() {
         TestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
-            val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibition.id!!, "name")
+            val floor = it.admin().exhibitionFloors().create(exhibition.id!!)
+            val floorId = floor.id!!
+
+            val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibition.id!!, ExhibitionRoom(
+                name = "name",
+                floorId = floorId
+            ))
+
             assertNotNull(createdExhibitionRoom)
             it.admin().exhibitions().assertCreateFail(400, "")
         }
@@ -30,7 +37,10 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingExhibitionRoomId = UUID.randomUUID()
-            val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibitionId)
+            val floor = it.admin().exhibitionFloors().create(exhibition.id!!)
+            val floorId = floor.id!!
+
+            val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
             val createdExhibitionRoomId = createdExhibitionRoom.id!!
 
             it.admin().exhibitionRooms().assertFindFail(404, exhibitionId, nonExistingExhibitionRoomId)
@@ -46,11 +56,13 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
+            val floor = it.admin().exhibitionFloors().create(exhibition.id!!)
+            val floorId = floor.id!!
 
             it.admin().exhibitionRooms().assertListFail(404, nonExistingExhibitionId)
             assertEquals(0, it.admin().exhibitionRooms().listExhibitionRooms(exhibitionId).size)
 
-            val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibitionId)
+            val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
             val createdExhibitionRoomId = createdExhibitionRoom.id!!
             val exhibitionRooms = it.admin().exhibitionRooms().listExhibitionRooms(exhibitionId)
             assertEquals(1, exhibitionRooms.size)
@@ -66,21 +78,36 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
+            val floor = it.admin().exhibitionFloors().create(exhibitionId)
+            val floorId = floor.id!!
 
-            val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibitionId, "created name")
+            val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibitionId, ExhibitionRoom(
+                name = "created name",
+                floorId = floorId
+            ))
+
             val createdExhibitionRoomId = createdExhibitionRoom.id!!
 
             val foundCreatedExhibitionRoom = it.admin().exhibitionRooms().findExhibitionRoom(exhibitionId, createdExhibitionRoomId)
             assertEquals(createdExhibitionRoom.id, foundCreatedExhibitionRoom?.id)
             assertEquals("created name", createdExhibitionRoom.name)
 
-            val updatedExhibitionRoom = it.admin().exhibitionRooms().updateExhibitionRoom(exhibitionId, ExhibitionRoom("updated name", createdExhibitionRoomId))
+            val updatedExhibitionRoom = it.admin().exhibitionRooms().updateExhibitionRoom(exhibitionId, ExhibitionRoom(
+                name = "updated name",
+                id = createdExhibitionRoomId,
+                floorId = floorId
+            ))
+
             val foundUpdatedExhibitionRoom = it.admin().exhibitionRooms().findExhibitionRoom(exhibitionId, createdExhibitionRoomId)
 
             assertEquals(updatedExhibitionRoom!!.id, foundUpdatedExhibitionRoom?.id)
             assertEquals("updated name", updatedExhibitionRoom.name)
 
-            it.admin().exhibitionRooms().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionRoom("name", createdExhibitionRoomId))
+            it.admin().exhibitionRooms().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionRoom(
+                name = "name",
+                id = createdExhibitionRoomId,
+                floorId = floorId
+            ))
         }
     }
 
@@ -91,7 +118,9 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingSessionVariableId = UUID.randomUUID()
-            val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibitionId)
+            val floor = it.admin().exhibitionFloors().create(exhibition.id!!)
+            val floorId = floor.id!!
+            val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
             val createdExhibitionRoomId = createdExhibitionRoom.id!!
 
             assertNotNull(it.admin().exhibitionRooms().findExhibitionRoom(exhibitionId, createdExhibitionRoomId))

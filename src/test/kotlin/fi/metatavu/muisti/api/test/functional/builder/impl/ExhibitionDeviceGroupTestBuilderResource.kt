@@ -22,22 +22,22 @@ class ExhibitionDeviceGroupTestBuilderResource(testBuilder: AbstractTestBuilder<
     /**
      * Creates new exhibition DeviceGroup with default values
      *
-     * @param exhibitionId
+     * @param exhibitionId exhibition id
+     * @param roomId room id
      * @return created exhibition DeviceGroup
      */
-    fun create(exhibitionId: UUID): ExhibitionDeviceGroup {
-        return create(exhibitionId, "default deviceGroup")
+    fun create(exhibitionId: UUID, roomId: UUID): ExhibitionDeviceGroup {
+        return create(exhibitionId, ExhibitionDeviceGroup( name = "default deviceGroup", roomId = roomId))
     }
 
     /**
      * Creates new exhibition DeviceGroup
      *
      * @param exhibitionId exhibition id
-     * @param name name
+     * @param payload payload
      * @return created exhibition DeviceGroup
      */
-    fun create(exhibitionId: UUID, name: String): ExhibitionDeviceGroup {
-        val payload = ExhibitionDeviceGroup(name, null, exhibitionId)
+    fun create(exhibitionId: UUID, payload: ExhibitionDeviceGroup): ExhibitionDeviceGroup {
         val result: ExhibitionDeviceGroup = this.getApi().createExhibitionDeviceGroup(exhibitionId, payload)
         addClosable(result)
         return result
@@ -160,11 +160,11 @@ class ExhibitionDeviceGroupTestBuilderResource(testBuilder: AbstractTestBuilder<
      *
      * @param expectedStatus expected status
      * @param exhibitionId exhibition id
-     * @param name name
+     * @param payload payload
      */
-    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, name: String) {
+    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, payload: ExhibitionDeviceGroup) {
         try {
-            create(exhibitionId, name)
+            create(exhibitionId, payload)
             fail(String.format("Expected create to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)

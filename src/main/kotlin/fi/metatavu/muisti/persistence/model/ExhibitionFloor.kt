@@ -11,16 +11,13 @@ import javax.validation.constraints.NotEmpty
  * @author Antti Leppä
  */
 @Entity
-class ExhibitionRoom {
+class ExhibitionFloor {
 
     @Id
     var id: UUID? = null
 
     @ManyToOne
     var exhibition: Exhibition? = null
-
-    @ManyToOne
-    var floor: ExhibitionFloor? = null
 
     @NotEmpty
     @Column(nullable = false)

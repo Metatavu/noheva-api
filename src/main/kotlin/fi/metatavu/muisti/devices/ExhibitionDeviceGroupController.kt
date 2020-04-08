@@ -3,6 +3,7 @@ package fi.metatavu.muisti.devices
 import fi.metatavu.muisti.persistence.dao.ExhibitionDeviceGroupDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup
+import fi.metatavu.muisti.persistence.model.ExhibitionRoom
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -11,7 +12,7 @@ import javax.inject.Inject
  * Controller for exhibition device groups
  */
 @ApplicationScoped
-open class ExhibitionDeviceGroupController() {
+class ExhibitionDeviceGroupController() {
 
     @Inject
     private lateinit var exhibitionDeviceGroupDAO: ExhibitionDeviceGroupDAO
@@ -20,11 +21,12 @@ open class ExhibitionDeviceGroupController() {
      * Creates new exhibition device group
      *
      * @param name device group name
+     * @param room room the device group is in
      * @param creatorId creating user id
      * @return created exhibition device group
      */
-    open fun createExhibitionDeviceGroup(exhibition: Exhibition, name: String, creatorId: UUID): ExhibitionDeviceGroup {
-        return exhibitionDeviceGroupDAO.create(UUID.randomUUID(), exhibition, name, creatorId, creatorId)
+    fun createExhibitionDeviceGroup(exhibition: Exhibition, room: ExhibitionRoom, name: String, creatorId: UUID): ExhibitionDeviceGroup {
+        return exhibitionDeviceGroupDAO.create(UUID.randomUUID(), exhibition, room, name, creatorId, creatorId)
     }
 
     /**
@@ -33,7 +35,7 @@ open class ExhibitionDeviceGroupController() {
      * @param id exhibition device group id
      * @return found exhibition device group or null if not found
      */
-    open fun findExhibitionDeviceGroupById(id: UUID): ExhibitionDeviceGroup? {
+    fun findExhibitionDeviceGroupById(id: UUID): ExhibitionDeviceGroup? {
         return exhibitionDeviceGroupDAO.findById(id)
     }
 
@@ -42,7 +44,7 @@ open class ExhibitionDeviceGroupController() {
      *
      * @returns all deviceGroups in an exhibition
      */
-    open fun listExhibitionDeviceGroups(exhibition: Exhibition): List<ExhibitionDeviceGroup> {
+    fun listExhibitionDeviceGroups(exhibition: Exhibition): List<ExhibitionDeviceGroup> {
         return exhibitionDeviceGroupDAO.listByExhibition(exhibition)
     }
 
@@ -54,8 +56,10 @@ open class ExhibitionDeviceGroupController() {
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    open fun updateExhibitionDeviceGroup(exhibitionDeviceGroup: ExhibitionDeviceGroup, name: String, modifierId: UUID): ExhibitionDeviceGroup {
-      return exhibitionDeviceGroupDAO.updateName(exhibitionDeviceGroup, name, modifierId)
+    fun updateExhibitionDeviceGroup(exhibitionDeviceGroup: ExhibitionDeviceGroup, name: String, room: ExhibitionRoom, modifierId: UUID): ExhibitionDeviceGroup {
+      var result = exhibitionDeviceGroupDAO.updateName(exhibitionDeviceGroup, name, modifierId)
+      result = exhibitionDeviceGroupDAO.updateRoom(result, room, modifierId)
+      return result
     }
 
     /**
@@ -63,7 +67,7 @@ open class ExhibitionDeviceGroupController() {
      *
      * @param exhibitionDeviceGroup exhibition device group to be deleted
      */
-    open fun deleteExhibitionDeviceGroup(exhibitionDeviceGroup: ExhibitionDeviceGroup) {
+    fun deleteExhibitionDeviceGroup(exhibitionDeviceGroup: ExhibitionDeviceGroup) {
         return exhibitionDeviceGroupDAO.delete(exhibitionDeviceGroup)
     }
 

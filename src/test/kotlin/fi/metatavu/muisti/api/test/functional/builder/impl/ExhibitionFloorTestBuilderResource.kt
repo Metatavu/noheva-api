@@ -2,10 +2,10 @@ package fi.metatavu.muisti.api.test.functional.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
-import fi.metatavu.muisti.api.client.apis.ExhibitionRoomsApi
+import fi.metatavu.muisti.api.client.apis.ExhibitionFloorsApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
-import fi.metatavu.muisti.api.client.models.ExhibitionRoom
+import fi.metatavu.muisti.api.client.models.ExhibitionFloor
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -13,104 +13,103 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 /**
- * Test builder resource for handling exhibitionRooms
+ * Test builder resource for handling exhibitionFloors
  */
-class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>?, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<ExhibitionRoom, ApiClient?>(testBuilder, apiClient) {
+class ExhibitionFloorTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>?, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<ExhibitionFloor, ApiClient?>(testBuilder, apiClient) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
-     * Creates new exhibition Room with default values
+     * Creates new exhibition Floor with default values
      *
-     * @param exhibitionId exhibition id
-     * @param floorId floor id
-     * @return created exhibition Room
+     * @param exhibitionId
+     * @return created exhibition Floor
      */
-    fun create(exhibitionId: UUID, floorId: UUID): ExhibitionRoom {
-        return create(exhibitionId, ExhibitionRoom(name = "default room", floorId = floorId))
+    fun create(exhibitionId: UUID): ExhibitionFloor {
+        return create(exhibitionId, ExhibitionFloor(name = "default floor"))
     }
 
     /**
-     * Creates new exhibition Room
+     * Creates new exhibition Floor
      *
      * @param exhibitionId exhibition id
      * @param payload payload
-     * @return created exhibition Room
+     * @return created exhibition Floor
      */
-    fun create(exhibitionId: UUID, payload: ExhibitionRoom): ExhibitionRoom {
-        val result: ExhibitionRoom = this.getApi().createExhibitionRoom(exhibitionId, payload)
+    fun create(exhibitionId: UUID, payload: ExhibitionFloor): ExhibitionFloor {
+        val result: ExhibitionFloor = this.getApi().createExhibitionFloor(exhibitionId, payload)
         addClosable(result)
         return result
     }
 
     /**
-     * Finds exhibition Room
+     * Finds exhibition Floor
      *
      * @param exhibitionId exhibition id
-     * @param exhibitionRoomId exhibition Room id
-     * @return exhibition Room
+     * @param exhibitionFloorId exhibition Floor id
+     * @return exhibition Floor
      */
-    fun findExhibitionRoom(exhibitionId: UUID, exhibitionRoomId: UUID): ExhibitionRoom? {
-        return api.findExhibitionRoom(exhibitionId, exhibitionRoomId)
+    fun findExhibitionFloor(exhibitionId: UUID, exhibitionFloorId: UUID): ExhibitionFloor? {
+        return api.findExhibitionFloor(exhibitionId, exhibitionFloorId)
     }
 
     /**
-     * Lists exhibition Rooms
+     * Lists exhibition Floors
      *
      * @param exhibitionId exhibition id
-     * @return exhibition Rooms
+     * @return exhibition Floors
      */
-    fun listExhibitionRooms(exhibitionId: UUID): Array<ExhibitionRoom> {
-        return api.listExhibitionRooms(exhibitionId)
+    fun listExhibitionFloors(exhibitionId: UUID): Array<ExhibitionFloor> {
+        return api.listExhibitionFloors(exhibitionId)
     }
 
     /**
-     * Updates exhibition Room
+     * Updates exhibition Floor
      *
      * @param exhibitionId exhibition id
      * @param body update body
-     * @return updated exhibition Room
+     * @return updated exhibition Floor
      */
-    fun updateExhibitionRoom(exhibitionId: UUID, body: ExhibitionRoom): ExhibitionRoom? {
-        return api.updateExhibitionRoom(exhibitionId, body.id!!, body)
+    fun updateExhibitionFloor(exhibitionId: UUID, body: ExhibitionFloor): ExhibitionFloor? {
+        return api.updateExhibitionFloor(exhibitionId, body.id!!, body)
     }
 
     /**
-     * Deletes a exhibitionRoom from the API
+     * Deletes a exhibitionFloor from the API
      *
      * @param exhibitionId exhibition id
-     * @param exhibitionRoom exhibitionRoom to be deleted
+     * @param exhibitionFloor exhibitionFloor to be deleted
      */
-    fun delete(exhibitionId: UUID, exhibitionRoom: ExhibitionRoom) {
-        delete(exhibitionId, exhibitionRoom.id!!)
+    fun delete(exhibitionId: UUID, exhibitionFloor: ExhibitionFloor) {
+        delete(exhibitionId, exhibitionFloor.id!!)
     }
 
     /**
-     * Deletes a exhibitionRoom from the API
+     * Deletes a exhibitionFloor from the API
      *
      * @param exhibitionId exhibition id
-     * @param exhibitionRoomId exhibitionRoom id to be deleted
+     * @param exhibitionFloorId exhibitionFloor id to be deleted
      */
-    fun delete(exhibitionId: UUID, exhibitionRoomId: UUID) {
-        api.deleteExhibitionRoom(exhibitionId, exhibitionRoomId)
+    fun delete(exhibitionId: UUID, exhibitionFloorId: UUID) {
+        api.deleteExhibitionFloor(exhibitionId, exhibitionFloorId)
         removeCloseable { closable: Any ->
-            if (closable !is ExhibitionRoom) {
+            if (closable !is ExhibitionFloor) {
                 return@removeCloseable false
             }
 
-            val closeableExhibitionRoom: ExhibitionRoom = closable
-            closeableExhibitionRoom.id!!.equals(exhibitionRoomId)
+            val closeableExhibitionFloor: ExhibitionFloor = closable
+            closeableExhibitionFloor.id!!.equals(exhibitionFloorId)
         }
     }
 
     /**
-     * Asserts exhibitionRoom count within the system
+     * Asserts exhibitionFloor count within the system
      *
      * @param expected expected count
      * @param exhibitionId exhibition id
      */
     fun assertCount(expected: Int, exhibitionId: UUID) {
-        assertEquals(expected, api.listExhibitionRooms(exhibitionId).size)
+        assertEquals(expected, api.listExhibitionFloors(exhibitionId).size)
     }
 
     /**
@@ -118,10 +117,10 @@ class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      *
      * @param expectedStatus expected status code
      * @param exhibitionId exhibition id
-     * @param exhibitionRoomId exhibitionRoom id
+     * @param exhibitionFloorId exhibitionFloor id
      */
-    fun assertFindFailStatus(expectedStatus: Int, exhibitionId: UUID, exhibitionRoomId: UUID) {
-        assertFindFailStatus(expectedStatus, exhibitionId, exhibitionRoomId)
+    fun assertFindFailStatus(expectedStatus: Int, exhibitionId: UUID, exhibitionFloorId: UUID) {
+        assertFindFailStatus(expectedStatus, exhibitionId, exhibitionFloorId)
     }
 
     /**
@@ -129,11 +128,11 @@ class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      *
      * @param expectedStatus expected status
      * @param exhibitionId exhibition id
-     * @param exhibitionRoomId exhibitionRoom id
+     * @param exhibitionFloorId exhibitionFloor id
      */
-    fun assertFindFail(expectedStatus: Int, exhibitionId: UUID, exhibitionRoomId: UUID) {
+    fun assertFindFail(expectedStatus: Int, exhibitionId: UUID, exhibitionFloorId: UUID) {
         try {
-            api.findExhibitionRoom(exhibitionId, exhibitionRoomId)
+            api.findExhibitionFloor(exhibitionId, exhibitionFloorId)
             fail(String.format("Expected find to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)
@@ -148,7 +147,7 @@ class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      */
     fun assertListFail(expectedStatus: Int, exhibitionId: UUID) {
         try {
-            api.listExhibitionRooms(exhibitionId)
+            api.listExhibitionFloors(exhibitionId)
             fail(String.format("Expected list to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)
@@ -162,7 +161,7 @@ class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      * @param exhibitionId exhibition id
      * @param payload payload
      */
-    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, payload: ExhibitionRoom) {
+    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, payload: ExhibitionFloor) {
         try {
             create(exhibitionId, payload)
             fail(String.format("Expected create to fail with message %d", expectedStatus))
@@ -178,9 +177,9 @@ class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      * @param exhibitionId exhibition id
      * @param body body
      */
-    fun assertUpdateFail(expectedStatus: Int, exhibitionId: UUID, body: ExhibitionRoom) {
+    fun assertUpdateFail(expectedStatus: Int, exhibitionId: UUID, body: ExhibitionFloor) {
         try {
-            updateExhibitionRoom(exhibitionId, body)
+            updateExhibitionFloor(exhibitionId, body)
             fail(String.format("Expected update to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)
@@ -203,13 +202,13 @@ class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
         }
     }
 
-    override fun clean(exhibitionRoom: ExhibitionRoom) {
-        this.getApi().deleteExhibitionRoom(exhibitionRoom.exhibitionId!!, exhibitionRoom.id!!)
+    override fun clean(exhibitionFloor: ExhibitionFloor) {
+        this.getApi().deleteExhibitionFloor(exhibitionFloor.exhibitionId!!, exhibitionFloor.id!!)
     }
 
-    override fun getApi(): ExhibitionRoomsApi {
+    override fun getApi(): ExhibitionFloorsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return ExhibitionRoomsApi(TestSettings.apiBasePath)
+        return ExhibitionFloorsApi(TestSettings.apiBasePath)
     }
 
 }

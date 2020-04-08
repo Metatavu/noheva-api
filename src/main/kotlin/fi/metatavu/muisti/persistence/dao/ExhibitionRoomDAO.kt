@@ -1,6 +1,7 @@
 package fi.metatavu.muisti.persistence.dao
 
 import fi.metatavu.muisti.persistence.model.Exhibition
+import fi.metatavu.muisti.persistence.model.ExhibitionFloor
 import fi.metatavu.muisti.persistence.model.ExhibitionRoom
 import fi.metatavu.muisti.persistence.model.ExhibitionRoom_
 import java.util.*
@@ -15,23 +16,25 @@ import javax.persistence.criteria.Root
  * @author Antti Leppä
  */
 @ApplicationScoped
-open class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
+class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
 
     /**
      * Creates new ExhibitionRoom
      *
      * @param id id
      * @param exhibition exhibition
+     * @param floor floor where the room is
      * @param name name
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created exhibitionRoom
      */
-    open fun create(id: UUID, exhibition: Exhibition, name: String, creatorId: UUID, lastModifierId: UUID): ExhibitionRoom {
+    fun create(id: UUID, exhibition: Exhibition, floor: ExhibitionFloor, name: String, creatorId: UUID, lastModifierId: UUID): ExhibitionRoom {
         val exhibitionRoom = ExhibitionRoom()
         exhibitionRoom.id = id
         exhibitionRoom.name = name
         exhibitionRoom.exhibition = exhibition
+        exhibitionRoom.floor = floor
         exhibitionRoom.creatorId = creatorId
         exhibitionRoom.lastModifierId = lastModifierId
         return persist(exhibitionRoom)
@@ -43,7 +46,7 @@ open class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
      * @param exhibition exhibition
      * @return List of ExhibitionRooms
      */
-    open fun listByExhibition(exhibition: Exhibition): List<ExhibitionRoom> {
+    fun listByExhibition(exhibition: Exhibition): List<ExhibitionRoom> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionRoom> = criteriaBuilder.createQuery(ExhibitionRoom::class.java)
@@ -61,9 +64,22 @@ open class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
      * @param lastModifierId last modifier's id
      * @return updated exhibitionRoom
      */
-    open fun updateName(exhibitionRoom: ExhibitionRoom, name: String, lastModifierId: UUID): ExhibitionRoom {
+    fun updateName(exhibitionRoom: ExhibitionRoom, name: String, lastModifierId: UUID): ExhibitionRoom {
         exhibitionRoom.lastModifierId = lastModifierId
         exhibitionRoom.name = name
+        return persist(exhibitionRoom)
+    }
+
+    /**
+     * Updates floor
+     *
+     * @param floor floor
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionRoom
+     */
+    fun updateFloor(exhibitionRoom: ExhibitionRoom, floor: ExhibitionFloor, lastModifierId: UUID): ExhibitionRoom {
+        exhibitionRoom.lastModifierId = lastModifierId
+        exhibitionRoom.floor = floor
         return persist(exhibitionRoom)
     }
 
