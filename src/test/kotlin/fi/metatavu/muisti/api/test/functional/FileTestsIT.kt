@@ -37,5 +37,4 @@ class FileTestsIT : AbstractFunctionalTest() {
         val serviceFilePath = serverFile.absolutePath;
         return File(uploadsFolder, StringUtils.substringAfter(serviceFilePath, FilenameUtils.separatorsToSystem("/opt/uploads")))
     }
-
 }
