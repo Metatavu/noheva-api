@@ -58,10 +58,11 @@ class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      * Lists exhibition Rooms
      *
      * @param exhibitionId exhibition id
+     * @param floorId filter by floor id
      * @return exhibition Rooms
      */
-    fun listExhibitionRooms(exhibitionId: UUID): Array<ExhibitionRoom> {
-        return api.listExhibitionRooms(exhibitionId)
+    fun listExhibitionRooms(exhibitionId: UUID, floorId: UUID?): Array<ExhibitionRoom> {
+        return api.listExhibitionRooms(exhibitionId = exhibitionId, floorId = floorId)
     }
 
     /**
@@ -108,9 +109,10 @@ class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      *
      * @param expected expected count
      * @param exhibitionId exhibition id
+     * @param floorId filter by floor id
      */
-    fun assertCount(expected: Int, exhibitionId: UUID) {
-        assertEquals(expected, api.listExhibitionRooms(exhibitionId).size)
+    fun assertCount(expected: Int, exhibitionId: UUID, floorId: UUID?) {
+        assertEquals(expected, api.listExhibitionRooms(exhibitionId = exhibitionId, floorId = floorId).size)
     }
 
     /**
@@ -145,10 +147,11 @@ class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      *
      * @param expectedStatus expected status
      * @param exhibitionId exhibition id
+     * @param floorId filter by floor id
      */
-    fun assertListFail(expectedStatus: Int, exhibitionId: UUID) {
+    fun assertListFail(expectedStatus: Int, exhibitionId: UUID, floorId: UUID?) {
         try {
-            api.listExhibitionRooms(exhibitionId)
+            api.listExhibitionRooms(exhibitionId = exhibitionId, floorId = floorId)
             fail(String.format("Expected list to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)

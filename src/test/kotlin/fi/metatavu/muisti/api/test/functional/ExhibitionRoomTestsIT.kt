@@ -56,19 +56,31 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
-            val floor = it.admin().exhibitionFloors().create(exhibition.id!!)
-            val floorId = floor.id!!
+            val floor1 = it.admin().exhibitionFloors().create(exhibition.id!!)
+            val floor1Id = floor1.id!!
 
-            it.admin().exhibitionRooms().assertListFail(404, nonExistingExhibitionId)
-            assertEquals(0, it.admin().exhibitionRooms().listExhibitionRooms(exhibitionId).size)
+            val floor2 = it.admin().exhibitionFloors().create(exhibition.id!!)
+            val floor2Id = floor2.id!!
 
-            val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
-            val createdExhibitionRoomId = createdExhibitionRoom.id!!
-            val exhibitionRooms = it.admin().exhibitionRooms().listExhibitionRooms(exhibitionId)
+            it.admin().exhibitionRooms().assertListFail(expectedStatus = 404, exhibitionId = nonExistingExhibitionId, floorId = null)
+            assertEquals(0, it.admin().exhibitionRooms().listExhibitionRooms(exhibitionId = exhibitionId, floorId = null).size)
+
+            val createdExhibitionRoom1 = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floor1Id)
+            it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floor2Id)
+            it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floor2Id)
+
+            it.admin().exhibitionRooms().assertCount(1, exhibitionId = exhibitionId, floorId = floor1Id)
+            it.admin().exhibitionRooms().assertCount(2, exhibitionId = exhibitionId, floorId = floor2Id)
+            it.admin().exhibitionRooms().assertCount(3, exhibitionId = exhibitionId, floorId = null)
+
+            val createdExhibitionRoomId1 = createdExhibitionRoom1.id!!
+
+            val exhibitionRooms = it.admin().exhibitionRooms().listExhibitionRooms(exhibitionId = exhibitionId, floorId = floor1Id)
             assertEquals(1, exhibitionRooms.size)
-            assertEquals(createdExhibitionRoomId, exhibitionRooms[0].id)
-            it.admin().exhibitionRooms().delete(exhibitionId, createdExhibitionRoomId)
-            assertEquals(0, it.admin().exhibitionRooms().listExhibitionRooms(exhibitionId).size)
+
+            assertEquals(createdExhibitionRoomId1, exhibitionRooms[0].id)
+            it.admin().exhibitionRooms().delete(exhibitionId, createdExhibitionRoomId1)
+            assertEquals(0, it.admin().exhibitionRooms().listExhibitionRooms(exhibitionId = exhibitionId, floorId = floor1Id).size)
         }
     }
 

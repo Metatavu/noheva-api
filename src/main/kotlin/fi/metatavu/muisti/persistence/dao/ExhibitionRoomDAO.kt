@@ -8,6 +8,7 @@ import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
 import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 
 /**
@@ -41,18 +42,27 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
     }
 
     /**
-     * Lists ExhibitionRooms by exhibition
+     * Lists exhibition rooms
      *
      * @param exhibition exhibition
+     * @param floor floor filter by floor. Ignored if null
      * @return List of ExhibitionRooms
      */
-    fun listByExhibition(exhibition: Exhibition): List<ExhibitionRoom> {
+    fun list(exhibition: Exhibition, floor: ExhibitionFloor?): List<ExhibitionRoom> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionRoom> = criteriaBuilder.createQuery(ExhibitionRoom::class.java)
         val root: Root<ExhibitionRoom> = criteria.from(ExhibitionRoom::class.java)
+
+        val restrictions = ArrayList<Predicate>()
+        restrictions.add(criteriaBuilder.equal(root.get(ExhibitionRoom_.exhibition), exhibition))
+
+        if (floor != null) {
+            restrictions.add(criteriaBuilder.equal(root.get(ExhibitionRoom_.floor), floor))
+        }
+
         criteria.select(root)
-        criteria.where(criteriaBuilder.equal(root.get(ExhibitionRoom_.exhibition), exhibition))
+        criteria.where(*restrictions.toTypedArray())
         val query: TypedQuery<ExhibitionRoom> = entityManager.createQuery<ExhibitionRoom>(criteria)
         return query.getResultList()
     }

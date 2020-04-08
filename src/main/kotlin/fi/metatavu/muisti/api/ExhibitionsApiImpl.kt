@@ -284,13 +284,16 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         return createOk(exhibitionRoomTranslator.translate(exhibitionRoom))
     }
 
-    override fun listExhibitionRooms(exhibitionId: UUID?): Response {
-        if (exhibitionId == null) {
-            return createNotFound(EXHIBITION_NOT_FOUND)
+    override fun listExhibitionRooms(exhibitionId: UUID?, floorId: UUID?): Response {
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
+        var floor: fi.metatavu.muisti.persistence.model.ExhibitionFloor? = null
+
+        if (floorId != null) {
+            floor = exhibitionFloorController.findExhibitionFloorById(floorId)
         }
 
-        val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionRooms = exhibitionRoomController.listExhibitionRooms(exhibition)
+        val exhibitionRooms = exhibitionRoomController.listExhibitionRooms(exhibition, floor)
 
         return createOk(exhibitionRooms.map (exhibitionRoomTranslator::translate))
     }

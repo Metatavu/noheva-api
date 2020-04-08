@@ -39,12 +39,14 @@ class ExhibitionRoomController() {
     }
 
     /**
-     * Lists rooms in an exhibitions
+     * Lists exhibition rooms
      *
-     * @returns all rooms in an exhibition
+     * @param exhibition exhibition
+     * @param floor floor filter by floor. Ignored if null
+     * @return List of ExhibitionRooms
      */
-    fun listExhibitionRooms(exhibition: Exhibition): List<ExhibitionRoom> {
-        return exhibitionRoomDAO.listByExhibition(exhibition)
+    fun listExhibitionRooms(exhibition: Exhibition, floor: ExhibitionFloor?): List<ExhibitionRoom> {
+        return exhibitionRoomDAO.list(exhibition, floor)
     }
 
     /**
