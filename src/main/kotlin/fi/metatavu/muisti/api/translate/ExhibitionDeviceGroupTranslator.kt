@@ -12,6 +12,7 @@ class ExhibitionDeviceGroupTranslator: AbstractTranslator<fi.metatavu.muisti.per
         val result: fi.metatavu.muisti.api.spec.model.ExhibitionDeviceGroup = fi.metatavu.muisti.api.spec.model.ExhibitionDeviceGroup()
         result.id = entity.id
         result.exhibitionId = entity.exhibition?.id
+        result.roomId = entity.room?.id
         result.name = entity.name
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
