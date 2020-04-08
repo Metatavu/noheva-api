@@ -675,13 +675,9 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     /* Floors */
 
     override fun createExhibitionFloor(exhibitionId: UUID?, payload: ExhibitionFloor?): Response {
-        if (payload == null) {
-            return createBadRequest("Missing request body")
-        }
-
-        if (exhibitionId == null) {
-            return createNotFound(EXHIBITION_NOT_FOUND)
-        }
+        payload ?: return createBadRequest("Missing request body")
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
