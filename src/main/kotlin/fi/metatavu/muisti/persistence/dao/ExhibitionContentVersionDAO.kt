@@ -57,6 +57,7 @@ class ExhibitionContentVersionDAO() : AbstractDAO<ExhibitionContentVersion>() {
     /**
      * Updates name
      *
+     * @param exhibitionContentVersion exhibition content version
      * @param name name
      * @param lastModifierId last modifier's id
      * @return updated exhibitionContentVersion
