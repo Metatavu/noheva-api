@@ -20,7 +20,9 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
-            val layout = it.admin().pageLayouts().create()
+            val deviceModel = it.admin().deviceModels().create()
+            val defaultPageLayout = it.admin().pageLayouts().create(deviceModel)
+            val layout = it.admin().pageLayouts().create(defaultPageLayout)
             val layoutId = layout.id!!
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
             val groupId: UUID = group.id!!
@@ -42,7 +44,9 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
         TestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
-            val layout = it.admin().pageLayouts().create()
+            val deviceModel = it.admin().deviceModels().create()
+            val defaultPageLayout = it.admin().pageLayouts().create(deviceModel)
+            val layout = it.admin().pageLayouts().create(defaultPageLayout)
             val layoutId = layout.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingExhibitionPageId = UUID.randomUUID()
@@ -68,7 +72,9 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
         TestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
-            val layout = it.admin().pageLayouts().create()
+            val deviceModel = it.admin().deviceModels().create()
+            val defaultPageLayout = it.admin().pageLayouts().create(deviceModel)
+            val layout = it.admin().pageLayouts().create(defaultPageLayout)
             val layoutId = layout.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
 
@@ -96,11 +102,11 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
         TestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
-            val layout = it.admin().pageLayouts().create()
-            val layoutId = layout.id!!
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
             val model = it.admin().deviceModels().create()
             val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
+            val layout = it.admin().pageLayouts().create(model)
+            val layoutId = layout.id!!
 
             val contentVersion1 = it.admin().exhibitionContentVersions().create(exhibitionId)
             val contentVersion1Id = contentVersion1.id!!
@@ -137,9 +143,15 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
-            val createLayout = it.admin().pageLayouts().create()
+
+            val deviceModel = it.admin().deviceModels().create()
+            val defaultPageLayout = it.admin().pageLayouts().create(deviceModel)
+            val createLayout = it.admin().pageLayouts().create(defaultPageLayout)
             val createLayoutId = createLayout.id!!
-            val updateLayout = it.admin().pageLayouts().create()
+
+            val updateDeviceModel = it.admin().deviceModels().create()
+            val updateDefaultPageLayout = it.admin().pageLayouts().create(updateDeviceModel)
+            val updateLayout = it.admin().pageLayouts().create(updateDefaultPageLayout)
             val updateLayoutId = updateLayout.id!!
 
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
@@ -254,7 +266,9 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
-            val layout = it.admin().pageLayouts().create()
+            val deviceModel = it.admin().deviceModels().create()
+            val defaultPageLayout = it.admin().pageLayouts().create(deviceModel)
+            val layout = it.admin().pageLayouts().create(defaultPageLayout)
             val layoutId = layout.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingSessionVariableId = UUID.randomUUID()

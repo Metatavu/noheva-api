@@ -11,7 +11,7 @@ import javax.validation.constraints.NotEmpty
  * @author Antti Leppä
  */
 @Entity
-open class ExhibitionContentVersion {
+class ExhibitionContentVersion {
 
     @Id
     var id: UUID? = null

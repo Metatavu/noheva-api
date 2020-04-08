@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import fi.metatavu.muisti.api.spec.model.PageLayoutView
 import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.persistence.dao.PageLayoutDAO
+import fi.metatavu.muisti.persistence.model.DeviceModel
 import fi.metatavu.muisti.persistence.model.PageLayout
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
@@ -27,12 +28,13 @@ class PageLayoutController() {
      * @param name name
      * @param data data
      * @param thumbnailUrl thumbnail URL
+     * @param deviceModel device model
      * @param screenOrientation screen orientation
      * @param creatorId creating user id
      * @return created exhibition page layout
      */
-    fun createPageLayout(name: String, data: PageLayoutView, thumbnailUrl: String?, screenOrientation: ScreenOrientation, creatorId: UUID): PageLayout {
-        return pageLayoutDAO.create(UUID.randomUUID(), name, getDataAsString(data), thumbnailUrl, screenOrientation, creatorId, creatorId)
+    fun createPageLayout(name: String, data: PageLayoutView, thumbnailUrl: String?, deviceModel: DeviceModel, screenOrientation: ScreenOrientation, creatorId: UUID): PageLayout {
+        return pageLayoutDAO.create(UUID.randomUUID(), name, getDataAsString(data), thumbnailUrl, deviceModel, screenOrientation, creatorId, creatorId)
     }
 
     /**
@@ -43,6 +45,17 @@ class PageLayoutController() {
      */
     fun findPageLayoutById(id: UUID): PageLayout? {
         return pageLayoutDAO.findById(id)
+    }
+
+    /**
+     * List of exhibition page layouts by device model id and screen orientation
+     *
+     * @param deviceModel device model
+     * @param screenOrientation screen orientation
+     * @return list of exhibition page layouts
+     */
+    fun listPageLayouts(deviceModel: DeviceModel?, screenOrientation: ScreenOrientation?): List<PageLayout> {
+        return pageLayoutDAO.list(deviceModel, screenOrientation)
     }
 
     /**
@@ -65,10 +78,11 @@ class PageLayoutController() {
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updatePageLayout(pageLayout: PageLayout, name: String, data: PageLayoutView, thumbnailUrl: String?, screenOrientation: ScreenOrientation, modifierId: UUID): PageLayout {
+    fun updatePageLayout(pageLayout: PageLayout, name: String, data: PageLayoutView, thumbnailUrl: String?, deviceModel: DeviceModel, screenOrientation: ScreenOrientation, modifierId: UUID): PageLayout {
         pageLayoutDAO.updateName(pageLayout, name, modifierId)
         pageLayoutDAO.updateData(pageLayout, getDataAsString(data), modifierId)
         pageLayoutDAO.updateThumbnailUrl(pageLayout, thumbnailUrl, modifierId)
+        pageLayoutDAO.updateDeviceModel(pageLayout, deviceModel, modifierId)
         pageLayoutDAO.updateScreenOrientation(pageLayout, screenOrientation, modifierId)
         return pageLayout
     }

@@ -2,13 +2,11 @@ package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
+import fi.metatavu.muisti.api.client.apis.DeviceModelsApi
 import fi.metatavu.muisti.api.client.apis.PageLayoutsApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
-import fi.metatavu.muisti.api.client.models.PageLayout
-import fi.metatavu.muisti.api.client.models.PageLayoutView
-import fi.metatavu.muisti.api.client.models.PageLayoutViewProperty
-import fi.metatavu.muisti.api.client.models.ScreenOrientation
+import fi.metatavu.muisti.api.client.models.*
 import fi.metatavu.muisti.api.test.functional.impl.ApiTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
@@ -26,15 +24,21 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
     /**
      * Creates new exhibition page layout with default values
      *
-     * @return created exhibition page layout
+     * @param deviceModel device model that is required for the PageLayout
+     * @return created page layout
      */
-    fun create(): PageLayout {
-        val properties: Array<PageLayoutViewProperty> = arrayOf()
-        val children: Array<PageLayoutView> = arrayOf()
+    fun create(deviceModel: DeviceModel): PageLayout {
+        val createdModelId = deviceModel.id!!
+        val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.boolean))
+        val createdChildren = arrayOf(PageLayoutView("childid", "child", arrayOf(), arrayOf()))
+        val createdData = PageLayoutView("rootid", "created widget", createdProperties, createdChildren)
+
         return create(PageLayout(
-            name = "default page layout",
-            data = PageLayoutView("defaultid", "TextView", properties, children),
-            screenOrientation = ScreenOrientation.portrait
+            name = "created name",
+            data = createdData,
+            thumbnailUrl = "http://example.com/thumbnail.png",
+            screenOrientation = ScreenOrientation.portrait,
+            modelId = createdModelId
         ))
     }
 
@@ -65,8 +69,18 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
      *
      * @return exhibition page layouts
      */
+    fun listPageLayouts(deviceModelId: UUID?, screenOrientation: String?): Array<PageLayout> {
+        return api.listPageLayouts(deviceModelId, screenOrientation)
+    }
+
+
+    /**
+     * Lists exhibition page layouts
+     *
+     * @return exhibition page layouts
+     */
     fun listPageLayouts(): Array<PageLayout> {
-        return api.listPageLayouts()
+        return api.listPageLayouts(null, null)
     }
 
     /**
@@ -111,7 +125,7 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
      * @param expected expected count
      */
     fun assertCount(expected: Int) {
-        assertEquals(expected, api.listPageLayouts().size)
+        assertEquals(expected, api.listPageLayouts(null, null).size)
     }
 
     /**
@@ -144,9 +158,9 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
      *
      * @param expectedStatus expected status
      */
-    fun assertListFail(expectedStatus: Int) {
+    fun assertListFail(expectedStatus: Int, deviceModelId: UUID?, screenOrientation: String?) {
         try {
-            api.listPageLayouts()
+            api.listPageLayouts(deviceModelId, screenOrientation)
             fail(String.format("Expected list to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)
