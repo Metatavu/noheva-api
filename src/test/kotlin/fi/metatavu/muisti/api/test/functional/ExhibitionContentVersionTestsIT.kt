@@ -82,6 +82,8 @@ class ExhibitionContentVersionTestsIT: AbstractFunctionalTest() {
 
             it.admin().exhibitionContentVersions().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionContentVersion("name", createdExhibitionContentVersionId))
         }
+
+
     }
 
     @Test

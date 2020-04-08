@@ -521,17 +521,22 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         return createOk(exhibitionPageTranslator.translate(exhibitionPage))
     }
 
-    override fun listExhibitionPages(exhibitionId: UUID?, exhibitionDeviceId: UUID?): Response {
+    override fun listExhibitionPages(exhibitionId: UUID?, exhibitionContentVersionId: UUID?, exhibitionDeviceId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
 
-        var  exhibitionDevice : fi.metatavu.muisti.persistence.model.ExhibitionDevice? = null
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
+        var exhibitionDevice : fi.metatavu.muisti.persistence.model.ExhibitionDevice? = null
         if (exhibitionDeviceId != null) {
             exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(exhibitionDeviceId)
         }
 
-        val exhibitionPages = exhibitionPageController.listExhibitionPages(exhibition, exhibitionDevice)
+        var exhibitionContentVersion: fi.metatavu.muisti.persistence.model.ExhibitionContentVersion? = null
+        if (exhibitionContentVersionId != null) {
+            exhibitionContentVersion = exhibitionContentVersionController.findExhibitionContentVersionById(exhibitionContentVersionId)
+            exhibitionContentVersion ?: return createBadRequest("Content version not found")
+        }
 
+        val exhibitionPages = exhibitionPageController.listExhibitionPages(exhibition, exhibitionDevice, exhibitionContentVersion)
         return createOk(exhibitionPages.map (exhibitionPageTranslator::translate))
     }
 
