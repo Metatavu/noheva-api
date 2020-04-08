@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.pages
+package fi.metatavu.muisti.contents
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import fi.metatavu.muisti.api.spec.model.PageLayoutView

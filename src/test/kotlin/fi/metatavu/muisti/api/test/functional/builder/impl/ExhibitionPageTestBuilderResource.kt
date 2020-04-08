@@ -25,12 +25,14 @@ class ExhibitionPageTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      *
      * @param exhibitionId
      * @param layoutId layout id
+     * @param contentVersionId content version id
      * @return created exhibition Page
      */
-    fun create(exhibitionId: UUID, layoutId: UUID, deviceId: UUID): ExhibitionPage {
+    fun create(exhibitionId: UUID, layoutId: UUID, deviceId: UUID, contentVersionId: UUID): ExhibitionPage {
         return create(exhibitionId, ExhibitionPage(
             layoutId = layoutId,
             deviceId = deviceId,
+            contentVersionId = contentVersionId,
             name = "default page",
             resources = arrayOf(),
             eventTriggers = arrayOf()
@@ -66,10 +68,15 @@ class ExhibitionPageTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      *
      * @param exhibitionId exhibition id
      * @param exhibitionDeviceId exhibition device id
+     * @param exhibitionContentVersionId exhibition content version id
      * @return exhibition Pages
      */
-    fun listExhibitionPages(exhibitionId: UUID, exhibitionDeviceId: UUID): Array<ExhibitionPage> {
-        return api.listExhibitionPages(exhibitionId, exhibitionDeviceId)
+    fun listExhibitionPages(exhibitionId: UUID, exhibitionDeviceId: UUID?, exhibitionContentVersionId: UUID?): Array<ExhibitionPage> {
+        return api.listExhibitionPages(
+            exhibitionId = exhibitionId,
+            exhibitionDeviceId = exhibitionDeviceId,
+            exhibitionContentVersionId = exhibitionContentVersionId
+        )
     }
 
     /**
@@ -117,9 +124,10 @@ class ExhibitionPageTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      * @param expected expected count
      * @param exhibitionId exhibition id
      * @param exhibitionDeviceId exhibition device id
+     * @param exhibitionContentVersionId exhibition content version id
      */
-    fun assertCount(expected: Int, exhibitionId: UUID, exhibitionDeviceId: UUID) {
-        assertEquals(expected, api.listExhibitionPages(exhibitionId, exhibitionDeviceId).size)
+    fun assertCount(expected: Int, exhibitionId: UUID, exhibitionDeviceId: UUID?, exhibitionContentVersionId: UUID?) {
+        assertEquals(expected, api.listExhibitionPages(exhibitionId, exhibitionDeviceId, exhibitionContentVersionId).size)
     }
 
     /**
@@ -153,12 +161,13 @@ class ExhibitionPageTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      * Asserts list status fails with given status code
      *
      * @param expectedStatus expected status
-     * @param exhibitionDeviceId exhibition device id
      * @param exhibitionId exhibition id
+     * @param exhibitionDeviceId exhibition device id
+     * @param exhibitionContentVersionId exhibition content version id
      */
-    fun assertListFail(expectedStatus: Int, exhibitionId: UUID, exhibitionDeviceId: UUID) {
+    fun assertListFail(expectedStatus: Int, exhibitionId: UUID, exhibitionDeviceId: UUID?, exhibitionContentVersionId: UUID?) {
         try {
-            api.listExhibitionPages(exhibitionId, exhibitionDeviceId)
+            api.listExhibitionPages(exhibitionId = exhibitionId, exhibitionDeviceId = exhibitionDeviceId, exhibitionContentVersionId = exhibitionContentVersionId)
             fail(String.format("Expected list to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)

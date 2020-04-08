@@ -27,7 +27,9 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val model = it.admin().deviceModels().create()
             val modelId = model.id!!
             val deviceId = it.admin().exhibitionDevices().create(exhibitionId, groupId, modelId).id!!
-            val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId)
+            val contentVersion = it.admin().exhibitionContentVersions().create(exhibitionId)
+            val contentVersionId = contentVersion.id!!
+            val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId, contentVersionId)
             assertNotNull(createdExhibitionPage)
             it.admin().exhibitions().assertCreateFail(400, "")
 
@@ -48,8 +50,10 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
             val model = it.admin().deviceModels().create()
             val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
+            val contentVersion = it.admin().exhibitionContentVersions().create(exhibitionId)
+            val contentVersionId = contentVersion.id!!
 
-            val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId)
+            val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId = exhibitionId, layoutId = layoutId, deviceId = deviceId, contentVersionId = contentVersionId)
             val createdExhibitionPageId = createdExhibitionPage.id!!
 
             it.admin().exhibitionPages().assertFindFail(404, exhibitionId, nonExistingExhibitionPageId)
@@ -71,17 +75,58 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
             val model = it.admin().deviceModels().create()
             val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
+            val contentVersion = it.admin().exhibitionContentVersions().create(exhibitionId)
+            val contentVersionId = contentVersion.id!!
 
-            it.admin().exhibitionPages().assertListFail(404, nonExistingExhibitionId, deviceId)
-            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId).size)
+            it.admin().exhibitionPages().assertListFail(404, nonExistingExhibitionId, deviceId, null)
+            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, null).size)
 
-            val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId)
+            val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId, contentVersionId)
             val createdExhibitionPageId = createdExhibitionPage.id!!
-            val exhibitionPage = it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId)
+            val exhibitionPage = it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, null)
             assertEquals(1, exhibitionPage.size)
             assertEquals(createdExhibitionPageId, exhibitionPage[0].id)
             it.admin().exhibitionPages().delete(exhibitionId, createdExhibitionPageId)
-            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId).size)
+            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, null).size)
+        }
+    }
+
+    @Test
+    fun testListExhibitionPagesByContentVersion() {
+        TestBuilder().use {
+            val exhibition = it.admin().exhibitions().create()
+            val exhibitionId = exhibition.id!!
+            val layout = it.admin().pageLayouts().create()
+            val layoutId = layout.id!!
+            val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
+            val model = it.admin().deviceModels().create()
+            val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
+
+            val contentVersion1 = it.admin().exhibitionContentVersions().create(exhibitionId)
+            val contentVersion1Id = contentVersion1.id!!
+            val contentVersion2 = it.admin().exhibitionContentVersions().create(exhibitionId)
+            val contentVersion2Id = contentVersion2.id!!
+
+            it.admin().exhibitionPages().assertListFail(400, exhibitionId, deviceId, UUID.randomUUID())
+            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion1Id).size)
+            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion2Id).size)
+
+            val page1 = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId, contentVersion1Id)
+            val page2 = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId, contentVersion2Id)
+
+            val pages1 = it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion1Id)
+            val pages2 = it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion2Id)
+
+            assertEquals(1, pages1.size)
+            assertEquals(pages1[0].id, page1.id)
+
+            assertEquals(1, pages2.size)
+            assertEquals(pages2[0].id, page2.id)
+
+            it.admin().exhibitionPages().delete(exhibitionId, page1.id!!)
+
+            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion1Id).size)
+            assertEquals(1, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion2Id).size)
         }
     }
 
@@ -100,8 +145,10 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
             val model = it.admin().deviceModels().create()
             val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
+            val contentVersion = it.admin().exhibitionContentVersions().create(exhibitionId)
+            val contentVersionId = contentVersion.id!!
 
-            val navigatePage = it.admin().exhibitionPages().create(exhibitionId, createLayoutId, deviceId)
+            val navigatePage = it.admin().exhibitionPages().create(exhibitionId = exhibitionId, layoutId = createLayoutId, deviceId = deviceId, contentVersionId = contentVersionId)
             val navigatePageId = navigatePage.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val createResource = ExhibitionPageResource(
@@ -133,7 +180,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 deviceId = deviceId,
                 name = "create page",
                 resources = arrayOf(createResource),
-                eventTriggers = arrayOf(createEventTrigger)
+                eventTriggers = arrayOf(createEventTrigger),
+                contentVersionId = contentVersionId
             )
 
             val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, createPage)
@@ -177,7 +225,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 deviceId = deviceId,
                 name = "update page",
                 resources = arrayOf(updateResource),
-                eventTriggers = arrayOf(updateEventTrigger)
+                eventTriggers = arrayOf(updateEventTrigger),
+                contentVersionId = contentVersionId
             )
 
             val updatedExhibitionPage = it.admin().exhibitionPages().updateExhibitionPage(exhibitionId, updatePage)
@@ -213,8 +262,10 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId)
             val model = it.admin().deviceModels().create()
             val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
+            val contentVersion = it.admin().exhibitionContentVersions().create(exhibitionId)
+            val contentVersionId = contentVersion.id!!
 
-            val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId)
+            val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId = exhibitionId, layoutId = layoutId, deviceId = deviceId, contentVersionId = contentVersionId)
             val createdExhibitionPageId = createdExhibitionPage.id!!
 
             assertNotNull(it.admin().exhibitionPages().findExhibitionPage(exhibitionId, createdExhibitionPageId))

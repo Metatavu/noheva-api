@@ -3,7 +3,7 @@ package fi.metatavu.muisti.api
 import fi.metatavu.muisti.api.spec.PageLayoutsApi
 import fi.metatavu.muisti.api.spec.model.PageLayout
 import fi.metatavu.muisti.api.translate.PageLayoutTranslator
-import fi.metatavu.muisti.pages.PageLayoutController
+import fi.metatavu.muisti.contents.PageLayoutController
 import java.util.*
 import javax.ejb.Stateful
 import javax.enterprise.context.RequestScoped
