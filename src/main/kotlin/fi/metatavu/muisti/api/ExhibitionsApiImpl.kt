@@ -713,9 +713,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun updateExhibitionFloor(exhibitionId: UUID?, floorId: UUID?, payload: ExhibitionFloor?): Response {
-        if (payload == null) {
-            return createBadRequest("Missing request body")
-        }
+        payload ?: return createBadRequest("Missing request body")
 
         if (exhibitionId == null || floorId == null) {
             return createNotFound(EXHIBITION_NOT_FOUND)
