@@ -6,6 +6,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 import java.io.FileInputStream
+import org.apache.commons.lang3.StringUtils
+import org.apache.commons.io.FilenameUtils
 
 /**
  * File upload functional tests
@@ -32,7 +34,11 @@ class FileTestsIT : AbstractFunctionalTest() {
      */
     protected fun getAsUploadsFile(serverFile: File): File {
         val uploadsFolder = File(System.getProperty("user.dir"), "test-volumes/uploads")
-        return File(uploadsFolder, serverFile.absolutePath.substring("/opt/uploads/".length))
+        val serviceFilePath = serverFile.absolutePath;
+        val re = File(uploadsFolder, StringUtils.substringAfter(serviceFilePath, FilenameUtils.separatorsToSystem("/opt/uploads")))
+        System.out.println(uploadsFolder.absolutePath)
+        System.out.println(re.absolutePath)
+        return File(uploadsFolder, StringUtils.substringAfter(serviceFilePath, FilenameUtils.separatorsToSystem("/opt/uploads")))
     }
 
 }

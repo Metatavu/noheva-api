@@ -96,8 +96,8 @@ jacoco {
 
 task mkdirJacoco(type: Exec) {
   doFirst {
-    mkdir "$buildDir/jacoco"
-    commandLine 'chmod', '777', "$buildDir/jacoco"
+    //mkdir "$buildDir/jacoco"
+    //commandLine 'chmod', '777', "$buildDir/jacoco"
   }
 }
 
@@ -131,7 +131,11 @@ dockerCompose {
 }
 
 composeUp {
-  dependsOn tasks.mkdirJacoco
+  if (System.properties['os.name'].toLowerCase().contains('windows')) {
+    println "it's Windows"
+  } else {
+      dependsOn tasks.mkdirJacoco
+  }
   dependsOn tasks.unzipJacoco
 }
 
