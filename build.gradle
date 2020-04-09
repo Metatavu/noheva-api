@@ -131,7 +131,11 @@ dockerCompose {
 }
 
 composeUp {
-  dependsOn tasks.mkdirJacoco
+  if (System.properties['os.name'].toLowerCase().contains('windows')) {
+    println "it's Windows"
+  } else {
+      dependsOn tasks.mkdirJacoco
+  }
   dependsOn tasks.unzipJacoco
 }
 
