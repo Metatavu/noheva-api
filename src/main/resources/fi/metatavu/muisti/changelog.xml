@@ -413,7 +413,7 @@
             <column name="deviceModel_id" type="binary(16)"/>
         </addColumn>
 
-        <sql>UPDATE pagelayout SET deviceModel_id = (SELECT ID FROM exhibitiondevice LIMIT 1)</sql>
+        <sql>UPDATE pagelayout SET deviceModel_id = (SELECT ID FROM devicemodel LIMIT 1)</sql>
 
         <addNotNullConstraint columnDataType="binary(16)" tableName="pagelayout" columnName="deviceModel_id"/>
         <addForeignKeyConstraint baseTableName="pagelayout" baseColumnNames="deviceModel_id" constraintName="FK_PAGE_LAYOUT_DEVICE_MODEL_ID" referencedTableName="devicemodel" referencedColumnNames="id"/>
