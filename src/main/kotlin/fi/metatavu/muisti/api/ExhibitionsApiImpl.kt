@@ -336,33 +336,39 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     /* Devices */
 
     override fun createExhibitionDevice(exhibitionId: UUID?, payload: ExhibitionDevice?): Response {
-        if (payload == null) {
-            return createBadRequest("Missing request body")
-        }
-
-        if (payload.groupId == null) {
-            return createBadRequest("Missing exhibition group id")
-        }
-
-        if (exhibitionId == null) {
-            return createNotFound(EXHIBITION_NOT_FOUND)
-        }
+        payload ?: return createBadRequest("Missing request body")
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        payload.groupId ?: return createBadRequest("Missing exhibition group id")
 
         val exhibitionGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(payload.groupId) ?: return createBadRequest("Invalid exhibition group id ${payload.groupId}")
-        val model = deviceModelController.findDeviceModelById(payload.modelId) ?: return createBadRequest("Device model $payload.modelId not found")
+        val model = deviceModelController.findDeviceModelById(payload.modelId) ?: return createBadRequest("Device model ${payload.modelId} not found")
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val location = payload.location
         val screenOrientation = payload.screenOrientation
 
-        val exhibitionDevice = exhibitionDeviceController.createExhibitionDevice(exhibition, exhibitionGroup, model, payload.name, location, screenOrientation, userId)
+        var indexPage: fi.metatavu.muisti.persistence.model.ExhibitionPage? = null
+        if (payload.indexPageId != null) {
+            indexPage = exhibitionPageController.findExhibitionPageById(payload.indexPageId) ?: return createBadRequest("Specified index page ${payload.indexPageId} does not exist")
+        }
+
+        val exhibitionDevice = exhibitionDeviceController.createExhibitionDevice(
+            exhibition = exhibition,
+            exhibitionDeviceGroup = exhibitionGroup,
+            indexPage = indexPage,
+            deviceModel = model,
+            name = payload.name,
+            location = location,
+            screenOrientation = screenOrientation,
+            creatorId = userId
+        )
+
         return createOk(exhibitionDeviceTranslator.translate(exhibitionDevice))
     }
 
     override fun findExhibitionDevice(exhibitionId: UUID?, deviceId: UUID?): Response {
-        if (exhibitionId == null || deviceId == null) {
-            return createNotFound(EXHIBITION_NOT_FOUND)
-        }
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        deviceId ?: return createNotFound("Device not found")
 
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
@@ -376,9 +382,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun listExhibitionDevices(exhibitionId: UUID?, exhibitionDeviceGroupId: UUID?): Response {
-        if (exhibitionId == null) {
-            return createNotFound(EXHIBITION_NOT_FOUND)
-        }
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
 
@@ -393,20 +397,15 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun updateExhibitionDevice(exhibitionId: UUID?, deviceId: UUID?, payload: ExhibitionDevice?): Response {
-        if (payload == null) {
-            return createBadRequest("Missing request body")
-        }
+        payload ?: return createBadRequest("Missing request body")
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        deviceId ?: return createNotFound("Device not found")
+        payload.groupId ?: return createBadRequest("Missing exhibition group id")
+        val exhibitionGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(payload.groupId) ?: return createBadRequest("Invalid exhibition group id ${payload.groupId}")
 
-        if (exhibitionId == null || deviceId == null) {
-            return createNotFound(EXHIBITION_NOT_FOUND)
-        }
-
-        val exhibitionGroup: fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup?
-        if (payload.groupId != null) {
-            exhibitionGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(payload.groupId)
-            if (exhibitionGroup == null) {
-                return createBadRequest("Invalid exhibition group id ${payload.groupId}")
-            }
+        var indexPage: fi.metatavu.muisti.persistence.model.ExhibitionPage? = null
+        if (payload.indexPageId != null) {
+            indexPage = exhibitionPageController.findExhibitionPageById(payload.indexPageId) ?: return createBadRequest("Specified index page ${payload.indexPageId} does not exist")
         }
 
         val model = deviceModelController.findDeviceModelById(payload.modelId) ?: return createBadRequest("Device model $payload.modelId not found")
@@ -416,7 +415,16 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(deviceId) ?: return createNotFound("Device $deviceId not found")
         val location = payload.location
         val screenOrientation = payload.screenOrientation
-        val result = exhibitionDeviceController.updateExhibitionDevice(exhibitionDevice, model, payload.name, location, screenOrientation, userId)
+        val result = exhibitionDeviceController.updateExhibitionDevice(
+            exhibitionDevice = exhibitionDevice,
+            exhibitionDeviceGroup = exhibitionGroup,
+            deviceModel = model,
+            indexPage = indexPage,
+            name = payload.name,
+            location = location,
+            screenOrientation = screenOrientation,
+            modifierId = userId
+        )
 
         return createOk(exhibitionDeviceTranslator.translate(result))
     }

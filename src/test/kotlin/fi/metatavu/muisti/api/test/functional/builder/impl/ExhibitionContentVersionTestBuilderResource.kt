@@ -5,6 +5,7 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.ExhibitionContentVersionsApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
+import fi.metatavu.muisti.api.client.models.Exhibition
 import fi.metatavu.muisti.api.client.models.ExhibitionContentVersion
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
@@ -20,13 +21,23 @@ class ExhibitionContentVersionTestBuilderResource(testBuilder: AbstractTestBuild
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
-     * Creates new exhibition ContentVersion with default values
+     * Creates new exhibition content version with default values
      *
      * @param exhibitionId
-     * @return created exhibition ContentVersion
+     * @return created exhibition content version
      */
     fun create(exhibitionId: UUID): ExhibitionContentVersion {
         return create(exhibitionId, ExhibitionContentVersion(name = "default contentVersion"))
+    }
+
+    /**
+     * Creates new exhibition content version with default values
+     *
+     * @param exhibition
+     * @return created exhibition content version
+     */
+    fun create(exhibition: Exhibition): ExhibitionContentVersion {
+        return create(exhibitionId = exhibition.id!!)
     }
 
     /**

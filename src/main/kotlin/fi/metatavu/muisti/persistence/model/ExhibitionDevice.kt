@@ -26,6 +26,9 @@ class ExhibitionDevice {
     @ManyToOne
     var deviceModel: DeviceModel? = null
 
+    @ManyToOne
+    var indexPage: ExhibitionPage? = null
+
     @NotEmpty
     @Column(nullable = false)
     var name: String? = null

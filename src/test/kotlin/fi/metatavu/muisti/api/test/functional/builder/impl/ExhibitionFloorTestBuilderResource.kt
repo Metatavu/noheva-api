@@ -5,6 +5,7 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.ExhibitionFloorsApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
+import fi.metatavu.muisti.api.client.models.Exhibition
 import fi.metatavu.muisti.api.client.models.ExhibitionFloor
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
@@ -20,13 +21,23 @@ class ExhibitionFloorTestBuilderResource(testBuilder: AbstractTestBuilder<ApiCli
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
-     * Creates new exhibition Floor with default values
+     * Creates new exhibition floor with default values
      *
      * @param exhibitionId
-     * @return created exhibition Floor
+     * @return created exhibition floor
      */
     fun create(exhibitionId: UUID): ExhibitionFloor {
         return create(exhibitionId, ExhibitionFloor(name = "default floor"))
+    }
+
+    /**
+     * Creates new exhibition floor with default values
+     *
+     * @param exhibition
+     * @return created exhibition Floor
+     */
+    fun create(exhibition: Exhibition): ExhibitionFloor {
+        return create(exhibitionId = exhibition.id!!)
     }
 
     /**

@@ -476,4 +476,12 @@
              referencedColumnNames="id"/>
     </changeSet>
 
+    <changeSet id="exhibitiondeviceindexpage" author="antti.leppa">
+        <addColumn tableName="exhibitiondevice">
+            <column name="indexPage_id" type="binary(16)">
+                <constraints nullable="true" foreignKeyName="FK_EXHIBITION_DEVICE_INDEX_PAGE_ID" referencedColumnNames="id" referencedTableName="exhibitionpage"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

@@ -5,7 +5,9 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.ExhibitionDeviceGroupsApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
+import fi.metatavu.muisti.api.client.models.Exhibition
 import fi.metatavu.muisti.api.client.models.ExhibitionDeviceGroup
+import fi.metatavu.muisti.api.client.models.ExhibitionRoom
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -20,7 +22,7 @@ class ExhibitionDeviceGroupTestBuilderResource(testBuilder: AbstractTestBuilder<
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
-     * Creates new exhibition DeviceGroup with default values
+     * Creates new exhibition device group with default values
      *
      * @param exhibitionId exhibition id
      * @param roomId room id
@@ -28,6 +30,17 @@ class ExhibitionDeviceGroupTestBuilderResource(testBuilder: AbstractTestBuilder<
      */
     fun create(exhibitionId: UUID, roomId: UUID): ExhibitionDeviceGroup {
         return create(exhibitionId, ExhibitionDeviceGroup( name = "default deviceGroup", roomId = roomId))
+    }
+
+    /**
+     * Creates new exhibition device group with default values
+     *
+     * @param exhibition exhibition id
+     * @param room room
+     * @return created exhibition DeviceGroup
+     */
+    fun create(exhibition: Exhibition, room: ExhibitionRoom): ExhibitionDeviceGroup {
+        return create(exhibitionId = exhibition.id!!, roomId = room.id!!)
     }
 
     /**
