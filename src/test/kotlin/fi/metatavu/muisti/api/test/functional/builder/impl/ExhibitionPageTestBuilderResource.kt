@@ -5,7 +5,7 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.ExhibitionPagesApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
-import fi.metatavu.muisti.api.client.models.ExhibitionPage
+import fi.metatavu.muisti.api.client.models.*
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -23,10 +23,10 @@ class ExhibitionPageTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
     /**
      * Creates new exhibition page with default values
      *
-     * @param exhibitionId
+     * @param exhibitionId exhibition id
      * @param layoutId layout id
      * @param contentVersionId content version id
-     * @return created exhibition Page
+     * @return created exhibition page
      */
     fun create(exhibitionId: UUID, layoutId: UUID, deviceId: UUID, contentVersionId: UUID): ExhibitionPage {
         return create(exhibitionId, ExhibitionPage(
@@ -37,6 +37,18 @@ class ExhibitionPageTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
             resources = arrayOf(),
             eventTriggers = arrayOf()
         ))
+    }
+
+    /**
+     * Creates new exhibition page with default values
+     *
+     * @param exhibition exhibition
+     * @param layout layout
+     * @param contentVersion content version
+     * @return created exhibition page
+     */
+    fun create(exhibition: Exhibition, layout: PageLayout, device: ExhibitionDevice, contentVersion: ExhibitionContentVersion): ExhibitionPage {
+        return create(exhibitionId = exhibition.id!!, layoutId = layout.id!!, deviceId = device.id!!, contentVersionId = contentVersion.id!!)
     }
 
     /**
