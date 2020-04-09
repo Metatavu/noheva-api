@@ -25,6 +25,7 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
      * @param exhibition exhibition
      * @param exhibitionDeviceGroup exhibitionDeviceGroup
      * @param deviceModel deviceModel
+     * @param indexPage device index page
      * @param name name
      * @param locationX location x
      * @param locationY location y
@@ -33,13 +34,14 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
      * @param lastModifierId last modifier's id
      * @return created exhibitionDevice
      */
-    fun create(id: UUID, exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, name: String, locationX: Double?, locationY: Double?, screenOrientation: ScreenOrientation, creatorId: UUID, lastModifierId: UUID): ExhibitionDevice {
+    fun create(id: UUID, exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, indexPage: ExhibitionPage?, name: String, locationX: Double?, locationY: Double?, screenOrientation: ScreenOrientation, creatorId: UUID, lastModifierId: UUID): ExhibitionDevice {
         val exhibitionDevice = ExhibitionDevice()
         exhibitionDevice.id = id
         exhibitionDevice.name = name
         exhibitionDevice.exhibition = exhibition
         exhibitionDevice.exhibitionDeviceGroup = exhibitionDeviceGroup
         exhibitionDevice.deviceModel = deviceModel
+        exhibitionDevice.indexPage = indexPage
         exhibitionDevice.locationX = locationX
         exhibitionDevice.locationY = locationY
         exhibitionDevice.screenOrientation = screenOrientation
@@ -72,13 +74,13 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
         criteria.where(*restrictions.toTypedArray())
 
         val query: TypedQuery<ExhibitionDevice> = entityManager.createQuery<ExhibitionDevice>(criteria)
-        return query.getResultList()
+        return query.resultList
     }
 
     /**
      * Updates exhibition device model
      *
-     * @param exhibitionDevice exhibitionDevice
+     * @param exhibitionDevice exhibition device to be updated
      * @param deviceModel model
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDevice
@@ -92,6 +94,7 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
     /**
      * Updates name
      *
+     * @param exhibitionDevice exhibition device to be updated
      * @param name name
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDevice
@@ -105,6 +108,7 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
     /**
      * Updates location x
      *
+     * @param exhibitionDevice exhibition device to be updated
      * @param locationX location X
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDevice
@@ -118,6 +122,7 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
     /**
      * Updates location y
      *
+     * @param exhibitionDevice exhibition device to be updated
      * @param locationY location y
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDevice
@@ -131,6 +136,7 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
     /**
      * Updates screen orientation
      *
+     * @param exhibitionDevice exhibition device to be updated
      * @param screenOrientation screen orientation
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDevice
@@ -138,6 +144,34 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
     fun updateScreenOrientation(exhibitionDevice: ExhibitionDevice, screenOrientation: ScreenOrientation, lastModifierId: UUID): ExhibitionDevice {
         exhibitionDevice.lastModifierId = lastModifierId
         exhibitionDevice.screenOrientation = screenOrientation
+        return persist(exhibitionDevice)
+    }
+
+    /**
+     * Updates exhibition device group
+     *
+     * @param exhibitionDevice exhibition device to be updated
+     * @param exhibitionDeviceGroup exhibition device group
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionDevice
+     */
+    fun updateExhibitionDeviceGroup(exhibitionDevice: ExhibitionDevice, exhibitionDeviceGroup: ExhibitionDeviceGroup, lastModifierId: UUID): ExhibitionDevice {
+        exhibitionDevice.lastModifierId = lastModifierId
+        exhibitionDevice.exhibitionDeviceGroup = exhibitionDeviceGroup
+        return persist(exhibitionDevice)
+    }
+
+    /**
+     * Updates index page
+     *
+     * @param exhibitionDevice exhibition device to be updated
+     * @param indexPage index page
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionDevice
+     */
+    fun updateIndexPage(exhibitionDevice: ExhibitionDevice, indexPage: ExhibitionPage?, lastModifierId: UUID): ExhibitionDevice {
+        exhibitionDevice.lastModifierId = lastModifierId
+        exhibitionDevice.indexPage = indexPage
         return persist(exhibitionDevice)
     }
 
