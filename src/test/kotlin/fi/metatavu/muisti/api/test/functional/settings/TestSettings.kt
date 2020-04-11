@@ -1,7 +1,5 @@
 package fi.metatavu.muisti.api.test.functional.settings
 
-import org.apache.commons.lang3.math.NumberUtils
-
 /**
  * Utility class for retrieving functional test settings
  *
@@ -14,6 +12,12 @@ object TestSettings {
      */
     val apiBasePath: String
         get() = "http://localhost:1234/v1"
+
+    /**
+     * Returns API service base path
+     */
+    val filesBasePath: String
+        get() = "http://localhost:1234/files"
 
     /**
      * Returns Keycloak host
@@ -49,6 +53,12 @@ object TestSettings {
      * Returns Keycloak admin password
      */
     val keycloakAdminPass: String
+        get() = "test"
+
+    val mqttServerUrl: String
+        get() = "localhost"
+
+    val mqttTopic: String
         get() = "test"
 
 }

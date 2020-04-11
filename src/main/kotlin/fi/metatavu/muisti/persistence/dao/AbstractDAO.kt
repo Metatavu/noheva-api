@@ -1,12 +1,10 @@
 package fi.metatavu.muisti.persistence.dao
 
 import org.slf4j.Logger
-import java.lang.RuntimeException
 import java.lang.reflect.ParameterizedType
 import java.util.*
 import javax.inject.Inject
 import javax.persistence.EntityManager
-import javax.persistence.EntityNotFoundException
 import javax.persistence.PersistenceContext
 import javax.persistence.Query
 import javax.persistence.TypedQuery
@@ -25,6 +23,15 @@ abstract class AbstractDAO<T>() {
 
     @PersistenceContext
     private lateinit var entityManager: EntityManager
+
+    /**
+     * Returns entity manager
+     *
+     * @return entity manager
+     */
+    open fun getEntityManager(): EntityManager {
+        return entityManager
+    }
 
     /**
      * Returns entity by id

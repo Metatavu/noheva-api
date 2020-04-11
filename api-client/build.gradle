@@ -5,7 +5,7 @@ buildscript {
 }
 
 plugins {
-    id "org.openapi.generator" version "4.2.2"
+    id "org.openapi.generator" version "4.2.3"
 }
 
 apply plugin: 'kotlin'
@@ -24,7 +24,7 @@ dependencies {
 
 openApiGenerate {
     generatorName = "kotlin"
-    inputSpec = "$rootDir/specs/swagger.yaml".toString()
+    inputSpec = "$rootDir/muisti-api-spec/swagger.yaml".toString()
     outputDir = "$buildDir/generated".toString()
     packageName = "fi.metatavu.muisti.api.client"
     configOptions = [
