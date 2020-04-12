@@ -149,6 +149,9 @@ sonarqube {
     property "sonar.organization", System.getenv('SONAR_ORGANIZATION')
     property "sonar.host.url", System.getenv('SONAR_HOST_URL')
     property "sonar.login", System.getenv('SONAR_LOGIN')
+    property "sonar.pullrequest.key", System.getenv('SONAR_PR_KEY')
+    property "sonar.pullrequest.branch", System.getenv('SONAR_PR_BRANCH')
+    property "sonar.pullrequest.base", System.getenv('SONAR_PR_BASE')
   }
 }
 
