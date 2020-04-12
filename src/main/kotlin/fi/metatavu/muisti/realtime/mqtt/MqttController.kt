@@ -44,7 +44,7 @@ class MqttController {
      */
     @Suppress("unused")
     fun onMessageEvent(@Observes(during = TransactionPhase.AFTER_COMPLETION) event: MqttMessage) {
-        if (event.transactionPhase == event.transactionPhase) {
+        if (event.transactionPhase == TransactionPhase.AFTER_COMPLETION) {
             MqttConnection.publish(event)
         }
     }
