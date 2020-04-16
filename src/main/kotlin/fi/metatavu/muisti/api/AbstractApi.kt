@@ -1,6 +1,7 @@
 package fi.metatavu.muisti.api
 
 import fi.metatavu.muisti.api.spec.model.Error
+import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import org.apache.commons.lang3.EnumUtils
 import org.apache.commons.lang3.StringUtils
 import org.jboss.resteasy.spi.ResteasyProviderFactory
@@ -335,5 +336,21 @@ abstract class AbstractApi {
         protected const val NOT_FOUND_MESSAGE = "Not found"
         protected const val UNAUTHORIZED = "Unauthorized"
         protected const val FORBIDDEN = "Forbidden"
+    }
+
+    /**
+     * Convert string to screen orientation
+     *
+     * @param orientation screen orientation string
+     * @return ScreenOrientation or null if sting cannot be converted
+     */
+    protected fun convertStringToScreenOrientation(orientation: String): ScreenOrientation? {
+        for (b in ScreenOrientation.values()) {
+            if (b.toString() == orientation) {
+                return b
+            }
+        }
+
+        return null
     }
 }

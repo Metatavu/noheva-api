@@ -357,4 +357,131 @@
         <addForeignKeyConstraint baseTableName="exhibitionpage" baseColumnNames="device_id" constraintName="FK_EXHIBITION_PAGE_DEVICE_ID" referencedTableName="exhibitiondevice" referencedColumnNames="id"/>
     </changeSet>
 
+    <changeSet id="devicedimensionsupdate" author="jari.nykanen">
+        <renameColumn tableName="devicemodel" oldColumnName="dimensionWidth" newColumnName="deviceWidth" columnDataType="INTEGER"/>
+        <renameColumn tableName="devicemodel" oldColumnName="dimensionHeight" newColumnName="deviceHeight" columnDataType="INTEGER"/>
+
+        <addColumn tableName="devicemodel">
+            <column name="deviceDepth" type="INTEGER"/>
+            <column name="screenWidth" type="INTEGER"/>
+            <column name="screenHeight" type="INTEGER"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="contentversions" author="antti.leppa">
+        <createTable tableName="exhibitioncontentversion">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exhibition_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_EXHIBITION_CONTENT_VERSION_EXHIBITION_ID" referencedColumnNames="id" referencedTableName="exhibition"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addColumn tableName="exhibitionpage">
+            <column name="contentVersion_id" type="binary(16)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="defaultcontentversions" author="antti.leppa" context="production">
+        <sql>INSERT INTO exhibitioncontentversion(id, name, exhibition_id, createdat, modifiedat, creatorid, lastmodifierid) SELECT id, 'default', id, createdat, modifiedat, creatorid, lastmodifierid FROM exhibition</sql>
+        <sql>UPDATE exhibitionpage SET contentVersion_id = (SELECT ID FROM exhibitioncontentversion LIMIT 1)</sql>
+    </changeSet>
+
+    <changeSet id="pagecontentversionforeignkey" author="antti.leppa">
+        <addNotNullConstraint columnDataType="binary(16)" tableName="exhibitionpage" columnName="contentVersion_id"/>
+        <addForeignKeyConstraint baseTableName="exhibitionpage" baseColumnNames="contentVersion_id" constraintName="FK_EXHIBITION_PAGE_CONTENT_VERSION_ID" referencedTableName="exhibitioncontentversion" referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="modelidtopagelayout" author="jari.nykanen">
+        <addColumn tableName="pagelayout">
+            <column name="deviceModel_id" type="binary(16)"/>
+        </addColumn>
+
+        <sql>UPDATE pagelayout SET deviceModel_id = (SELECT ID FROM devicemodel LIMIT 1)</sql>
+
+        <addNotNullConstraint columnDataType="binary(16)" tableName="pagelayout" columnName="deviceModel_id"/>
+        <addForeignKeyConstraint baseTableName="pagelayout" baseColumnNames="deviceModel_id" constraintName="FK_PAGE_LAYOUT_DEVICE_MODEL_ID" referencedTableName="devicemodel" referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="floors" author="antti.leppa">
+        <createTable tableName="exhibitionfloor">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exhibition_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_EXHIBITION_FLOOR_EXHIBITION_ID" referencedColumnNames="id" referencedTableName="exhibition"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addColumn tableName="exhibitionroom">
+            <column name="floor_id" type="binary(16)"/>
+        </addColumn>
+
+        <addColumn tableName="exhibitiondevicegroup">
+            <column name="room_id" type="binary(16)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="floorsdefaults" author="antti.leppa" context="production">
+        <sql>INSERT INTO exhibitionfloor(id, name, exhibition_id, createdat, modifiedat, creatorid, lastmodifierid) SELECT id, 'default', id, createdat, modifiedat, creatorid, lastmodifierid FROM exhibition</sql>
+        <sql>UPDATE exhibitionroom SET floor_id = (SELECT ID FROM exhibitionfloor LIMIT 1)</sql>
+        <sql>UPDATE exhibitiondevicegroup SET room_id = (SELECT ID FROM exhibitionroom LIMIT 1)</sql>
+    </changeSet>
+
+    <changeSet id="floorsforeigns" author="antti.leppa">
+        <addNotNullConstraint columnDataType="binary(16)" tableName="exhibitionroom" columnName="floor_id"/>
+        <addNotNullConstraint columnDataType="binary(16)" tableName="exhibitiondevicegroup" columnName="room_id"/>
+
+        <addForeignKeyConstraint baseTableName="exhibitionroom"
+             baseColumnNames="floor_id"
+             constraintName="FK_EXHIBITION_ROOM_FLOOR_ID"
+             referencedTableName="exhibitionfloor"
+             referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="exhibitiondevicegroup"
+             baseColumnNames="room_id"
+             constraintName="FK_EXHIBITION_DEVICE_GROUP_ROOM_ID"
+             referencedTableName="exhibitionroom"
+             referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="exhibitiondeviceindexpage" author="antti.leppa">
+        <addColumn tableName="exhibitiondevice">
+            <column name="indexPage_id" type="binary(16)">
+                <constraints nullable="true" foreignKeyName="FK_EXHIBITION_DEVICE_INDEX_PAGE_ID" referencedColumnNames="id" referencedTableName="exhibitionpage"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

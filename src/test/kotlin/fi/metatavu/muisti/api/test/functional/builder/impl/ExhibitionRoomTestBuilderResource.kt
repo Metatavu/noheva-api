@@ -5,6 +5,8 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.ExhibitionRoomsApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
+import fi.metatavu.muisti.api.client.models.Exhibition
+import fi.metatavu.muisti.api.client.models.ExhibitionFloor
 import fi.metatavu.muisti.api.client.models.ExhibitionRoom
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
@@ -20,24 +22,35 @@ class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
-     * Creates new exhibition Room with default values
+     * Creates new exhibition room with default values
      *
-     * @param exhibitionId
-     * @return created exhibition Room
+     * @param exhibitionId exhibition id
+     * @param floorId floor id
+     * @return created exhibition room
      */
-    fun create(exhibitionId: UUID): ExhibitionRoom {
-        return create(exhibitionId, "default room")
+    fun create(exhibitionId: UUID, floorId: UUID): ExhibitionRoom {
+        return create(exhibitionId, ExhibitionRoom(name = "default room", floorId = floorId))
+    }
+
+    /**
+     * Creates new exhibition room with default values
+     *
+     * @param exhibition exhibition
+     * @param floor floor
+     * @return created exhibition room
+     */
+    fun create(exhibition: Exhibition, floor: ExhibitionFloor): ExhibitionRoom {
+        return create(exhibitionId = exhibition.id!!, floorId = floor.id!!)
     }
 
     /**
      * Creates new exhibition Room
      *
      * @param exhibitionId exhibition id
-     * @param name name
+     * @param payload payload
      * @return created exhibition Room
      */
-    fun create(exhibitionId: UUID, name: String): ExhibitionRoom {
-        val payload = ExhibitionRoom(name, null, exhibitionId)
+    fun create(exhibitionId: UUID, payload: ExhibitionRoom): ExhibitionRoom {
         val result: ExhibitionRoom = this.getApi().createExhibitionRoom(exhibitionId, payload)
         addClosable(result)
         return result
@@ -58,10 +71,11 @@ class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      * Lists exhibition Rooms
      *
      * @param exhibitionId exhibition id
+     * @param floorId filter by floor id
      * @return exhibition Rooms
      */
-    fun listExhibitionRooms(exhibitionId: UUID): Array<ExhibitionRoom> {
-        return api.listExhibitionRooms(exhibitionId)
+    fun listExhibitionRooms(exhibitionId: UUID, floorId: UUID?): Array<ExhibitionRoom> {
+        return api.listExhibitionRooms(exhibitionId = exhibitionId, floorId = floorId)
     }
 
     /**
@@ -108,9 +122,10 @@ class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      *
      * @param expected expected count
      * @param exhibitionId exhibition id
+     * @param floorId filter by floor id
      */
-    fun assertCount(expected: Int, exhibitionId: UUID) {
-        assertEquals(expected, api.listExhibitionRooms(exhibitionId).size)
+    fun assertCount(expected: Int, exhibitionId: UUID, floorId: UUID?) {
+        assertEquals(expected, api.listExhibitionRooms(exhibitionId = exhibitionId, floorId = floorId).size)
     }
 
     /**
@@ -145,10 +160,11 @@ class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      *
      * @param expectedStatus expected status
      * @param exhibitionId exhibition id
+     * @param floorId filter by floor id
      */
-    fun assertListFail(expectedStatus: Int, exhibitionId: UUID) {
+    fun assertListFail(expectedStatus: Int, exhibitionId: UUID, floorId: UUID?) {
         try {
-            api.listExhibitionRooms(exhibitionId)
+            api.listExhibitionRooms(exhibitionId = exhibitionId, floorId = floorId)
             fail(String.format("Expected list to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)
@@ -160,11 +176,11 @@ class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
      *
      * @param expectedStatus expected status
      * @param exhibitionId exhibition id
-     * @param name name
+     * @param payload payload
      */
-    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, name: String) {
+    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, payload: ExhibitionRoom) {
         try {
-            create(exhibitionId, name)
+            create(exhibitionId, payload)
             fail(String.format("Expected create to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)

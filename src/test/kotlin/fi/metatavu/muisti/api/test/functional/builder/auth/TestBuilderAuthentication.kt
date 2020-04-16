@@ -27,12 +27,14 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   private var exhibitions: ExhibitionsTestBuilderResource? = null
   private var visitorSessions: VisitorSessionTestBuilderResource? = null
   private var exhibitionRooms: ExhibitionRoomTestBuilderResource? = null
+  private var exhibitionFloors: ExhibitionFloorTestBuilderResource? = null
   private var exhibitionDeviceGroups: ExhibitionDeviceGroupTestBuilderResource? = null
   private var deviceModels: DeviceModelTestBuilderResource? = null
   private var exhibitionDevices: ExhibitionDeviceTestBuilderResource? = null
   private var pageLayouts: PageLayoutTestBuilderResource? = null
   private var exhibitionPages: ExhibitionPageTestBuilderResource? = null
   private var files: FileTestBuilderResource? = null
+  private var exhibitionContentVersions: ExhibitionContentVersionTestBuilderResource? = null
 
   /**
    * Returns test builder resource for exhibitions
@@ -79,6 +81,21 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
     return exhibitionRooms!!
   }
 
+  /**
+   * Returns test builder resource for exhibitionFloors
+   *
+   * @return test builder resource for exhibitionFloors
+   * @throws IOException thrown when authentication fails
+   */
+  @kotlin.jvm.Throws(IOException::class)
+  fun exhibitionFloors(): ExhibitionFloorTestBuilderResource {
+    if (exhibitionFloors == null) {
+      exhibitionFloors = ExhibitionFloorTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+    }
+
+    return exhibitionFloors!!
+  }
+  
   /**
    * Returns test builder resource for exhibitionDevices
    *
@@ -152,6 +169,21 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
     }
 
     return exhibitionPages!!
+  }
+
+  /**
+   * Returns test builder resource for exhibitionGroups
+   *
+   * @return test builder resource for exhibitionGroups
+   * @throws IOException thrown when authentication fails
+   */
+  @kotlin.jvm.Throws(IOException::class)
+  fun exhibitionContentVersions(): ExhibitionContentVersionTestBuilderResource {
+    if (exhibitionContentVersions == null) {
+      exhibitionContentVersions = ExhibitionContentVersionTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+    }
+
+    return exhibitionContentVersions!!
   }
 
   /**

@@ -20,6 +20,7 @@ class ExhibitionDeviceTranslator: AbstractTranslator<fi.metatavu.muisti.persiste
         result.name = entity.name
         result.groupId = entity.exhibitionDeviceGroup?.id
         result.modelId = entity.deviceModel?.id
+        result.indexPageId = entity.indexPage?.id
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
         result.createdAt = entity.createdAt

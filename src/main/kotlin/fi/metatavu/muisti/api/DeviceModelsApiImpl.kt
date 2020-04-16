@@ -33,11 +33,10 @@ class DeviceModelsApiImpl: DeviceModelsApi, AbstractApi() {
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val manufacturer = payload.manufacturer
         val model = payload.model
-        val dimensionWidth = payload.dimensions.width
-        val dimensionHeight = payload.dimensions.height
+        val dimensions = payload.dimensions
         val displayMetrics = payload.displayMetrics
         val capabilityTouch = payload.capabilities.touch
-        val deviceModel = deviceModelController.createDeviceModel(manufacturer, model, dimensionWidth, dimensionHeight, displayMetrics, capabilityTouch, userId)
+        val deviceModel = deviceModelController.createDeviceModel(manufacturer, model, dimensions, displayMetrics, capabilityTouch, userId)
         return createOk(deviceModelTranslator.translate(deviceModel))
     }
 
@@ -60,13 +59,13 @@ class DeviceModelsApiImpl: DeviceModelsApi, AbstractApi() {
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val manufacturer = payload.manufacturer
         val model = payload.model
-        val dimensionWidth = payload.dimensions.width
-        val dimensionHeight = payload.dimensions.height
+        val dimensions = payload.dimensions
+
         val displayMetrics = payload.displayMetrics
         val capabilityTouch = payload.capabilities.touch
 
         val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
-        val result = deviceModelController.updateDeviceModel(deviceModel, manufacturer, model, dimensionWidth, dimensionHeight, displayMetrics, capabilityTouch, userId)
+        val result = deviceModelController.updateDeviceModel(deviceModel, manufacturer, model, dimensions, displayMetrics, capabilityTouch, userId)
 
         return createOk(deviceModelTranslator.translate(result))
     }

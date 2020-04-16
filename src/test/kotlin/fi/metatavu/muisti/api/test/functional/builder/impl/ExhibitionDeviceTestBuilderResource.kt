@@ -5,8 +5,7 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.ExhibitionDevicesApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
-import fi.metatavu.muisti.api.client.models.ExhibitionDevice
-import fi.metatavu.muisti.api.client.models.ScreenOrientation
+import fi.metatavu.muisti.api.client.models.*
 import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -38,6 +37,22 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: AbstractTestBuilder<ApiCl
 
         addClosable(result)
         return result
+    }
+
+    /**
+     * Creates new exhibition device using default values
+     *
+     * @param exhibition exhibition
+     * @param group group
+     * @param model model
+     * @return created exhibition device
+     */
+    fun create(exhibition: Exhibition, group: ExhibitionDeviceGroup, model: DeviceModel): ExhibitionDevice {
+        return create(
+            exhibitionId = exhibition.id!!,
+            modelId = model.id!!,
+            groupId = group.id!!
+        )
     }
 
     /**
@@ -79,11 +94,11 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: AbstractTestBuilder<ApiCl
      * Updates exhibition Device
      *
      * @param exhibitionId exhibition id
-     * @param body update body
+     * @param payload update payload
      * @return updated exhibition Device
      */
-    fun updateExhibitionDevice(exhibitionId: UUID, body: ExhibitionDevice): ExhibitionDevice? {
-        return api.updateExhibitionDevice(exhibitionId, body.id!!, body)
+    fun updateExhibitionDevice(exhibitionId: UUID, payload: ExhibitionDevice): ExhibitionDevice? {
+        return api.updateExhibitionDevice(exhibitionId, payload.id!!, payload)
     }
 
     /**
@@ -189,11 +204,11 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: AbstractTestBuilder<ApiCl
      *
      * @param expectedStatus expected status
      * @param exhibitionId exhibition id
-     * @param body body
+     * @param payload payload
      */
-    fun assertUpdateFail(expectedStatus: Int, exhibitionId: UUID, body: ExhibitionDevice) {
+    fun assertUpdateFail(expectedStatus: Int, exhibitionId: UUID, payload: ExhibitionDevice) {
         try {
-            updateExhibitionDevice(exhibitionId, body)
+            updateExhibitionDevice(exhibitionId, payload)
             fail(String.format("Expected update to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)

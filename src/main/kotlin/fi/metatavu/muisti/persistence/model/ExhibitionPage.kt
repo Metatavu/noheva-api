@@ -25,6 +25,9 @@ class ExhibitionPage {
     @ManyToOne
     var layout: PageLayout? = null
 
+    @ManyToOne
+    var contentVersion: ExhibitionContentVersion? = null
+
     @NotEmpty
     @Column(nullable = false)
     var name: String? = null

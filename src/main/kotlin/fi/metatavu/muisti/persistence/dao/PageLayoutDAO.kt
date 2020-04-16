@@ -1,9 +1,13 @@
 package fi.metatavu.muisti.persistence.dao
 
 import fi.metatavu.muisti.api.spec.model.ScreenOrientation
-import fi.metatavu.muisti.persistence.model.PageLayout
+import fi.metatavu.muisti.persistence.model.*
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
+import javax.persistence.TypedQuery
+import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.Predicate
+import javax.persistence.criteria.Root
 
 /**
  * DAO class for page layout
@@ -20,17 +24,19 @@ class PageLayoutDAO() : AbstractDAO<PageLayout>() {
      * @param name name
      * @param data data
      * @param thumbnailUrl thumbnail URL
+     * @param deviceModel device model
      * @param screenOrientation screen orientation
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created pageLayout
      */
-    fun create(id: UUID, name: String, data: String, thumbnailUrl: String?, screenOrientation: ScreenOrientation, creatorId: UUID, lastModifierId: UUID): PageLayout {
+    fun create(id: UUID, name: String, data: String, thumbnailUrl: String?, deviceModel: DeviceModel?, screenOrientation: ScreenOrientation, creatorId: UUID, lastModifierId: UUID): PageLayout {
         val pageLayout = PageLayout()
         pageLayout.id = id
         pageLayout.name = name
         pageLayout.data = data
         pageLayout.thumbnailUrl = thumbnailUrl
+        pageLayout.deviceModel = deviceModel
         pageLayout.screenOrientation = screenOrientation
         pageLayout.creatorId = creatorId
         pageLayout.lastModifierId = lastModifierId
@@ -77,6 +83,19 @@ class PageLayoutDAO() : AbstractDAO<PageLayout>() {
     }
 
     /**
+     * Updates device model
+     *
+     * @param deviceModel device model
+     * @param lastModifierId last modifier's id
+     * @return updated pageLayout
+     */
+    fun updateDeviceModel(pageLayout: PageLayout, deviceModel: DeviceModel, lastModifierId: UUID): PageLayout {
+        pageLayout.lastModifierId = lastModifierId
+        pageLayout.deviceModel = deviceModel
+        return persist(pageLayout)
+    }
+
+    /**
      * Updates screen orientation
      *
      * @param screenOrientation screen orientation
@@ -87,6 +106,35 @@ class PageLayoutDAO() : AbstractDAO<PageLayout>() {
         pageLayout.lastModifierId = lastModifierId
         pageLayout.screenOrientation = screenOrientation
         return persist(pageLayout)
+    }
+
+    /**
+     * List Page layouts by device model and screen orientation
+     *
+     * @param deviceModel device model
+     * @param screenOrientation screen orientation
+     * @return list of page layouts
+     */
+    fun list(deviceModel: DeviceModel?, screenOrientation: ScreenOrientation?): List<PageLayout> {
+        val entityManager = getEntityManager()
+        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteria: CriteriaQuery<PageLayout> = criteriaBuilder.createQuery(PageLayout::class.java)
+        val root: Root<PageLayout> = criteria.from(PageLayout::class.java)
+
+        val restrictions = ArrayList<Predicate>()
+
+        if (deviceModel != null) {
+            restrictions.add(criteriaBuilder.equal(root.get(PageLayout_.deviceModel), deviceModel))
+        }
+
+        if (screenOrientation != null) {
+            restrictions.add(criteriaBuilder.equal(root.get(PageLayout_.screenOrientation), screenOrientation))
+        }
+
+        criteria.select(root)
+        criteria.where(*restrictions.toTypedArray())
+        val query: TypedQuery<PageLayout> = entityManager.createQuery<PageLayout>(criteria)
+        return query.resultList
     }
 
 }

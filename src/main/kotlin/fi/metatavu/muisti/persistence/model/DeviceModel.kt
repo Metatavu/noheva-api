@@ -24,9 +24,15 @@ class DeviceModel {
     @Column(nullable = false)
     var model: String? = null
 
-    var dimensionWidth: Double? = null
+    var deviceWidth: Double? = null
 
-    var dimensionHeight: Double? = null
+    var deviceHeight: Double? = null
+
+    var deviceDepth: Double? = null
+
+    var screenHeight: Double? = null
+
+    var screenWidth: Double? = null
 
     var heightPixels: Int? = null
 
