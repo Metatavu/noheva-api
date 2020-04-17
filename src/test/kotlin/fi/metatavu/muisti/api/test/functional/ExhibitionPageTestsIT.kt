@@ -250,6 +250,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 delay = 2,
                 keyDown = "A",
                 keyUp = "B",
+                deviceGroupEvent = "groupevent",
                 next = arrayOf()
             )
 
