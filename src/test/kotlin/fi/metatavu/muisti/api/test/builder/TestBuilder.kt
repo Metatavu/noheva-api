@@ -57,7 +57,7 @@ open class TestBuilder(val settings: Settings): AbstractTestBuilder<ApiClient> (
      */
     fun mqtt(): TestMqttClient {
         if (mqtt == null) {
-            mqtt = TestMqttClient()
+            mqtt = TestMqttClient(settings)
         }
 
         return mqtt!!

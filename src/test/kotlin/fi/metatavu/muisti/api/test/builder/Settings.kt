@@ -39,4 +39,13 @@ interface Settings {
      */
     val keycloakAdminPass: String
 
+    /**
+     * Returns MQTT server URL
+     */
+    val mqttServerUrl: String
+
+    /**
+     * Returns MQTT topic
+     */
+    val mqttTopic: String
 }

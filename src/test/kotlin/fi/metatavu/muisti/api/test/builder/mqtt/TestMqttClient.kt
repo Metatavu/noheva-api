@@ -1,6 +1,6 @@
 package fi.metatavu.muisti.api.test.functional.mqtt
 
-import fi.metatavu.muisti.api.test.functional.settings.TestSettings
+import fi.metatavu.muisti.api.test.builder.Settings
 import fi.metatavu.muisti.realtime.mqtt.MqttConnection
 import fi.metatavu.muisti.settings.MqttSettings
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
@@ -9,7 +9,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage
 /**
  * MQTT client for functional tests
  */
-class TestMqttClient: MqttCallback, AutoCloseable {
+class TestMqttClient(private val settings: Settings): MqttCallback, AutoCloseable {
 
     private val subscriptions = mutableMapOf<String, MutableList<TestMqttSubscription<*>>>()
 
@@ -18,8 +18,8 @@ class TestMqttClient: MqttCallback, AutoCloseable {
      */
     init {
         MqttConnection.connect(MqttSettings(
-            serverUrl = TestSettings.mqttServerUrl,
-            topic = TestSettings.mqttTopic,
+            serverUrl = settings.mqttServerUrl,
+            topic = settings.mqttTopic,
             username = null,
             password = null
         ))
@@ -34,7 +34,7 @@ class TestMqttClient: MqttCallback, AutoCloseable {
      * @param subtopic subtopic to subscribe
      */
     fun <T> subscribe(targetClass: Class<T>, subtopic: String): TestMqttSubscription<T> {
-        val topic = "${TestSettings.mqttTopic}/$subtopic"
+        val topic = "${settings.mqttTopic}/$subtopic"
         var topicSubscriptions = subscriptions.get(topic)
         if (topicSubscriptions == null) {
             topicSubscriptions = mutableListOf()
