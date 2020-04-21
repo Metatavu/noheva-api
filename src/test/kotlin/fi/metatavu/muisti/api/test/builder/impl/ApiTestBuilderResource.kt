@@ -1,18 +1,16 @@
 package fi.metatavu.muisti.api.test.functional.impl
 
 import com.squareup.moshi.Moshi
-import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.Error
+import fi.metatavu.muisti.api.test.functional.TestBuilder
 import org.junit.Assert
 
 /**
  * Abstract base class for API test resource builders
  */
-abstract class ApiTestBuilderResource<T, A>(testBuilder: AbstractTestBuilder<ApiClient?>?, apiClient: ApiClient) : fi.metatavu.jaxrs.test.functional.builder.AbstractApiTestBuilderResource<T, A, ApiClient?>(testBuilder) {
-
-    private val apiClient: ApiClient
+abstract class ApiTestBuilderResource<T, A>(protected val testBuilder: TestBuilder, private val apiClient: ApiClient) : fi.metatavu.jaxrs.test.functional.builder.AbstractApiTestBuilderResource<T, A, ApiClient>(testBuilder) {
 
     /**
      * Returns API client
@@ -21,10 +19,6 @@ abstract class ApiTestBuilderResource<T, A>(testBuilder: AbstractTestBuilder<Api
      */
     override fun getApiClient(): ApiClient {
         return apiClient
-    }
-
-    init {
-        this.apiClient = apiClient
     }
 
     /**

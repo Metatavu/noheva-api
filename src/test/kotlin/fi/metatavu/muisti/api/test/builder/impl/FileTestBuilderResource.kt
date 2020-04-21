@@ -2,11 +2,9 @@ package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.CloseableResource
 import fi.metatavu.jaxrs.test.functional.builder.TestBuilderResource
-import fi.metatavu.muisti.api.client.infrastructure.ApiClient
-import fi.metatavu.muisti.api.test.functional.settings.TestSettings
+import fi.metatavu.muisti.api.test.functional.TestBuilder
 import fi.metatavu.muisti.files.OutputFile
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -24,7 +22,7 @@ import java.nio.file.Files
  * @author Antti Leppä
  * @author Heikki Kurhinen
  */
-class FileTestBuilderResource(private val testBuilder: AbstractTestBuilder<ApiClient?>) : TestBuilderResource<OutputFile> {
+class FileTestBuilderResource(private val testBuilder: TestBuilder) : TestBuilderResource<OutputFile> {
     /**
      * Uploads resource into file store
      *
@@ -47,7 +45,7 @@ class FileTestBuilderResource(private val testBuilder: AbstractTestBuilder<ApiCl
                 .build()
 
             val request: Request = Request.Builder()
-                .url(TestSettings.filesBasePath)
+                .url(testBuilder.settings.filesBasePath)
                 .post(requestBody)
                 .build()
 

@@ -15,7 +15,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testCreateExhibitionDeviceGroup() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
@@ -37,7 +37,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testFindExhibitionDeviceGroup() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -63,7 +63,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListExhibitionDeviceGroups() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -100,7 +100,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testUpdateExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -140,7 +140,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testDeleteExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()

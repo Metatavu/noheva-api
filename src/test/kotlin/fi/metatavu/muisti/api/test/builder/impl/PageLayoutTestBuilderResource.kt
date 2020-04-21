@@ -1,14 +1,12 @@
 package fi.metatavu.muisti.api.test.functional.builder.impl
 
-import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
-import fi.metatavu.muisti.api.client.apis.DeviceModelsApi
 import fi.metatavu.muisti.api.client.apis.PageLayoutsApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.*
+import fi.metatavu.muisti.api.test.functional.TestBuilder
 import fi.metatavu.muisti.api.test.functional.impl.ApiTestBuilderResource
-import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.slf4j.LoggerFactory
@@ -17,7 +15,7 @@ import java.util.*
 /**
  * Test builder resource for handling pageLayouts
  */
-class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>?, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<PageLayout, ApiClient?>(testBuilder, apiClient) {
+class PageLayoutTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<PageLayout, ApiClient?>(testBuilder, apiClient) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -218,7 +216,7 @@ class PageLayoutTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>
 
     override fun getApi(): PageLayoutsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return PageLayoutsApi(TestSettings.apiBasePath)
+        return PageLayoutsApi(testBuilder.settings.apiBasePath)
     }
 
 }

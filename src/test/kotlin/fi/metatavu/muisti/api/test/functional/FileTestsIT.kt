@@ -1,13 +1,13 @@
 package fi.metatavu.muisti.api.test.functional
 
 import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.io.FilenameUtils
+import org.apache.commons.lang3.StringUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 import java.io.FileInputStream
-import org.apache.commons.lang3.StringUtils
-import org.apache.commons.io.FilenameUtils
 
 /**
  * File upload functional tests
@@ -19,7 +19,7 @@ class FileTestsIT : AbstractFunctionalTest() {
     @Test
     @Throws(Exception::class)
     fun testUploadFile() {
-        TestBuilder().use { builder ->
+        ApiTestBuilder().use { builder ->
             val (_, uri) = builder.admin().files().upload("folder", "test-image.jpg", "image/jpeg")
             val file = getAsUploadsFile(File(uri))
             assertTrue(file.exists())
@@ -34,7 +34,7 @@ class FileTestsIT : AbstractFunctionalTest() {
      */
     protected fun getAsUploadsFile(serverFile: File): File {
         val uploadsFolder = File(System.getProperty("user.dir"), "test-volumes/uploads")
-        val serviceFilePath = serverFile.absolutePath;
+        val serviceFilePath = serverFile.absolutePath
         return File(uploadsFolder, StringUtils.substringAfter(serviceFilePath, FilenameUtils.separatorsToSystem("/opt/uploads")))
     }
 }

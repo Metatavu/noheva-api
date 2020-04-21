@@ -1,14 +1,13 @@
 package fi.metatavu.muisti.api.test.functional.auth
 
-import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.jaxrs.test.functional.builder.auth.AuthorizedTestBuilderAuthentication
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
+import fi.metatavu.muisti.api.test.functional.TestBuilder
 import fi.metatavu.muisti.api.test.functional.builder.impl.DeviceModelTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.builder.impl.FileTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.builder.impl.PageLayoutTestBuilderResource
 import fi.metatavu.muisti.api.test.functional.impl.*
-import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import java.io.IOException
 
 /**
@@ -21,7 +20,7 @@ import java.io.IOException
  * @param testBuilder test builder instance
  * @param accessTokenProvider access token provider
  */
-class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, accessTokenProvider: AccessTokenProvider) : AuthorizedTestBuilderAuthentication<ApiClient>(testBuilder, accessTokenProvider) {
+class TestBuilderAuthentication(private val testBuilder: TestBuilder, accessTokenProvider: AccessTokenProvider) : AuthorizedTestBuilderAuthentication<ApiClient>(testBuilder, accessTokenProvider) {
 
   private var accessTokenProvider: AccessTokenProvider? = accessTokenProvider
   private var exhibitions: ExhibitionsTestBuilderResource? = null
@@ -45,7 +44,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   @kotlin.jvm.Throws(IOException::class)
   fun exhibitions(): ExhibitionsTestBuilderResource {
     if (exhibitions == null) {
-      exhibitions = ExhibitionsTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+      exhibitions = ExhibitionsTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     }
 
     return exhibitions!!
@@ -60,7 +59,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   @kotlin.jvm.Throws(IOException::class)
   fun visitorSessions(): VisitorSessionTestBuilderResource {
     if (visitorSessions == null) {
-      visitorSessions = VisitorSessionTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+      visitorSessions = VisitorSessionTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     }
 
     return visitorSessions!!
@@ -75,7 +74,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   @kotlin.jvm.Throws(IOException::class)
   fun exhibitionRooms(): ExhibitionRoomTestBuilderResource {
     if (exhibitionRooms == null) {
-      exhibitionRooms = ExhibitionRoomTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+      exhibitionRooms = ExhibitionRoomTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     }
 
     return exhibitionRooms!!
@@ -90,7 +89,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   @kotlin.jvm.Throws(IOException::class)
   fun exhibitionFloors(): ExhibitionFloorTestBuilderResource {
     if (exhibitionFloors == null) {
-      exhibitionFloors = ExhibitionFloorTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+      exhibitionFloors = ExhibitionFloorTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     }
 
     return exhibitionFloors!!
@@ -105,7 +104,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   @kotlin.jvm.Throws(IOException::class)
   fun exhibitionDevices(): ExhibitionDeviceTestBuilderResource {
     if (exhibitionDevices == null) {
-      exhibitionDevices = ExhibitionDeviceTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+      exhibitionDevices = ExhibitionDeviceTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     }
 
     return exhibitionDevices!!
@@ -120,7 +119,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   @kotlin.jvm.Throws(IOException::class)
   fun exhibitionDeviceGroups(): ExhibitionDeviceGroupTestBuilderResource {
     if (exhibitionDeviceGroups == null) {
-      exhibitionDeviceGroups = ExhibitionDeviceGroupTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+      exhibitionDeviceGroups = ExhibitionDeviceGroupTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     }
 
     return exhibitionDeviceGroups!!
@@ -135,7 +134,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   @kotlin.jvm.Throws(IOException::class)
   fun deviceModels(): DeviceModelTestBuilderResource {
     if (deviceModels == null) {
-      deviceModels = DeviceModelTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+      deviceModels = DeviceModelTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     }
 
     return deviceModels!!
@@ -150,7 +149,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   @kotlin.jvm.Throws(IOException::class)
   fun pageLayouts(): PageLayoutTestBuilderResource {
     if (pageLayouts == null) {
-      pageLayouts = PageLayoutTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+      pageLayouts = PageLayoutTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     }
 
     return pageLayouts!!
@@ -165,7 +164,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   @kotlin.jvm.Throws(IOException::class)
   fun exhibitionPages(): ExhibitionPageTestBuilderResource {
     if (exhibitionPages == null) {
-      exhibitionPages = ExhibitionPageTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+      exhibitionPages = ExhibitionPageTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     }
 
     return exhibitionPages!!
@@ -180,7 +179,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   @kotlin.jvm.Throws(IOException::class)
   fun exhibitionContentVersions(): ExhibitionContentVersionTestBuilderResource {
     if (exhibitionContentVersions == null) {
-      exhibitionContentVersions = ExhibitionContentVersionTestBuilderResource(getTestBuilder(), this.accessTokenProvider, createClient())
+      exhibitionContentVersions = ExhibitionContentVersionTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     }
 
     return exhibitionContentVersions!!
@@ -195,7 +194,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
   @kotlin.jvm.Throws(IOException::class)
   fun files(): FileTestBuilderResource {
     if (files == null) {
-      files = FileTestBuilderResource(getTestBuilder())
+      files = FileTestBuilderResource(testBuilder)
     }
 
     return files!!
@@ -208,7 +207,7 @@ class TestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, acc
    * @return API client
    */
   override fun createClient(accessToken: String): ApiClient {
-    val result = ApiClient(TestSettings.apiBasePath)
+    val result = ApiClient(testBuilder.settings.apiBasePath)
     ApiClient.accessToken = accessToken
     return result
   }

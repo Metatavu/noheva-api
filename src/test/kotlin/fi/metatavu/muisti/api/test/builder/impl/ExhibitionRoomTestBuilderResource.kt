@@ -1,6 +1,5 @@
 package fi.metatavu.muisti.api.test.functional.impl
 
-import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.ExhibitionRoomsApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
@@ -8,7 +7,7 @@ import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.Exhibition
 import fi.metatavu.muisti.api.client.models.ExhibitionFloor
 import fi.metatavu.muisti.api.client.models.ExhibitionRoom
-import fi.metatavu.muisti.api.test.functional.settings.TestSettings
+import fi.metatavu.muisti.api.test.functional.TestBuilder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.slf4j.LoggerFactory
@@ -17,7 +16,7 @@ import java.util.*
 /**
  * Test builder resource for handling exhibitionRooms
  */
-class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>?, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<ExhibitionRoom, ApiClient?>(testBuilder, apiClient) {
+class ExhibitionRoomTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<ExhibitionRoom, ApiClient?>(testBuilder, apiClient) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -225,7 +224,7 @@ class ExhibitionRoomTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
 
     override fun getApi(): ExhibitionRoomsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return ExhibitionRoomsApi(TestSettings.apiBasePath)
+        return ExhibitionRoomsApi(testBuilder.settings.apiBasePath)
     }
 
 }

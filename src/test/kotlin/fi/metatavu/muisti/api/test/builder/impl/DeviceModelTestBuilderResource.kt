@@ -1,6 +1,5 @@
 package fi.metatavu.muisti.api.test.functional.builder.impl
 
-import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.DeviceModelsApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
@@ -9,8 +8,8 @@ import fi.metatavu.muisti.api.client.models.DeviceModel
 import fi.metatavu.muisti.api.client.models.DeviceModelCapabilities
 import fi.metatavu.muisti.api.client.models.DeviceModelDimensions
 import fi.metatavu.muisti.api.client.models.DeviceModelDisplayMetrics
+import fi.metatavu.muisti.api.test.functional.TestBuilder
 import fi.metatavu.muisti.api.test.functional.impl.ApiTestBuilderResource
-import fi.metatavu.muisti.api.test.functional.settings.TestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import java.util.*
@@ -18,7 +17,7 @@ import java.util.*
 /**
  * Test builder resource for handling deviceModels
  */
-class DeviceModelTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>?, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<DeviceModel, ApiClient?>(testBuilder, apiClient) {
+class DeviceModelTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<DeviceModel, ApiClient?>(testBuilder, apiClient) {
 
     /**
      * Creates new device model with default values
@@ -202,7 +201,7 @@ class DeviceModelTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?
 
     override fun getApi(): DeviceModelsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return DeviceModelsApi(TestSettings.apiBasePath)
+        return DeviceModelsApi(testBuilder.settings.apiBasePath)
     }
 
 }

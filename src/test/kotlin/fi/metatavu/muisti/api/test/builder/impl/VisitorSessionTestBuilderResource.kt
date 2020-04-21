@@ -1,6 +1,5 @@
 package fi.metatavu.muisti.api.test.functional.impl
 
-import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.VisitorSessionsApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
@@ -9,7 +8,7 @@ import fi.metatavu.muisti.api.client.models.VisitorSession
 import fi.metatavu.muisti.api.client.models.VisitorSessionState
 import fi.metatavu.muisti.api.client.models.VisitorSessionUser
 import fi.metatavu.muisti.api.client.models.VisitorSessionVariable
-import fi.metatavu.muisti.api.test.functional.settings.TestSettings
+import fi.metatavu.muisti.api.test.functional.TestBuilder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.slf4j.LoggerFactory
@@ -18,7 +17,7 @@ import java.util.*
 /**
  * Test builder resource for handling visitorSessions
  */
-class VisitorSessionTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClient?>?, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<VisitorSession, ApiClient?>(testBuilder, apiClient) {
+class VisitorSessionTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<VisitorSession, ApiClient?>(testBuilder, apiClient) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -216,7 +215,7 @@ class VisitorSessionTestBuilderResource(testBuilder: AbstractTestBuilder<ApiClie
 
     override fun getApi(): VisitorSessionsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return VisitorSessionsApi(TestSettings.apiBasePath)
+        return VisitorSessionsApi(testBuilder.settings.apiBasePath)
     }
 
 }
