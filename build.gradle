@@ -81,7 +81,7 @@ dependencies {
   implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$paho_version"
 
   testImplementation project(':api-client')
-  testImplementation project(':muisti-api-test-builder')
+  testImplementation project(':api-test-builder')
 
   testImplementation "org.apache.commons:commons-lang3"
   testImplementation 'junit:junit:4.12'

@@ -1,4 +1,4 @@
 rootProject.name = 'muisti-api'
 include 'api-spec'
 include 'api-client'
-include 'muisti-api-test-builder'
+include 'api-test-builder'
