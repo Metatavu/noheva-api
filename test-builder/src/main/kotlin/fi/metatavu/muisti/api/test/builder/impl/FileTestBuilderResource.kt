@@ -1,11 +1,10 @@
 package fi.metatavu.muisti.api.test.functional.builder.impl
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import fi.metatavu.jaxrs.test.functional.builder.CloseableResource
 import fi.metatavu.jaxrs.test.functional.builder.TestBuilderResource
 import fi.metatavu.muisti.api.test.functional.TestBuilder
-import fi.metatavu.muisti.files.OutputFile
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -14,7 +13,6 @@ import org.junit.Assert.assertTrue
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
-
 
 /**
  * Test builder resource for uploaded files
@@ -52,12 +50,13 @@ class FileTestBuilderResource(private val testBuilder: TestBuilder) : TestBuilde
             val response: Response = OkHttpClient().newCall(request).execute()
 
             assertTrue(response.isSuccessful)
-            val objectMapper = ObjectMapper()
-            objectMapper.registerModule(KotlinModule())
-            val result = objectMapper.readValue(response.body?.charStream(), OutputFile::class.java)
+            val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+            val adapter = moshi.adapter<OutputFile>(OutputFile::class.java)
+            val result = adapter.fromJson(response.body?.source()!!)
+
             assertNotNull(result)
-            assertNotNull(result.uri)
-            return result
+            assertNotNull(result?.uri)
+            return result!!
         }
     }
 
@@ -97,3 +96,28 @@ class FileTestBuilderResource(private val testBuilder: TestBuilder) : TestBuilde
     }
 
 }
+
+/**
+ * Data class for storing file meta
+ *
+ * @author Antti Leppä
+ */
+data class FileMeta (
+
+        var contentType: String,
+
+        var fileName: String
+
+)
+
+/**
+ * Class representing a persisted file
+ *
+ * @author Antti Leppä
+ */
+data class OutputFile (
+
+        var meta: FileMeta,
+
+        var uri: String
+)

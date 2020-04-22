@@ -7,7 +7,6 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.KeycloakAccessTokenProvide
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.test.builder.Settings
 import fi.metatavu.muisti.api.test.functional.auth.TestBuilderAuthentication
-import fi.metatavu.muisti.api.test.functional.mqtt.TestMqttClient
 import org.slf4j.LoggerFactory
 import java.io.IOException
 
@@ -21,8 +20,6 @@ open class TestBuilder(val settings: Settings): AbstractTestBuilder<ApiClient> (
     private val logger = LoggerFactory.getLogger(javaClass)
 
     private var admin: TestBuilderAuthentication? = null
-
-    private var mqtt: TestMqttClient? = null
 
     override fun createTestBuilderAuthentication(testBuilder: AbstractTestBuilder<ApiClient>, accessTokenProvider: AccessTokenProvider): AuthorizedTestBuilderAuthentication<ApiClient> {
         return TestBuilderAuthentication(this, accessTokenProvider)
@@ -48,25 +45,6 @@ open class TestBuilder(val settings: Settings): AbstractTestBuilder<ApiClient> (
         }
 
         return admin!!
-    }
-
-    /**
-     * Returns initialized test MQTT client
-     *
-     * @return initialized test MQTT client
-     */
-    fun mqtt(): TestMqttClient {
-        if (mqtt == null) {
-            mqtt = TestMqttClient(settings)
-        }
-
-        return mqtt!!
-    }
-
-    override fun close() {
-        mqtt?.close()
-        mqtt = null
-        super.close()
     }
 
 }
