@@ -18,7 +18,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testCreateDeviceModel() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val dimensions = DeviceModelDimensions(8000.0, 6000.0, 1.0, 7900.0, 5900.0)
             val displayMetrics = DeviceModelDisplayMetrics(
                 heightPixels = 12288,
@@ -58,7 +58,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testFindDeviceModel() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val createdDeviceModel = it.admin().deviceModels().create()
             val createdDeviceModelId = createdDeviceModel.id!!
             assertNotNull(it.admin().deviceModels().findDeviceModel(createdDeviceModelId))
@@ -67,7 +67,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListDeviceModels() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             assertEquals(0, it.admin().deviceModels().listDeviceModels().size)
             val createdDeviceModel = it.admin().deviceModels().create()
             val createdDeviceModelId = createdDeviceModel.id!!
@@ -81,7 +81,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testUpdateExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val createDimensions = DeviceModelDimensions(8000.0, 6000.0, 1.0, 7900.0, 5900.0)
             val createDisplayMetrics = DeviceModelDisplayMetrics(
                 heightPixels = 12288,
@@ -152,7 +152,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testDeleteExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val nonExistingSessionVariableId = UUID.randomUUID()
             val createdDeviceModel = it.admin().deviceModels().create()
             val createdDeviceModelId = createdDeviceModel.id!!

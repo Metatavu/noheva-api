@@ -16,7 +16,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testCreateExhibitionDevice() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
 
@@ -36,7 +36,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testExhibitionDeviceIndexPage() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val group = createDefaultDeviceGroup(it, exhibition)
             val model = it.admin().deviceModels().create()
@@ -70,7 +70,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testFindExhibitionDevice() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
@@ -93,7 +93,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListExhibitionDevices() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
@@ -126,7 +126,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testUpdateExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -172,7 +172,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testDeleteExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()

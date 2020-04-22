@@ -15,7 +15,7 @@ class ExhibitionContentVersionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testCreateExhibitionContentVersion() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val createdExhibitionContentVersion = it.admin().exhibitionContentVersions().create(exhibition.id!!, ExhibitionContentVersion(name = "created name"))
             assertNotNull(createdExhibitionContentVersion)
@@ -25,7 +25,7 @@ class ExhibitionContentVersionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testFindExhibitionContentVersion() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -42,7 +42,7 @@ class ExhibitionContentVersionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListExhibitionContentVersions() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -62,7 +62,7 @@ class ExhibitionContentVersionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testUpdateExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -88,7 +88,7 @@ class ExhibitionContentVersionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testDeleteExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()

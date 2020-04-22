@@ -15,7 +15,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testCreateVisitorSession() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val mqttSubscription = it.mqtt().subscribe(MqttExhibitionVisitorSessionCreate::class.java,"visitorsessions/create")
 
             val visitor1Id = UUID.randomUUID()
@@ -44,7 +44,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testFindVisitorSession() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -61,7 +61,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListVisitorSessions() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -81,7 +81,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testUpdateExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val mqttSubscription = it.mqtt().subscribe(MqttExhibitionVisitorSessionUpdate::class.java,"visitorsessions/update")
 
             val visitor1Id = UUID.randomUUID()
@@ -132,7 +132,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testDeleteExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val mqttSubscription = it.mqtt().subscribe(MqttExhibitionVisitorSessionDelete::class.java,"visitorsessions/delete")
 
             val exhibition = it.admin().exhibitions().create()

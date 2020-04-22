@@ -8,6 +8,7 @@ buildscript {
   ext.slf4j_version = "1.6.1"
   ext.paho_version = "1.2.2"
   ext.awaitility_version = "4.0.2"
+  ext.jaxrs_functional_test_builder_version = "1.0.4"
 
   repositories {
     jcenter()
@@ -80,11 +81,12 @@ dependencies {
   implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$paho_version"
 
   testImplementation project(':api-client')
+  testImplementation project(':api-test-builder')
 
   testImplementation "org.apache.commons:commons-lang3"
   testImplementation 'junit:junit:4.12'
   testImplementation 'org.hamcrest:hamcrest:2.2'
-  testImplementation "fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:1.0.4"
+  testImplementation "fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrs_functional_test_builder_version"
   testImplementation "org.awaitility:awaitility:$awaitility_version"
 
   jacocoAgent 'org.jacoco:org.jacoco.agent:0.8.5'

@@ -15,7 +15,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testCreateExhibitionPage() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val createdPageSubscription = it.mqtt().subscribe<MqttExhibitionPageCreate>(MqttExhibitionPageCreate::class.java,"pages/create")
 
             val exhibition = it.admin().exhibitions().create()
@@ -45,7 +45,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testFindExhibitionPage() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val deviceModel = it.admin().deviceModels().create()
@@ -77,7 +77,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListExhibitionPages() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val deviceModel = it.admin().deviceModels().create()
@@ -111,7 +111,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListExhibitionPagesByContentVersion() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
@@ -155,7 +155,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testUpdateExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val updatedPageSubscription = it.mqtt().subscribe<MqttExhibitionPageUpdate>(MqttExhibitionPageUpdate::class.java,"pages/update")
 
             val exhibition = it.admin().exhibitions().create()
@@ -284,7 +284,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testDeleteExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val deletePageSubscription = it.mqtt().subscribe<MqttExhibitionPageDelete>(MqttExhibitionPageDelete::class.java,"pages/delete")
 
             val exhibition = it.admin().exhibitions().create()

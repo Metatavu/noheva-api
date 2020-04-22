@@ -29,7 +29,7 @@ abstract class AbstractFunctionalTest {
      * @param exhibition exhibition
      * @return created room
      */
-    protected fun createDefaultRoom(testBuilder: TestBuilder, exhibition: Exhibition): ExhibitionRoom {
+    protected fun createDefaultRoom(testBuilder: ApiTestBuilder, exhibition: Exhibition): ExhibitionRoom {
         val floor = testBuilder.admin().exhibitionFloors().create(exhibition)
         return testBuilder.admin().exhibitionRooms().create(exhibition = exhibition, floor = floor)
     }
@@ -41,7 +41,7 @@ abstract class AbstractFunctionalTest {
      * @param exhibition exhibition
      * @return created device group
      */
-    protected fun createDefaultDeviceGroup(testBuilder: TestBuilder, exhibition: Exhibition): ExhibitionDeviceGroup {
+    protected fun createDefaultDeviceGroup(testBuilder: ApiTestBuilder, exhibition: Exhibition): ExhibitionDeviceGroup {
         val room = createDefaultRoom(testBuilder, exhibition)
         return testBuilder.admin().exhibitionDeviceGroups().create(exhibition = exhibition, room = room)
     }
@@ -53,7 +53,7 @@ abstract class AbstractFunctionalTest {
      * @param exhibition exhibition
      * @return created device
      */
-    protected fun createDefaultDevice(testBuilder: TestBuilder, exhibition: Exhibition): ExhibitionDevice {
+    protected fun createDefaultDevice(testBuilder: ApiTestBuilder, exhibition: Exhibition): ExhibitionDevice {
         val group = createDefaultDeviceGroup(testBuilder, exhibition)
         val model = testBuilder.admin().deviceModels().create()
         return testBuilder.admin().exhibitionDevices().create(exhibition = exhibition, model = model, group = group)
@@ -66,7 +66,7 @@ abstract class AbstractFunctionalTest {
      * @param exhibition exhibition
      * @return created page
      */
-    protected fun createDefaultPage(testBuilder: TestBuilder, exhibition: Exhibition): ExhibitionPage {
+    protected fun createDefaultPage(testBuilder: ApiTestBuilder, exhibition: Exhibition): ExhibitionPage {
         val layout = testBuilder.admin().pageLayouts().create(testBuilder.admin().deviceModels().create())
         val contentVersion = testBuilder.admin().exhibitionContentVersions().create(exhibition)
         val device = createDefaultDevice(testBuilder, exhibition)

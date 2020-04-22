@@ -1,64 +1,60 @@
 package fi.metatavu.muisti.api.test.functional.settings
 
+import fi.metatavu.muisti.api.test.builder.Settings
+
 /**
- * Utility class for retrieving functional test settings
+ * Settings implementation for test builder
  *
  * @author Antti Leppä
  */
-object TestSettings {
+class ApiTestSettings() : Settings {
 
     /**
      * Returns API service base path
      */
-    val apiBasePath: String
+    override val apiBasePath: String
         get() = "http://localhost:1234/v1"
 
     /**
      * Returns API service base path
      */
-    val filesBasePath: String
+    override val filesBasePath: String
         get() = "http://localhost:1234/files"
 
     /**
      * Returns Keycloak host
      */
-    val keycloakHost: String
+    override val keycloakHost: String
         get() = "http://test-keycloak:8080/auth"
 
     /**
      * Returns Keycloak realm
      */
-    val keycloakRealm: String
+    override val keycloakRealm: String
         get() = "muisti"
 
     /**
      * Returns Keycloak client id
      */
-    val keycloakClientId: String
+    override val keycloakClientId: String
         get() = "test"
 
     /**
      * Returns Keycloak client secret
      */
-    val keycloakClientSecret: String?
+    override val keycloakClientSecret: String?
         get() = null
 
     /**
      * Returns Keycloak admin user
      */
-    val keycloakAdminUser: String
+    override val keycloakAdminUser: String
         get() = "admin"
 
     /**
      * Returns Keycloak admin password
      */
-    val keycloakAdminPass: String
-        get() = "test"
-
-    val mqttServerUrl: String
-        get() = "localhost"
-
-    val mqttTopic: String
+    override val keycloakAdminPass: String
         get() = "test"
 
 }
