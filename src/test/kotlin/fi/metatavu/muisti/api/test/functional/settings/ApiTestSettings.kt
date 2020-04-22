@@ -2,6 +2,11 @@ package fi.metatavu.muisti.api.test.functional.settings
 
 import fi.metatavu.muisti.api.test.builder.Settings
 
+/**
+ * Settings implementation for test builder
+ *
+ * @author Antti Leppä
+ */
 class ApiTestSettings() : Settings {
 
     /**

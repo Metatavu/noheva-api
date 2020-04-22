@@ -3,6 +3,11 @@ package fi.metatavu.muisti.api.test.functional
 import fi.metatavu.muisti.api.test.functional.mqtt.TestMqttClient
 import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 
+/**
+ * Implementation of test builder
+ *
+ * @author Antti Leppä
+ */
 class ApiTestBuilder: TestBuilder(ApiTestSettings()) {
 
     private var mqtt: TestMqttClient? = null
