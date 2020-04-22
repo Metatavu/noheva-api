@@ -1,7 +1,9 @@
 package fi.metatavu.muisti.api.test.functional
 
+import fi.metatavu.muisti.api.test.builder.TestBuilder
 import fi.metatavu.muisti.api.test.functional.mqtt.TestMqttClient
 import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
+import fi.metatavu.muisti.api.test.functional.settings.MqttTestSettings
 
 /**
  * Implementation of test builder
@@ -19,7 +21,7 @@ class ApiTestBuilder: TestBuilder(ApiTestSettings()) {
      */
     fun mqtt(): TestMqttClient {
         if (mqtt == null) {
-            mqtt = TestMqttClient(settings)
+            mqtt = TestMqttClient(MqttTestSettings())
         }
 
         return mqtt!!

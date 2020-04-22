@@ -57,16 +57,4 @@ class ApiTestSettings() : Settings {
     override val keycloakAdminPass: String
         get() = "test"
 
-    /**
-     * Returns MQTT server URL
-     */
-    override val mqttServerUrl: String
-        get() = "localhost"
-
-    /**
-     * Returns MQTT topic
-     */
-    override val mqttTopic: String
-        get() = "test"
-
 }

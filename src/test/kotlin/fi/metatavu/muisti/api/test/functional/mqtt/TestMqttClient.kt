@@ -1,15 +1,16 @@
 package fi.metatavu.muisti.api.test.functional.mqtt
 
-import fi.metatavu.muisti.api.test.builder.Settings
+import fi.metatavu.muisti.api.test.functional.settings.MqttTestSettings
 import fi.metatavu.muisti.realtime.mqtt.MqttConnection
 import fi.metatavu.muisti.settings.MqttSettings
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttMessage
+
 /**
  * MQTT client for functional tests
  */
-class TestMqttClient(private val settings: Settings): MqttCallback, AutoCloseable {
+class TestMqttClient(private val settings: MqttTestSettings): MqttCallback, AutoCloseable {
 
     private val subscriptions = mutableMapOf<String, MutableList<TestMqttSubscription<*>>>()
 
