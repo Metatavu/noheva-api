@@ -1,5 +1,10 @@
 package fi.metatavu.muisti.api.test.functional.settings
 
+/**
+ * Test settings mqtt client
+ *
+ * @author Antti Leppä
+ */
 class MqttTestSettings {
 
     /**
