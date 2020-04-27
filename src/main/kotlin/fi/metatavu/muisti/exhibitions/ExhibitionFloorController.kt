@@ -24,8 +24,8 @@ class ExhibitionFloorController() {
      * @param creatorId creating user id
      * @return created exhibition floor
      */
-    fun createExhibitionFloor(exhibition: Exhibition, name: String, creatorId: UUID): ExhibitionFloor {
-        return exhibitionFloorDAO.create(UUID.randomUUID(), exhibition, name, creatorId, creatorId)
+    fun createExhibitionFloor(exhibition: Exhibition, name: String, floorPlanUrl: String?, creatorId: UUID): ExhibitionFloor {
+        return exhibitionFloorDAO.create(UUID.randomUUID(), exhibition, name, floorPlanUrl, creatorId, creatorId)
     }
 
     /**
@@ -53,11 +53,14 @@ class ExhibitionFloorController() {
      *
      * @param exhibitionFloor exhibition floor to be updated
      * @param name floor name
+     * @param floorPlanUrl floor plan url
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionFloor(exhibitionFloor: ExhibitionFloor, name: String, modifierId: UUID): ExhibitionFloor {
-      return exhibitionFloorDAO.updateName(exhibitionFloor, name, modifierId)
+    fun updateExhibitionFloor(exhibitionFloor: ExhibitionFloor, name: String, floorPlanUrl: String?, modifierId: UUID): ExhibitionFloor {
+      var result = exhibitionFloorDAO.updateName(exhibitionFloor, name, modifierId)
+      result = exhibitionFloorDAO.updateFloorPlanUrl(exhibitionFloor, floorPlanUrl, modifierId)
+      return result
     }
 
     /**

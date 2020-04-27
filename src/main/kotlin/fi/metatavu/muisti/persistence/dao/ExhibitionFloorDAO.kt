@@ -3,6 +3,7 @@ package fi.metatavu.muisti.persistence.dao
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor_
+import fi.metatavu.muisti.persistence.model.PageLayout
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
@@ -27,10 +28,11 @@ class ExhibitionFloorDAO() : AbstractDAO<ExhibitionFloor>() {
      * @param lastModifierId last modifier's id
      * @return created exhibitionFloor
      */
-    fun create(id: UUID, exhibition: Exhibition, name: String, creatorId: UUID, lastModifierId: UUID): ExhibitionFloor {
+    fun create(id: UUID, exhibition: Exhibition, name: String, floorPlanUrl: String?, creatorId: UUID, lastModifierId: UUID): ExhibitionFloor {
         val exhibitionFloor = ExhibitionFloor()
         exhibitionFloor.id = id
         exhibitionFloor.name = name
+        exhibitionFloor.floorPlanUrl = floorPlanUrl
         exhibitionFloor.exhibition = exhibition
         exhibitionFloor.creatorId = creatorId
         exhibitionFloor.lastModifierId = lastModifierId
@@ -68,4 +70,16 @@ class ExhibitionFloorDAO() : AbstractDAO<ExhibitionFloor>() {
         return persist(exhibitionFloor)
     }
 
+    /**
+     * Updates floorPlanUrl
+     *
+     * @param floorPlanUrl floor plan URL
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionFloor
+     */
+    fun updateFloorPlanUrl(exhibitionFloor: ExhibitionFloor, floorPlanUrl: String?, lastModifierId: UUID): ExhibitionFloor {
+        exhibitionFloor.lastModifierId = lastModifierId
+        exhibitionFloor.floorPlanUrl = floorPlanUrl
+        return persist(exhibitionFloor)
+    }
 }
