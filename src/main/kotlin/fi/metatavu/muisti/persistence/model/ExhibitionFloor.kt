@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.model
 
+import org.hibernate.validator.constraints.URL
 import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*
@@ -22,6 +23,9 @@ class ExhibitionFloor {
     @NotEmpty
     @Column(nullable = false)
     var name: String? = null
+
+    @URL
+    var floorPlanUrl: String? = null
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null

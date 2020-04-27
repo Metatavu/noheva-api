@@ -22,6 +22,7 @@ import javax.ejb.Stateful
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
 import javax.ws.rs.core.Response
+import kotlin.math.floor
 
 /**
  * Exhibitions API REST endpoints
@@ -685,12 +686,13 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     override fun createExhibitionFloor(exhibitionId: UUID?, payload: ExhibitionFloor?): Response {
         payload ?: return createBadRequest("Missing request body")
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
 
-        val exhibitionFloor = exhibitionFloorController.createExhibitionFloor(exhibition, payload.name, userId)
+        val name = payload.name
+        val floorPlanUrl = payload.floorPlanUrl
+        val exhibitionFloor = exhibitionFloorController.createExhibitionFloor(exhibition, name, floorPlanUrl, userId)
 
         return createOk(exhibitionFloorTranslator.translate(exhibitionFloor))
     }
@@ -731,7 +733,9 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionFloor = exhibitionFloorController.findExhibitionFloorById(floorId) ?: return createNotFound("Floor $floorId not found")
-        val result = exhibitionFloorController.updateExhibitionFloor(exhibitionFloor, payload.name, userId)
+        val name = payload.name
+        val floorPlanUrl = payload.floorPlanUrl
+        val result = exhibitionFloorController.updateExhibitionFloor(exhibitionFloor, name, floorPlanUrl, userId)
 
         return createOk(exhibitionFloorTranslator.translate(result))
     }

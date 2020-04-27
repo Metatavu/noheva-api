@@ -484,4 +484,10 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="floorplanurl" author="jari.nykanen">
+        <addColumn tableName="exhibitionfloor">
+            <column name="floorPlanUrl" type="varchar(191)"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

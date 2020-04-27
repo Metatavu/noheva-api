@@ -13,6 +13,7 @@ class ExhibitionFloorTranslator: AbstractTranslator<fi.metatavu.muisti.persisten
         result.id = entity.id
         result.exhibitionId = entity.exhibition?.id
         result.name = entity.name
+        result.floorPlanUrl = entity.floorPlanUrl
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
         result.createdAt = entity.createdAt
