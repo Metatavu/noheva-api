@@ -73,12 +73,16 @@ class ExhibitionFloorTestsIT: AbstractFunctionalTest() {
             val foundCreatedExhibitionFloor = it.admin().exhibitionFloors().findExhibitionFloor(exhibitionId, createdExhibitionFloorId)
             assertEquals(createdExhibitionFloor.id, foundCreatedExhibitionFloor?.id)
             assertEquals("created name", createdExhibitionFloor.name)
-
-            val updatedExhibitionFloor = it.admin().exhibitionFloors().updateExhibitionFloor(exhibitionId, ExhibitionFloor("updated name", createdExhibitionFloorId))
+            val exhibitionFloorToUpdate = ExhibitionFloor(
+                    name = "updated name",
+                    id = createdExhibitionFloorId,
+                    floorPlanUrl = "http://example.com/floorPlan.png"
+            )
+            val updatedExhibitionFloor = it.admin().exhibitionFloors().updateExhibitionFloor(exhibitionId, exhibitionFloorToUpdate)
             val foundUpdatedExhibitionFloor = it.admin().exhibitionFloors().findExhibitionFloor(exhibitionId, createdExhibitionFloorId)
-
             assertEquals(updatedExhibitionFloor!!.id, foundUpdatedExhibitionFloor?.id)
-            assertEquals("updated name", updatedExhibitionFloor.name)
+            assertEquals("updated name", foundUpdatedExhibitionFloor?.name)
+            assertEquals("http://example.com/floorPlan.png", foundUpdatedExhibitionFloor?.floorPlanUrl)
 
             it.admin().exhibitionFloors().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionFloor("name", createdExhibitionFloorId))
         }
