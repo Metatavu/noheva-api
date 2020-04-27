@@ -60,7 +60,7 @@ class ExhibitionFloorController() {
      */
     fun updateExhibitionFloor(exhibitionFloor: ExhibitionFloor, name: String, floorPlanUrl: String?, modifierId: UUID): ExhibitionFloor {
       var result = exhibitionFloorDAO.updateName(exhibitionFloor, name, modifierId)
-      result = exhibitionFloorDAO.updateFloorPlanUrl(exhibitionFloor, floorPlanUrl, modifierId)
+      result = exhibitionFloorDAO.updateFloorPlanUrl(result, floorPlanUrl, modifierId)
       return result
     }
 
