@@ -24,6 +24,7 @@ class ExhibitionFloorDAO() : AbstractDAO<ExhibitionFloor>() {
      * @param id id
      * @param exhibition exhibition
      * @param name name
+     * @param floorPlanUrl floor plan url
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created exhibitionFloor
@@ -73,6 +74,7 @@ class ExhibitionFloorDAO() : AbstractDAO<ExhibitionFloor>() {
     /**
      * Updates floorPlanUrl
      *
+     * @param exhibitionFloor exhibition floor to be updated
      * @param floorPlanUrl floor plan URL
      * @param lastModifierId last modifier's id
      * @return updated exhibitionFloor

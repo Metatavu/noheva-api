@@ -21,6 +21,7 @@ class ExhibitionFloorController() {
      *
      * @param exhibition exhibition
      * @param name floor name
+     * @param floorPlanUrl floor plan url
      * @param creatorId creating user id
      * @return created exhibition floor
      */
