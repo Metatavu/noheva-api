@@ -1,9 +1,12 @@
 package fi.metatavu.muisti.api.test.functional
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import fi.metatavu.muisti.api.client.models.CoordinatePoint
 import fi.metatavu.muisti.api.client.models.ExhibitionRoom
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import fi.metatavu.muisti.api.client.models.Polygon
+import org.junit.Assert.*
 import org.junit.Test
+import java.math.BigDecimal
 import java.util.*
 
 /**
@@ -19,7 +22,6 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             val exhibition = it.admin().exhibitions().create()
             val floor = it.admin().exhibitionFloors().create(exhibition.id!!)
             val floorId = floor.id!!
-
             val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibition.id!!, ExhibitionRoom(
                 name = "name",
                 floorId = floorId
@@ -104,8 +106,18 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             assertEquals(createdExhibitionRoom.id, foundCreatedExhibitionRoom?.id)
             assertEquals("created name", createdExhibitionRoom.name)
 
+            val point1 = CoordinatePoint(coordinatePair = arrayOf<Int>(30,10))
+            val point2 = CoordinatePoint(coordinatePair = arrayOf<Int>(40,40))
+            val point3 = CoordinatePoint(coordinatePair = arrayOf<Int>(20,40))
+            val point4 = CoordinatePoint(coordinatePair = arrayOf<Int>(10,20))
+            val point5 = CoordinatePoint(coordinatePair = arrayOf<Int>(30,10))
+            val coordinatePointsArray = arrayOf<CoordinatePoint>(point1, point2, point3, point4, point5)
+            val polygonCoordinateList: Array<Array<CoordinatePoint>> = arrayOf<Array<CoordinatePoint>>(coordinatePointsArray)
+            val testPolygon = Polygon(shapes = polygonCoordinateList)
+
             val updatedExhibitionRoom = it.admin().exhibitionRooms().updateExhibitionRoom(exhibitionId, ExhibitionRoom(
                 name = "updated name",
+                geoShape = testPolygon,
                 id = createdExhibitionRoomId,
                 floorId = floorId
             ))
@@ -113,7 +125,19 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             val foundUpdatedExhibitionRoom = it.admin().exhibitionRooms().findExhibitionRoom(exhibitionId, createdExhibitionRoomId)
 
             assertEquals(updatedExhibitionRoom!!.id, foundUpdatedExhibitionRoom?.id)
-            assertEquals("updated name", updatedExhibitionRoom.name)
+            assertEquals("updated name", foundUpdatedExhibitionRoom?.name)
+
+            val firstShape = foundUpdatedExhibitionRoom?.geoShape?.shapes?.get(0)
+            val firstPoint = firstShape?.get(0)
+            val secondPoint = firstShape?.get(1)
+            val thirdPoint = firstShape?.get(2)
+            val fourthPoint = firstShape?.get(3)
+            val fifthPoint = firstShape?.get(4)
+            assertArrayEquals(point1.coordinatePair, firstPoint?.coordinatePair)
+            assertArrayEquals(point2.coordinatePair, secondPoint?.coordinatePair)
+            assertArrayEquals(point3.coordinatePair, thirdPoint?.coordinatePair)
+            assertArrayEquals(point4.coordinatePair, fourthPoint?.coordinatePair)
+            assertArrayEquals(point5.coordinatePair, fifthPoint?.coordinatePair)
 
             it.admin().exhibitionRooms().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionRoom(
                 name = "name",

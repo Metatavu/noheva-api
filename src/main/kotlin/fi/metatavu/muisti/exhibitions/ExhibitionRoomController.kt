@@ -1,5 +1,7 @@
 package fi.metatavu.muisti.exhibitions
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import fi.metatavu.muisti.api.spec.model.Polygon
 import fi.metatavu.muisti.persistence.dao.ExhibitionRoomDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor
@@ -23,11 +25,12 @@ class ExhibitionRoomController() {
      * @param exhibition exhibition
      * @param floor floor
      * @param name room name
+     * @param geoShape geoShape polygon
      * @param creatorId creating user id
      * @return created exhibition room
      */
-    fun createExhibitionRoom(exhibition: Exhibition, floor: ExhibitionFloor, name: String, creatorId: UUID): ExhibitionRoom {
-        return exhibitionRoomDAO.create(id = UUID.randomUUID(), exhibition = exhibition, floor = floor, name = name, creatorId = creatorId, lastModifierId = creatorId)
+    fun createExhibitionRoom(exhibition: Exhibition, floor: ExhibitionFloor, name: String, geoShape: Polygon?, creatorId: UUID): ExhibitionRoom {
+        return exhibitionRoomDAO.create(id = UUID.randomUUID(), exhibition = exhibition, floor = floor, name = name, geoShape = serializeGeoShape(geoShape), creatorId = creatorId, lastModifierId = creatorId)
     }
 
     /**
@@ -56,13 +59,15 @@ class ExhibitionRoomController() {
      *
      * @param exhibitionRoom exhibition room to be updated
      * @param name room name
+     * @param geoShape geoShape polygon
      * @param floor floor
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionRoom(exhibitionRoom: ExhibitionRoom, floor: ExhibitionFloor, name: String, modifierId: UUID): ExhibitionRoom {
+    fun updateExhibitionRoom(exhibitionRoom: ExhibitionRoom, floor: ExhibitionFloor, name: String, geoShape: Polygon?, modifierId: UUID): ExhibitionRoom {
       var result = exhibitionRoomDAO.updateName(exhibitionRoom, name, modifierId)
       result = exhibitionRoomDAO.updateFloor(result, floor, modifierId)
+      result = exhibitionRoomDAO.updateGeoShape(result, serializeGeoShape(geoShape), modifierId)
       return result
     }
 
@@ -74,5 +79,17 @@ class ExhibitionRoomController() {
     fun deleteExhibitionRoom(exhibitionRoom: ExhibitionRoom) {
         return exhibitionRoomDAO.delete(exhibitionRoom)
     }
+
+  /**
+   * Serialize GeoJSON data
+   *
+   * @param geoShape polygon data
+   * @return null or parsed geoShape as string
+   */
+  fun serializeGeoShape(geoShape: Polygon?): String? {
+    geoShape ?: return null
+    val objectMapper = ObjectMapper()
+    return objectMapper.writeValueAsString(geoShape)
+  }
 
 }
