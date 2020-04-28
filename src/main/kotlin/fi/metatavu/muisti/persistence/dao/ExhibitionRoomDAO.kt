@@ -26,14 +26,16 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
      * @param exhibition exhibition
      * @param floor floor where the room is
      * @param name name
+     * @param geoShape geoShape polygon
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created exhibitionRoom
      */
-    fun create(id: UUID, exhibition: Exhibition, floor: ExhibitionFloor, name: String, creatorId: UUID, lastModifierId: UUID): ExhibitionRoom {
+    fun create(id: UUID, exhibition: Exhibition, floor: ExhibitionFloor, name: String, geoShape: String?, creatorId: UUID, lastModifierId: UUID): ExhibitionRoom {
         val exhibitionRoom = ExhibitionRoom()
         exhibitionRoom.id = id
         exhibitionRoom.name = name
+        exhibitionRoom.geoShape = geoShape
         exhibitionRoom.exhibition = exhibition
         exhibitionRoom.floor = floor
         exhibitionRoom.creatorId = creatorId
@@ -92,6 +94,20 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
     fun updateFloor(exhibitionRoom: ExhibitionRoom, floor: ExhibitionFloor, lastModifierId: UUID): ExhibitionRoom {
         exhibitionRoom.lastModifierId = lastModifierId
         exhibitionRoom.floor = floor
+        return persist(exhibitionRoom)
+    }
+
+    /**
+     * Updates geoShape
+     *
+     * @param exhibitionRoom exhibition room to be updated
+     * @param geoShape polygon data as string
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionRoom
+     */
+    fun updateGeoShape(exhibitionRoom: ExhibitionRoom, geoShape: String?, lastModifierId: UUID): ExhibitionRoom {
+        exhibitionRoom.lastModifierId = lastModifierId
+        exhibitionRoom.geoShape = geoShape
         return persist(exhibitionRoom)
     }
 

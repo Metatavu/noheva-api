@@ -490,4 +490,10 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="roompolygon" author="jari.nykanen">
+        <addColumn tableName="exhibitionroom">
+            <column name="geoShape" type="longtext"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

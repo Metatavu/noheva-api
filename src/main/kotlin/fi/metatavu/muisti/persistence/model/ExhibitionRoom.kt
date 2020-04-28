@@ -26,6 +26,9 @@ class ExhibitionRoom {
     @Column(nullable = false)
     var name: String? = null
 
+    @Column
+    var geoShape: String? = null
+
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null
 

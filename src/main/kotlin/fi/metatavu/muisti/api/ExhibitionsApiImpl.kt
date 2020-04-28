@@ -22,7 +22,6 @@ import javax.ejb.Stateful
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
 import javax.ws.rs.core.Response
-import kotlin.math.floor
 
 /**
  * Exhibitions API REST endpoints
@@ -258,10 +257,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val floor = exhibitionFloorController.findExhibitionFloorById(payload.floorId) ?: return createBadRequest("Exhibition floor ${payload.floorId} not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-
         val exhibitionRoom = exhibitionRoomController.createExhibitionRoom(
             exhibition = exhibition,
             name = payload.name,
+            geoShape = payload.geoShape,
             floor = floor,
             creatorId = userId
         )
@@ -310,9 +309,11 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionRoom = exhibitionRoomController.findExhibitionRoomById(roomId) ?: return createNotFound("Room $roomId not found")
+
         val result = exhibitionRoomController.updateExhibitionRoom(
             exhibitionRoom = exhibitionRoom,
             name = payload.name,
+            geoShape = payload.geoShape,
             floor = floor,
             modifierId = userId
         )
