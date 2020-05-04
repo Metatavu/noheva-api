@@ -30,7 +30,11 @@
       <!-- Byte code instrumentation -->
 
       <property name="hibernate.ejb.use_class_enhancer" value="true"/>
-      
+
+      <!-- Spatial -->
+
+      <property name="hibernate.dialect" value="org.hibernate.spatial.dialect.mysql.MySQL56SpatialDialect"/>
+
     </properties>
   </persistence-unit>
 

@@ -80,6 +80,12 @@ dependencies {
   implementation "org.liquibase:liquibase-cdi:$liquibase_version"
   implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$paho_version"
 
+  /**
+   * Spatial dependencies
+   */
+  implementation "com.vividsolutions:jts-core:1.14.0"
+  implementation "org.hibernate:hibernate-spatial:5.3.13.Final"
+
   testImplementation project(':api-client')
   testImplementation project(':api-test-builder')
 

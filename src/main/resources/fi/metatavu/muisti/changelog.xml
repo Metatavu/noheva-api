@@ -496,4 +496,11 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="geobounds" author="jari.nykanen">
+        <addColumn tableName="exhibitionfloor">
+            <column name="swBoundPoint" type="Geometry"/>
+            <column name="neBoundPoint" type="Geometry"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

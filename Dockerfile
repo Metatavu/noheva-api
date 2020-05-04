@@ -16,9 +16,11 @@ ARG WILDFLY_VERSION=18.0.1.Final
 ARG MYSQL_MODULE_VERSION=8.0.17
 ARG KEYCLOAK_MODULE_VERSION=7.0.0
 
+RUN curl -o /tmp/hibernate-with-spatial-module.zip -L https://static.metatavu.io/wildfly/wildfly-${WILDFLY_VERSION}-hibernate-with-hibernate-spatial-module.zip
 RUN curl -o /tmp/mysql-module.zip -L https://static.metatavu.io/wildfly/wildfly-${WILDFLY_VERSION}-mysql-module-${MYSQL_MODULE_VERSION}.zip
 RUN curl -o /tmp/keycloak-module.zip -L https://downloads.jboss.org/keycloak/${KEYCLOAK_MODULE_VERSION}/adapters/keycloak-oidc/keycloak-wildfly-adapter-dist-${KEYCLOAK_MODULE_VERSION}.zip
 
+RUN unzip -o /tmp/hibernate-with-spatial-module.zip -d /opt/jboss/wildfly/
 RUN unzip -o /tmp/keycloak-module.zip -d /opt/jboss/wildfly/
 RUN unzip -o /tmp/mysql-module.zip -d /opt/jboss/wildfly/
 

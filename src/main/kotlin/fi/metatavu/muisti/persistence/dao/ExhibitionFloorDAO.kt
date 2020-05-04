@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.dao
 
+import com.vividsolutions.jts.geom.Point
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor_
@@ -25,15 +26,19 @@ class ExhibitionFloorDAO() : AbstractDAO<ExhibitionFloor>() {
      * @param exhibition exhibition
      * @param name name
      * @param floorPlanUrl floor plan url
+     * @param neBoundPoint North East bound point
+     * @param swBoundPoint South West bound point
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created exhibitionFloor
      */
-    fun create(id: UUID, exhibition: Exhibition, name: String, floorPlanUrl: String?, creatorId: UUID, lastModifierId: UUID): ExhibitionFloor {
+    fun create(id: UUID, exhibition: Exhibition, name: String, floorPlanUrl: String?, neBoundPoint: Point?, swBoundPoint: Point?, creatorId: UUID, lastModifierId: UUID): ExhibitionFloor {
         val exhibitionFloor = ExhibitionFloor()
         exhibitionFloor.id = id
         exhibitionFloor.name = name
         exhibitionFloor.floorPlanUrl = floorPlanUrl
+        exhibitionFloor.neBoundPoint = neBoundPoint
+        exhibitionFloor.swBoundPoint = swBoundPoint
         exhibitionFloor.exhibition = exhibition
         exhibitionFloor.creatorId = creatorId
         exhibitionFloor.lastModifierId = lastModifierId
@@ -84,4 +89,33 @@ class ExhibitionFloorDAO() : AbstractDAO<ExhibitionFloor>() {
         exhibitionFloor.floorPlanUrl = floorPlanUrl
         return persist(exhibitionFloor)
     }
+
+    /**
+     * Updates floors North East bound point
+     *
+     * @param exhibitionFloor exhibition floor to be updated
+     * @param neBoundPoint North East bound point
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionFloor
+     */
+    fun updateFloorNEBound(exhibitionFloor: ExhibitionFloor, neBoundPoint: Point?, lastModifierId: UUID): ExhibitionFloor {
+        exhibitionFloor.lastModifierId = lastModifierId
+        exhibitionFloor.neBoundPoint = neBoundPoint
+        return persist(exhibitionFloor)
+    }
+
+    /**
+     * Updates floors South West bound point
+     *
+     * @param exhibitionFloor exhibition floor to be updated
+     * @param swBoundPoint South Westbound point
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionFloor
+     */
+    fun updateFloorSWBound(exhibitionFloor: ExhibitionFloor, swBoundPoint: Point?, lastModifierId: UUID): ExhibitionFloor {
+        exhibitionFloor.lastModifierId = lastModifierId
+        exhibitionFloor.swBoundPoint = swBoundPoint
+        return persist(exhibitionFloor)
+    }
+
 }
