@@ -35,8 +35,8 @@ class ExhibitionFloorController() {
      * @return created exhibition floor
      */
     fun createExhibitionFloor(exhibition: Exhibition, name: String, floorPlanUrl: String?, floorPlanBounds: Bounds?, creatorId: UUID): ExhibitionFloor {
-      var neBoundPoint: Point? = getDefaultPoints()
-      var swBoundPoint: Point? = getDefaultPoints()
+      var neBoundPoint: Point? = null
+      var swBoundPoint: Point? = null
       if (floorPlanBounds !== null) {
         neBoundPoint = getGeometryPoint(floorPlanBounds.northEastCorner)
         swBoundPoint = getGeometryPoint(floorPlanBounds.southWestCorner)
@@ -101,16 +101,6 @@ class ExhibitionFloorController() {
      */
     fun deleteExhibitionFloor(exhibitionFloor: ExhibitionFloor) {
         return exhibitionFloorDAO.delete(exhibitionFloor)
-    }
-
-    /**
-    * Create default bound points
-    *
-    * @return Geometry Point
-    */
-    private fun getDefaultPoints(): Point? {
-      val geometryFactory = GeometryFactory()
-      return geometryFactory.createPoint(Coordinate(0.0, 0.0))
     }
 
     /**

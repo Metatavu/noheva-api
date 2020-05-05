@@ -34,23 +34,21 @@ class ExhibitionFloorTranslator: AbstractTranslator<fi.metatavu.muisti.persisten
      * @param swBoundPoint South West geometry point
      * @return bounds
      */
-    fun getBounds(neBoundPoint: Point?, swBoundPoint: Point?): Bounds? {
-        val bounds = Bounds()
+    private fun getBounds(neBoundPoint: Point?, swBoundPoint: Point?): Bounds? {
 
-        val neBoundCoordinates = Coordinates()
-        if (neBoundPoint !== null) {
-            neBoundCoordinates.latitude = neBoundPoint.x
-            neBoundCoordinates.longitude = neBoundPoint.y
-        }
+        neBoundPoint ?: return null
+        swBoundPoint ?: return null
 
-        val swBoundCoordinates = Coordinates()
-        if (swBoundPoint !== null) {
-            swBoundCoordinates.latitude = swBoundPoint.x
-            swBoundCoordinates.longitude = swBoundPoint.y
-        }
-        bounds.southWestCorner = swBoundCoordinates
-        bounds.northEastCorner = neBoundCoordinates
-        return bounds
+        val result = Bounds()
+        result.southWestCorner = Coordinates()
+        result.southWestCorner.latitude = swBoundPoint.x
+        result.southWestCorner.longitude = swBoundPoint.y
+
+        result.northEastCorner = Coordinates()
+        result.northEastCorner.latitude = neBoundPoint.x
+        result.northEastCorner.longitude = neBoundPoint.y
+
+        return result
     }
 
 }
