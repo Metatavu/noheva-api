@@ -1,5 +1,7 @@
 package fi.metatavu.muisti.api.test.functional
 
+import fi.metatavu.muisti.api.client.models.Bounds
+import fi.metatavu.muisti.api.client.models.Coordinates
 import fi.metatavu.muisti.api.client.models.ExhibitionFloor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -11,6 +13,7 @@ import java.util.*
  *
  * @author Antti Leppä
  */
+
 class ExhibitionFloorTestsIT: AbstractFunctionalTest() {
 
     @Test
@@ -73,16 +76,26 @@ class ExhibitionFloorTestsIT: AbstractFunctionalTest() {
             val foundCreatedExhibitionFloor = it.admin().exhibitionFloors().findExhibitionFloor(exhibitionId, createdExhibitionFloorId)
             assertEquals(createdExhibitionFloor.id, foundCreatedExhibitionFloor?.id)
             assertEquals("created name", createdExhibitionFloor.name)
+            val bounds = Bounds(
+                northEastCorner = Coordinates(latitude = 18.22, longitude = 28.5),
+                southWestCorner = Coordinates(latitude = 13.22, longitude = 22.5)
+            )
             val exhibitionFloorToUpdate = ExhibitionFloor(
                     name = "updated name",
                     id = createdExhibitionFloorId,
-                    floorPlanUrl = "http://example.com/floorPlan.png"
+                    floorPlanUrl = "http://example.com/floorPlan.png",
+                    floorPlanBounds = bounds
             )
+
             val updatedExhibitionFloor = it.admin().exhibitionFloors().updateExhibitionFloor(exhibitionId, exhibitionFloorToUpdate)
             val foundUpdatedExhibitionFloor = it.admin().exhibitionFloors().findExhibitionFloor(exhibitionId, createdExhibitionFloorId)
             assertEquals(updatedExhibitionFloor!!.id, foundUpdatedExhibitionFloor?.id)
             assertEquals("updated name", foundUpdatedExhibitionFloor?.name)
             assertEquals("http://example.com/floorPlan.png", foundUpdatedExhibitionFloor?.floorPlanUrl)
+            assertEquals(18.22, foundUpdatedExhibitionFloor?.floorPlanBounds?.northEastCorner?.latitude)
+            assertEquals(28.5, foundUpdatedExhibitionFloor?.floorPlanBounds?.northEastCorner?.longitude)
+            assertEquals(13.22, foundUpdatedExhibitionFloor?.floorPlanBounds?.southWestCorner?.latitude)
+            assertEquals(22.5, foundUpdatedExhibitionFloor?.floorPlanBounds?.southWestCorner?.longitude)
 
             it.admin().exhibitionFloors().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionFloor("name", createdExhibitionFloorId))
         }

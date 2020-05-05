@@ -9,6 +9,8 @@ buildscript {
   ext.paho_version = "1.2.2"
   ext.awaitility_version = "4.0.2"
   ext.jaxrs_functional_test_builder_version = "1.0.4"
+  ext.hibernate_spatial_version = "5.3.13.Final"
+  ext.jts_core_version = "1.14.0"
 
   repositories {
     jcenter()
@@ -79,6 +81,12 @@ dependencies {
   implementation "com.amazonaws:aws-java-sdk-s3"
   implementation "org.liquibase:liquibase-cdi:$liquibase_version"
   implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$paho_version"
+
+  /**
+   * Spatial dependencies
+   */
+  implementation "com.vividsolutions:jts-core:$jts_core_version"
+  implementation "org.hibernate:hibernate-spatial:$hibernate_spatial_version"
 
   testImplementation project(':api-client')
   testImplementation project(':api-test-builder')

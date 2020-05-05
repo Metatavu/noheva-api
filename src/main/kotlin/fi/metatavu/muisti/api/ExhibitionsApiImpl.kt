@@ -693,7 +693,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         val name = payload.name
         val floorPlanUrl = payload.floorPlanUrl
-        val exhibitionFloor = exhibitionFloorController.createExhibitionFloor(exhibition, name, floorPlanUrl, userId)
+        val floorPlanBounds = payload.floorPlanBounds
+        val exhibitionFloor = exhibitionFloorController.createExhibitionFloor(exhibition, name, floorPlanUrl, floorPlanBounds, userId)
 
         return createOk(exhibitionFloorTranslator.translate(exhibitionFloor))
     }
@@ -736,7 +737,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val exhibitionFloor = exhibitionFloorController.findExhibitionFloorById(floorId) ?: return createNotFound("Floor $floorId not found")
         val name = payload.name
         val floorPlanUrl = payload.floorPlanUrl
-        val result = exhibitionFloorController.updateExhibitionFloor(exhibitionFloor, name, floorPlanUrl, userId)
+        val floorPlanBounds = payload.floorPlanBounds
+        val result = exhibitionFloorController.updateExhibitionFloor(exhibitionFloor, name, floorPlanUrl, floorPlanBounds, userId)
 
         return createOk(exhibitionFloorTranslator.translate(result))
     }

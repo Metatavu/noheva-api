@@ -1,5 +1,12 @@
 package fi.metatavu.muisti.exhibitions
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.vividsolutions.jts.geom.Coordinate
+import com.vividsolutions.jts.geom.CoordinateSequence
+import com.vividsolutions.jts.geom.GeometryFactory
+import com.vividsolutions.jts.geom.Point
+import fi.metatavu.muisti.api.spec.model.Bounds
+import fi.metatavu.muisti.api.spec.model.Coordinates
 import fi.metatavu.muisti.persistence.dao.ExhibitionFloorDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor
@@ -8,6 +15,7 @@ import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 
 /**
+ * @author Jari Nykänen
  * Controller for exhibition floors
  */
 @ApplicationScoped
@@ -22,11 +30,19 @@ class ExhibitionFloorController() {
      * @param exhibition exhibition
      * @param name floor name
      * @param floorPlanUrl floor plan url
+     * @param floorPlanBounds floor plan bounds
      * @param creatorId creating user id
      * @return created exhibition floor
      */
-    fun createExhibitionFloor(exhibition: Exhibition, name: String, floorPlanUrl: String?, creatorId: UUID): ExhibitionFloor {
-        return exhibitionFloorDAO.create(UUID.randomUUID(), exhibition, name, floorPlanUrl, creatorId, creatorId)
+    fun createExhibitionFloor(exhibition: Exhibition, name: String, floorPlanUrl: String?, floorPlanBounds: Bounds?, creatorId: UUID): ExhibitionFloor {
+      var neBoundPoint: Point? = null
+      var swBoundPoint: Point? = null
+      if (floorPlanBounds !== null) {
+        neBoundPoint = getGeometryPoint(floorPlanBounds.northEastCorner)
+        swBoundPoint = getGeometryPoint(floorPlanBounds.southWestCorner)
+      }
+
+      return exhibitionFloorDAO.create(UUID.randomUUID(), exhibition, name, floorPlanUrl, neBoundPoint, swBoundPoint, creatorId, creatorId)
     }
 
     /**
@@ -55,12 +71,26 @@ class ExhibitionFloorController() {
      * @param exhibitionFloor exhibition floor to be updated
      * @param name floor name
      * @param floorPlanUrl floor plan url
+     * @param floorPlanBounds floor plan bounds
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionFloor(exhibitionFloor: ExhibitionFloor, name: String, floorPlanUrl: String?, modifierId: UUID): ExhibitionFloor {
+    fun updateExhibitionFloor(exhibitionFloor: ExhibitionFloor, name: String, floorPlanUrl: String?, floorPlanBounds: Bounds?, modifierId: UUID): ExhibitionFloor {
       var result = exhibitionFloorDAO.updateName(exhibitionFloor, name, modifierId)
       result = exhibitionFloorDAO.updateFloorPlanUrl(result, floorPlanUrl, modifierId)
+
+      floorPlanBounds ?: return result
+
+      if (floorPlanBounds.northEastCorner !== null) {
+        val neBoundPoint = getGeometryPoint(floorPlanBounds.northEastCorner)
+        result = exhibitionFloorDAO.updateFloorNEBound(result, neBoundPoint, modifierId)
+      }
+
+      if (floorPlanBounds.southWestCorner !== null) {
+        val swBoundPoint = getGeometryPoint(floorPlanBounds.southWestCorner)
+        result = exhibitionFloorDAO.updateFloorSWBound(result, swBoundPoint, modifierId)
+      }
+
       return result
     }
 
@@ -71,6 +101,17 @@ class ExhibitionFloorController() {
      */
     fun deleteExhibitionFloor(exhibitionFloor: ExhibitionFloor) {
         return exhibitionFloorDAO.delete(exhibitionFloor)
+    }
+
+    /**
+     * Converts spec Coordinate to Geometry Point
+     *
+     * @param coordinates coordinates
+     * @return null or Geometry Point
+     */
+    fun getGeometryPoint(coordinates: Coordinates): Point? {
+      val geometryFactory = GeometryFactory()
+      return geometryFactory.createPoint(Coordinate(coordinates.latitude, coordinates.longitude))
     }
 
 }

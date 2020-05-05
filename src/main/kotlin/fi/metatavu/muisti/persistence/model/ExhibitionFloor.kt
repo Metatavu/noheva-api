@@ -1,5 +1,7 @@
 package fi.metatavu.muisti.persistence.model
 
+import com.vividsolutions.jts.geom.Point
+import org.hibernate.annotations.Type
 import org.hibernate.validator.constraints.URL
 import java.time.OffsetDateTime
 import java.util.*
@@ -26,6 +28,12 @@ class ExhibitionFloor {
 
     @URL
     var floorPlanUrl: String? = null
+
+    @Column
+    var neBoundPoint: Point? = null
+
+    @Column
+    var swBoundPoint: Point? = null
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null
