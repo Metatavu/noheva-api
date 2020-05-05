@@ -42,6 +42,12 @@ class ExhibitionPage {
     @Lob
     var eventTriggers: String? = null
 
+    @Lob
+    var enterTransitions: String? = null
+
+    @Lob
+    var exitTransitions: String? = null
+
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null
 

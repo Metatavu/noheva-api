@@ -503,4 +503,14 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="pagetransitions" author="antti.leppa">
+        <addColumn tableName="exhibitionpage">
+            <column name="enterTransitions" type="longtext"/>
+        </addColumn>
+
+        <addColumn tableName="exhibitionpage">
+            <column name="exitTransitions" type="longtext"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

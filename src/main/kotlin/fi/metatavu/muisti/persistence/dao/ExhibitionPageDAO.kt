@@ -26,11 +26,13 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      * @param name name
      * @param resources resources
      * @param eventTriggers event triggers
+     * @param enterTransitions page enter transitions
+     * @param exitTransitions page exit transitions
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created exhibitionPage
      */
-    fun create(id: UUID, exhibition: Exhibition, contentVersion: ExhibitionContentVersion, device : ExhibitionDevice, layout: PageLayout, name: String, resources: String, eventTriggers: String, creatorId: UUID, lastModifierId: UUID): ExhibitionPage {
+    fun create(id: UUID, exhibition: Exhibition, contentVersion: ExhibitionContentVersion, device : ExhibitionDevice, layout: PageLayout, name: String, resources: String, eventTriggers: String, enterTransitions: String?, exitTransitions: String?, creatorId: UUID, lastModifierId: UUID): ExhibitionPage {
         val exhibitionPage = ExhibitionPage()
         exhibitionPage.id = id
         exhibitionPage.device = device
@@ -39,6 +41,8 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
         exhibitionPage.name = name
         exhibitionPage.eventTriggers = eventTriggers
         exhibitionPage.resources = resources
+        exhibitionPage.enterTransitions = enterTransitions
+        exhibitionPage.exitTransitions = exitTransitions
         exhibitionPage.exhibition = exhibition
         exhibitionPage.creatorId = creatorId
         exhibitionPage.lastModifierId = lastModifierId
@@ -174,6 +178,34 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
     fun updateEventTriggers(exhibitionPage: ExhibitionPage, eventTriggers: String, lastModifierId: UUID): ExhibitionPage {
         exhibitionPage.lastModifierId = lastModifierId
         exhibitionPage.eventTriggers = eventTriggers
+        return persist(exhibitionPage)
+    }
+
+    /**
+     * Update page enter transitions
+     *
+     * @param exhibitionPage exhibition page
+     * @param enterTransitions page enter transitions
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionPage
+     */
+    fun updateEnterTransitions(exhibitionPage: ExhibitionPage, enterTransitions: String?, lastModifierId: UUID): ExhibitionPage {
+        exhibitionPage.lastModifierId = lastModifierId
+        exhibitionPage.enterTransitions = enterTransitions
+        return persist(exhibitionPage)
+    }
+
+    /**
+     * Update page exit transitions
+     *
+     * @param exhibitionPage exhibition page
+     * @param exitTransitions page exit transitions
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionPage
+     */
+    fun updateExitTransitions(exhibitionPage: ExhibitionPage, exitTransitions: String?, lastModifierId: UUID): ExhibitionPage {
+        exhibitionPage.lastModifierId = lastModifierId
+        exhibitionPage.exitTransitions = exitTransitions
         return persist(exhibitionPage)
     }
 
