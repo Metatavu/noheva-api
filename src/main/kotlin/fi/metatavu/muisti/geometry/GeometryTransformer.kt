@@ -30,7 +30,6 @@ fun getPolygon(polygon: Polygon?): com.vividsolutions.jts.geom.Polygon? {
 
 /**
  * Convert Geometry Polygon from entity to spec Polygon.
- * Note: Since each room can only have one shape we can hardcode the first index to 0.
  *
  * @param polygon spatial polygon object
  * @return null or GeoJSON with polygon data
