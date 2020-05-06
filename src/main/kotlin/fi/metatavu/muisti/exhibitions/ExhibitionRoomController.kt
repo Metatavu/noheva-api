@@ -1,7 +1,10 @@
 package fi.metatavu.muisti.exhibitions
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.vividsolutions.jts.geom.*
+import fi.metatavu.muisti.api.spec.model.Coordinates
 import fi.metatavu.muisti.api.spec.model.Polygon
+import fi.metatavu.muisti.geometry.getPolygon
 import fi.metatavu.muisti.persistence.dao.ExhibitionRoomDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor
@@ -30,7 +33,7 @@ class ExhibitionRoomController() {
      * @return created exhibition room
      */
     fun createExhibitionRoom(exhibition: Exhibition, floor: ExhibitionFloor, name: String, geoShape: Polygon?, creatorId: UUID): ExhibitionRoom {
-        return exhibitionRoomDAO.create(id = UUID.randomUUID(), exhibition = exhibition, floor = floor, name = name, geoShape = serializeGeoShape(geoShape), creatorId = creatorId, lastModifierId = creatorId)
+        return exhibitionRoomDAO.create(id = UUID.randomUUID(), exhibition = exhibition, floor = floor, name = name, geoShape = getPolygon(geoShape), creatorId = creatorId, lastModifierId = creatorId)
     }
 
     /**
@@ -67,7 +70,7 @@ class ExhibitionRoomController() {
     fun updateExhibitionRoom(exhibitionRoom: ExhibitionRoom, floor: ExhibitionFloor, name: String, geoShape: Polygon?, modifierId: UUID): ExhibitionRoom {
       var result = exhibitionRoomDAO.updateName(exhibitionRoom, name, modifierId)
       result = exhibitionRoomDAO.updateFloor(result, floor, modifierId)
-      result = exhibitionRoomDAO.updateGeoShape(result, serializeGeoShape(geoShape), modifierId)
+      result = exhibitionRoomDAO.updateGeoShape(result, getPolygon(geoShape), modifierId)
       return result
     }
 
@@ -79,17 +82,4 @@ class ExhibitionRoomController() {
     fun deleteExhibitionRoom(exhibitionRoom: ExhibitionRoom) {
         return exhibitionRoomDAO.delete(exhibitionRoom)
     }
-
-  /**
-   * Serialize GeoJSON data
-   *
-   * @param geoShape polygon data
-   * @return null or parsed geoShape as string
-   */
-  fun serializeGeoShape(geoShape: Polygon?): String? {
-    geoShape ?: return null
-    val objectMapper = ObjectMapper()
-    return objectMapper.writeValueAsString(geoShape)
-  }
-
 }

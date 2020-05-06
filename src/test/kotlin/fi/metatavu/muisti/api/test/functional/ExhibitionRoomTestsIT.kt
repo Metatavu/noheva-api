@@ -1,7 +1,6 @@
 package fi.metatavu.muisti.api.test.functional
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import fi.metatavu.muisti.api.client.models.CoordinatePoint
 import fi.metatavu.muisti.api.client.models.ExhibitionRoom
 import fi.metatavu.muisti.api.client.models.Polygon
 import org.junit.Assert.*
@@ -106,13 +105,13 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             assertEquals(createdExhibitionRoom.id, foundCreatedExhibitionRoom?.id)
             assertEquals("created name", createdExhibitionRoom.name)
 
-            val point1 = CoordinatePoint(coordinatePair = arrayOf<Int>(30,10))
-            val point2 = CoordinatePoint(coordinatePair = arrayOf<Int>(40,40))
-            val point3 = CoordinatePoint(coordinatePair = arrayOf<Int>(20,40))
-            val point4 = CoordinatePoint(coordinatePair = arrayOf<Int>(10,20))
-            val point5 = CoordinatePoint(coordinatePair = arrayOf<Int>(30,10))
-            val coordinatePointsArray = arrayOf<CoordinatePoint>(point1, point2, point3, point4, point5)
-            val polygonCoordinateList: Array<Array<CoordinatePoint>> = arrayOf<Array<CoordinatePoint>>(coordinatePointsArray)
+            val point1 = arrayOf<Double>(30.0,10.0)
+            val point2 = arrayOf<Double>(40.0,40.0)
+            val point3 = arrayOf<Double>(20.0,40.0)
+            val point4 = arrayOf<Double>(10.0,20.0)
+            val point5 = arrayOf<Double>(30.0,10.0)
+            val coordinatePointsArray = arrayOf<Array<Double>>(point1, point2, point3, point4, point5)
+            val polygonCoordinateList = arrayOf<Array<Array<Double>>>(coordinatePointsArray)
             val testPolygon = Polygon(shapes = polygonCoordinateList)
 
             val updatedExhibitionRoom = it.admin().exhibitionRooms().updateExhibitionRoom(exhibitionId, ExhibitionRoom(
@@ -133,11 +132,11 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             val thirdPoint = firstShape?.get(2)
             val fourthPoint = firstShape?.get(3)
             val fifthPoint = firstShape?.get(4)
-            assertArrayEquals(point1.coordinatePair, firstPoint?.coordinatePair)
-            assertArrayEquals(point2.coordinatePair, secondPoint?.coordinatePair)
-            assertArrayEquals(point3.coordinatePair, thirdPoint?.coordinatePair)
-            assertArrayEquals(point4.coordinatePair, fourthPoint?.coordinatePair)
-            assertArrayEquals(point5.coordinatePair, fifthPoint?.coordinatePair)
+            assertArrayEquals(point1, firstPoint)
+            assertArrayEquals(point2, secondPoint)
+            assertArrayEquals(point3, thirdPoint)
+            assertArrayEquals(point4, fourthPoint)
+            assertArrayEquals(point5, fifthPoint)
 
             it.admin().exhibitionRooms().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionRoom(
                 name = "name",

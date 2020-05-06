@@ -7,6 +7,7 @@ import com.vividsolutions.jts.geom.GeometryFactory
 import com.vividsolutions.jts.geom.Point
 import fi.metatavu.muisti.api.spec.model.Bounds
 import fi.metatavu.muisti.api.spec.model.Coordinates
+import fi.metatavu.muisti.geometry.getGeometryPoint
 import fi.metatavu.muisti.persistence.dao.ExhibitionFloorDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor
@@ -101,17 +102,6 @@ class ExhibitionFloorController() {
      */
     fun deleteExhibitionFloor(exhibitionFloor: ExhibitionFloor) {
         return exhibitionFloorDAO.delete(exhibitionFloor)
-    }
-
-    /**
-     * Converts spec Coordinate to Geometry Point
-     *
-     * @param coordinates coordinates
-     * @return null or Geometry Point
-     */
-    fun getGeometryPoint(coordinates: Coordinates): Point? {
-      val geometryFactory = GeometryFactory()
-      return geometryFactory.createPoint(Coordinate(coordinates.latitude, coordinates.longitude))
     }
 
 }
