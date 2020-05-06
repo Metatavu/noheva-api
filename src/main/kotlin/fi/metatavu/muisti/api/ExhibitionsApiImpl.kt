@@ -534,6 +534,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val name = payload.name
         val resources = payload.resources
         val eventTriggers = payload.eventTriggers
+        val enterTransitions = payload.enterTransitions
+        val exitTransitions = payload.exitTransitions
 
         val exhibitionPage = exhibitionPageController.createExhibitionPage(
             exhibition = exhibition,
@@ -543,6 +545,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             name = name,
             resources = resources,
             eventTriggers = eventTriggers,
+            enterTransitions = enterTransitions,
+            exitTransitions = exitTransitions,
             creatorId = userId
         )
 
@@ -596,6 +600,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val resources = payload.resources
         val eventTriggers = payload.eventTriggers
         val contentVersion = exhibitionContentVersionController.findExhibitionContentVersionById(payload.contentVersionId) ?: return createBadRequest("Content version ${payload.contentVersionId} not found")
+        val enterTransitions = payload.enterTransitions
+        val exitTransitions = payload.exitTransitions
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionPage = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
@@ -606,6 +612,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             name = name,
             resources = resources,
             eventTriggers = eventTriggers,
+            enterTransitions = enterTransitions,
+            exitTransitions = exitTransitions,
             modifierId = userId
         )
 

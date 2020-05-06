@@ -208,13 +208,38 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 next = arrayOf()
             )
 
+            val createEnterTransitions: Array<Transition> = arrayOf(
+                Transition(
+                    duration = 300,
+                    animation = Animation.fade,
+                    options = arrayOf(),
+                    timeInterpolation = AnimationTimeInterpolation.accelerate
+                )
+            )
+
+            val createExitTransitions: Array<Transition> = arrayOf(
+                Transition(
+                    duration = 300,
+                    animation = Animation.morph,
+                    options = arrayOf(
+                        AnimationOption(
+                            name = "elements",
+                            values = arrayOf("elem:ent")
+                        )
+                    ),
+                    timeInterpolation = AnimationTimeInterpolation.bounce
+                )
+            )
+
             val createPage = ExhibitionPage(
                 layoutId = createLayoutId,
                 deviceId = deviceId,
                 name = "create page",
                 resources = arrayOf(createResource),
                 eventTriggers = arrayOf(createEventTrigger),
-                contentVersionId = contentVersionId
+                contentVersionId = contentVersionId,
+                enterTransitions = createEnterTransitions,
+                exitTransitions = createExitTransitions
             )
 
             val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, createPage)
@@ -226,6 +251,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             assertJsonsEqual(createdExhibitionPage, foundCreatedExhibitionPage)
             assertJsonsEqual(createPage.eventTriggers, createdExhibitionPage.eventTriggers)
             assertJsonsEqual(createPage.resources, createdExhibitionPage.resources)
+            assertJsonsEqual(createPage.enterTransitions, createdExhibitionPage.enterTransitions)
+            assertJsonsEqual(createPage.exitTransitions, createdExhibitionPage.exitTransitions)
 
             val updateResource = ExhibitionPageResource(
                 id = "updateresid",
@@ -254,6 +281,29 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 next = arrayOf()
             )
 
+            val updateEnterTransitions: Array<Transition> = arrayOf(
+                    Transition(
+                            duration = 900,
+                            animation = Animation.fade,
+                            options = arrayOf(),
+                            timeInterpolation = AnimationTimeInterpolation.anticipate
+                    )
+            )
+
+            val updateExitTransitions: Array<Transition> = arrayOf(
+                    Transition(
+                            duration = 200,
+                            animation = Animation.morph,
+                            options = arrayOf(
+                                    AnimationOption(
+                                            name = "elements",
+                                            values = arrayOf("ent:elem")
+                                    )
+                            ),
+                            timeInterpolation = AnimationTimeInterpolation.anticipateovershoot
+                    )
+            )
+
             val updatePage = ExhibitionPage(
                 id = createdExhibitionPageId,
                 layoutId = updateLayoutId,
@@ -261,7 +311,9 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 name = "update page",
                 resources = arrayOf(updateResource),
                 eventTriggers = arrayOf(updateEventTrigger),
-                contentVersionId = contentVersionId
+                contentVersionId = contentVersionId,
+                enterTransitions = updateEnterTransitions,
+                exitTransitions = updateExitTransitions
             )
 
             val updatedExhibitionPage = it.admin().exhibitionPages().updateExhibitionPage(exhibitionId, updatePage)
@@ -274,6 +326,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             assertJsonsEqual(updatedExhibitionPage, updatedExhibitionPage)
             assertJsonsEqual(updatePage.eventTriggers, updatedExhibitionPage.eventTriggers)
             assertJsonsEqual(updatePage.resources, updatedExhibitionPage.resources)
+            assertJsonsEqual(updatePage.enterTransitions, updatedExhibitionPage.enterTransitions)
+            assertJsonsEqual(updatePage.exitTransitions, updatedExhibitionPage.exitTransitions)
 
             it.admin().exhibitionPages().assertUpdateFail(404, nonExistingExhibitionId, updatePage)
             it.admin().exhibitionPages().assertUpdateFail(400, exhibitionId, updatePage.copy( layoutId = UUID.randomUUID()))
