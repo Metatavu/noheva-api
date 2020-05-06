@@ -513,4 +513,13 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="roompolygonformat" author="jari.nykanen">
+        <dropColumn tableName="exhibitionroom">
+            <column name="geoShape"/>
+        </dropColumn>
+        <addColumn tableName="exhibitionroom">
+            <column name="geoShape" type="Geometry"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

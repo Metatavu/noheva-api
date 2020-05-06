@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.dao
 
+import com.vividsolutions.jts.geom.Polygon
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor
 import fi.metatavu.muisti.persistence.model.ExhibitionRoom
@@ -31,7 +32,7 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
      * @param lastModifierId last modifier's id
      * @return created exhibitionRoom
      */
-    fun create(id: UUID, exhibition: Exhibition, floor: ExhibitionFloor, name: String, geoShape: String?, creatorId: UUID, lastModifierId: UUID): ExhibitionRoom {
+    fun create(id: UUID, exhibition: Exhibition, floor: ExhibitionFloor, name: String, geoShape: Polygon?, creatorId: UUID, lastModifierId: UUID): ExhibitionRoom {
         val exhibitionRoom = ExhibitionRoom()
         exhibitionRoom.id = id
         exhibitionRoom.name = name
@@ -101,11 +102,11 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
      * Updates geoShape
      *
      * @param exhibitionRoom exhibition room to be updated
-     * @param geoShape polygon data as string
+     * @param geoShape polygon data
      * @param lastModifierId last modifier's id
      * @return updated exhibitionRoom
      */
-    fun updateGeoShape(exhibitionRoom: ExhibitionRoom, geoShape: String?, lastModifierId: UUID): ExhibitionRoom {
+    fun updateGeoShape(exhibitionRoom: ExhibitionRoom, geoShape: Polygon?, lastModifierId: UUID): ExhibitionRoom {
         exhibitionRoom.lastModifierId = lastModifierId
         exhibitionRoom.geoShape = geoShape
         return persist(exhibitionRoom)

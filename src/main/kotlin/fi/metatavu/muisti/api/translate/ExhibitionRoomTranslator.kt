@@ -1,9 +1,10 @@
 package fi.metatavu.muisti.api.translate
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import fi.metatavu.muisti.api.spec.model.Polygon
 import javax.enterprise.context.ApplicationScoped
+import com.vividsolutions.jts.geom.Coordinate
+import fi.metatavu.muisti.geometry.getGeoShape
 
 /**
  * Translator for translating JPA exhibition room entities into REST resources
@@ -24,18 +25,5 @@ class ExhibitionRoomTranslator: AbstractTranslator<fi.metatavu.muisti.persistenc
         result.modifiedAt = entity.modifiedAt
         return result
     }
-
-    /**
-     * Read geoShape value from entity
-     *
-     * @param geoShape geoShape string
-     * @return null or GeoJSON with polygon data
-     */
-    private fun getGeoShape(geoShape: String?): Polygon? {
-        geoShape ?: return null
-        val objectMapper = ObjectMapper()
-        return objectMapper.readValue(geoShape)
-    }
-
 }
 
