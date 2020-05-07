@@ -19,7 +19,7 @@ fun getPolygon(polygon: Polygon?): com.vividsolutions.jts.geom.Polygon? {
 
   val geometryFactory = GeometryFactory()
   val coordinates = mutableListOf<Coordinate>()
-  polygon.shapes.forEach { shape ->
+  polygon.coordinates.forEach { shape ->
     shape.forEach {coordinate ->
       coordinates.add(Coordinate(coordinate[0], coordinate[1]))
     }
@@ -38,12 +38,12 @@ fun getGeoShape(polygon: com.vividsolutions.jts.geom.Polygon?): Polygon? {
   polygon ?: return null
 
   val result = Polygon()
-  result.shapes = mutableListOf(mutableListOf())
-
+  result.type = polygon.geometryType
+  result.coordinates = mutableListOf(mutableListOf())
   polygon.coordinates.forEachIndexed { index, coordinate ->
-    result.shapes[0].add(mutableListOf<Double>())
-    result.shapes[0][index].add(coordinate.x)
-    result.shapes[0][index].add(coordinate.y)
+    result.coordinates[0].add(mutableListOf<Double>())
+    result.coordinates[0][index].add(coordinate.x)
+    result.coordinates[0][index].add(coordinate.y)
   }
   return result
 }
