@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageEventTrigger
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageResource
+import fi.metatavu.muisti.api.spec.model.ExhibitionPageTransition
 import fi.metatavu.muisti.api.spec.model.Transition
 import javax.enterprise.context.ApplicationScoped
 
@@ -63,7 +64,7 @@ class ExhibitionPageTranslator: AbstractTranslator<fi.metatavu.muisti.persistenc
      * @param transitions transitions string
      * @return JSON list of transitions
      */
-    private fun getTransitions(transitions: String?): List<Transition> {
+    private fun getTransitions(transitions: String?): List<ExhibitionPageTransition> {
         transitions ?: return listOf()
         val objectMapper = ObjectMapper()
         return objectMapper.readValue(transitions)

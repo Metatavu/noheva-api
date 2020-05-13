@@ -208,27 +208,38 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 next = arrayOf()
             )
 
-            val createEnterTransitions: Array<Transition> = arrayOf(
-                Transition(
+            val fadeTransition = Transition(
                     duration = 300,
                     animation = Animation.fade,
-                    options = arrayOf(),
                     timeInterpolation = AnimationTimeInterpolation.accelerate
+            )
+
+            val createEnterTransitions : Array<ExhibitionPageTransition> = arrayOf(
+                    ExhibitionPageTransition(
+                            transition = fadeTransition
+                    )
+            )
+
+            val morphTransition = Transition (
+                    duration = 300,
+                    animation = Animation.morph,
+                    timeInterpolation = AnimationTimeInterpolation.bounce
+            )
+
+            val morphOptions = ExhibitionPageTransitionOptions(
+                ExhibitionPageTransitionOptionsMorph(
+                    views = arrayOf(ExhibitionPageTransitionOptionsMorphView(
+                        sourceId = defaultPageLayout.id.toString(),
+                        targetId = navigatePageId.toString()
+                    ))
                 )
             )
 
-            val createExitTransitions: Array<Transition> = arrayOf(
-                Transition(
-                    duration = 300,
-                    animation = Animation.morph,
-                    options = arrayOf(
-                        AnimationOption(
-                            name = "elements",
-                            values = arrayOf("elem:ent")
-                        )
-                    ),
-                    timeInterpolation = AnimationTimeInterpolation.bounce
-                )
+            val createExitTransitions: Array<ExhibitionPageTransition> = arrayOf(
+                    ExhibitionPageTransition(
+                            transition = morphTransition,
+                            options = morphOptions
+                    )
             )
 
             val createPage = ExhibitionPage(
@@ -281,26 +292,28 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 next = arrayOf()
             )
 
-            val updateEnterTransitions: Array<Transition> = arrayOf(
-                    Transition(
-                            duration = 900,
-                            animation = Animation.fade,
-                            options = arrayOf(),
-                            timeInterpolation = AnimationTimeInterpolation.anticipate
+            val updatedFadeTransition = Transition(
+                    duration = 600,
+                    animation = Animation.fade,
+                    timeInterpolation = AnimationTimeInterpolation.acceleratedecelerate
+            )
+
+            val updateEnterTransitions: Array<ExhibitionPageTransition> = arrayOf(
+                    ExhibitionPageTransition(
+                            transition = updatedFadeTransition
                     )
             )
 
-            val updateExitTransitions: Array<Transition> = arrayOf(
-                    Transition(
-                            duration = 200,
-                            animation = Animation.morph,
-                            options = arrayOf(
-                                    AnimationOption(
-                                            name = "elements",
-                                            values = arrayOf("ent:elem")
-                                    )
-                            ),
-                            timeInterpolation = AnimationTimeInterpolation.anticipateovershoot
+            val updatedMorphTransition = Transition (
+                    duration = 600,
+                    animation = Animation.morph,
+                    timeInterpolation = AnimationTimeInterpolation.acceleratedecelerate
+            )
+
+            val updateExitTransitions: Array<ExhibitionPageTransition> = arrayOf(
+                    ExhibitionPageTransition(
+                            transition = updatedMorphTransition,
+                            options = morphOptions
                     )
             )
 

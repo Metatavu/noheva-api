@@ -3,6 +3,7 @@ package fi.metatavu.muisti.contents
 import com.fasterxml.jackson.databind.ObjectMapper
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageEventTrigger
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageResource
+import fi.metatavu.muisti.api.spec.model.ExhibitionPageTransition
 import fi.metatavu.muisti.api.spec.model.Transition
 import fi.metatavu.muisti.persistence.dao.ExhibitionPageDAO
 import fi.metatavu.muisti.persistence.model.*
@@ -33,7 +34,7 @@ class ExhibitionPageController() {
      * @param creatorId creating user id
      * @return created exhibition page 
      */
-    fun createExhibitionPage(exhibition: Exhibition, device: ExhibitionDevice, layout: PageLayout, contentVersion: ExhibitionContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, enterTransitions: List<Transition>, exitTransitions: List<Transition>, creatorId: UUID): ExhibitionPage {
+    fun createExhibitionPage(exhibition: Exhibition, device: ExhibitionDevice, layout: PageLayout, contentVersion: ExhibitionContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, enterTransitions: List<ExhibitionPageTransition>, exitTransitions: List<ExhibitionPageTransition>, creatorId: UUID): ExhibitionPage {
         return exhibitionPageDAO.create(UUID.randomUUID(),
             exhibition = exhibition,
             device = device,
@@ -96,7 +97,7 @@ class ExhibitionPageController() {
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionPage(exhibitionPage: ExhibitionPage, device: ExhibitionDevice, layout: PageLayout, contentVersion: ExhibitionContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers: List<ExhibitionPageEventTrigger>, enterTransitions: List<Transition>, exitTransitions: List<Transition>, modifierId: UUID): ExhibitionPage {
+    fun updateExhibitionPage(exhibitionPage: ExhibitionPage, device: ExhibitionDevice, layout: PageLayout, contentVersion: ExhibitionContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers: List<ExhibitionPageEventTrigger>, enterTransitions: List<ExhibitionPageTransition>, exitTransitions: List<ExhibitionPageTransition>, modifierId: UUID): ExhibitionPage {
         var result = exhibitionPageDAO.updateName(exhibitionPage, name, modifierId)
         result = exhibitionPageDAO.updateLayout(result, layout, modifierId)
         result = exhibitionPageDAO.updateDevice(result, device, modifierId)
