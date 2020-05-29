@@ -11,7 +11,7 @@ import java.util.*
  *
  * @author Antti Leppä
  */
-class ExhibitionContentVersionTestsIT: AbstractFunctionalTest() {
+class ContentVersionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testCreateExhibitionContentVersion() {
