@@ -1,12 +1,13 @@
 package fi.metatavu.muisti.sessions
 
 import fi.metatavu.muisti.api.spec.model.VisitorSessionState
-import fi.metatavu.muisti.api.spec.model.VisitorSessionUser
 import fi.metatavu.muisti.api.spec.model.VisitorSessionVariable
+import fi.metatavu.muisti.persistence.dao.VisitorDAO
 import fi.metatavu.muisti.persistence.dao.VisitorSessionDAO
-import fi.metatavu.muisti.persistence.dao.VisitorSessionUserDAO
 import fi.metatavu.muisti.persistence.dao.VisitorSessionVariableDAO
+import fi.metatavu.muisti.persistence.dao.VisitorSessionVisitorDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
+import fi.metatavu.muisti.persistence.model.Visitor
 import fi.metatavu.muisti.persistence.model.VisitorSession
 import org.apache.commons.lang3.StringUtils
 import java.util.*
@@ -20,13 +21,16 @@ import javax.inject.Inject
 class VisitorSessionController {
 
     @Inject
+    private lateinit var visitorDAO: VisitorDAO
+
+    @Inject
     private lateinit var visitorSessionDAO: VisitorSessionDAO
 
     @Inject
     private lateinit var visitorSessionVariableDAO: VisitorSessionVariableDAO
 
     @Inject
-    private lateinit var visitorSessionUserDAO: VisitorSessionUserDAO
+    private lateinit var visitorSessionVisitorDAO: VisitorSessionVisitorDAO
 
     /**
      * Creates new visitor session
@@ -46,12 +50,25 @@ class VisitorSessionController {
     }
 
     /**
-     * Lists visitor sessions by exhibition
+     * Lists visitor sessions
      *
-     * @return list of visitor sessions in exhibition
+     * @param exhibition filter by exhibition
+     * @param tagId filter by tagId
+     * @return list of visitor sessions
      */
-    fun listVisitorSessions(exhibition: Exhibition): List<VisitorSession> {
-        return visitorSessionDAO.listByExhibition(exhibition)
+    fun listVisitorSessions(exhibition: Exhibition, tagId: String?): List<VisitorSession> {
+        var visitor: Visitor? = null
+
+        if (tagId != null) {
+            visitor = visitorDAO.findByExhibitionAndTagId(exhibition = exhibition, tagId = tagId)
+            visitor ?: return listOf()
+        }
+
+        if (visitor != null) {
+            return visitorSessionVisitorDAO.listSessionsByVisitor(visitor = visitor)
+        }
+
+        return visitorSessionDAO.list(exhibition = exhibition)
     }
 
     /**
@@ -67,29 +84,29 @@ class VisitorSessionController {
     }
 
     /**
-     * Sets visitor session users
+     * Sets visitor session visitors
      *
      * @param visitorSession visitor session
-     * @param users users
+     * @param visitors visitors
      * @return whether user list has changed or not
      */
-    fun setVisitorSessionUsers(visitorSession: VisitorSession, users: List<VisitorSessionUser>): Boolean {
+    fun setVisitorSessionVisitors(visitorSession: VisitorSession, visitors: List<Visitor>): Boolean {
         var changed = false
-        val existingSessionUsers = visitorSessionUserDAO.listByVisitorSession(visitorSession).toMutableList()
+        val existingSessionVisitors = visitorSessionVisitorDAO.listByVisitorSession(visitorSession).toMutableList()
 
-        for (user in users) {
-            val existingSessionUser = existingSessionUsers.find { it.tagId == user.tagId && it.userId == user.userId }
-            if (existingSessionUser == null) {
-                visitorSessionUserDAO.create(UUID.randomUUID(), visitorSession, user.userId, user.tagId)
+        for (visitor in visitors) {
+            val existingSessionVisitor = existingSessionVisitors.find { it.visitor?.id == visitor.id }
+            if (existingSessionVisitor == null) {
+                visitorSessionVisitorDAO.create(UUID.randomUUID(), visitorSession, visitor)
                 changed = true
             } else {
-                existingSessionUsers.remove(existingSessionUser)
+                existingSessionVisitors.remove(existingSessionVisitor)
             }
         }
 
-        changed = changed || !existingSessionUsers.isEmpty()
+        changed = changed || !existingSessionVisitors.isEmpty()
 
-        existingSessionUsers.forEach(visitorSessionUserDAO::delete)
+        existingSessionVisitors.forEach(visitorSessionVisitorDAO::delete)
 
         return changed
     }
@@ -135,7 +152,7 @@ class VisitorSessionController {
      */
     fun deleteVisitorSession(visitorSession: VisitorSession) {
         visitorSessionVariableDAO.listByVisitorSession(visitorSession).forEach(visitorSessionVariableDAO::delete)
-        visitorSessionUserDAO.listByVisitorSession(visitorSession).forEach(visitorSessionUserDAO::delete)
+        visitorSessionVisitorDAO.listByVisitorSession(visitorSession).forEach(visitorSessionVisitorDAO::delete)
         visitorSessionDAO.delete(visitorSession)
     }
 

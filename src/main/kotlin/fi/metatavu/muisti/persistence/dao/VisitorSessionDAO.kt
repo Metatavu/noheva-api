@@ -8,6 +8,7 @@ import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
 import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 
 /**
@@ -16,7 +17,7 @@ import javax.persistence.criteria.Root
  * @author Antti Leppä
  */
 @ApplicationScoped
-open class VisitorSessionDAO() : AbstractDAO<VisitorSession>() {
+class VisitorSessionDAO() : AbstractDAO<VisitorSession>() {
 
     /**
      * Creates new VisitorSession
@@ -28,7 +29,7 @@ open class VisitorSessionDAO() : AbstractDAO<VisitorSession>() {
      * @param lastModifierId last modifier's id
      * @return created visitorSession
      */
-    open fun create(id: UUID, exhibition: Exhibition, state: VisitorSessionState, creatorId: UUID, lastModifierId: UUID): VisitorSession {
+    fun create(id: UUID, exhibition: Exhibition, state: VisitorSessionState, creatorId: UUID, lastModifierId: UUID): VisitorSession {
         val visitorSession = VisitorSession()
         visitorSession.exhibition = exhibition
         visitorSession.id = id
@@ -39,19 +40,23 @@ open class VisitorSessionDAO() : AbstractDAO<VisitorSession>() {
     }
 
     /**
-     * Lists VisitorSessions by exhibition
+     * Lists visitor sessions
      *
      * @param exhibition exhibition
-     * @return List of VisitorSessions
+     * @return List of visitor sessions
      */
-    open fun listByExhibition(exhibition: Exhibition): List<VisitorSession> {
+    fun list(exhibition: Exhibition): List<VisitorSession> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<VisitorSession> = criteriaBuilder.createQuery(VisitorSession::class.java)
         val root: Root<VisitorSession> = criteria.from(VisitorSession::class.java)
+
+        val restrictions = ArrayList<Predicate>()
+        restrictions.add(criteriaBuilder.equal(root.get(VisitorSession_.exhibition), exhibition))
+
         criteria.select(root)
-        criteria.where(criteriaBuilder.equal(root.get(VisitorSession_.exhibition), exhibition))
-        val query: TypedQuery<VisitorSession> = entityManager.createQuery<VisitorSession>(criteria)
+        criteria.where(*restrictions.toTypedArray())
+        val query: TypedQuery<VisitorSession> = entityManager.createQuery(criteria)
         return query.getResultList()
     }
 
@@ -62,7 +67,7 @@ open class VisitorSessionDAO() : AbstractDAO<VisitorSession>() {
      * @param lastModifierId last modifier's id
      * @return updated visitorSession
      */
-    open fun updateState(visitorSession: VisitorSession, state: VisitorSessionState, lastModifierId: UUID): VisitorSession {
+    fun updateState(visitorSession: VisitorSession, state: VisitorSessionState, lastModifierId: UUID): VisitorSession {
         visitorSession.lastModifierId = lastModifierId
         visitorSession.state = state
         return persist(visitorSession)
