@@ -20,6 +20,7 @@ class ContentVersionController() {
      * Creates new content version
      *
      * @param name content version name
+     * @param language language code
      * @param creatorId creating user id
      * @return created exhibition content version
      */
@@ -31,7 +32,7 @@ class ContentVersionController() {
      * Finds content version by id
      *
      * @param id content version id
-     * @return found exhibition content version or null if not found
+     * @return found content version or null if not found
      */
     fun findContentVersionById(id: UUID): ContentVersion? {
         return contentVersionDAO.findById(id)
@@ -51,12 +52,13 @@ class ContentVersionController() {
      *
      * @param contentVersion content version to be updated
      * @param name group name
+     * @param language language code
      * @param modifierId modifying user id
      * @return updated ContentVersion
      */
     fun updateContentVersion(contentVersion: ContentVersion, name: String, language: String, modifierId: UUID): ContentVersion {
       var result = contentVersionDAO.updateName(contentVersion, name, modifierId)
-      result = contentVersionDAO.updateLanguage(contentVersion, language, modifierId)
+      result = contentVersionDAO.updateLanguage(result, language, modifierId)
       return result
     }
 
@@ -68,5 +70,4 @@ class ContentVersionController() {
     fun deleteContentVersion(contentVersion: ContentVersion) {
         return contentVersionDAO.delete(contentVersion)
     }
-
 }

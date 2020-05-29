@@ -13,6 +13,7 @@ class ContentVersionTranslator: AbstractTranslator<fi.metatavu.muisti.persistenc
         result.id = entity.id
         result.exhibitionId = entity.exhibition?.id
         result.name = entity.name
+        result.language = entity.language
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
         result.createdAt = entity.createdAt

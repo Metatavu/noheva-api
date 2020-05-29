@@ -23,6 +23,7 @@ class ContentVersionDAO() : AbstractDAO<ContentVersion>() {
      * @param id id
      * @param exhibition exhibition
      * @param name name
+     * @param language language code
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created contentVersion
@@ -52,7 +53,7 @@ class ContentVersionDAO() : AbstractDAO<ContentVersion>() {
         criteria.select(root)
         criteria.where(criteriaBuilder.equal(root.get(ContentVersion_.exhibition), exhibition))
         val query: TypedQuery<ContentVersion> = entityManager.createQuery<ContentVersion>(criteria)
-        return query.getResultList()
+        return query.resultList
     }
 
     /**
@@ -73,7 +74,7 @@ class ContentVersionDAO() : AbstractDAO<ContentVersion>() {
      * Updates language
      *
      * @param contentVersion content version
-     * @param language language
+     * @param language language code
      * @param lastModifierId last modifier's id
      * @return updated contentVersion
      */

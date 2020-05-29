@@ -24,6 +24,9 @@ class GroupContentVersionController() {
      * Creates new group content version
      *
      * @param name content version name
+     * @param status group content version status
+     * @param contentVersion content version
+     * @param deviceGroup device group
      * @param creatorId creating user id
      * @return created exhibition content version
      */
@@ -63,16 +66,16 @@ class GroupContentVersionController() {
      */
     fun updateGroupContentVersion(groupContentVersion: GroupContentVersion, name: String, status: GroupContentVersionStatus, contentVersion: ContentVersion, deviceGroup: ExhibitionDeviceGroup, modifierId: UUID): GroupContentVersion {
       var result = groupContentVersionDAO.updateName(groupContentVersion, name, modifierId)
-      result = groupContentVersionDAO.updateStatus(groupContentVersion, status, modifierId)
-      result = groupContentVersionDAO.updateContentVersion(groupContentVersion, contentVersion, modifierId)
-      result = groupContentVersionDAO.updateDeviceGroup(groupContentVersion, deviceGroup, modifierId)
+      result = groupContentVersionDAO.updateStatus(result, status, modifierId)
+      result = groupContentVersionDAO.updateContentVersion(result, contentVersion, modifierId)
+      result = groupContentVersionDAO.updateDeviceGroup(result, deviceGroup, modifierId)
       return result
     }
 
     /**
-     * Deletes a content version
+     * Deletes a group content version
      *
-     * @param contentVersion exhibition content version to be deleted
+     * @param groupContentVersion group content version to be deleted
      */
     fun deleteGroupContentVersion(groupContentVersion: GroupContentVersion) {
         return groupContentVersionDAO.delete(groupContentVersion)
