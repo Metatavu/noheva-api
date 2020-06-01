@@ -25,6 +25,8 @@ class VisitorSessionVisitedDeviceGroupDAO() : AbstractDAO<VisitorSessionVisitedD
      * @param id id
      * @param visitorSession visitorSession
      * @param deviceGroup device group
+     * @param enteredAt enter at timestamp
+     * @param exitedAt exited at timestamp
      * @return created VisitorSessionVisitedDeviceGroup
      */
     fun create(id: UUID, visitorSession: VisitorSession, deviceGroup: ExhibitionDeviceGroup, enteredAt: OffsetDateTime, exitedAt: OffsetDateTime): VisitorSessionVisitedDeviceGroup {
