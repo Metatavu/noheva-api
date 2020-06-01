@@ -151,7 +151,7 @@ class VisitorSessionController {
      * Sets visitor session visited device groups
      *
      * @param visitorSession visitor session
-     * @param visitedDeviceGroups device groups
+     * @param visitedDeviceGroups visited device groups
      * @return whether user list has changed or not
      */
     fun setVisitorSessionVisitedDeviceGroups(visitorSession: VisitorSession, visitedDeviceGroups: List<VisitorSessionVisitedDeviceGroup>, visitedDeviceGroupList: List<ExhibitionDeviceGroup>) {
