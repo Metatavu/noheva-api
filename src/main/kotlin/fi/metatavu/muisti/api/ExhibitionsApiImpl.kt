@@ -8,10 +8,7 @@ import fi.metatavu.muisti.contents.PageLayoutController
 import fi.metatavu.muisti.devices.DeviceModelController
 import fi.metatavu.muisti.devices.ExhibitionDeviceController
 import fi.metatavu.muisti.devices.ExhibitionDeviceGroupController
-import fi.metatavu.muisti.exhibitions.ExhibitionContentVersionController
-import fi.metatavu.muisti.exhibitions.ExhibitionController
-import fi.metatavu.muisti.exhibitions.ExhibitionFloorController
-import fi.metatavu.muisti.exhibitions.ExhibitionRoomController
+import fi.metatavu.muisti.exhibitions.*
 import fi.metatavu.muisti.keycloak.KeycloakController
 import fi.metatavu.muisti.realtime.RealtimeNotificationController
 import fi.metatavu.muisti.sessions.VisitorSessionController
@@ -29,6 +26,7 @@ import javax.ws.rs.core.Response
  * Exhibitions API REST endpoints
  *
  * @author Antti Leppä
+ * @author Jari Nykänen
  */
 @RequestScoped
 @Stateful
@@ -75,10 +73,16 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     private lateinit var exhibitionDeviceGroupTranslator: ExhibitionDeviceGroupTranslator
 
     @Inject
-    private lateinit var exhibitionContentVersionController: ExhibitionContentVersionController
+    private lateinit var contentVersionController: ContentVersionController
 
     @Inject
-    private lateinit var exhibitionContentVersionTranslator: ExhibitionContentVersionTranslator
+    private lateinit var groupContentVersionController: GroupContentVersionController
+
+    @Inject
+    private lateinit var contentVersionTranslator: ContentVersionTranslator
+
+    @Inject
+    private lateinit var groupContentVersionTranslator: GroupContentVersionTranslator
 
     @Inject
     private lateinit var exhibitionDeviceController: ExhibitionDeviceController
@@ -630,7 +634,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val layout = pageLayoutController.findPageLayoutById(payload.layoutId) ?: return createBadRequest("Layout $payload.layoutId not found")
         val device = exhibitionDeviceController.findExhibitionDeviceById(payload.deviceId) ?: return createBadRequest("Device ${payload.deviceId} not found")
-        val contentVersion = exhibitionContentVersionController.findExhibitionContentVersionById(payload.contentVersionId) ?: return createBadRequest("Content version ${payload.contentVersionId} not found")
+        val contentVersion = contentVersionController.findContentVersionById(payload.contentVersionId) ?: return createBadRequest("Content version ${payload.contentVersionId} not found")
 
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val name = payload.name
@@ -671,7 +675,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         return createOk(exhibitionPageTranslator.translate(exhibitionPage))
     }
 
-    override fun listExhibitionPages(exhibitionId: UUID?, exhibitionContentVersionId: UUID?, exhibitionDeviceId: UUID?): Response {
+    override fun listExhibitionPages(exhibitionId: UUID?, contentVersionId: UUID?, exhibitionDeviceId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
@@ -680,13 +684,13 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(exhibitionDeviceId)
         }
 
-        var exhibitionContentVersion: fi.metatavu.muisti.persistence.model.ExhibitionContentVersion? = null
-        if (exhibitionContentVersionId != null) {
-            exhibitionContentVersion = exhibitionContentVersionController.findExhibitionContentVersionById(exhibitionContentVersionId)
-            exhibitionContentVersion ?: return createBadRequest("Content version not found")
+        var contentVersion: fi.metatavu.muisti.persistence.model.ContentVersion? = null
+        if (contentVersionId != null) {
+            contentVersion = contentVersionController.findContentVersionById(contentVersionId)
+            contentVersion ?: return createBadRequest("Content version not found")
         }
 
-        val exhibitionPages = exhibitionPageController.listExhibitionPages(exhibition, exhibitionDevice, exhibitionContentVersion)
+        val exhibitionPages = exhibitionPageController.listExhibitionPages(exhibition, exhibitionDevice, contentVersion)
         return createOk(exhibitionPages.map (exhibitionPageTranslator::translate))
     }
 
@@ -701,7 +705,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val name = payload.name
         val resources = payload.resources
         val eventTriggers = payload.eventTriggers
-        val contentVersion = exhibitionContentVersionController.findExhibitionContentVersionById(payload.contentVersionId) ?: return createBadRequest("Content version ${payload.contentVersionId} not found")
+        val contentVersion = contentVersionController.findContentVersionById(payload.contentVersionId) ?: return createBadRequest("Content version ${payload.contentVersionId} not found")
         val enterTransitions = payload.enterTransitions
         val exitTransitions = payload.exitTransitions
 
@@ -738,57 +742,136 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     /* content version */
 
-    override fun createExhibitionContentVersion(exhibitionId: UUID?, payload: ExhibitionContentVersion?): Response {
+    override fun createContentVersion(exhibitionId: UUID?, payload: ContentVersion?): Response {
         payload ?: return createBadRequest("Missing request body")
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-        val exhibitionContentVersion = exhibitionContentVersionController.createExhibitionContentVersion(exhibition, payload.name, userId)
-        return createOk(exhibitionContentVersionTranslator.translate(exhibitionContentVersion))
+        val name = payload.name
+        val language = payload.language
+        val contentVersion = contentVersionController.createContentVersion(exhibition, name, language, userId)
+        return createOk(contentVersionTranslator.translate(contentVersion))
     }
 
-    override fun findExhibitionContentVersion(exhibitionId: UUID?, contentVersionId: UUID?): Response {
+    override fun findContentVersion(exhibitionId: UUID?, contentVersionId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        contentVersionId?: return createNotFound("Device group not found")
+        contentVersionId?: return createNotFound("Content version not found")
 
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionContentVersion = exhibitionContentVersionController.findExhibitionContentVersionById(contentVersionId) ?: return createNotFound("Room $contentVersionId not found")
+        val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound("Content version $contentVersionId not found")
 
-        if (!exhibitionContentVersion.exhibition?.id?.equals(exhibition.id)!!) {
-            return createNotFound("Room not found")
+        if (!contentVersion.exhibition?.id?.equals(exhibition.id)!!) {
+            return createNotFound("Content version not found")
         }
 
-        return createOk(exhibitionContentVersionTranslator.translate(exhibitionContentVersion))
+        return createOk(contentVersionTranslator.translate(contentVersion))
     }
 
-    override fun listExhibitionContentVersions(exhibitionId: UUID?): Response {
+    override fun listContentVersions(exhibitionId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionContentVersions = exhibitionContentVersionController.listExhibitionContentVersions(exhibition)
+        val contentVersions = contentVersionController.listContentVersions(exhibition)
 
-        return createOk(exhibitionContentVersions.map (exhibitionContentVersionTranslator::translate))
+        return createOk(contentVersions.map (contentVersionTranslator::translate))
     }
 
-    override fun updateExhibitionContentVersion(exhibitionId: UUID?, contentVersionId: UUID?, payload: ExhibitionContentVersion?): Response {
+    override fun updateContentVersion(exhibitionId: UUID?, contentVersionId: UUID?, payload: ContentVersion?): Response {
         payload ?: return createBadRequest("Missing request body")
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        contentVersionId?: return createNotFound("Device group not found")
+        contentVersionId?: return createNotFound("Content version not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionContentVersion = exhibitionContentVersionController.findExhibitionContentVersionById(contentVersionId) ?: return createNotFound("Room $contentVersionId not found")
-        val result = exhibitionContentVersionController.updateExhibitionContentVersion(exhibitionContentVersion, payload.name, userId)
+        val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound("Content version $contentVersionId not found")
+        val name = payload.name
+        val language = payload.language
+        val result = contentVersionController.updateContentVersion(contentVersion, name, language, userId)
 
-        return createOk(exhibitionContentVersionTranslator.translate(result))
+        return createOk(contentVersionTranslator.translate(result))
     }
 
-    override fun deleteExhibitionContentVersion(exhibitionId: UUID?, contentVersionId: UUID?): Response {
+    override fun deleteContentVersion(exhibitionId: UUID?, contentVersionId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        contentVersionId?: return createNotFound("Device group not found")
+        contentVersionId?: return createNotFound("Content version not found")
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionContentVersion = exhibitionContentVersionController.findExhibitionContentVersionById(contentVersionId) ?: return createNotFound("Room $contentVersionId not found")
-        exhibitionContentVersionController.deleteExhibitionContentVersion(exhibitionContentVersion)
+        val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound("Content version $contentVersionId not found")
+        contentVersionController.deleteContentVersion(contentVersion)
+        return createNoContent()
+    }
+
+    /* group content version */
+
+    override fun createGroupContentVersion(exhibitionId: UUID?, payload: GroupContentVersion?): Response {
+        payload ?: return createBadRequest("Missing request body")
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+
+        val contentVersionId = payload.contentVersionId;
+        val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound("Content version $contentVersionId not found")
+
+        val deviceGroupId = payload.deviceGroupId;
+        val deviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createBadRequest("Invalid exhibition group id ${deviceGroupId}")
+
+        val name = payload.name
+        val status = payload.status
+
+        val groupContentVersion = groupContentVersionController.createGroupContentVersion(exhibition, name, status, contentVersion, deviceGroup, userId)
+        return createOk(groupContentVersionTranslator.translate(groupContentVersion))
+    }
+
+    override fun findGroupContentVersion(exhibitionId: UUID?, groupContentVersionId: UUID?): Response {
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        groupContentVersionId?: return createNotFound("Group content version not found")
+
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val groupContentVersion = groupContentVersionController.findGroupContentVersionById(groupContentVersionId) ?: return createNotFound("Group content version $groupContentVersionId not found")
+
+        if (!groupContentVersion.exhibition?.id?.equals(exhibition.id)!!) {
+            return createNotFound("Group content version not found")
+        }
+
+        return createOk(groupContentVersionTranslator.translate(groupContentVersion))
+    }
+
+    override fun listGroupContentVersions(exhibitionId: UUID?): Response {
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
+        val groupContentVersions = groupContentVersionController.listGroupContentVersions(exhibition)
+
+        return createOk(groupContentVersions.map (groupContentVersionTranslator::translate))
+    }
+
+    override fun updateGroupContentVersion(exhibitionId: UUID?, groupContentVersionId: UUID?, payload: GroupContentVersion?): Response {
+        payload ?: return createBadRequest("Missing request body")
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        groupContentVersionId?: return createNotFound("Group content version not found")
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val groupContentVersion = groupContentVersionController.findGroupContentVersionById(groupContentVersionId) ?: return createNotFound("Group content version $groupContentVersionId not found")
+
+        val contentVersionId = payload.contentVersionId;
+        val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound("Content version $contentVersionId not found")
+
+        val deviceGroupId = payload.deviceGroupId;
+        val deviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createBadRequest("Invalid exhibition group id ${deviceGroupId}")
+
+        val name = payload.name
+        val status = payload.status
+        val result = groupContentVersionController.updateGroupContentVersion(groupContentVersion, name, status, contentVersion, deviceGroup, userId)
+
+        return createOk(groupContentVersionTranslator.translate(result))
+    }
+
+    override fun deleteGroupContentVersion(exhibitionId: UUID?, groupContentVersionId: UUID?): Response {
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        groupContentVersionId?: return createNotFound("Group content version not found")
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val groupContentVersion = groupContentVersionController.findGroupContentVersionById(groupContentVersionId) ?: return createNotFound("Group content version $groupContentVersionId not found")
+        groupContentVersionController.deleteGroupContentVersion(groupContentVersion)
         return createNoContent()
     }
 

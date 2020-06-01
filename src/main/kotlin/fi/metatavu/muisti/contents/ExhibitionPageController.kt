@@ -34,7 +34,7 @@ class ExhibitionPageController() {
      * @param creatorId creating user id
      * @return created exhibition page 
      */
-    fun createExhibitionPage(exhibition: Exhibition, device: ExhibitionDevice, layout: PageLayout, contentVersion: ExhibitionContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, enterTransitions: List<ExhibitionPageTransition>, exitTransitions: List<ExhibitionPageTransition>, creatorId: UUID): ExhibitionPage {
+    fun createExhibitionPage(exhibition: Exhibition, device: ExhibitionDevice, layout: PageLayout, contentVersion: ContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, enterTransitions: List<ExhibitionPageTransition>, exitTransitions: List<ExhibitionPageTransition>, creatorId: UUID): ExhibitionPage {
         return exhibitionPageDAO.create(UUID.randomUUID(),
             exhibition = exhibition,
             device = device,
@@ -69,7 +69,7 @@ class ExhibitionPageController() {
      * @param exhibitionContentVersion filter by exhibition content version. Ignored if null is passed
      * @return List of exhibition pages
      */
-    fun listExhibitionPages(exhibition: Exhibition, exhibitionDevice: ExhibitionDevice?, exhibitionContentVersion: ExhibitionContentVersion?): List<ExhibitionPage> {
+    fun listExhibitionPages(exhibition: Exhibition, exhibitionDevice: ExhibitionDevice?, exhibitionContentVersion: ContentVersion?): List<ExhibitionPage> {
         return exhibitionPageDAO.list(exhibition, exhibitionDevice, exhibitionContentVersion)
     }
 
@@ -97,7 +97,7 @@ class ExhibitionPageController() {
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionPage(exhibitionPage: ExhibitionPage, device: ExhibitionDevice, layout: PageLayout, contentVersion: ExhibitionContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers: List<ExhibitionPageEventTrigger>, enterTransitions: List<ExhibitionPageTransition>, exitTransitions: List<ExhibitionPageTransition>, modifierId: UUID): ExhibitionPage {
+    fun updateExhibitionPage(exhibitionPage: ExhibitionPage, device: ExhibitionDevice, layout: PageLayout, contentVersion: ContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers: List<ExhibitionPageEventTrigger>, enterTransitions: List<ExhibitionPageTransition>, exitTransitions: List<ExhibitionPageTransition>, modifierId: UUID): ExhibitionPage {
         var result = exhibitionPageDAO.updateName(exhibitionPage, name, modifierId)
         result = exhibitionPageDAO.updateLayout(result, layout, modifierId)
         result = exhibitionPageDAO.updateDevice(result, device, modifierId)

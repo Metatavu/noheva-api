@@ -1,17 +1,18 @@
 package fi.metatavu.muisti.persistence.model
 
+import fi.metatavu.muisti.api.spec.model.GroupContentVersionStatus
 import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*
 import javax.validation.constraints.NotEmpty
 
 /**
- * JPA entity representing exhibition content version
+ * JPA entity representing group content version
  *
- * @author Antti Leppä
+ * @author Jari Nykänen
  */
 @Entity
-class ExhibitionContentVersion {
+class GroupContentVersion {
 
     @Id
     var id: UUID? = null
@@ -22,6 +23,15 @@ class ExhibitionContentVersion {
     @NotEmpty
     @Column(nullable = false)
     var name: String? = null
+
+    @Column(nullable = false)
+    var status: GroupContentVersionStatus? = null
+
+    @ManyToOne
+    var contentVersion: ContentVersion? = null
+
+    @ManyToOne
+    var deviceGroup: ExhibitionDeviceGroup? = null
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null

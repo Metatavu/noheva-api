@@ -32,7 +32,7 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      * @param lastModifierId last modifier's id
      * @return created exhibitionPage
      */
-    fun create(id: UUID, exhibition: Exhibition, contentVersion: ExhibitionContentVersion, device : ExhibitionDevice, layout: PageLayout, name: String, resources: String, eventTriggers: String, enterTransitions: String?, exitTransitions: String?, creatorId: UUID, lastModifierId: UUID): ExhibitionPage {
+    fun create(id: UUID, exhibition: Exhibition, contentVersion: ContentVersion, device : ExhibitionDevice, layout: PageLayout, name: String, resources: String, eventTriggers: String, enterTransitions: String?, exitTransitions: String?, creatorId: UUID, lastModifierId: UUID): ExhibitionPage {
         val exhibitionPage = ExhibitionPage()
         exhibitionPage.id = id
         exhibitionPage.device = device
@@ -54,10 +54,10 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      *
      * @param exhibition exhibition
      * @param exhibitionDevice filter by exhibition device. Ignored if null is passed
-     * @param exhibitionContentVersion filter by exhibition content version. Ignored if null is passed
+     * @param contentVersion filter by content version. Ignored if null is passed
      * @return List of exhibition pages
      */
-    fun list(exhibition: Exhibition, exhibitionDevice : ExhibitionDevice?, exhibitionContentVersion: ExhibitionContentVersion?): List<ExhibitionPage> {
+    fun list(exhibition: Exhibition, exhibitionDevice : ExhibitionDevice?, contentVersion: ContentVersion?): List<ExhibitionPage> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionPage> = criteriaBuilder.createQuery(ExhibitionPage::class.java)
@@ -70,8 +70,8 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
             restrictions.add(criteriaBuilder.equal(root.get(ExhibitionPage_.device), exhibitionDevice))
         }
 
-        if (exhibitionContentVersion != null) {
-            restrictions.add(criteriaBuilder.equal(root.get(ExhibitionPage_.contentVersion), exhibitionContentVersion))
+        if (contentVersion != null) {
+            restrictions.add(criteriaBuilder.equal(root.get(ExhibitionPage_.contentVersion), contentVersion))
         }
 
         criteria.select(root)
@@ -133,7 +133,7 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      * @param lastModifierId last modifier's id
      * @return updated exhibitionPage
      */
-    fun updateContentVersion(exhibitionPage: ExhibitionPage, contentVersion: ExhibitionContentVersion, lastModifierId: UUID): ExhibitionPage {
+    fun updateContentVersion(exhibitionPage: ExhibitionPage, contentVersion: ContentVersion, lastModifierId: UUID): ExhibitionPage {
         exhibitionPage.lastModifierId = lastModifierId
         exhibitionPage.contentVersion = contentVersion
         return persist(exhibitionPage)

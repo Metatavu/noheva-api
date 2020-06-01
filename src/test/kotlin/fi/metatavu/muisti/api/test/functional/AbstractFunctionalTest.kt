@@ -68,7 +68,7 @@ abstract class AbstractFunctionalTest {
      */
     protected fun createDefaultPage(testBuilder: ApiTestBuilder, exhibition: Exhibition): ExhibitionPage {
         val layout = testBuilder.admin().pageLayouts().create(testBuilder.admin().deviceModels().create())
-        val contentVersion = testBuilder.admin().exhibitionContentVersions().create(exhibition)
+        val contentVersion = testBuilder.admin().contentVersions().create(exhibition)
         val device = createDefaultDevice(testBuilder, exhibition)
         return testBuilder.admin().exhibitionPages().create(
                 exhibition = exhibition,
