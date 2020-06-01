@@ -47,6 +47,22 @@ class VisitorTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
+    fun testFindVisitorTag() {
+        ApiTestBuilder().use {
+            val exhibition = it.admin().exhibitions().create()
+            val exhibitionId = exhibition.id!!
+
+            it.admin().visitors().create(exhibitionId, Visitor(
+                    email = "test@example.com",
+                    tagId = "testtag"
+            ))
+
+            assertEquals("testtag", it.admin().visitors().findVisitorTag(exhibitionId, "testtag")?.tagId)
+            it.admin().visitors().assertFindVisitorFail(expectedStatus = 404, exhibitionId = exhibitionId, tagId = "nottag")
+        }
+    }
+
+    @Test
     fun testListVisitors() {
         ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
