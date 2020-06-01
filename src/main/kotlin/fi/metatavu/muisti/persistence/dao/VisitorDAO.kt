@@ -69,6 +69,7 @@ class VisitorDAO : AbstractDAO<Visitor>() {
      * Lists visitors
      *
      * @param exhibition exhibition
+     * @param tagId tagId
      * @return List of visitors
      */
     fun list(exhibition: Exhibition?, tagId: String?): List<Visitor> {
