@@ -12,6 +12,7 @@ import fi.metatavu.muisti.exhibitions.ExhibitionContentVersionController
 import fi.metatavu.muisti.exhibitions.ExhibitionController
 import fi.metatavu.muisti.exhibitions.ExhibitionFloorController
 import fi.metatavu.muisti.exhibitions.ExhibitionRoomController
+import fi.metatavu.muisti.keycloak.KeycloakController
 import fi.metatavu.muisti.realtime.RealtimeNotificationController
 import fi.metatavu.muisti.sessions.VisitorSessionController
 import fi.metatavu.muisti.visitors.VisitorController
@@ -100,6 +101,9 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     @Inject
     private lateinit var realtimeNotificationController: RealtimeNotificationController
 
+    @Inject
+    private lateinit var keycloakController: KeycloakController
+
     /* Exhibitions */
 
     override fun createExhibition(payload: Exhibition?): Response? {
@@ -173,15 +177,19 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     override fun createVisitor(exhibitionId: UUID?, payload: Visitor?): Response {
         payload ?: return createBadRequest("Missing request body")
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
 
+        var userRepresentation = keycloakController.findUserByEmail(payload.email)
+        if (userRepresentation == null) {
+            userRepresentation = keycloakController.createUser(email = payload.email, realmRoles = listOf("visitor"))
+        }
+
+        userRepresentation ?: return createInternalServerError("Failed to create visitor user")
         val visitor = visitorController.createVisitor(
             exhibition = exhibition,
-            email = payload.email,
+            userRepresentation = userRepresentation,
             tagId = payload.tagId,
-            userId =  payload.userId,
             creatorId = userId
         )
 
@@ -197,7 +205,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         return createOk(visitorTranslator.translate(visitor))
     }
 
-    override fun listVisitor(exhibitionId: UUID?, tagId: String?): Response {
+    override fun listVisitors(exhibitionId: UUID?, tagId: String?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
@@ -220,9 +228,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         val result = visitorController.updateVisitor(
             visitor = visitor,
-            userId = payload.userId,
             tagId = payload.tagId,
-            email = payload.email,
             lastModfierId = userId
         )
 
@@ -260,7 +266,6 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     override fun createVisitorSession(exhibitionId: UUID?, payload: VisitorSession?): Response {
         payload ?: return createBadRequest("Missing request body")
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
 
@@ -274,7 +279,6 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val visitorSession = visitorSessionController.createVisitorSession(exhibition, payload.state, userId)
         visitorSessionController.setVisitorSessionVisitors(visitorSession, visitors)
         visitorSessionController.setVisitorSessionVariables(visitorSession, payload.variables)
-
         realtimeNotificationController.notifyExhibitionVisitorSessionCreate(exhibitionId,  visitorSession.id!!)
 
         return createOk(visitorSessionTranslator.translate(visitorSession))

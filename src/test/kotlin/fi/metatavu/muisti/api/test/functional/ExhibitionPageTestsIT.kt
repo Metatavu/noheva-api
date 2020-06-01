@@ -17,7 +17,6 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
     fun testCreateExhibitionPage() {
         ApiTestBuilder().use {
             val createdPageSubscription = it.mqtt().subscribe<MqttExhibitionPageCreate>(MqttExhibitionPageCreate::class.java,"pages/create")
-
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val deviceModel = it.admin().deviceModels().create()
@@ -38,7 +37,6 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId, contentVersionId)
             assertNotNull(createdExhibitionPage)
             it.admin().exhibitions().assertCreateFail(400, "")
-
             assertJsonsEqual(listOf(MqttExhibitionPageCreate(exhibitionId = exhibitionId, id = createdExhibitionPage.id)), createdPageSubscription.getMessages(1))
         }
    }

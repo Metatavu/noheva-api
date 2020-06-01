@@ -1,8 +1,10 @@
 package fi.metatavu.muisti.visitors
 
+import fi.metatavu.muisti.keycloak.KeycloakController
 import fi.metatavu.muisti.persistence.dao.VisitorDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.Visitor
+import org.keycloak.representations.idm.UserRepresentation
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -16,15 +18,23 @@ class VisitorController {
     @Inject
     private lateinit var visitorDAO: VisitorDAO
 
+    @Inject
+    private lateinit var keycloakController: KeycloakController
+
     /**
-     * Creates new visitor 
-     */
-    fun createVisitor(exhibition: Exhibition, email: String, tagId: String, userId: UUID, creatorId: UUID): Visitor {
+     * Creates new visitor
+     *
+     * @param exhibition exhibition
+     * @param userRepresentation Keycloak user representation
+     * @param tagId visitor tag id
+     * @param creatorId creator's user id
+     * @return created visitor
+    */
+    fun createVisitor(exhibition: Exhibition, userRepresentation: UserRepresentation, tagId: String, creatorId: UUID): Visitor {
         return visitorDAO.create(id = UUID.randomUUID(),
             exhibition = exhibition,
-            email = email,
             tagId = tagId,
-            userId =  userId,
+            userId = UUID.fromString(userRepresentation.id),
             creatorId = creatorId,
             lastModifierId = creatorId
         )
@@ -50,6 +60,7 @@ class VisitorController {
     fun findVisitorByTagId(exhibition: Exhibition, tagId: String): Visitor? {
         return visitorDAO.findByExhibitionAndTagId(exhibition = exhibition, tagId = tagId)
     }
+
     /**
      * Lists visitors by exhibition
      *
@@ -62,12 +73,14 @@ class VisitorController {
     }
 
     /**
-     * Creates new visitor
+     * Updates visitor
+     *
+     * @param visitor visitor
+     * @param tagId tag id
+     * @return updated visitor
      */
-    fun updateVisitor(visitor: Visitor, email: String, tagId: String, userId: UUID, lastModfierId: UUID): Visitor {
-        var result = visitorDAO.updateEmail(visitor, email, lastModfierId)
-        result = visitorDAO.updateTagId(result, tagId, lastModfierId)
-        return visitorDAO.updateUserId(result, userId, lastModfierId)
+    fun updateVisitor(visitor: Visitor, tagId: String, lastModfierId: UUID): Visitor {
+        return visitorDAO.updateTagId(visitor, tagId, lastModfierId)
     }
 
     /**

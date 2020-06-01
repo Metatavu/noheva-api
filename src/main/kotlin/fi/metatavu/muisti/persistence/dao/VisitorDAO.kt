@@ -23,18 +23,16 @@ class VisitorDAO : AbstractDAO<Visitor>() {
      *
      * @param id id
      * @param exhibition exhibition
-     * @param email email
      * @param tagId visitor's tag id
      * @param userId visitor's user id
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created visitor
      */
-    fun create(id: UUID, exhibition: Exhibition, email: String, tagId: String, userId: UUID, creatorId: UUID, lastModifierId: UUID): Visitor {
+    fun create(id: UUID, exhibition: Exhibition, tagId: String, userId: UUID, creatorId: UUID, lastModifierId: UUID): Visitor {
         val visitor = Visitor()
         visitor.exhibition = exhibition
         visitor.id = id
-        visitor.email = email
         visitor.tagId = tagId
         visitor.userId = userId
         visitor.creatorId = creatorId
@@ -85,19 +83,6 @@ class VisitorDAO : AbstractDAO<Visitor>() {
         criteria.where(*restrictions.toTypedArray())
         val query: TypedQuery<Visitor> = entityManager.createQuery(criteria)
         return query.resultList
-    }
-
-    /**
-     * Updates email
-     *
-     * @param email email
-     * @param lastModifierId last modifier's id
-     * @return updated visitor
-     */
-    fun updateEmail(visitor: Visitor, email: String, lastModifierId: UUID): Visitor {
-        visitor.lastModifierId = lastModifierId
-        visitor.email = email
-        return persist(visitor)
     }
 
     /**

@@ -83,6 +83,15 @@ dependencies {
   implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$paho_version"
 
   /**
+   * Keycloak admin client
+   */
+  implementation ("org.keycloak:keycloak-admin-client:$keycloak_version") {
+    exclude group: 'org.keycloak', module: 'keycloak-core'
+    exclude group: 'org.jboss.resteasy', module: 'resteasy-multipart-provider'
+    exclude group: 'org.jboss.resteasy', module: 'resteasy-jackson2-provider'
+  }
+
+  /**
    * Spatial dependencies
    */
   implementation "com.vividsolutions:jts-core:$jts_core_version"

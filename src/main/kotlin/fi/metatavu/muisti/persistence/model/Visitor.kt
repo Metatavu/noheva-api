@@ -3,7 +3,6 @@ package fi.metatavu.muisti.persistence.model
 import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*
-import javax.validation.constraints.Email
 import javax.validation.constraints.NotNull
 
 /**
@@ -16,7 +15,7 @@ import javax.validation.constraints.NotNull
     uniqueConstraints = [
         UniqueConstraint(
             name = "UN_EXHIBITION_TAG_ID",
-            columnNames = ["exhibition_id", "tag_id"]
+            columnNames = ["exhibition_id", "tagId"]
         )
     ]
 )
@@ -39,10 +38,6 @@ class Visitor {
 
     @ManyToOne
     var exhibition: Exhibition? = null
-
-    @Email
-    @Column(nullable = false)
-    var email: String? = null
 
     @NotNull
     @Column(nullable = false)
