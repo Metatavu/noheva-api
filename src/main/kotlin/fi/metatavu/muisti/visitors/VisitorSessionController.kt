@@ -118,7 +118,7 @@ class VisitorSessionController {
      *
      * @param visitorSession visitor session
      * @param variables variables
-     * @return whether user list has changed or not
+     * @return whether session variable list has changed or not
      */
     fun setVisitorSessionVariables(visitorSession: VisitorSession, variables: List<VisitorSessionVariable>): Boolean {
         var changed = false
