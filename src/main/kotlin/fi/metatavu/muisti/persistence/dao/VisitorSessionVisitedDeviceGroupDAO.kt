@@ -40,7 +40,7 @@ class VisitorSessionVisitedDeviceGroupDAO() : AbstractDAO<VisitorSessionVisitedD
     }
 
     /**
-     * Lists visitor session visitors by visitorSession
+     * Lists visited device groups by visitorSession
      *
      * @param visitorSession visitor session
      * @return List of visitor sessions
