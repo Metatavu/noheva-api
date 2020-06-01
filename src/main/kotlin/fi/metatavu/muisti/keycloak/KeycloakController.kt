@@ -122,7 +122,7 @@ class KeycloakController {
     }
 
     /**
-     * Finds a id from Keycloak create response
+     * Finds an id from Keycloak create response
      *
      * @param response response object
      * @return id
