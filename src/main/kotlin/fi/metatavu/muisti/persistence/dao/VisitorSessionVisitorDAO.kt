@@ -38,7 +38,7 @@ class VisitorSessionVisitorDAO() : AbstractDAO<VisitorSessionVisitor>() {
      * Lists visitor session visitors by visitorSession
      *
      * @param visitorSession visitor session
-     * @return List of visitor sessions
+     * @return List of visitor session visitors
      */
     fun listByVisitorSession(visitorSession: VisitorSession): List<VisitorSessionVisitor> {
         val entityManager = getEntityManager()
