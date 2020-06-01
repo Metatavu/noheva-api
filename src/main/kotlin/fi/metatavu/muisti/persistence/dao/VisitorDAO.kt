@@ -107,6 +107,7 @@ class VisitorDAO : AbstractDAO<Visitor>() {
     /**
      * Updates userId
      *
+     * @param visitor visitor
      * @param userId userId
      * @param lastModifierId last modifier's id
      * @return updated visitor
