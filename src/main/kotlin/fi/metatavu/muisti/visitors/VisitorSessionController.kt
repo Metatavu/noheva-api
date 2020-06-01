@@ -148,7 +148,7 @@ class VisitorSessionController {
     }
 
     /**
-     * Sets visitor session visitors
+     * Sets visitor session visited device groups
      *
      * @param visitorSession visitor session
      * @param visitedDeviceGroups device groups
