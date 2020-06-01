@@ -26,7 +26,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(exhibition.id!!,
               ExhibitionDeviceGroup(
                 name = "name",
-                roomId = roomId
+                roomId = roomId,
+                allowVisitorSessionCreation = false
               )
             )
 
@@ -99,7 +100,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testUpdateExhibition() {
+    fun testUpdateExhibitionDeviceGroup() {
         ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
@@ -113,7 +114,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                 exhibitionId = exhibitionId,
                 payload = ExhibitionDeviceGroup(
                     name = "created name",
-                    roomId = roomId
+                    roomId = roomId,
+                    allowVisitorSessionCreation = false
                 )
             )
 
@@ -122,24 +124,31 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             val foundCreatedExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().findExhibitionDeviceGroup(exhibitionId, createdExhibitionDeviceGroupId)
             assertEquals(createdExhibitionDeviceGroup.id, foundCreatedExhibitionDeviceGroup?.id)
             assertEquals("created name", createdExhibitionDeviceGroup.name)
+            assertEquals(false, createdExhibitionDeviceGroup.allowVisitorSessionCreation)
 
             val updatedExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().updateExhibitionDeviceGroup(exhibitionId, ExhibitionDeviceGroup(
               name = "updated name",
               roomId = roomId,
-              id = createdExhibitionDeviceGroupId
+              id = createdExhibitionDeviceGroupId,
+              allowVisitorSessionCreation = true
             ))
 
             val foundUpdatedExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().findExhibitionDeviceGroup(exhibitionId, createdExhibitionDeviceGroupId)
 
             assertEquals(updatedExhibitionDeviceGroup!!.id, foundUpdatedExhibitionDeviceGroup?.id)
             assertEquals("updated name", updatedExhibitionDeviceGroup.name)
+            assertEquals(true, updatedExhibitionDeviceGroup.allowVisitorSessionCreation)
 
-            it.admin().exhibitionDeviceGroups().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDeviceGroup("name", createdExhibitionDeviceGroupId))
+            it.admin().exhibitionDeviceGroups().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDeviceGroup(
+                name = "name",
+                id = createdExhibitionDeviceGroupId,
+                allowVisitorSessionCreation = false
+            ))
         }
     }
 
     @Test
-    fun testDeleteExhibition() {
+    fun testDeleteExhibitionDeviceGroup() {
         ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!

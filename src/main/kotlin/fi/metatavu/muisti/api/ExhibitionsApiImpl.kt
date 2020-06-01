@@ -211,7 +211,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
 
         val visitors = visitorController.listVisitors(
-            exhibition = exhibition
+            exhibition = exhibition,
+            tagId = tagId
         )
 
         return createOk(visitors.map (visitorTranslator::translate))
@@ -554,6 +555,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.createExhibitionDeviceGroup(exhibition,
             name = payload.name,
+            allowVisitorSessionCreation = payload.allowVisitorSessionCreation,
             room = room,
             creatorId = userId
         )
@@ -603,6 +605,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             exhibitionDeviceGroup = exhibitionDeviceGroup,
             room = room,
             name = payload.name,
+            allowVisitorSessionCreation = payload.allowVisitorSessionCreation,
             modifierId = userId
         )
 

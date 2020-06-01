@@ -568,4 +568,10 @@
         
     </changeSet>
 
+    <changeSet id="exhibitiondevicegroupallowvisitorsessioncreation" author="antti.leppa">
+        <addColumn tableName="exhibitiondevicegroup">
+            <column name="allowVisitorSessionCreation" type="boolean" defaultValue="false"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

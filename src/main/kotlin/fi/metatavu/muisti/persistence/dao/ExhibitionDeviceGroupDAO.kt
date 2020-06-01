@@ -26,16 +26,18 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
      * @param exhibition exhibition
      * @param room room where the group is
      * @param name name
+     * @param allowVisitorSessionCreation whether the group allows new visitor session creation
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created exhibitionDeviceGroup
      */
-    fun create(id: UUID, exhibition: Exhibition, room: ExhibitionRoom, name: String, creatorId: UUID, lastModifierId: UUID): ExhibitionDeviceGroup {
+    fun create(id: UUID, exhibition: Exhibition, room: ExhibitionRoom, name: String, allowVisitorSessionCreation: Boolean, creatorId: UUID, lastModifierId: UUID): ExhibitionDeviceGroup {
         val exhibitionDeviceGroup = ExhibitionDeviceGroup()
         exhibitionDeviceGroup.id = id
         exhibitionDeviceGroup.name = name
         exhibitionDeviceGroup.exhibition = exhibition
         exhibitionDeviceGroup.room = room
+        exhibitionDeviceGroup.allowVisitorSessionCreation = allowVisitorSessionCreation
         exhibitionDeviceGroup.creatorId = creatorId
         exhibitionDeviceGroup.lastModifierId = lastModifierId
         return persist(exhibitionDeviceGroup)
@@ -78,6 +80,20 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
     fun updateName(exhibitionDeviceGroup: ExhibitionDeviceGroup, name: String, lastModifierId: UUID): ExhibitionDeviceGroup {
         exhibitionDeviceGroup.lastModifierId = lastModifierId
         exhibitionDeviceGroup.name = name
+        return persist(exhibitionDeviceGroup)
+    }
+
+    /**
+     * Updates allow visitor session creation
+     *
+     * @param exhibitionDeviceGroup exhibition device group to be updated
+     * @param allowVisitorSessionCreation allowVisitorSessionCreation
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionDeviceGroup
+     */
+    fun updateAllowVisitorSessionCreation(exhibitionDeviceGroup: ExhibitionDeviceGroup, allowVisitorSessionCreation: Boolean, lastModifierId: UUID): ExhibitionDeviceGroup {
+        exhibitionDeviceGroup.lastModifierId = lastModifierId
+        exhibitionDeviceGroup.allowVisitorSessionCreation = allowVisitorSessionCreation
         return persist(exhibitionDeviceGroup)
     }
 

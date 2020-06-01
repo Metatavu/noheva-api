@@ -71,13 +71,17 @@ class VisitorDAO : AbstractDAO<Visitor>() {
      * @param exhibition exhibition
      * @return List of visitors
      */
-    fun list(exhibition: Exhibition?): List<Visitor> {
+    fun list(exhibition: Exhibition?, tagId: String?): List<Visitor> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<Visitor> = criteriaBuilder.createQuery(Visitor::class.java)
         val root: Root<Visitor> = criteria.from(Visitor::class.java)
         val restrictions = ArrayList<Predicate>()
         restrictions.add(criteriaBuilder.equal(root.get(Visitor_.exhibition), exhibition))
+
+        if (tagId != null) {
+            restrictions.add(criteriaBuilder.equal(root.get(Visitor_.tagId), tagId))
+        }
 
         criteria.select(root)
         criteria.where(*restrictions.toTypedArray())

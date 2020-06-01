@@ -64,11 +64,14 @@ class VisitorController {
     /**
      * Lists visitors by exhibition
      *
+     * @param exhibition exhibition
+     * @param tagId tagId
      * @return list of visitors in exhibition
      */
-    fun listVisitors(exhibition: Exhibition): List<Visitor> {
+    fun listVisitors(exhibition: Exhibition, tagId: String?): List<Visitor> {
         return visitorDAO.list(
-            exhibition = exhibition
+            exhibition = exhibition,
+            tagId = tagId
         )
     }
 

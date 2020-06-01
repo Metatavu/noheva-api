@@ -23,11 +23,20 @@ class ExhibitionDeviceGroupController() {
      * @param exhibition exhibition
      * @param room room the device group is in
      * @param name device group name
+     * @param allowVisitorSessionCreation whether the group allows new visitor session creation
      * @param creatorId creating user id
      * @return created exhibition device group
      */
-    fun createExhibitionDeviceGroup(exhibition: Exhibition, room: ExhibitionRoom, name: String, creatorId: UUID): ExhibitionDeviceGroup {
-        return exhibitionDeviceGroupDAO.create(UUID.randomUUID(), exhibition, room, name, creatorId, creatorId)
+    fun createExhibitionDeviceGroup(exhibition: Exhibition, room: ExhibitionRoom, name: String, allowVisitorSessionCreation: Boolean, creatorId: UUID): ExhibitionDeviceGroup {
+        return exhibitionDeviceGroupDAO.create(
+            id = UUID.randomUUID(),
+            exhibition = exhibition,
+            room = room,
+            name = name,
+            allowVisitorSessionCreation = allowVisitorSessionCreation,
+            creatorId = creatorId,
+            lastModifierId = creatorId
+        )
     }
 
     /**
@@ -56,13 +65,15 @@ class ExhibitionDeviceGroupController() {
      *
      * @param exhibitionDeviceGroup exhibition device group to be updated
      * @param name group name
+     * @param allowVisitorSessionCreation whether the group allows new visitor session creation
      * @param room room
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionDeviceGroup(exhibitionDeviceGroup: ExhibitionDeviceGroup, name: String, room: ExhibitionRoom, modifierId: UUID): ExhibitionDeviceGroup {
+    fun updateExhibitionDeviceGroup(exhibitionDeviceGroup: ExhibitionDeviceGroup, name: String, allowVisitorSessionCreation: Boolean, room: ExhibitionRoom, modifierId: UUID): ExhibitionDeviceGroup {
       var result = exhibitionDeviceGroupDAO.updateName(exhibitionDeviceGroup, name, modifierId)
       result = exhibitionDeviceGroupDAO.updateRoom(result, room, modifierId)
+      result = exhibitionDeviceGroupDAO.updateAllowVisitorSessionCreation(result, allowVisitorSessionCreation, modifierId)
       return result
     }
 
