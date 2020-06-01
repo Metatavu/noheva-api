@@ -82,8 +82,8 @@ class VisitorController {
      * @param tagId tag id
      * @return updated visitor
      */
-    fun updateVisitor(visitor: Visitor, tagId: String, lastModfierId: UUID): Visitor {
-        return visitorDAO.updateTagId(visitor, tagId, lastModfierId)
+    fun updateVisitor(visitor: Visitor, tagId: String, lastModifierId: UUID): Visitor {
+        return visitorDAO.updateTagId(visitor, tagId, lastModifierId)
     }
 
     /**

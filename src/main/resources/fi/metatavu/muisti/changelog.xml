@@ -617,4 +617,26 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="visitorsessionvisiteddevicegroup" author="antti.leppa">
+        <createTable tableName="visitorsessionvisiteddevicegroup">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="visitorSession_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VISITOR_SESSION_VISITED_DEVICE_GROUP_VISITOR_SESSION_ID" referencedColumnNames="id" referencedTableName="visitorsession"/>
+            </column>
+            <column name="deviceGroup_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VISITOR_SESSION_VISITED_DEVICE_GROUP_DEVICE_GROUP_ID" referencedColumnNames="id" referencedTableName="exhibitiondevicegroup"/>
+            </column>
+            <column name="enteredAt" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exitedAt" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint columnNames="visitorSession_id,deviceGroup_id" constraintName="UN_VISITOR_SESSION_VISITED_DEVICE_GROUP_IDS" tableName="visitorsessionvisiteddevicegroup"/>
+    </changeSet>
+
 </databaseChangeLog>

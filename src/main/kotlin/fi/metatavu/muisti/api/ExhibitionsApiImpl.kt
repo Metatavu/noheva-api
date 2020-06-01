@@ -11,8 +11,8 @@ import fi.metatavu.muisti.devices.ExhibitionDeviceGroupController
 import fi.metatavu.muisti.exhibitions.*
 import fi.metatavu.muisti.keycloak.KeycloakController
 import fi.metatavu.muisti.realtime.RealtimeNotificationController
-import fi.metatavu.muisti.sessions.VisitorSessionController
 import fi.metatavu.muisti.visitors.VisitorController
+import fi.metatavu.muisti.visitors.VisitorSessionController
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import java.util.*
@@ -234,7 +234,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val result = visitorController.updateVisitor(
             visitor = visitor,
             tagId = payload.tagId,
-            lastModfierId = userId
+            lastModifierId = userId
         )
 
         return createOk(visitorTranslator.translate(result))
@@ -281,9 +281,17 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             visitors.add(visitor)
         }
 
+        val visitedDeviceGroupList: MutableList<fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup> = mutableListOf()
+        for (visitedDeviceGroup in payload.visitedDeviceGroups) {
+            val deviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(visitedDeviceGroup.deviceGroupId)
+            deviceGroup ?: return createBadRequest("Invalid visitor ${visitedDeviceGroup.deviceGroupId}")
+            visitedDeviceGroupList.add(deviceGroup)
+        }
+
         val visitorSession = visitorSessionController.createVisitorSession(exhibition, payload.state, userId)
         visitorSessionController.setVisitorSessionVisitors(visitorSession, visitors)
         visitorSessionController.setVisitorSessionVariables(visitorSession, payload.variables)
+        visitorSessionController.setVisitorSessionVisitedDeviceGroups(visitorSession, payload.visitedDeviceGroups, visitedDeviceGroupList)
         realtimeNotificationController.notifyExhibitionVisitorSessionCreate(exhibitionId,  visitorSession.id!!)
 
         return createOk(visitorSessionTranslator.translate(visitorSession))
@@ -329,9 +337,17 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             visitors.add(visitor)
         }
 
+        val visitedDeviceGroupList: MutableList<fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup> = mutableListOf()
+        for (visitedDeviceGroup in payload.visitedDeviceGroups) {
+            val deviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(visitedDeviceGroup.deviceGroupId)
+            deviceGroup ?: return createBadRequest("Invalid visitor ${visitedDeviceGroup.deviceGroupId}")
+            visitedDeviceGroupList.add(deviceGroup)
+        }
+
         val result = visitorSessionController.updateVisitorSession(visitorSession, payload.state, userId)
         val usersChanged = visitorSessionController.setVisitorSessionVisitors(visitorSession, visitors)
         val variablesChanged = visitorSessionController.setVisitorSessionVariables(result, payload.variables)
+        visitorSessionController.setVisitorSessionVisitedDeviceGroups(visitorSession, payload.visitedDeviceGroups, visitedDeviceGroupList)
 
         realtimeNotificationController.notifyExhibitionVisitorSessionUpdate(exhibitionId,  visitorSessionId, variablesChanged, usersChanged)
 
@@ -808,10 +824,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
 
-        val contentVersionId = payload.contentVersionId;
+        val contentVersionId = payload.contentVersionId
         val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound("Content version $contentVersionId not found")
 
-        val deviceGroupId = payload.deviceGroupId;
+        val deviceGroupId = payload.deviceGroupId
         val deviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createBadRequest("Invalid exhibition group id ${deviceGroupId}")
 
         val name = payload.name
@@ -852,10 +868,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val groupContentVersion = groupContentVersionController.findGroupContentVersionById(groupContentVersionId) ?: return createNotFound("Group content version $groupContentVersionId not found")
 
-        val contentVersionId = payload.contentVersionId;
+        val contentVersionId = payload.contentVersionId
         val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound("Content version $contentVersionId not found")
 
-        val deviceGroupId = payload.deviceGroupId;
+        val deviceGroupId = payload.deviceGroupId
         val deviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createBadRequest("Invalid exhibition group id ${deviceGroupId}")
 
         val name = payload.name

@@ -1,12 +1,11 @@
-package fi.metatavu.muisti.sessions
+package fi.metatavu.muisti.visitors
 
 import fi.metatavu.muisti.api.spec.model.VisitorSessionState
 import fi.metatavu.muisti.api.spec.model.VisitorSessionVariable
-import fi.metatavu.muisti.persistence.dao.VisitorDAO
-import fi.metatavu.muisti.persistence.dao.VisitorSessionDAO
-import fi.metatavu.muisti.persistence.dao.VisitorSessionVariableDAO
-import fi.metatavu.muisti.persistence.dao.VisitorSessionVisitorDAO
+import fi.metatavu.muisti.api.spec.model.VisitorSessionVisitedDeviceGroup
+import fi.metatavu.muisti.persistence.dao.*
 import fi.metatavu.muisti.persistence.model.Exhibition
+import fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup
 import fi.metatavu.muisti.persistence.model.Visitor
 import fi.metatavu.muisti.persistence.model.VisitorSession
 import org.apache.commons.lang3.StringUtils
@@ -31,6 +30,9 @@ class VisitorSessionController {
 
     @Inject
     private lateinit var visitorSessionVisitorDAO: VisitorSessionVisitorDAO
+
+    @Inject
+    private lateinit var visitorSessionVisitedDeviceGroupDAO: VisitorSessionVisitedDeviceGroupDAO
 
     /**
      * Creates new visitor session
@@ -146,6 +148,36 @@ class VisitorSessionController {
     }
 
     /**
+     * Sets visitor session visitors
+     *
+     * @param visitorSession visitor session
+     * @param visitedDeviceGroups device groups
+     * @return whether user list has changed or not
+     */
+    fun setVisitorSessionVisitedDeviceGroups(visitorSession: VisitorSession, visitedDeviceGroups: List<VisitorSessionVisitedDeviceGroup>, visitedDeviceGroupList: List<ExhibitionDeviceGroup>) {
+        val existingSessionVisitedDeviceGroups = visitorSessionVisitedDeviceGroupDAO.listByVisitorSession(visitorSession).toMutableList()
+
+        for (visitedDeviceGroup in visitedDeviceGroups) {
+            val existingSessionVisitedDeviceGroup = existingSessionVisitedDeviceGroups.find { it.deviceGroup?.id == visitedDeviceGroup.deviceGroupId }
+            if (existingSessionVisitedDeviceGroup == null) {
+                visitorSessionVisitedDeviceGroupDAO.create(
+                    id = UUID.randomUUID(),
+                    visitorSession = visitorSession,
+                    deviceGroup = visitedDeviceGroupList.first{ it.id == visitedDeviceGroup.deviceGroupId },
+                    enteredAt = visitedDeviceGroup.enteredAt,
+                    exitedAt = visitedDeviceGroup.exitedAt
+                )
+            } else {
+                visitorSessionVisitedDeviceGroupDAO.updateEnteredAt(existingSessionVisitedDeviceGroup, visitedDeviceGroup.enteredAt)
+                visitorSessionVisitedDeviceGroupDAO.updateExitedAt(existingSessionVisitedDeviceGroup, visitedDeviceGroup.exitedAt)
+                existingSessionVisitedDeviceGroups.remove(existingSessionVisitedDeviceGroup)
+            }
+        }
+
+        existingSessionVisitedDeviceGroups.forEach(visitorSessionVisitedDeviceGroupDAO::delete)
+    }
+
+    /**
      * Deletes visitor session
      *
      * @param visitorSession visitor session
@@ -153,6 +185,7 @@ class VisitorSessionController {
     fun deleteVisitorSession(visitorSession: VisitorSession) {
         visitorSessionVariableDAO.listByVisitorSession(visitorSession).forEach(visitorSessionVariableDAO::delete)
         visitorSessionVisitorDAO.listByVisitorSession(visitorSession).forEach(visitorSessionVisitorDAO::delete)
+        visitorSessionVisitedDeviceGroupDAO.listByVisitorSession(visitorSession).forEach(visitorSessionVisitedDeviceGroupDAO::delete)
         visitorSessionDAO.delete(visitorSession)
     }
 
