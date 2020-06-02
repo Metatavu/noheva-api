@@ -10,7 +10,7 @@ import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 
 /**
- * Controller for visitor s
+ * Controller for visitors
  */
 @ApplicationScoped
 class VisitorController {
