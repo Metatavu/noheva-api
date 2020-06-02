@@ -76,7 +76,7 @@ class VisitorController {
     }
 
     /**
-     * Updates visitor
+     * Updates a visitor
      *
      * @param visitor visitor
      * @param tagId tag id
