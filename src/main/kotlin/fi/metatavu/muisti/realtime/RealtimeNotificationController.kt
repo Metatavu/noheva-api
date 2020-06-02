@@ -75,13 +75,15 @@ class RealtimeNotificationController {
      *
      * @param exhibitionId exhibition id
      * @param id page id
+     * @param variablesChanged variables changed
+     * @param visitorsChanged visitors changed
      */
-    fun notifyExhibitionVisitorSessionUpdate(exhibitionId: UUID, id: UUID, variablesChanged: Boolean, usersChanged: Boolean) {
+    fun notifyExhibitionVisitorSessionUpdate(exhibitionId: UUID, id: UUID, variablesChanged: Boolean, visitorsChanged: Boolean) {
         val mqttMessage = MqttExhibitionVisitorSessionUpdate()
         mqttMessage.exhibitionId = exhibitionId
         mqttMessage.id = id
         mqttMessage.variablesChanged = variablesChanged
-        mqttMessage.usersChanged = usersChanged
+        mqttMessage.visitorsChanged = visitorsChanged
         publishMqttTransactionSuccess("visitorsessions/update", mqttMessage)
     }
 

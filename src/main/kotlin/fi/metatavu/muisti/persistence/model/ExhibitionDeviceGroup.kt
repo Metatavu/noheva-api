@@ -22,6 +22,9 @@ class ExhibitionDeviceGroup {
     @ManyToOne
     var room: ExhibitionRoom? = null
 
+    @Column(nullable = false)
+    var allowVisitorSessionCreation: Boolean? = null
+
     @NotEmpty
     @Column(nullable = false)
     var name: String? = null
