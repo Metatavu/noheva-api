@@ -35,7 +35,7 @@ class VisitorSessionController {
     private lateinit var visitorSessionVisitedDeviceGroupDAO: VisitorSessionVisitedDeviceGroupDAO
 
     /**
-     * Creates new visitor session
+     * Creates a new visitor session
      */
     fun createVisitorSession(exhibition: Exhibition, state: VisitorSessionState, creatorId: UUID): VisitorSession {
         return visitorSessionDAO.create(UUID.randomUUID(), exhibition, state, creatorId, creatorId)
