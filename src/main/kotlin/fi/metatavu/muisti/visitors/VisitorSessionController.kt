@@ -152,7 +152,7 @@ class VisitorSessionController {
      *
      * @param visitorSession visitor session
      * @param visitedDeviceGroups visited device groups
-     * @return whether user list has changed or not
+     * @return whether visited device list has changed or not
      */
     fun setVisitorSessionVisitedDeviceGroups(visitorSession: VisitorSession, visitedDeviceGroups: List<VisitorSessionVisitedDeviceGroup>, visitedDeviceGroupList: List<ExhibitionDeviceGroup>) {
         val existingSessionVisitedDeviceGroups = visitorSessionVisitedDeviceGroupDAO.listByVisitorSession(visitorSession).toMutableList()
