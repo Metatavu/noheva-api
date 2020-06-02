@@ -3,6 +3,8 @@ package fi.metatavu.muisti.exhibitions
 import fi.metatavu.muisti.persistence.dao.ContentVersionDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ContentVersion
+import fi.metatavu.muisti.persistence.model.ExhibitionRoom
+import fi.metatavu.muisti.persistence.model.GroupContentVersion
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -43,8 +45,8 @@ class ContentVersionController() {
      *
      * @returns all contentVersions in an exhibition
      */
-    fun listContentVersions(exhibition: Exhibition): List<ContentVersion> {
-        return contentVersionDAO.listByExhibition(exhibition)
+    fun listContentVersions(exhibition: Exhibition, exhibitionRoom: ExhibitionRoom?): List<ContentVersion> {
+        return contentVersionDAO.list(exhibition, exhibitionRoom)
     }
 
     /**

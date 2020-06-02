@@ -27,6 +27,11 @@ class ContentVersion {
     @Column(nullable = false)
     var language: String? = null
 
+    @NotEmpty
+    @Column(nullable = false)
+    @Lob
+    var rooms: String? = null
+
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null
 

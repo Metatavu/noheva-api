@@ -1,12 +1,11 @@
 package fi.metatavu.muisti.persistence.dao
 
-import fi.metatavu.muisti.persistence.model.ContentVersion
-import fi.metatavu.muisti.persistence.model.Exhibition
-import fi.metatavu.muisti.persistence.model.ContentVersion_
+import fi.metatavu.muisti.persistence.model.*
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
 import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 
 /**
@@ -45,13 +44,20 @@ class ContentVersionDAO() : AbstractDAO<ContentVersion>() {
      * @param exhibition exhibition
      * @return List of ContentVersions
      */
-    fun listByExhibition(exhibition: Exhibition): List<ContentVersion> {
+    fun list(exhibition: Exhibition, exhibitionRoom: ExhibitionRoom?): List<ContentVersion> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ContentVersion> = criteriaBuilder.createQuery(ContentVersion::class.java)
         val root: Root<ContentVersion> = criteria.from(ContentVersion::class.java)
+        val restrictions = ArrayList<Predicate>()
+
+        if (exhibitionRoom != null) {
+            restrictions.add(criteriaBuilder.equal(root.get(ContentVersion_.rooms), exhibitionRoom.id))
+        }
+
+        restrictions.add(criteriaBuilder.equal(root.get(ContentVersion_.exhibition), exhibition))
         criteria.select(root)
-        criteria.where(criteriaBuilder.equal(root.get(ContentVersion_.exhibition), exhibition))
+        criteria.where(*restrictions.toTypedArray())
         val query: TypedQuery<ContentVersion> = entityManager.createQuery<ContentVersion>(criteria)
         return query.resultList
     }

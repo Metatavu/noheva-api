@@ -666,11 +666,17 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         return createOk(contentVersionTranslator.translate(contentVersion))
     }
 
-    override fun listContentVersions(exhibitionId: UUID?): Response {
+    override fun listContentVersions(exhibitionId: UUID?, roomId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
-        val contentVersions = contentVersionController.listContentVersions(exhibition)
 
+        if (roomId != null) {
+            val room = exhibitionRoomController.findExhibitionRoomById(roomId)?: return createNotFound("Room $roomId not found")
+            val contentVersion = contentVersionController.listContentVersions(exhibition, room)
+            return createOk(contentVersion.map (contentVersionTranslator::translate))
+        }
+
+        val contentVersions = contentVersionController.listContentVersions(exhibition)
         return createOk(contentVersions.map (contentVersionTranslator::translate))
     }
 
