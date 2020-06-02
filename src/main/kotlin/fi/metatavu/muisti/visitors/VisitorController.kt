@@ -87,7 +87,7 @@ class VisitorController {
     }
 
     /**
-     * Deletes visitor 
+     * Deletes a visitor 
      *
      * @param visitor visitor 
      */
