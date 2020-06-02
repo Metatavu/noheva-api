@@ -16,7 +16,7 @@ import javax.persistence.criteria.Root
  * @author Antti Leppä
  */
 @ApplicationScoped
-open class VisitorSessionVariableDAO() : AbstractDAO<VisitorSessionVariable>() {
+class VisitorSessionVariableDAO() : AbstractDAO<VisitorSessionVariable>() {
 
     /**
      * Creates new VisitorSessionVariable
@@ -27,7 +27,7 @@ open class VisitorSessionVariableDAO() : AbstractDAO<VisitorSessionVariable>() {
      * @param value value
      * @return created VisitorSessionVariable
      */
-    open fun create(id: UUID, visitorSession: VisitorSession, name: String, value: String): VisitorSessionVariable {
+    fun create(id: UUID, visitorSession: VisitorSession, name: String, value: String): VisitorSessionVariable {
         val result = VisitorSessionVariable()
         result.visitorSession = visitorSession
         result.name = name
@@ -42,7 +42,7 @@ open class VisitorSessionVariableDAO() : AbstractDAO<VisitorSessionVariable>() {
      * @param visitorSession visitorSession
      * @return List of VisitorSessionVariables
      */
-    open fun findByVisitorSessionAndName(visitorSession: VisitorSession, name: String): VisitorSessionVariable? {
+    fun findByVisitorSessionAndName(visitorSession: VisitorSession, name: String): VisitorSessionVariable? {
         val entityManager = getEntityManager()
         val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<VisitorSessionVariable> = criteriaBuilder.createQuery(VisitorSessionVariable::class.java)
@@ -63,7 +63,7 @@ open class VisitorSessionVariableDAO() : AbstractDAO<VisitorSessionVariable>() {
      * @param visitorSession visitorSession
      * @return List of VisitorSessionVariables
      */
-    open fun listByVisitorSession(visitorSession: VisitorSession): List<VisitorSessionVariable> {
+    fun listByVisitorSession(visitorSession: VisitorSession): List<VisitorSessionVariable> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<VisitorSessionVariable> = criteriaBuilder.createQuery(VisitorSessionVariable::class.java)
@@ -81,7 +81,7 @@ open class VisitorSessionVariableDAO() : AbstractDAO<VisitorSessionVariable>() {
      * @param value value
      * @return updated VisitorSessionVariable
      */
-    open fun updateValue(visitorSessionVariable: VisitorSessionVariable, value: String): VisitorSessionVariable {
+    fun updateValue(visitorSessionVariable: VisitorSessionVariable, value: String): VisitorSessionVariable {
         visitorSessionVariable.value = value
         return persist(visitorSessionVariable)
     }

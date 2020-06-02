@@ -1,9 +1,9 @@
 package fi.metatavu.muisti.persistence.model
 
-import fi.metatavu.muisti.api.spec.model.VisitorSessionState
 import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*
+import javax.validation.constraints.NotNull
 
 /**
  * JPA entity representing visitor
@@ -11,7 +11,15 @@ import javax.persistence.*
  * @author Antti Leppä
  */
 @Entity
-class VisitorSession {
+@Table(
+    uniqueConstraints = [
+        UniqueConstraint(
+            name = "UN_EXHIBITION_TAG_ID",
+            columnNames = ["exhibition_id", "tagId"]
+        )
+    ]
+)
+class Visitor {
 
     @Id
     var id: UUID? = null
@@ -31,7 +39,12 @@ class VisitorSession {
     @ManyToOne
     var exhibition: Exhibition? = null
 
-    var state: VisitorSessionState? = null
+    @NotNull
+    @Column(nullable = false)
+    var tagId: String? = null
+
+    @Column(nullable = false)
+    var userId: UUID? = null
 
     /**
      * JPA pre-persist event handler

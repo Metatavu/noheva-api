@@ -14,6 +14,7 @@ class ExhibitionDeviceGroupTranslator: AbstractTranslator<fi.metatavu.muisti.per
         result.exhibitionId = entity.exhibition?.id
         result.roomId = entity.room?.id
         result.name = entity.name
+        result.allowVisitorSessionCreation = entity.allowVisitorSessionCreation
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
         result.createdAt = entity.createdAt

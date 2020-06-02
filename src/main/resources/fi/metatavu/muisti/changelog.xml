@@ -565,4 +565,78 @@
 
     </changeSet>
 
+    <changeSet id="visitor" author="antti.leppa">
+        <createTable tableName="visitor">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="tagId" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="userId" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exhibition_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VISITOR_EXHIBITION_ID" referencedColumnNames="id" referencedTableName="exhibition"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="visitorsessionvisitor">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="visitorSession_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VISITOR_SESSION_VISITOR_VISITORSESSION_ID" referencedColumnNames="id" referencedTableName="visitorsession"/>
+            </column>
+            <column name="visitor_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VISITOR_SESSION_VISITOR_VISITOR_ID" referencedColumnNames="id" referencedTableName="visitor"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint columnNames="tagId,exhibition_id" constraintName="UN_EXHIBITION_TAG_ID" tableName="visitor"/>
+
+        <dropTable tableName="visitorsessionuser" />
+
+    </changeSet>
+
+    <changeSet id="exhibitiondevicegroupallowvisitorsessioncreation" author="antti.leppa">
+        <addColumn tableName="exhibitiondevicegroup">
+            <column name="allowVisitorSessionCreation" type="boolean" defaultValue="false"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="visitorsessionvisiteddevicegroup" author="antti.leppa">
+        <createTable tableName="visitorsessionvisiteddevicegroup">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="visitorSession_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VISITOR_SESSION_VISITED_DEVICE_GROUP_VISITOR_SESSION_ID" referencedColumnNames="id" referencedTableName="visitorsession"/>
+            </column>
+            <column name="deviceGroup_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VISITOR_SESSION_VISITED_DEVICE_GROUP_DEVICE_GROUP_ID" referencedColumnNames="id" referencedTableName="exhibitiondevicegroup"/>
+            </column>
+            <column name="enteredAt" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exitedAt" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint columnNames="visitorSession_id,deviceGroup_id" constraintName="UN_VISITOR_SESSION_VISITED_DEVICE_GROUP_IDS" tableName="visitorsessionvisiteddevicegroup"/>
+    </changeSet>
+
 </databaseChangeLog>
