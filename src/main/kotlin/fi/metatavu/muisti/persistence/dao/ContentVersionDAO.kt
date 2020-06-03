@@ -1,12 +1,11 @@
 package fi.metatavu.muisti.persistence.dao
 
-import fi.metatavu.muisti.persistence.model.ContentVersion
-import fi.metatavu.muisti.persistence.model.Exhibition
-import fi.metatavu.muisti.persistence.model.ContentVersion_
+import fi.metatavu.muisti.persistence.model.*
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
 import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 
 /**

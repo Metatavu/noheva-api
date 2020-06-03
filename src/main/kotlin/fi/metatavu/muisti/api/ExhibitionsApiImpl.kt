@@ -765,7 +765,16 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val name = payload.name
         val language = payload.language
+
+        val exhibitionRooms = mutableListOf<fi.metatavu.muisti.persistence.model.ExhibitionRoom>()
+        for (roomId in payload.rooms) {
+            val room = exhibitionRoomController.findExhibitionRoomById(roomId)
+            room ?: return createBadRequest("Invalid roomid $roomId")
+            exhibitionRooms.add(room)
+        }
+
         val contentVersion = contentVersionController.createContentVersion(exhibition, name, language, userId)
+        contentVersionController.setContentVersionRooms(contentVersion, exhibitionRooms)
         return createOk(contentVersionTranslator.translate(contentVersion))
     }
 
@@ -784,11 +793,11 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         return createOk(contentVersionTranslator.translate(contentVersion))
     }
 
-    override fun listContentVersions(exhibitionId: UUID?): Response {
+    override fun listContentVersions(exhibitionId: UUID?, roomId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
-        val contentVersions = contentVersionController.listContentVersions(exhibition)
-
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val room = exhibitionRoomController.findExhibitionRoomById(roomId)
+        val contentVersions = contentVersionController.listContentVersions(exhibition, room)
         return createOk(contentVersions.map (contentVersionTranslator::translate))
     }
 
@@ -801,8 +810,15 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound("Content version $contentVersionId not found")
         val name = payload.name
         val language = payload.language
-        val result = contentVersionController.updateContentVersion(contentVersion, name, language, userId)
+        val exhibitionRooms = mutableListOf<fi.metatavu.muisti.persistence.model.ExhibitionRoom>()
+        for (roomId in payload.rooms) {
+            val room = exhibitionRoomController.findExhibitionRoomById(roomId)
+            room ?: return createBadRequest("Invalid room id $roomId")
+            exhibitionRooms.add(room)
+        }
 
+        val result = contentVersionController.updateContentVersion(contentVersion, name, language, userId)
+        contentVersionController.setContentVersionRooms(result, exhibitionRooms)
         return createOk(contentVersionTranslator.translate(result))
     }
 
