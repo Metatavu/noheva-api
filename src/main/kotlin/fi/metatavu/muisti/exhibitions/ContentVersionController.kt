@@ -1,10 +1,10 @@
 package fi.metatavu.muisti.exhibitions
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import fi.metatavu.muisti.persistence.dao.ContentVersionDAO
-import fi.metatavu.muisti.persistence.model.Exhibition
-import fi.metatavu.muisti.persistence.model.ContentVersion
-import fi.metatavu.muisti.persistence.model.ExhibitionRoom
-import fi.metatavu.muisti.persistence.model.GroupContentVersion
+import fi.metatavu.muisti.persistence.dao.ContentVersionRoomDAO
+import fi.metatavu.muisti.persistence.model.*
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -17,6 +17,9 @@ class ContentVersionController() {
 
     @Inject
     private lateinit var contentVersionDAO: ContentVersionDAO
+
+    @Inject
+    private lateinit var contentVersionRoomDAO: ContentVersionRoomDAO
 
     /**
      * Creates new content version
@@ -42,11 +45,38 @@ class ContentVersionController() {
 
     /**
      * Lists content versions in an exhibitions
+     * @param exhibition exhibition
+     * @param exhibitionRoom exhibition room
      *
-     * @returns all contentVersions in an exhibition
+     * @returns list of content versions
      */
     fun listContentVersions(exhibition: Exhibition, exhibitionRoom: ExhibitionRoom?): List<ContentVersion> {
-        return contentVersionDAO.list(exhibition, exhibitionRoom)
+
+        if (exhibitionRoom != null) {
+            return contentVersionRoomDAO.listContentVersionsByRoom(exhibitionRoom)
+        }
+
+        return contentVersionDAO.listByExhibition(exhibition)
+    }
+
+    /**
+     * Sets content version rooms
+     *
+     * @param contentVersion content version
+     * @param rooms list of exhibition rooms
+     */
+    fun setContentVersionRooms(contentVersion: ContentVersion, rooms: List<ExhibitionRoom>) {
+        val existingContentVersionRooms = contentVersionRoomDAO.listRoomsByContentVersion(contentVersion).toMutableList()
+
+        for (room in rooms) {
+            val existingContentVersionRoom = existingContentVersionRooms.find { it.exhibitionRoom?.id == room.id }
+            if (existingContentVersionRoom == null) {
+                contentVersionRoomDAO.create(UUID.randomUUID(), contentVersion, room)
+            } else {
+                existingContentVersionRooms.remove(existingContentVersionRoom)
+            }
+        }
+        existingContentVersionRooms.forEach(contentVersionRoomDAO::delete)
     }
 
     /**
@@ -59,17 +89,18 @@ class ContentVersionController() {
      * @return updated ContentVersion
      */
     fun updateContentVersion(contentVersion: ContentVersion, name: String, language: String, modifierId: UUID): ContentVersion {
-      var result = contentVersionDAO.updateName(contentVersion, name, modifierId)
-      result = contentVersionDAO.updateLanguage(result, language, modifierId)
-      return result
+        var result = contentVersionDAO.updateName(contentVersion, name, modifierId)
+        result = contentVersionDAO.updateLanguage(result, language, modifierId)
+        return result
     }
 
     /**
-     * Deletes a content version
+     * Deletes a content version and all relations
      *
      * @param contentVersion content version to be deleted
      */
     fun deleteContentVersion(contentVersion: ContentVersion) {
-        return contentVersionDAO.delete(contentVersion)
+        contentVersionRoomDAO.listRoomsByContentVersion(contentVersion).forEach(contentVersionRoomDAO::delete)
+        contentVersionDAO.delete(contentVersion)
     }
 }

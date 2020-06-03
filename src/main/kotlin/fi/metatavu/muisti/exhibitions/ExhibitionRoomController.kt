@@ -42,7 +42,8 @@ class ExhibitionRoomController() {
      * @param id exhibition room id
      * @return found exhibition room or null if not found
      */
-    fun findExhibitionRoomById(id: UUID): ExhibitionRoom? {
+    fun findExhibitionRoomById(id: UUID?): ExhibitionRoom? {
+        id ?: return null
         return exhibitionRoomDAO.findById(id)
     }
 

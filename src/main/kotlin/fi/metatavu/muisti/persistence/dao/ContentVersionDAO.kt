@@ -44,20 +44,13 @@ class ContentVersionDAO() : AbstractDAO<ContentVersion>() {
      * @param exhibition exhibition
      * @return List of ContentVersions
      */
-    fun list(exhibition: Exhibition, exhibitionRoom: ExhibitionRoom?): List<ContentVersion> {
+    fun listByExhibition(exhibition: Exhibition): List<ContentVersion> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ContentVersion> = criteriaBuilder.createQuery(ContentVersion::class.java)
         val root: Root<ContentVersion> = criteria.from(ContentVersion::class.java)
-        val restrictions = ArrayList<Predicate>()
-
-        if (exhibitionRoom != null) {
-            restrictions.add(criteriaBuilder.equal(root.get(ContentVersion_.rooms), exhibitionRoom.id))
-        }
-
-        restrictions.add(criteriaBuilder.equal(root.get(ContentVersion_.exhibition), exhibition))
         criteria.select(root)
-        criteria.where(*restrictions.toTypedArray())
+        criteria.where(criteriaBuilder.equal(root.get(ContentVersion_.exhibition), exhibition))
         val query: TypedQuery<ContentVersion> = entityManager.createQuery<ContentVersion>(criteria)
         return query.resultList
     }
