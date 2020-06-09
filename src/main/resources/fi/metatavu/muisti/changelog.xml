@@ -653,4 +653,44 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="rfidantennas" author="antti.leppa">
+        <createTable tableName="rfidantenna">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="exhibition_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_RFIDANTENNA_EXHIBITION_ID" referencedColumnNames="id" referencedTableName="exhibition"/>
+            </column>
+            <column name="deviceGroup_id" type="binary(16)">
+                <constraints nullable="true" foreignKeyName="FK_RFIDANTENNA_DEVICE_GROUP_ID" referencedColumnNames="id" referencedTableName="exhibitiondevicegroup"/>
+            </column>
+            <column name="room_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_RFIDANTENNA_ROOM_ID" referencedColumnNames="id" referencedTableName="exhibitionroom"/>
+            </column>
+            <column name="name" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="readerId" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="antennaNumber" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="locationX" type="double"/>
+            <column name="locationY" type="double"/>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>
