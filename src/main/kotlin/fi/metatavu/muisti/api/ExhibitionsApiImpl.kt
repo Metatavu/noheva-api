@@ -499,6 +499,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             creatorId = userId
         )
 
+        realtimeNotificationController.notifyDeviceCreate(id = exhibitionDevice.id!!, exhibitionId = exhibitionId)
+
         return createOk(exhibitionDeviceTranslator.translate(exhibitionDevice))
     }
 
@@ -549,6 +551,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(deviceId) ?: return createNotFound("Device $deviceId not found")
+        val groupChanged = exhibitionDevice.exhibitionDeviceGroup?.id != exhibitionGroup.id
         val location = payload.location
         val screenOrientation = payload.screenOrientation
         val result = exhibitionDeviceController.updateExhibitionDevice(
@@ -562,18 +565,21 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             modifierId = userId
         )
 
+        realtimeNotificationController.notifyDeviceUpdate(id = deviceId, exhibitionId = exhibitionId, groupChanged = groupChanged)
+
         return createOk(exhibitionDeviceTranslator.translate(result))
     }
 
     override fun deleteExhibitionDevice(exhibitionId: UUID?, deviceId: UUID?): Response {
-        if (exhibitionId == null || deviceId == null) {
-            return createNotFound(EXHIBITION_NOT_FOUND)
-        }
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        deviceId ?: return createNotFound("Device not found")
 
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(deviceId) ?: return createNotFound("Device $deviceId not found")
         exhibitionDeviceController.deleteExhibitionDevice(exhibitionDevice)
+
+        realtimeNotificationController.notifyDeviceDelete(id = deviceId, exhibitionId = exhibitionId)
 
         return createNoContent()
     }
@@ -615,6 +621,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             location = payload.location,
             creatorId = userId
         )
+
+        realtimeNotificationController.notifyRfidAntennaCreate(id = rfidAntenna.id!!, exhibitionId = exhibitionId)
 
         return createOk(rfidAntennaTranslator.translate(rfidAntenna))
     }
@@ -690,6 +698,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             room = exhibitionRoomController.findExhibitionRoomById(payload.roomId) ?: return createBadRequest("Invalid room id ${payload.roomId}")
         }
 
+        val groupChanged = rfidAntenna.deviceGroup?.id != deviceGroup?.id
 
         val result = rfidAntennaController.updateRfidAntenna(
             rfidAntenna = rfidAntenna,
@@ -701,6 +710,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             location = payload.location,
             modifierId = userId
         )
+
+        realtimeNotificationController.notifyRfidAntennaUpdate(id = rfidAntennaId, exhibitionId = exhibitionId, groupChanged = groupChanged)
 
         return createOk(rfidAntennaTranslator.translate(result))
     }
@@ -717,6 +728,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         }
 
         rfidAntennaController.deleteRfidAntenna(rfidAntenna)
+        realtimeNotificationController.notifyRfidAntennaDelete(id = rfidAntennaId, exhibitionId = exhibitionId)
 
         return createNoContent()
     }
@@ -736,6 +748,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             room = room,
             creatorId = userId
         )
+
+        realtimeNotificationController.notifyDeviceGroupCreate(id = exhibitionDeviceGroup.id!!, exhibitionId = exhibitionId)
 
         return createOk(exhibitionDeviceGroupTranslator.translate(exhibitionDeviceGroup))
     }
@@ -786,6 +800,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             modifierId = userId
         )
 
+        realtimeNotificationController.notifyDeviceGroupUpdate(id = deviceGroupId, exhibitionId = exhibitionId)
+
         return createOk(exhibitionDeviceGroupTranslator.translate(result))
     }
 
@@ -796,6 +812,9 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createNotFound("Room $deviceGroupId not found")
         exhibitionDeviceGroupController.deleteExhibitionDeviceGroup(exhibitionDeviceGroup)
+
+        realtimeNotificationController.notifyDeviceGroupDelete(id = deviceGroupId, exhibitionId = exhibitionId)
+
         return createNoContent()
     }
 

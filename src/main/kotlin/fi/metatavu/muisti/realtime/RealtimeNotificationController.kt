@@ -138,6 +138,127 @@ class RealtimeNotificationController {
         mqttMessage.id = id
         publishMqttTransactionSuccess("visitors/delete", mqttMessage)
     }
+    
+    /**
+     * Notify subscribers about new device group creation
+     *
+     * @param exhibitionId exhibition id
+     * @param id page id
+     */
+    fun notifyDeviceGroupCreate(exhibitionId: UUID, id: UUID) {
+        val mqttMessage = MqttDeviceGroupCreate()
+        mqttMessage.exhibitionId = exhibitionId
+        mqttMessage.id = id
+        publishMqttTransactionSuccess("devicegroups/create", mqttMessage)
+    }
+
+    /**
+     * Notify subscribers about device group update
+     *
+     * @param exhibitionId exhibition id
+     * @param id page id
+     */
+    fun notifyDeviceGroupUpdate(exhibitionId: UUID, id: UUID) {
+        val mqttMessage = MqttDeviceGroupUpdate()
+        mqttMessage.exhibitionId = exhibitionId
+        mqttMessage.id = id
+        publishMqttTransactionSuccess("devicegroups/update", mqttMessage)
+    }
+
+    /**
+     * Notify subscribers about device group deletion
+     *
+     * @param exhibitionId exhibition id
+     * @param id page id
+     */
+    fun notifyDeviceGroupDelete(exhibitionId: UUID, id: UUID) {
+        val mqttMessage = MqttDeviceGroupDelete()
+        mqttMessage.exhibitionId = exhibitionId
+        mqttMessage.id = id
+        publishMqttTransactionSuccess("devicegroups/delete", mqttMessage)
+    }
+
+    /**
+     * Notify subscribers about new RFID antenna creation
+     *
+     * @param exhibitionId exhibition id
+     * @param id page id
+     */
+    fun notifyRfidAntennaCreate(exhibitionId: UUID, id: UUID) {
+        val mqttMessage = MqttRfidAntennaCreate()
+        mqttMessage.exhibitionId = exhibitionId
+        mqttMessage.id = id
+        publishMqttTransactionSuccess("rfidantennas/create", mqttMessage)
+    }
+
+    /**
+     * Notify subscribers about RFID antenna update
+     *
+     * @param exhibitionId exhibition id
+     * @param id page id
+     * @param groupChanged whether antenna device group has changed
+     */
+    fun notifyRfidAntennaUpdate(exhibitionId: UUID, id: UUID, groupChanged: Boolean) {
+        val mqttMessage = MqttRfidAntennaUpdate()
+        mqttMessage.exhibitionId = exhibitionId
+        mqttMessage.id = id
+        mqttMessage.groupChanged = groupChanged
+        publishMqttTransactionSuccess("rfidantennas/update", mqttMessage)
+    }
+
+    /**
+     * Notify subscribers about RFID antenna deletion
+     *
+     * @param exhibitionId exhibition id
+     * @param id page id
+     */
+    fun notifyRfidAntennaDelete(exhibitionId: UUID, id: UUID) {
+        val mqttMessage = MqttRfidAntennaDelete()
+        mqttMessage.exhibitionId = exhibitionId
+        mqttMessage.id = id
+        publishMqttTransactionSuccess("rfidantennas/delete", mqttMessage)
+    }
+
+    /**
+     * Notify subscribers about new device creation
+     *
+     * @param exhibitionId exhibition id
+     * @param id page id
+     */
+    fun notifyDeviceCreate(exhibitionId: UUID, id: UUID) {
+        val mqttMessage = MqttDeviceCreate()
+        mqttMessage.exhibitionId = exhibitionId
+        mqttMessage.id = id
+        publishMqttTransactionSuccess("devices/create", mqttMessage)
+    }
+
+    /**
+     * Notify subscribers about device update
+     *
+     * @param exhibitionId exhibition id
+     * @param id page id
+     * @param groupChanged whether antenna device group has changed
+     */
+    fun notifyDeviceUpdate(exhibitionId: UUID, id: UUID, groupChanged: Boolean) {
+        val mqttMessage = MqttDeviceUpdate()
+        mqttMessage.exhibitionId = exhibitionId
+        mqttMessage.id = id
+        mqttMessage.groupChanged = groupChanged
+        publishMqttTransactionSuccess("devices/update", mqttMessage)
+    }
+
+    /**
+     * Notify subscribers about device deletion
+     *
+     * @param exhibitionId exhibition id
+     * @param id page id
+     */
+    fun notifyDeviceDelete(exhibitionId: UUID, id: UUID) {
+        val mqttMessage = MqttDeviceDelete()
+        mqttMessage.exhibitionId = exhibitionId
+        mqttMessage.id = id
+        publishMqttTransactionSuccess("devices/delete", mqttMessage)
+    }
 
     /**
      * Enqueues MQTT message to be published when transaction ends successfully
