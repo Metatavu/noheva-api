@@ -591,7 +591,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             return createBadRequest("Name cannot be empty")
         }
 
-        if (payload.readerId == null || payload.readerId.isEmpty()) {
+        if (payload.readerId.isNullOrEmpty()) {
             return createBadRequest("ReaderId cannot be empty")
         }
 
