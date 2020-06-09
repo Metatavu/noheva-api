@@ -587,7 +587,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
 
-        if (payload.name == null || payload.name.isEmpty()) {
+        if (payload.name.isNullOrEmpty()) {
             return createBadRequest("Name cannot be empty")
         }
 
