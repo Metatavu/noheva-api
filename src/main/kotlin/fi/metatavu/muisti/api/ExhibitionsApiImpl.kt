@@ -593,11 +593,11 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
 
-        if (payload.name == null || payload.name.isEmpty()) {
+        if (payload.name.isNullOrEmpty()) {
             return createBadRequest("Name cannot be empty")
         }
 
-        if (payload.readerId == null || payload.readerId.isEmpty()) {
+        if (payload.readerId.isNullOrEmpty()) {
             return createBadRequest("ReaderId cannot be empty")
         }
 
@@ -680,11 +680,11 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             return createNotFound("RFID antenna $rfidAntennaId not found")
         }
 
-        if (payload.name == null || payload.name.isEmpty()) {
+        if (payload.name.isNullOrEmpty()) {
             return createBadRequest("Name cannot be empty")
         }
 
-        if (payload.readerId == null || payload.readerId.isEmpty()) {
+        if (payload.readerId.isNullOrEmpty()) {
             return createBadRequest("ReaderId cannot be empty")
         }
 

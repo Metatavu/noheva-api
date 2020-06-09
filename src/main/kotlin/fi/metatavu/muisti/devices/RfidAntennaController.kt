@@ -60,6 +60,7 @@ class RfidAntennaController {
     /**
      * Lists RFID antennas
      *
+     * @param exhibition exhibition to list antennas from
      * @param deviceGroup filter by device group
      * @param room filter by room
      * @returns RFID antennas
