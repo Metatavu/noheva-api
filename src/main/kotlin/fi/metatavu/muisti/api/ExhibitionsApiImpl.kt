@@ -672,7 +672,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             return createNotFound("RFID antenna $rfidAntennaId not found")
         }
 
-        if (payload.name == null || payload.name.isEmpty()) {
+        if (payload.name.isNullOrEmpty()) {
             return createBadRequest("Name cannot be empty")
         }
 
