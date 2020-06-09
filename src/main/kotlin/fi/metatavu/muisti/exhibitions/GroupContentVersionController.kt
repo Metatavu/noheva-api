@@ -65,11 +65,11 @@ class GroupContentVersionController() {
      * @return updated GroupContentVersion
      */
     fun updateGroupContentVersion(groupContentVersion: GroupContentVersion, name: String, status: GroupContentVersionStatus, contentVersion: ContentVersion, deviceGroup: ExhibitionDeviceGroup, modifierId: UUID): GroupContentVersion {
-      var result = groupContentVersionDAO.updateName(groupContentVersion, name, modifierId)
-      result = groupContentVersionDAO.updateStatus(result, status, modifierId)
-      result = groupContentVersionDAO.updateContentVersion(result, contentVersion, modifierId)
-      result = groupContentVersionDAO.updateDeviceGroup(result, deviceGroup, modifierId)
-      return result
+        var result = groupContentVersionDAO.updateName(groupContentVersion, name, modifierId)
+        result = groupContentVersionDAO.updateStatus(result, status, modifierId)
+        result = groupContentVersionDAO.updateContentVersion(result, contentVersion, modifierId)
+        result = groupContentVersionDAO.updateDeviceGroup(result, deviceGroup, modifierId)
+        return result
     }
 
     /**
