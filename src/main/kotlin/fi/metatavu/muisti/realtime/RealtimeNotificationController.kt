@@ -101,6 +101,45 @@ class RealtimeNotificationController {
     }
 
     /**
+     * Notify subscribers about new visitor creation
+     *
+     * @param exhibitionId exhibition id
+     * @param id page id
+     */
+    fun notifyVisitorCreate(exhibitionId: UUID, id: UUID) {
+        val mqttMessage = MqttVisitorCreate()
+        mqttMessage.exhibitionId = exhibitionId
+        mqttMessage.id = id
+        publishMqttTransactionSuccess("visitors/create", mqttMessage)
+    }
+
+    /**
+     * Notify subscribers about visitor update
+     *
+     * @param exhibitionId exhibition id
+     * @param id page id
+     */
+    fun notifyVisitorUpdate(exhibitionId: UUID, id: UUID) {
+        val mqttMessage = MqttVisitorUpdate()
+        mqttMessage.exhibitionId = exhibitionId
+        mqttMessage.id = id
+        publishMqttTransactionSuccess("visitors/update", mqttMessage)
+    }
+
+    /**
+     * Notify subscribers about visitor deletion
+     *
+     * @param exhibitionId exhibition id
+     * @param id page id
+     */
+    fun notifyVisitorDelete(exhibitionId: UUID, id: UUID) {
+        val mqttMessage = MqttVisitorDelete()
+        mqttMessage.exhibitionId = exhibitionId
+        mqttMessage.id = id
+        publishMqttTransactionSuccess("visitors/delete", mqttMessage)
+    }
+
+    /**
      * Enqueues MQTT message to be published when transaction ends successfully
      *
      * @param subtopic message subtopic

@@ -1,6 +1,6 @@
 package fi.metatavu.muisti.api.test.functional
 
-import fi.metatavu.muisti.api.client.models.Visitor
+import fi.metatavu.muisti.api.client.models.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -16,6 +16,7 @@ class VisitorTestsIT: AbstractFunctionalTest() {
     @Test
     fun testCreateVisitor() {
         ApiTestBuilder().use {
+            val mqttSubscription = it.mqtt().subscribe(MqttExhibitionVisitorSessionCreate::class.java,"visitors/create")
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val createdVisitor = it.admin().visitors().create(exhibitionId, Visitor(
@@ -27,6 +28,8 @@ class VisitorTestsIT: AbstractFunctionalTest() {
             assertNotNull(createdVisitor.id)
             assertEquals("faketag", createdVisitor.tagId)
             assertEquals("visitor@example.com", createdVisitor.email)
+
+            assertJsonsEqual(listOf(MqttVisitorCreate(exhibitionId = exhibitionId, id = createdVisitor.id!!)), mqttSubscription.getMessages(1))
         }
     }
 
@@ -98,6 +101,7 @@ class VisitorTestsIT: AbstractFunctionalTest() {
     @Test
     fun testUpdateVisitor() {
         ApiTestBuilder().use {
+            val mqttSubscription = it.mqtt().subscribe(MqttExhibitionVisitorSessionCreate::class.java,"visitors/update")
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
 
@@ -116,12 +120,14 @@ class VisitorTestsIT: AbstractFunctionalTest() {
             ))
 
             assertEquals("updatetag", updatedVisitor?.tagId)
+            assertJsonsEqual(listOf(MqttVisitorUpdate(exhibitionId = exhibitionId, id = createdVisitor.id!!)), mqttSubscription.getMessages(1))
         }
     }
 
     @Test
     fun testDeleteVisitor() {
         ApiTestBuilder().use {
+            val mqttSubscription = it.mqtt().subscribe(MqttExhibitionVisitorSessionCreate::class.java,"visitors/delete")
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val createdVisitor = it.admin().visitors().create(exhibitionId)
@@ -130,6 +136,7 @@ class VisitorTestsIT: AbstractFunctionalTest() {
             assertNotNull(it.admin().visitors().findVisitor(exhibitionId = exhibitionId, visitorId = createdVisitorId))
             it.admin().visitors().delete(exhibitionId = exhibitionId, visitorId = createdVisitorId)
             it.admin().visitors().assertFindFail(404, exhibitionId = exhibitionId, visitorId = createdVisitorId)
+            assertJsonsEqual(listOf(MqttVisitorDelete(exhibitionId = exhibitionId, id = createdVisitor.id!!)), mqttSubscription.getMessages(1))
         }
     }
 

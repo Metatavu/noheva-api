@@ -197,6 +197,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             creatorId = userId
         )
 
+        realtimeNotificationController.notifyVisitorCreate(exhibitionId, visitor.id!!)
+
         return createOk(visitorTranslator.translate(visitor))
     }
 
@@ -237,6 +239,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             lastModifierId = userId
         )
 
+        realtimeNotificationController.notifyVisitorUpdate(exhibitionId, visitorId)
+
         return createOk(visitorTranslator.translate(result))
     }
 
@@ -247,6 +251,9 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val visitor = visitorController.findVisitorById(visitorId) ?: return createNotFound("Visitor $visitorId not found")
         visitorController.deleteVisitor(visitor)
+
+        realtimeNotificationController.notifyVisitorDelete(exhibitionId, visitorId)
+
         return createNoContent()
     }
 
