@@ -54,7 +54,7 @@ class RfidAntennaDAO : AbstractDAO<RfidAntenna>() {
      *
      * @param exhibition filter by exhibition
      * @param deviceGroup filter by device group. Ignored if null is passed
-     * @param deviceGroup filter by room. Ignored if null is passed
+     * @param room filter by room. Ignored if null is passed
      * @return List of RFID antennas
      */
     fun list(exhibition: Exhibition, deviceGroup: ExhibitionDeviceGroup?, room: ExhibitionRoom?): List<RfidAntenna> {
