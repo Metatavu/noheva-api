@@ -143,7 +143,7 @@ class RealtimeNotificationController {
      * Notify subscribers about new device group creation
      *
      * @param exhibitionId exhibition id
-     * @param id page id
+     * @param id device group id
      */
     fun notifyDeviceGroupCreate(exhibitionId: UUID, id: UUID) {
         val mqttMessage = MqttDeviceGroupCreate()
