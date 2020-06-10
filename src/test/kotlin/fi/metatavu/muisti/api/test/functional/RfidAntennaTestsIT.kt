@@ -224,7 +224,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
     @Test
     fun testDeleteExhibition() {
         ApiTestBuilder().use {
-            val mqttSubscription= it.mqtt().subscribe(MqttRfidAntennaDelete::class.java,"rfidantennas/delete")
+            val mqttSubscription = it.mqtt().subscribe(MqttRfidAntennaDelete::class.java,"rfidantennas/delete")
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
