@@ -156,7 +156,7 @@ class RealtimeNotificationController {
      * Notify subscribers about device group update
      *
      * @param exhibitionId exhibition id
-     * @param id page id
+     * @param id device group id
      */
     fun notifyDeviceGroupUpdate(exhibitionId: UUID, id: UUID) {
         val mqttMessage = MqttDeviceGroupUpdate()
