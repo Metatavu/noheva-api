@@ -40,7 +40,9 @@ interface FileStorageProvider {
      *
      * @param storedFileId file id
      * @return file or null if not found
+     * @throws FileStorageException thrown when retrieving file fails
      */
+    @Throws(FileStorageException::class)
     fun find(storedFileId: String): StoredFile?
 
     /**
@@ -48,7 +50,9 @@ interface FileStorageProvider {
      *
      * @param folder parent folder
      * @return list of files in given folder
+     * @throws FileStorageException thrown when listing fails
      */
+    @Throws(FileStorageException::class)
     fun list(folder: String): List<StoredFile>
 
     /**
@@ -56,14 +60,18 @@ interface FileStorageProvider {
      *
      * @param storedFile
      * @return updated file
+     * @throws FileStorageException thrown when updating fails
      */
+    @Throws(FileStorageException::class)
     fun update(storedFile: StoredFile): StoredFile
 
     /**
      * Deletes single file
      *
      * @param storedFileId file id
+     * @throws FileStorageException thrown when deleting fails
      */
+    @Throws(FileStorageException::class)
     fun delete(storedFileId: String)
 
 }
