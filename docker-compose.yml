@@ -38,6 +38,8 @@ services:
     ports:
       - 1883:1883
   muisti-api:
+    env_file:
+      - ./api.env
     build: .
     ports:
       - 1234:8080
@@ -61,11 +63,10 @@ services:
       KEYCLOAK_ADMIN_USERNAME: api
       KEYCLOAK_ADMIN_PASSWORD: d0abd401-7781-46f0-8146-643f5f946256
       KUBERNETES_NAMESPACE: test
-      FILE_STORAGE_PROVIDER: LOCAL
-      LOCAL_FILE_STORAGE_PATH: /opt/uploads
       JAVA_OPTS: '-javaagent:/opt/jacoco-jacocoagent.jar=output=file,append=false,dumponexit=true,destfile=/opt/jacoco/it.exec'
       MQTT_SERVER_URL: test-mqtt
       MQTT_TOPIC: test
+      FILE_STORAGE_PROVIDER: S3
     volumes:
       - ./test-volumes/uploads:/opt/uploads
       - $JACOCO_AGENT:/opt/jacoco-jacocoagent.jar

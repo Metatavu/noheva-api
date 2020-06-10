@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletResponse
 @RequestScoped
 @MultipartConfig
 @WebServlet(urlPatterns = ["/files", "/files/*"])
-open class FilesServlet : HttpServlet() {
+class FilesServlet : HttpServlet() {
 
     @Inject
     private lateinit var logger: Logger
@@ -50,13 +50,13 @@ open class FilesServlet : HttpServlet() {
             val fileName = file.submittedFileName
             val inputStream = file.inputStream
             InputFile(folder, FileMeta(contentType, fileName), inputStream).use { inputFile ->
-                val outputFile: OutputFile = fileController.storeFile(inputFile)
+                val storedFile = fileController.storeFile(inputFile)
                 resp.contentType = "application/json"
                 val servletOutputStream = resp.outputStream
                 try {
                     val objectMapper = ObjectMapper()
                     objectMapper.registerModule(KotlinModule())
-                    objectMapper.writeValue(servletOutputStream, outputFile)
+                    objectMapper.writeValue(servletOutputStream, storedFile)
                 } finally {
                     servletOutputStream.flush()
                 }

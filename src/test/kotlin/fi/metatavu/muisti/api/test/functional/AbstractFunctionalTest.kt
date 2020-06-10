@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import fi.metatavu.muisti.api.client.models.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import org.apache.commons.codec.digest.DigestUtils
 import org.json.JSONException
 import org.junit.Assert
@@ -14,6 +17,7 @@ import org.skyscreamer.jsonassert.JSONCompareResult
 import org.skyscreamer.jsonassert.comparator.CustomComparator
 
 import java.io.IOException
+import java.io.InputStream
 
 /**
  * Abstract base class for functional tests
@@ -89,6 +93,27 @@ abstract class AbstractFunctionalTest {
     protected open fun getResourceMd5(resourceName: String?): String? {
         val classLoader = javaClass.classLoader
         classLoader.getResourceAsStream(resourceName).use { fileStream -> return DigestUtils.md5Hex(fileStream) }
+    }
+
+    /**
+     * Downloads URI contents as an input stream
+     *
+     * @param uri URI
+     * @return content stream
+     */
+    protected fun download(uri: String): InputStream? {
+        val request: Request = Request.Builder()
+            .url(uri)
+            .get()
+            .build()
+
+        val response: Response = OkHttpClient().newCall(request).execute()
+        Assert.assertTrue(response.isSuccessful)
+
+        val body = response.body
+        Assert.assertNotNull(body)
+
+        return body?.byteStream()
     }
 
     /**
