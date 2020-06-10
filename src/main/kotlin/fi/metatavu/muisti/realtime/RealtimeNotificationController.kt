@@ -251,7 +251,7 @@ class RealtimeNotificationController {
      * Notify subscribers about device deletion
      *
      * @param exhibitionId exhibition id
-     * @param id page id
+     * @param id device id
      */
     fun notifyDeviceDelete(exhibitionId: UUID, id: UUID) {
         val mqttMessage = MqttDeviceDelete()
