@@ -199,7 +199,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
     @Test
     fun testDeleteDevice() {
         ApiTestBuilder().use {
-            val mqttSubscription= it.mqtt().subscribe(MqttDeviceDelete::class.java,"devices/delete")
+            val mqttSubscription = it.mqtt().subscribe(MqttDeviceDelete::class.java,"devices/delete")
 
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
