@@ -223,7 +223,7 @@ class RealtimeNotificationController {
      * Notify subscribers about new device creation
      *
      * @param exhibitionId exhibition id
-     * @param id page id
+     * @param id device id
      */
     fun notifyDeviceCreate(exhibitionId: UUID, id: UUID) {
         val mqttMessage = MqttDeviceCreate()
