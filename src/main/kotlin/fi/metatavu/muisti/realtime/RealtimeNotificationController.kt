@@ -195,7 +195,7 @@ class RealtimeNotificationController {
      * Notify subscribers about RFID antenna update
      *
      * @param exhibitionId exhibition id
-     * @param id page id
+     * @param id antenna id
      * @param groupChanged whether antenna device group has changed
      */
     fun notifyRfidAntennaUpdate(exhibitionId: UUID, id: UUID, groupChanged: Boolean) {
