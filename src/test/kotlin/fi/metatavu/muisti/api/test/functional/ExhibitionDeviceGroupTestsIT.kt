@@ -1,6 +1,9 @@
 package fi.metatavu.muisti.api.test.functional
 
 import fi.metatavu.muisti.api.client.models.ExhibitionDeviceGroup
+import fi.metatavu.muisti.api.client.models.MqttDeviceGroupCreate
+import fi.metatavu.muisti.api.client.models.MqttDeviceGroupDelete
+import fi.metatavu.muisti.api.client.models.MqttDeviceGroupUpdate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -16,6 +19,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
     @Test
     fun testCreateExhibitionDeviceGroup() {
         ApiTestBuilder().use {
+            val mqttSubscription = it.mqtt().subscribe(MqttDeviceGroupCreate::class.java,"devicegroups/create")
+
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
@@ -30,6 +35,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                 allowVisitorSessionCreation = false
               )
             )
+
+            assertJsonsEqual(listOf(MqttDeviceGroupCreate(exhibitionId = exhibitionId, id = createdExhibitionDeviceGroup.id!!)), mqttSubscription.getMessages(1))
 
             assertNotNull(createdExhibitionDeviceGroup)
             it.admin().exhibitions().assertCreateFail(400, "")
@@ -102,6 +109,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
     @Test
     fun testUpdateExhibitionDeviceGroup() {
         ApiTestBuilder().use {
+            val mqttSubscription= it.mqtt().subscribe(MqttDeviceGroupUpdate::class.java,"devicegroups/update")
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -133,6 +141,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
               allowVisitorSessionCreation = true
             ))
 
+            assertJsonsEqual(listOf(MqttDeviceGroupUpdate(exhibitionId = exhibitionId, id = createdExhibitionDeviceGroup.id!!)), mqttSubscription.getMessages(1))
+
             val foundUpdatedExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().findExhibitionDeviceGroup(exhibitionId, createdExhibitionDeviceGroupId)
 
             assertEquals(updatedExhibitionDeviceGroup!!.id, foundUpdatedExhibitionDeviceGroup?.id)
@@ -150,6 +160,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
     @Test
     fun testDeleteExhibitionDeviceGroup() {
         ApiTestBuilder().use {
+            val mqttSubscription= it.mqtt().subscribe(MqttDeviceGroupDelete::class.java,"devicegroups/delete")
+
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -168,6 +180,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             it.admin().exhibitionDeviceGroups().assertDeleteFail(404, nonExistingExhibitionId, nonExistingSessionVariableId)
 
             it.admin().exhibitionDeviceGroups().delete(exhibitionId, createdExhibitionDeviceGroup)
+            assertJsonsEqual(listOf(MqttDeviceGroupDelete(exhibitionId = exhibitionId, id = createdExhibitionDeviceGroup.id!!)), mqttSubscription.getMessages(1))
 
             it.admin().exhibitionDeviceGroups().assertDeleteFail(404, exhibitionId, createdExhibitionDeviceGroupId)
         }

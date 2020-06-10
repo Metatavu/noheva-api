@@ -1,7 +1,6 @@
 package fi.metatavu.muisti.api.test.functional
 
-import fi.metatavu.muisti.api.client.models.Point
-import fi.metatavu.muisti.api.client.models.RfidAntenna
+import fi.metatavu.muisti.api.client.models.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -17,6 +16,8 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
     @Test
     fun testCreateRfidAntenna() {
         ApiTestBuilder().use {
+            val mqttSubscription = it.mqtt().subscribe(MqttRfidAntennaCreate::class.java,"rfidantennas/create")
+
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
 
@@ -25,8 +26,10 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
             val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId = room.id!!
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+            val createdRfidAntenna = it.admin().rfidAntennas().create(exhibitionId, RfidAntenna(groupId = group.id!!, roomId = roomId, name = "name", antennaNumber = 5, readerId = "readid", location = Point(x = 123.0, y = 234.0)))
 
-            assertNotNull(it.admin().rfidAntennas().create(exhibitionId, RfidAntenna(groupId = group.id!!, roomId = roomId, name = "name", antennaNumber = 5, readerId = "readid", location = Point(x = 123.0, y = 234.0))))
+            assertNotNull(createdRfidAntenna)
+            assertJsonsEqual(listOf(MqttRfidAntennaCreate(exhibitionId = exhibitionId, id = createdRfidAntenna.id!!)), mqttSubscription.getMessages(1))
 
             it.admin().rfidAntennas().assertCreateFail(400, exhibitionId, RfidAntenna(groupId = UUID.randomUUID(), roomId = roomId, name = "name", antennaNumber = 5, readerId = "readid", location = Point(x = 123.0, y = 234.0)))
             it.admin().rfidAntennas().assertCreateFail(400, exhibitionId, RfidAntenna(groupId = group.id!!, roomId = roomId, name = "", antennaNumber = 5, readerId = "readid", location = Point(x = 123.0, y = 234.0)))
@@ -108,6 +111,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
     @Test
     fun testUpdateExhibition() {
         ApiTestBuilder().use {
+            val mqttSubscription= it.mqtt().subscribe(MqttRfidAntennaUpdate::class.java,"rfidantennas/update")
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -165,6 +169,16 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
             assertEquals("updateid", foundUpdatedRfidAntenna?.readerId)
             assertEquals(1, foundUpdatedRfidAntenna?.antennaNumber)
 
+            it.admin().rfidAntennas().updateRfidAntenna(exhibitionId, updatedRfidAntenna!!)
+
+            assertJsonsEqual(
+                listOf(
+                    MqttRfidAntennaUpdate(exhibitionId = exhibitionId, id = createdRfidAntenna.id!!, groupChanged = true),
+                    MqttRfidAntennaUpdate(exhibitionId = exhibitionId, id = createdRfidAntenna.id!!, groupChanged = false)
+                ),
+                mqttSubscription.getMessages(2)
+            )
+
             it.admin().rfidAntennas().assertUpdateFail(404, nonExistingExhibitionId, RfidAntenna(
                     id = createdRfidAntennaId,
                     groupId = UUID.randomUUID(),
@@ -210,6 +224,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
     @Test
     fun testDeleteExhibition() {
         ApiTestBuilder().use {
+            val mqttSubscription = it.mqtt().subscribe(MqttRfidAntennaDelete::class.java,"rfidantennas/delete")
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -237,6 +252,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
             it.admin().rfidAntennas().assertDeleteFail(404, nonExistingExhibitionId, nonExistingSessionVariableId)
 
             it.admin().rfidAntennas().delete(exhibitionId, createdRfidAntenna)
+            assertJsonsEqual(listOf(MqttRfidAntennaDelete(exhibitionId = exhibitionId, id = createdRfidAntenna.id!!)), mqttSubscription.getMessages(1))
 
             it.admin().rfidAntennas().assertDeleteFail(404, exhibitionId, createdRfidAntennaId)
         }
