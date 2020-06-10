@@ -129,7 +129,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
     @Test
     fun testUpdateExhibition() {
         ApiTestBuilder().use {
-            val mqttSubscription= it.mqtt().subscribe(MqttDeviceUpdate::class.java,"devices/update")
+            val mqttSubscription = it.mqtt().subscribe(MqttDeviceUpdate::class.java,"devices/update")
 
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
