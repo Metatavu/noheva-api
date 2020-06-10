@@ -22,7 +22,7 @@ class StoredFilesApiImpl: StoredFilesApi, AbstractApi() {
 
     override fun findStoredFile(storedFileId: String?): Response {
         storedFileId ?: return createNotFound("Stored file not found")
-        val storedFile = fileController.findStoredFile(storedFileId) ?: return createNotFound("Stored file not found")
+        val storedFile = fileController.findStoredFile(storedFileId) ?: return createNotFound("Stored file $storedFileId not found")
         return createOk(storedFile)
     }
 
@@ -37,7 +37,7 @@ class StoredFilesApiImpl: StoredFilesApi, AbstractApi() {
     override fun updateStoredFile(storedFileId: String?, storedFile: StoredFile?): Response {
         storedFile ?: return createBadRequest("Payload is required")
         storedFileId ?: return createNotFound("Stored file not found")
-        fileController.findStoredFile(storedFileId) ?: return createNotFound("Stored file not found")
+        fileController.findStoredFile(storedFileId) ?: return createNotFound("Stored file $storedFileId not found")
         return createOk(fileController.updateStoredFile(storedFile))
     }
 
