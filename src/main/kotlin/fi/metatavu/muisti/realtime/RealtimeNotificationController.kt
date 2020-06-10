@@ -210,7 +210,7 @@ class RealtimeNotificationController {
      * Notify subscribers about RFID antenna deletion
      *
      * @param exhibitionId exhibition id
-     * @param id page id
+     * @param id antenna id
      */
     fun notifyRfidAntennaDelete(exhibitionId: UUID, id: UUID) {
         val mqttMessage = MqttRfidAntennaDelete()
