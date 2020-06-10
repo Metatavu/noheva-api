@@ -169,7 +169,7 @@ class RealtimeNotificationController {
      * Notify subscribers about device group deletion
      *
      * @param exhibitionId exhibition id
-     * @param id page id
+     * @param id device group id
      */
     fun notifyDeviceGroupDelete(exhibitionId: UUID, id: UUID) {
         val mqttMessage = MqttDeviceGroupDelete()
