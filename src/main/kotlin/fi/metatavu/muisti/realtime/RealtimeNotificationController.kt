@@ -236,7 +236,7 @@ class RealtimeNotificationController {
      * Notify subscribers about device update
      *
      * @param exhibitionId exhibition id
-     * @param id page id
+     * @param id device id
      * @param groupChanged whether antenna device group has changed
      */
     fun notifyDeviceUpdate(exhibitionId: UUID, id: UUID, groupChanged: Boolean) {
