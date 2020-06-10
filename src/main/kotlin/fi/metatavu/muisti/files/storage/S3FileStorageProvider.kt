@@ -86,41 +86,55 @@ class S3FileStorageProvider : FileStorageProvider {
                 return null
             }
 
-            throw e
+            throw FileStorageException(e)
+        } catch (e: Exception) {
+            throw FileStorageException(e)
         }
     }
 
     override fun list(folder: String): List<StoredFile> {
-        val request = ListObjectsV2Request()
-            .withBucketName(bucket)
-            .withPrefix(folder)
+        try {
+            val request = ListObjectsV2Request()
+                .withBucketName(bucket)
+                .withPrefix(folder)
 
-        val response = client.listObjectsV2(request)
+            val response = client.listObjectsV2(request)
 
-        return response.objectSummaries.map {
-            val key = it.key
-            val metadata: ObjectMetadata = client.getObjectMetadata(bucket, key)
-            translateObject(key, metadata)
+            return response.objectSummaries.map {
+                val key = it.key
+                val metadata: ObjectMetadata = client.getObjectMetadata(bucket, key)
+                translateObject(key, metadata)
+            }
+        } catch (e: Exception) {
+            throw FileStorageException(e)
         }
     }
 
     override fun update(storedFile: StoredFile): StoredFile {
-        val key = getKey(storedFile.id)
-        val s3Object = client.getObject(bucket, key)
+        try {
+            val key = getKey(storedFile.id)
+            val s3Object = client.getObject(bucket, key)
 
-        val objectMeta = s3Object.objectMetadata.clone()
-        objectMeta.addUserMetadata("x-file-name", storedFile.fileName)
+            val objectMeta = s3Object.objectMetadata.clone()
+            objectMeta.addUserMetadata("x-file-name", storedFile.fileName)
 
-        val request = CopyObjectRequest(this.bucket, key, this.bucket, key)
-            .withNewObjectMetadata(objectMeta)
+            val request = CopyObjectRequest(this.bucket, key, this.bucket, key)
+                .withNewObjectMetadata(objectMeta)
 
-        client.copyObject(request)
+            client.copyObject(request)
 
-        return translateObject(key, objectMeta)
+            return translateObject(key, objectMeta)
+        } catch (e: Exception) {
+            throw FileStorageException(e)
+        }
     }
 
     override fun delete(storedFileId: String) {
-        client.deleteObject(this.bucket, this.getKey(storedFileId))
+        try {
+            client.deleteObject(this.bucket, this.getKey(storedFileId))
+        } catch (e: Exception) {
+            throw FileStorageException(e)
+        }
     }
 
     override val id: String
