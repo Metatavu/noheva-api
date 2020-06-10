@@ -163,7 +163,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val updatedExhibitionDevice = it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId, ExhibitionDevice(
                 groupId = group2.id!!,
                 modelId = model2.id!!,
-                name ="updated name",
+                name = "updated name",
                 screenOrientation = screenOrientation,
                 id = createdExhibitionDeviceId,
                 exhibitionId = exhibitionId,
