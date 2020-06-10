@@ -1,8 +1,6 @@
 package fi.metatavu.muisti.api.test.functional
 
-import fi.metatavu.muisti.api.client.models.ExhibitionDevice
-import fi.metatavu.muisti.api.client.models.Point
-import fi.metatavu.muisti.api.client.models.ScreenOrientation
+import fi.metatavu.muisti.api.client.models.*
 import org.junit.Assert.*
 import org.junit.Test
 import java.util.*
@@ -17,6 +15,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
     @Test
     fun testCreateExhibitionDevice() {
         ApiTestBuilder().use {
+            val mqttSubscription = it.mqtt().subscribe(MqttDeviceCreate::class.java,"devices/create")
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
 
@@ -28,7 +27,10 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
 
             val model = it.admin().deviceModels().create()
             val screenOrientation = ScreenOrientation.portrait
-            assertNotNull(it.admin().exhibitionDevices().create(exhibitionId, ExhibitionDevice( groupId = group.id!!, modelId = model.id!!, name = "name", screenOrientation = screenOrientation)))
+            val createdDevice = it.admin().exhibitionDevices().create(exhibitionId, ExhibitionDevice( groupId = group.id!!, modelId = model.id!!, name = "name", screenOrientation = screenOrientation))
+            assertNotNull(createdDevice)
+            assertJsonsEqual(listOf(MqttDeviceCreate(exhibitionId = exhibitionId, id = createdDevice.id!!)), mqttSubscription.getMessages(1))
+
             it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, ExhibitionDevice( groupId = UUID.randomUUID(), modelId = model.id!!, name = "name", screenOrientation = screenOrientation ))
             it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, ExhibitionDevice( groupId = group.id!!, modelId = UUID.randomUUID(), name = "name", screenOrientation = screenOrientation ))
         }
@@ -127,6 +129,8 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
     @Test
     fun testUpdateExhibition() {
         ApiTestBuilder().use {
+            val mqttSubscription = it.mqtt().subscribe(MqttDeviceUpdate::class.java,"devices/update")
+
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -136,6 +140,8 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val roomId = room.id!!
 
             val group1 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+            val group2 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+
             val model1 = it.admin().deviceModels().create()
             val model2 = it.admin().deviceModels().create()
             val nonExistingGroupId = UUID.randomUUID()
@@ -154,14 +160,34 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             assertEquals(model1.id, createdExhibitionDevice.modelId)
             screenOrientation = ScreenOrientation.landscape
 
-            val updatedExhibitionDevice = it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId, ExhibitionDevice(groupId = group1.id!!, modelId = model2.id!!, name ="updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId, exhibitionId = exhibitionId, location = Point(123.2, -234.4)))
+            val updatedExhibitionDevice = it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId, ExhibitionDevice(
+                groupId = group2.id!!,
+                modelId = model2.id!!,
+                name = "updated name",
+                screenOrientation = screenOrientation,
+                id = createdExhibitionDeviceId,
+                exhibitionId = exhibitionId,
+                location = Point(123.2, -234.4)
+            ))
+
+            it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId, updatedExhibitionDevice!!)
+
+            assertJsonsEqual(
+                listOf(
+                    MqttDeviceUpdate(exhibitionId = exhibitionId, id = createdExhibitionDeviceId, groupChanged = true),
+                    MqttDeviceUpdate(exhibitionId = exhibitionId, id = createdExhibitionDeviceId, groupChanged = false)
+                ),
+                mqttSubscription.getMessages(1)
+            )
+
             val foundUpdatedExhibitionDevice = it.admin().exhibitionDevices().findExhibitionDevice(exhibitionId, createdExhibitionDeviceId)
 
-            assertEquals(updatedExhibitionDevice!!.id, foundUpdatedExhibitionDevice?.id)
+            assertEquals(updatedExhibitionDevice.id, foundUpdatedExhibitionDevice?.id)
             assertEquals("updated name", updatedExhibitionDevice.name)
             assertEquals(123.2, updatedExhibitionDevice.location?.x)
             assertEquals(-234.4, updatedExhibitionDevice.location?.y)
             assertEquals(model2.id, updatedExhibitionDevice.modelId)
+            assertEquals(group2.id, updatedExhibitionDevice.groupId)
             assertEquals(ScreenOrientation.landscape, updatedExhibitionDevice.screenOrientation)
 
             it.admin().exhibitionDevices().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDevice(group1.id!!, model2.id!!,"name", screenOrientation, createdExhibitionDeviceId))
@@ -171,8 +197,10 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testDeleteExhibition() {
+    fun testDeleteDevice() {
         ApiTestBuilder().use {
+            val mqttSubscription = it.mqtt().subscribe(MqttDeviceDelete::class.java,"devices/delete")
+
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -193,6 +221,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             it.admin().exhibitionDevices().assertDeleteFail(404, nonExistingExhibitionId, nonExistingSessionVariableId)
 
             it.admin().exhibitionDevices().delete(exhibitionId, createdExhibitionDevice)
+            assertJsonsEqual(listOf(MqttDeviceDelete(exhibitionId = exhibitionId, id = createdExhibitionDeviceId)), mqttSubscription.getMessages(1))
 
             it.admin().exhibitionDevices().assertDeleteFail(404, exhibitionId, createdExhibitionDeviceId)
         }
