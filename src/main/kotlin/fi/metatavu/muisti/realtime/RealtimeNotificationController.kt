@@ -182,7 +182,7 @@ class RealtimeNotificationController {
      * Notify subscribers about new RFID antenna creation
      *
      * @param exhibitionId exhibition id
-     * @param id page id
+     * @param id antenna id
      */
     fun notifyRfidAntennaCreate(exhibitionId: UUID, id: UUID) {
         val mqttMessage = MqttRfidAntennaCreate()
