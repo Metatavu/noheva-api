@@ -24,9 +24,6 @@ import javax.ws.rs.core.Response
  */
 abstract class AbstractApi {
 
-    protected val EXHIBITION_NOT_FOUND = "Exhibition not found"
-    protected val UNAUTHORIZED = "Unauthorized"
-
     /**
      * Returns list parameter as <E> translated by given translate function.
      *
@@ -333,9 +330,11 @@ abstract class AbstractApi {
         }
 
     companion object {
-        protected const val NOT_FOUND_MESSAGE = "Not found"
-        protected const val UNAUTHORIZED = "Unauthorized"
-        protected const val FORBIDDEN = "Forbidden"
+        const val NOT_FOUND_MESSAGE = "Not found"
+        const val UNAUTHORIZED = "Unauthorized"
+        const val FORBIDDEN = "Forbidden"
+        const val EXHIBITION_NOT_FOUND = "Exhibition not found"
+        const val MISSING_REQUEST_BODY = "Missing request body"
     }
 
     /**
