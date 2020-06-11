@@ -1,16 +1,13 @@
 package fi.metatavu.muisti.api.test.functional
 
 import org.apache.commons.codec.digest.DigestUtils
-import org.apache.commons.io.FilenameUtils
-import org.apache.commons.lang3.StringUtils
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNotNull
 import org.junit.Test
-import java.io.File
-import java.io.FileInputStream
+import java.util.*
 
 /**
- * File upload functional tests
+ * File functional tests
  *
  * @author Antti Leppä
  */
@@ -20,21 +17,68 @@ class FileTestsIT : AbstractFunctionalTest() {
     @Throws(Exception::class)
     fun testUploadFile() {
         ApiTestBuilder().use { builder ->
-            val (_, uri) = builder.admin().files().upload("folder", "test-image.jpg", "image/jpeg")
-            val file = getAsUploadsFile(File(uri))
-            assertTrue(file.exists())
-            FileInputStream(file).use { fileInputStream -> assertEquals(getResourceMd5("test-image.jpg"), DigestUtils.md5Hex(fileInputStream)) }
+            val folder = UUID.randomUUID().toString()
+            val storedFile = builder.admin().files().upload(folder, "test-image.jpg", "image/jpeg", filename = null)
+            assertNotNull(storedFile)
+
+            val files = builder.admin().files().listStoredFiles(folder)
+            assertEquals(1, files.size)
+
+            download(files[0].uri).use { stream -> assertEquals(getResourceMd5("test-image.jpg"), DigestUtils.md5Hex(stream))  }
         }
     }
 
-    /**
-     * Returns file as mapped into test-volumes uploads folder
-     *
-     * @return file as mapped into test-volumes uploads folder
-     */
-    protected fun getAsUploadsFile(serverFile: File): File {
-        val uploadsFolder = File(System.getProperty("user.dir"), "test-volumes/uploads")
-        val serviceFilePath = serverFile.absolutePath
-        return File(uploadsFolder, StringUtils.substringAfter(serviceFilePath, FilenameUtils.separatorsToSystem("/opt/uploads")))
+    @Test
+    @Throws(Exception::class)
+    fun testFindFile() {
+        ApiTestBuilder().use { builder ->
+            val folder = UUID.randomUUID().toString()
+            val storedFile = builder.admin().files().upload(folder = folder, resourceName = "test-image.jpg", contentType = "image/jpeg", filename = null)
+            assertNotNull(storedFile)
+            assertNotNull(storedFile.id)
+
+            val storedFileId = storedFile.id!!
+
+            assertNotNull(builder.admin().files().findStoredFile(storedFileId = storedFileId))
+            builder.admin().files().assertFindFailStatus(404, storedFileId = UUID.randomUUID().toString())
+        }
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun testListFiles() {
+        ApiTestBuilder().use { builder ->
+            val folder = UUID.randomUUID().toString()
+            val storedFile1 = builder.admin().files().upload(folder, "test-image.jpg", "image/jpeg", filename = null)
+            assertNotNull(storedFile1)
+
+            val storedFile2 = builder.admin().files().upload(folder, "test-image-2.jpg", "image/jpeg", filename = null)
+            assertNotNull(storedFile2)
+
+            val files = builder.admin().files().listStoredFiles(folder)
+            assertEquals(2, files.size)
+
+            assertEquals("test-image.jpg", files.firstOrNull{ it.id == storedFile1.id }?.fileName)
+            assertEquals("image/jpeg", files.firstOrNull{ it.id == storedFile1.id }?.contentType)
+            assertEquals("test-image-2.jpg", files.firstOrNull{ it.id == storedFile2.id }?.fileName)
+            assertEquals("image/jpeg", files.firstOrNull{ it.id == storedFile2.id }?.contentType)
+        }
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testUpdateFile() {
+        ApiTestBuilder().use { builder ->
+            val folder = UUID.randomUUID().toString()
+            val createdFile= builder.admin().files().upload(folder, "test-image.jpg", "image/jpeg", filename = null)
+            assertEquals("test-image.jpg", createdFile.fileName)
+
+            val updatedFile = builder.admin().files().updateStoredFile(createdFile.copy(fileName = "changedfile.jpg"))
+            assertEquals("changedfile.jpg", updatedFile.fileName)
+
+            val foundUpdatedFile = builder.admin().files().findStoredFile(createdFile.id!!)
+            assertEquals("changedfile.jpg", foundUpdatedFile.fileName)
+        }
+    }
+
 }

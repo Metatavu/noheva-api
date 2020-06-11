@@ -1,7 +1,7 @@
 package fi.metatavu.muisti.files.storage
 
+import fi.metatavu.muisti.api.spec.model.StoredFile
 import fi.metatavu.muisti.files.InputFile
-import fi.metatavu.muisti.files.OutputFile
 
 /**
  * Interface for describing a single file storage
@@ -9,6 +9,7 @@ import fi.metatavu.muisti.files.OutputFile
  * @author Antti Leppä
  */
 interface FileStorageProvider {
+
     /**
      * Returns file storage id
      *
@@ -29,8 +30,48 @@ interface FileStorageProvider {
      *
      * @param inputFile input file data
      * @return stored file
-     * @throws FileStorageException thrown when storaging the file fails
+     * @throws FileStorageException thrown when file storing fails
      */
     @Throws(FileStorageException::class)
-    fun store(inputFile: InputFile): OutputFile
+    fun store(inputFile: InputFile): StoredFile
+
+    /**
+     * Finds single file
+     *
+     * @param storedFileId file id
+     * @return file or null if not found
+     * @throws FileStorageException thrown when retrieving file fails
+     */
+    @Throws(FileStorageException::class)
+    fun find(storedFileId: String): StoredFile?
+
+    /**
+     * Lists files in a folder
+     *
+     * @param folder parent folder
+     * @return list of files in given folder
+     * @throws FileStorageException thrown when listing fails
+     */
+    @Throws(FileStorageException::class)
+    fun list(folder: String): List<StoredFile>
+
+    /**
+     * Updates stored file metadata
+     *
+     * @param storedFile
+     * @return updated file
+     * @throws FileStorageException thrown when updating fails
+     */
+    @Throws(FileStorageException::class)
+    fun update(storedFile: StoredFile): StoredFile
+
+    /**
+     * Deletes single file
+     *
+     * @param storedFileId file id
+     * @throws FileStorageException thrown when deleting fails
+     */
+    @Throws(FileStorageException::class)
+    fun delete(storedFileId: String)
+
 }
