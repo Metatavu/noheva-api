@@ -59,7 +59,7 @@ class S3FileStorageProvider : FileStorageProvider {
         val folder: String = inputFile.folder
         val objectMeta = ObjectMetadata()
         objectMeta.contentType = meta.contentType
-        objectMeta.addUserMetadata("x-file-name", meta.fileName)
+        objectMeta.addUserMetadata(X_FILE_NAME, meta.fileName)
         try {
             val tempFilePath = Files.createTempFile("upload", "s3")
             val tempFile = tempFilePath.toFile()
@@ -119,7 +119,7 @@ class S3FileStorageProvider : FileStorageProvider {
             val s3Object = client.getObject(bucket, key)
 
             val objectMeta = s3Object.objectMetadata.clone()
-            objectMeta.addUserMetadata("x-file-name", storedFile.fileName)
+            objectMeta.addUserMetadata(X_FILE_NAME, storedFile.fileName)
 
             val request = CopyObjectRequest(this.bucket, key, this.bucket, key)
                 .withNewObjectMetadata(objectMeta)
@@ -179,7 +179,7 @@ class S3FileStorageProvider : FileStorageProvider {
      */
     private fun translateObject(key: String, metadata: ObjectMetadata): StoredFile {
         val result = StoredFile()
-        val fileName = metadata.userMetadata["x-file-name"] ?: key
+        val fileName = metadata.userMetadata[X_FILE_NAME] ?: key
         result.id = getStoredFileId(key)
         result.contentType = metadata.contentType
         result.fileName = fileName
@@ -187,4 +187,10 @@ class S3FileStorageProvider : FileStorageProvider {
 
         return result
     }
+
+    companion object {
+        const val X_FILE_NAME = "x-file-name"
+    }
+    
+    
 }
