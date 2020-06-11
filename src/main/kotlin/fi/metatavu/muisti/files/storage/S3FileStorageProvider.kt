@@ -61,10 +61,13 @@ class S3FileStorageProvider : FileStorageProvider {
         objectMeta.contentType = meta.contentType
         objectMeta.addUserMetadata("x-file-name", meta.fileName)
         try {
-            val tempFile = Files.createTempFile("upload", "s3")
-            FileOutputStream(tempFile.toFile()).use { fileOutputStream -> IOUtils.copy(inputFile.data, fileOutputStream) }
+            val tempFilePath = Files.createTempFile("upload", "s3")
+            val tempFile = tempFilePath.toFile()
+            FileOutputStream(tempFile).use { fileOutputStream -> IOUtils.copy(inputFile.data, fileOutputStream) }
             try {
-                FileInputStream(tempFile.toFile()).use { fileInputStream ->
+                objectMeta.contentLength = tempFile.length()
+
+                FileInputStream(tempFile).use { fileInputStream ->
                     val key = "$folder/$fileKey"
                     client.putObject(PutObjectRequest(bucket, key, fileInputStream, objectMeta).withCannedAcl(CannedAccessControlList.PublicRead))
                     return translateObject(key, objectMeta)

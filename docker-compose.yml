@@ -68,6 +68,5 @@ services:
       MQTT_TOPIC: test
       FILE_STORAGE_PROVIDER: S3
     volumes:
-      - ./test-volumes/uploads:/opt/uploads
       - $JACOCO_AGENT:/opt/jacoco-jacocoagent.jar
       - $JACOCO:/opt/jacoco
