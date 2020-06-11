@@ -45,12 +45,14 @@ class GroupContentVersionController() {
     }
 
     /**
-     * Lists group content versions in an exhibitions
+     * Lists group content versions
      *
-     * @returns all groupContentVersions in an exhibition
+     * @param exhibition filter by exhibition
+     * @param contentVersion filter by content version. Ignored if null is passed
+     * @return List of group content versions
      */
-    fun listGroupContentVersions(exhibition: Exhibition): List<GroupContentVersion> {
-        return groupContentVersionDAO.listByExhibition(exhibition)
+    fun listGroupContentVersions(exhibition: Exhibition, contentVersion: ContentVersion?): List<GroupContentVersion> {
+        return groupContentVersionDAO.list(exhibition = exhibition, contentVersion = contentVersion)
     }
 
     /**

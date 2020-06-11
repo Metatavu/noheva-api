@@ -6,6 +6,7 @@ import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
 import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 
 /**
@@ -43,18 +44,28 @@ class GroupContentVersionDAO() : AbstractDAO<GroupContentVersion>() {
     }
 
     /**
-     * Lists GroupContentVersions by exhibition
+     * Lists group content versions
      *
-     * @param exhibition exhibition
-     * @return List of GroupContentVersions
+     * @param exhibition filter by exhibition
+     * @param contentVersion filter by content version. Ignored if null is passed
+     * @return List of group content versions
      */
-    fun listByExhibition(exhibition: Exhibition): List<GroupContentVersion> {
+    fun list(exhibition: Exhibition, contentVersion: ContentVersion?): List<GroupContentVersion> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<GroupContentVersion> = criteriaBuilder.createQuery(GroupContentVersion::class.java)
         val root: Root<GroupContentVersion> = criteria.from(GroupContentVersion::class.java)
+
+        val restrictions = ArrayList<Predicate>()
+        restrictions.add(criteriaBuilder.equal(root.get(GroupContentVersion_.exhibition), exhibition))
+
+        if (contentVersion != null) {
+            restrictions.add(criteriaBuilder.equal(root.get(GroupContentVersion_.contentVersion), contentVersion))
+        }
+
         criteria.select(root)
-        criteria.where(criteriaBuilder.equal(root.get(GroupContentVersion_.exhibition), exhibition))
+        criteria.where(*restrictions.toTypedArray())
+
         val query: TypedQuery<GroupContentVersion> = entityManager.createQuery<GroupContentVersion>(criteria)
         return query.resultList
     }
