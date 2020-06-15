@@ -119,7 +119,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun createExhibition(payload: Exhibition?): Response? {
         if (payload == null) {
-            return createBadRequest("Missing request body")
+            return createBadRequest(MISSING_REQUEST_BODY)
         }
 
         if (StringUtils.isBlank(payload.name)) {
@@ -152,7 +152,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun updateExhibition(exhibitionId: UUID?, payload: Exhibition?): Response? {
         if (payload == null) {
-            return createBadRequest("Missing request body")
+            return createBadRequest(MISSING_REQUEST_BODY)
         }
 
         if (StringUtils.isBlank(payload.name)) {
@@ -186,7 +186,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     /* Visitors */
 
     override fun createVisitor(exhibitionId: UUID?, payload: Visitor?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
@@ -211,7 +211,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun findVisitor(exhibitionId: UUID?, visitorId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        visitorId ?: return createNotFound("Visitor not found")
+        visitorId ?: return createNotFound(VISITOR_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val visitor = visitorController.findVisitorById(visitorId) ?: return createNotFound("Visitor session $visitorId not found")
@@ -232,9 +232,9 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun updateVisitor(exhibitionId: UUID?, visitorId: UUID?, payload: Visitor?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        visitorId ?: return createNotFound("Visitor not found")
+        visitorId ?: return createNotFound(VISITOR_NOT_FOUND)
 
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
@@ -253,7 +253,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun deleteVisitor(exhibitionId: UUID?, visitorId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        visitorId ?: return createNotFound("Visitor not found")
+        visitorId ?: return createNotFound(VISITOR_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val visitor = visitorController.findVisitorById(visitorId) ?: return createNotFound("Visitor $visitorId not found")
@@ -283,7 +283,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     /* VisitorSessions */
 
     override fun createVisitorSession(exhibitionId: UUID?, payload: VisitorSession?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
@@ -313,7 +313,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun findVisitorSession(exhibitionId: UUID?, visitorSessionId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        visitorSessionId ?: return createNotFound("Visitor session not found")
+        visitorSessionId ?: return createNotFound(VISITOR_SESSION_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val visitorSession = visitorSessionController.findVisitorSessionById(visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
@@ -336,9 +336,9 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun updateVisitorSession(exhibitionId: UUID?, visitorSessionId: UUID?, payload: VisitorSession?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        visitorSessionId ?: return createNotFound("Visitor session not found")
+        visitorSessionId ?: return createNotFound(VISITOR_SESSION_NOT_FOUND)
 
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
@@ -370,7 +370,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun deleteVisitorSession(exhibitionId: UUID?, visitorSessionId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        visitorSessionId ?: return createNotFound("Visitor session not found")
+        visitorSessionId ?: return createNotFound(VISITOR_SESSION_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val visitorSession = visitorSessionController.findVisitorSessionById(visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
@@ -385,7 +385,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     /* Rooms */
 
     override fun createExhibitionRoom(exhibitionId: UUID?, payload: ExhibitionRoom?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
@@ -433,7 +433,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun updateExhibitionRoom(exhibitionId: UUID?, roomId: UUID?, payload: ExhibitionRoom?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         roomId ?: return createNotFound("Room not found")
 
@@ -472,7 +472,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     /* Devices */
 
     override fun createExhibitionDevice(exhibitionId: UUID?, payload: ExhibitionDevice?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         payload.groupId ?: return createBadRequest("Missing exhibition group id")
 
@@ -535,7 +535,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun updateExhibitionDevice(exhibitionId: UUID?, deviceId: UUID?, payload: ExhibitionDevice?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         deviceId ?: return createNotFound("Device not found")
         payload.groupId ?: return createBadRequest("Missing exhibition group id")
@@ -587,7 +587,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     /* RFID antenna */
 
     override fun createRfidAntenna(exhibitionId: UUID?, payload: RfidAntenna?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
@@ -629,7 +629,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun findRfidAntenna(exhibitionId: UUID?, rfidAntennaId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        rfidAntennaId ?: return createNotFound("RFID antenna not found")
+        rfidAntennaId ?: return createNotFound(RFID_ANTENNA_NOT_FOUND)
 
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
@@ -667,9 +667,9 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun updateRfidAntenna(exhibitionId: UUID?, rfidAntennaId: UUID?, payload: RfidAntenna?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        rfidAntennaId ?: return createNotFound("RFID antenna not found")
+        rfidAntennaId ?: return createNotFound(RFID_ANTENNA_NOT_FOUND)
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
@@ -718,7 +718,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun deleteRfidAntenna(exhibitionId: UUID?, rfidAntennaId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        rfidAntennaId ?: return createNotFound("RFID antenna not found")
+        rfidAntennaId ?: return createNotFound(RFID_ANTENNA_NOT_FOUND)
 
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
@@ -736,7 +736,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     /* Exhibition device groups */
 
     override fun createExhibitionDeviceGroup(exhibitionId: UUID?, payload: ExhibitionDeviceGroup?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
@@ -784,7 +784,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun updateExhibitionDeviceGroup(exhibitionId: UUID?, deviceGroupId: UUID?, payload: ExhibitionDeviceGroup?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         deviceGroupId?: return createNotFound("Device group not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
@@ -821,7 +821,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     /* Pages */
 
     override fun createExhibitionPage(exhibitionId: UUID?, payload: ExhibitionPage?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val layout = pageLayoutController.findPageLayoutById(payload.layoutId) ?: return createBadRequest("Layout $payload.layoutId not found")
@@ -879,7 +879,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         var contentVersion: fi.metatavu.muisti.persistence.model.ContentVersion? = null
         if (contentVersionId != null) {
             contentVersion = contentVersionController.findContentVersionById(contentVersionId)
-            contentVersion ?: return createBadRequest("Content version not found")
+            contentVersion ?: return createBadRequest(CONTENT_VERSION_NOT_FOUND)
         }
 
         val exhibitionPages = exhibitionPageController.listExhibitionPages(exhibition, exhibitionDevice, contentVersion)
@@ -887,7 +887,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun updateExhibitionPage(exhibitionId: UUID?, pageId: UUID?, payload: ExhibitionPage?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         pageId ?: return createNotFound(EXHIBITION_NOT_FOUND)
 
@@ -935,7 +935,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     /* content version */
 
     override fun createContentVersion(exhibitionId: UUID?, payload: ContentVersion?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
@@ -956,14 +956,14 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun findContentVersion(exhibitionId: UUID?, contentVersionId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        contentVersionId?: return createNotFound("Content version not found")
+        contentVersionId?: return createNotFound(CONTENT_VERSION_NOT_FOUND)
 
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound("Content version $contentVersionId not found")
 
         if (!contentVersion.exhibition?.id?.equals(exhibition.id)!!) {
-            return createNotFound("Content version not found")
+            return createNotFound(CONTENT_VERSION_NOT_FOUND)
         }
 
         return createOk(contentVersionTranslator.translate(contentVersion))
@@ -978,9 +978,9 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun updateContentVersion(exhibitionId: UUID?, contentVersionId: UUID?, payload: ContentVersion?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        contentVersionId?: return createNotFound("Content version not found")
+        contentVersionId?: return createNotFound(CONTENT_VERSION_NOT_FOUND)
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound("Content version $contentVersionId not found")
@@ -1000,7 +1000,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun deleteContentVersion(exhibitionId: UUID?, contentVersionId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        contentVersionId?: return createNotFound("Content version not found")
+        contentVersionId?: return createNotFound(CONTENT_VERSION_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound("Content version $contentVersionId not found")
@@ -1011,7 +1011,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     /* group content version */
 
     override fun createGroupContentVersion(exhibitionId: UUID?, payload: GroupContentVersion?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
@@ -1031,31 +1031,37 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun findGroupContentVersion(exhibitionId: UUID?, groupContentVersionId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        groupContentVersionId?: return createNotFound("Group content version not found")
+        groupContentVersionId?: return createNotFound(GROUP_CONTENT_VERSION_NOT_FOUND)
 
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val groupContentVersion = groupContentVersionController.findGroupContentVersionById(groupContentVersionId) ?: return createNotFound("Group content version $groupContentVersionId not found")
 
         if (!groupContentVersion.exhibition?.id?.equals(exhibition.id)!!) {
-            return createNotFound("Group content version not found")
+            return createNotFound(GROUP_CONTENT_VERSION_NOT_FOUND)
         }
 
         return createOk(groupContentVersionTranslator.translate(groupContentVersion))
     }
 
-    override fun listGroupContentVersions(exhibitionId: UUID?): Response {
+    override fun listGroupContentVersions(exhibitionId: UUID?, contentVersionId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
-        val groupContentVersions = groupContentVersionController.listGroupContentVersions(exhibition)
+
+        var contentVersion: fi.metatavu.muisti.persistence.model.ContentVersion? = null
+        if (contentVersionId != null) {
+            contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createBadRequest("Content version $contentVersionId not found")
+        }
+
+        val groupContentVersions = groupContentVersionController.listGroupContentVersions(exhibition = exhibition, contentVersion = contentVersion)
 
         return createOk(groupContentVersions.map (groupContentVersionTranslator::translate))
     }
 
     override fun updateGroupContentVersion(exhibitionId: UUID?, groupContentVersionId: UUID?, payload: GroupContentVersion?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        groupContentVersionId?: return createNotFound("Group content version not found")
+        groupContentVersionId?: return createNotFound(GROUP_CONTENT_VERSION_NOT_FOUND)
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val groupContentVersion = groupContentVersionController.findGroupContentVersionById(groupContentVersionId) ?: return createNotFound("Group content version $groupContentVersionId not found")
@@ -1075,7 +1081,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
     override fun deleteGroupContentVersion(exhibitionId: UUID?, groupContentVersionId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        groupContentVersionId?: return createNotFound("Group content version not found")
+        groupContentVersionId?: return createNotFound(GROUP_CONTENT_VERSION_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val groupContentVersion = groupContentVersionController.findGroupContentVersionById(groupContentVersionId) ?: return createNotFound("Group content version $groupContentVersionId not found")
@@ -1086,7 +1092,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     /* Floors */
 
     override fun createExhibitionFloor(exhibitionId: UUID?, payload: ExhibitionFloor?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
@@ -1126,7 +1132,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun updateExhibitionFloor(exhibitionId: UUID?, floorId: UUID?, payload: ExhibitionFloor?): Response {
-        payload ?: return createBadRequest("Missing request body")
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
 
         if (exhibitionId == null || floorId == null) {
             return createNotFound(EXHIBITION_NOT_FOUND)
