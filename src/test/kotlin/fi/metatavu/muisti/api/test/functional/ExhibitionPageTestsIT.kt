@@ -348,7 +348,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testDeleteExhibition() {
+    fun testDeletePage() {
         ApiTestBuilder().use {
             val deletePageSubscription = it.mqtt().subscribe<MqttExhibitionPageDelete>(MqttExhibitionPageDelete::class.java,"pages/delete")
 
@@ -384,6 +384,21 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             it.admin().exhibitionPages().assertDeleteFail(404, exhibitionId, createdExhibitionPageId)
 
             assertJsonsEqual(listOf(MqttExhibitionPageDelete(exhibitionId = exhibitionId, id = createdExhibitionPage.id)), deletePageSubscription.getMessages(1))
+        }
+    }
+
+    @Test
+    fun testDeleteIndexPage() {
+        ApiTestBuilder().use {
+            val exhibition = it.admin().exhibitions().create()
+            val exhibitionId = exhibition.id!!
+            val device = createDefaultDevice(it, exhibition)
+            val page = createDefaultPage(it, exhibition)
+            val pageId = page.id!!
+            it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId = exhibitionId, payload = device.copy(indexPageId = pageId))
+            it.admin().exhibitionPages().assertDeleteFail(400, exhibitionId = exhibitionId, id = pageId)
+            it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId = exhibitionId, payload = device.copy(indexPageId = null))
+            it.admin().exhibitionPages().delete(exhibitionId = exhibitionId, exhibitionPage = page)
         }
     }
 

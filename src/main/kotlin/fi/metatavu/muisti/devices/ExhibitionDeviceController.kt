@@ -65,6 +65,16 @@ class ExhibitionDeviceController() {
     }
 
     /**
+     * Lists devices by index page
+     *
+     * @param indexPage index page
+     * @return device list
+     */
+    fun listIndexPageDevices(indexPage: ExhibitionPage?): List<ExhibitionDevice> {
+        return exhibitionDeviceDAO.listByIndexPage(indexPage)
+    }
+
+    /**
      * Updates an exhibition device
      *
      * @param exhibitionDevice exhibition device to be updated
