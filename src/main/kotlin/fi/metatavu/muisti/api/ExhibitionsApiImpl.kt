@@ -925,10 +925,16 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         pageId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val exhibitionPage = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
-        exhibitionPageController.deleteExhibitionPage(exhibitionPage)
-        realtimeNotificationController.notifyExhibitionPageDelete(exhibitionId, pageId)
+        val page = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
+        val indexPageDevices = exhibitionDeviceController.listIndexPageDevices(page)
 
+        if (indexPageDevices.isNotEmpty()) {
+            val deviceIds = indexPageDevices.map { it.id }.joinToString()
+            return createBadRequest("Cannot delete page $pageId because it's assigned as index page to devices $deviceIds")
+        }
+
+        exhibitionPageController.deleteExhibitionPage(page)
+        realtimeNotificationController.notifyExhibitionPageDelete(exhibitionId, pageId)
         return createNoContent()
     }
 
