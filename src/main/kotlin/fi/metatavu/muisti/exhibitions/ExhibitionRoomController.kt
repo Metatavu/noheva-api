@@ -1,8 +1,5 @@
 package fi.metatavu.muisti.exhibitions
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.vividsolutions.jts.geom.*
-import fi.metatavu.muisti.api.spec.model.Coordinates
 import fi.metatavu.muisti.api.spec.model.Polygon
 import fi.metatavu.muisti.geometry.getPolygon
 import fi.metatavu.muisti.persistence.dao.ExhibitionRoomDAO
@@ -28,12 +25,13 @@ class ExhibitionRoomController() {
      * @param exhibition exhibition
      * @param floor floor
      * @param name room name
+     * @param color room color
      * @param geoShape geoShape polygon
      * @param creatorId creating user id
      * @return created exhibition room
      */
-    fun createExhibitionRoom(exhibition: Exhibition, floor: ExhibitionFloor, name: String, geoShape: Polygon?, creatorId: UUID): ExhibitionRoom {
-        return exhibitionRoomDAO.create(id = UUID.randomUUID(), exhibition = exhibition, floor = floor, name = name, geoShape = getPolygon(geoShape), creatorId = creatorId, lastModifierId = creatorId)
+    fun createExhibitionRoom(exhibition: Exhibition, floor: ExhibitionFloor, name: String, color: String?, geoShape: Polygon?, creatorId: UUID): ExhibitionRoom {
+        return exhibitionRoomDAO.create(id = UUID.randomUUID(), exhibition = exhibition, floor = floor, name = name, color = color, geoShape = getPolygon(geoShape), creatorId = creatorId, lastModifierId = creatorId)
     }
 
     /**
@@ -63,13 +61,15 @@ class ExhibitionRoomController() {
      *
      * @param exhibitionRoom exhibition room to be updated
      * @param name room name
+     * @param color room color
      * @param geoShape geoShape polygon
      * @param floor floor
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionRoom(exhibitionRoom: ExhibitionRoom, floor: ExhibitionFloor, name: String, geoShape: Polygon?, modifierId: UUID): ExhibitionRoom {
+    fun updateExhibitionRoom(exhibitionRoom: ExhibitionRoom, floor: ExhibitionFloor, name: String, color: String?, geoShape: Polygon?, modifierId: UUID): ExhibitionRoom {
       var result = exhibitionRoomDAO.updateName(exhibitionRoom, name, modifierId)
+      result = exhibitionRoomDAO.updateColor(result, color, modifierId)
       result = exhibitionRoomDAO.updateFloor(result, floor, modifierId)
       result = exhibitionRoomDAO.updateGeoShape(result, getPolygon(geoShape), modifierId)
       return result

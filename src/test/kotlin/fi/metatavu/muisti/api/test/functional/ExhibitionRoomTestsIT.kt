@@ -1,11 +1,9 @@
 package fi.metatavu.muisti.api.test.functional
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import fi.metatavu.muisti.api.client.models.ExhibitionRoom
 import fi.metatavu.muisti.api.client.models.Polygon
 import org.junit.Assert.*
 import org.junit.Test
-import java.math.BigDecimal
 import java.util.*
 
 /**
@@ -96,6 +94,7 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
 
             val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibitionId, ExhibitionRoom(
                 name = "created name",
+                color = "#00ff00",
                 floorId = floorId
             ))
 
@@ -104,6 +103,7 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             val foundCreatedExhibitionRoom = it.admin().exhibitionRooms().findExhibitionRoom(exhibitionId, createdExhibitionRoomId)
             assertEquals(createdExhibitionRoom.id, foundCreatedExhibitionRoom?.id)
             assertEquals("created name", createdExhibitionRoom.name)
+            assertEquals("#00ff00", createdExhibitionRoom.color)
 
             val point1 = arrayOf<Double>(30.0,10.0)
             val point2 = arrayOf<Double>(40.0,40.0)
@@ -116,6 +116,7 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
 
             val updatedExhibitionRoom = it.admin().exhibitionRooms().updateExhibitionRoom(exhibitionId, ExhibitionRoom(
                 name = "updated name",
+                color = "#ff0000",
                 geoShape = testPolygon,
                 id = createdExhibitionRoomId,
                 floorId = floorId
@@ -125,6 +126,7 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
 
             assertEquals(updatedExhibitionRoom!!.id, foundUpdatedExhibitionRoom?.id)
             assertEquals("updated name", foundUpdatedExhibitionRoom?.name)
+            assertEquals("#ff0000", foundUpdatedExhibitionRoom?.color)
 
             val firstShape = foundUpdatedExhibitionRoom?.geoShape?.coordinates?.get(0)
             val firstPoint = firstShape?.get(0)

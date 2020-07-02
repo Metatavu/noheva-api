@@ -27,15 +27,17 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
      * @param exhibition exhibition
      * @param floor floor where the room is
      * @param name name
+     * @param color color
      * @param geoShape geoShape polygon
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created exhibitionRoom
      */
-    fun create(id: UUID, exhibition: Exhibition, floor: ExhibitionFloor, name: String, geoShape: Polygon?, creatorId: UUID, lastModifierId: UUID): ExhibitionRoom {
+    fun create(id: UUID, exhibition: Exhibition, floor: ExhibitionFloor, name: String, color: String?, geoShape: Polygon?, creatorId: UUID, lastModifierId: UUID): ExhibitionRoom {
         val exhibitionRoom = ExhibitionRoom()
         exhibitionRoom.id = id
         exhibitionRoom.name = name
+        exhibitionRoom.color = color
         exhibitionRoom.geoShape = geoShape
         exhibitionRoom.exhibition = exhibition
         exhibitionRoom.floor = floor
@@ -81,6 +83,20 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
     fun updateName(exhibitionRoom: ExhibitionRoom, name: String, lastModifierId: UUID): ExhibitionRoom {
         exhibitionRoom.lastModifierId = lastModifierId
         exhibitionRoom.name = name
+        return persist(exhibitionRoom)
+    }
+
+    /**
+     * Updates color
+     *
+     * @param exhibitionRoom exhibition room to be updated
+     * @param color color
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionRoom
+     */
+    fun updateColor(exhibitionRoom: ExhibitionRoom, color: String?, lastModifierId: UUID): ExhibitionRoom {
+        exhibitionRoom.lastModifierId = lastModifierId
+        exhibitionRoom.color = color
         return persist(exhibitionRoom)
     }
 

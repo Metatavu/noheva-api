@@ -27,6 +27,8 @@ class ExhibitionRoom {
     @Column(nullable = false)
     var name: String? = null
 
+    var color: String? = null
+
     @Column
     var geoShape: Polygon? = null
 
