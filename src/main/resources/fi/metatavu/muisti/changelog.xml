@@ -693,4 +693,10 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="roomcolor" author="antti.leppa">
+        <addColumn tableName="exhibitionroom">
+            <column name="color" type="varchar(191)"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

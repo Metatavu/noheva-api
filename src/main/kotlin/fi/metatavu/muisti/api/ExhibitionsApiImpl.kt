@@ -394,6 +394,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val exhibitionRoom = exhibitionRoomController.createExhibitionRoom(
             exhibition = exhibition,
             name = payload.name,
+            color = payload.color,
             geoShape = payload.geoShape,
             floor = floor,
             creatorId = userId
@@ -447,6 +448,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val result = exhibitionRoomController.updateExhibitionRoom(
             exhibitionRoom = exhibitionRoom,
             name = payload.name,
+            color = payload.color,
             geoShape = payload.geoShape,
             floor = floor,
             modifierId = userId
