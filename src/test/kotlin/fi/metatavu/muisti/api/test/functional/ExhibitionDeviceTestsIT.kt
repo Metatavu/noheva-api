@@ -227,4 +227,26 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
         }
     }
 
+    @Test
+    fun testDeleteDeviceWithPages() {
+        ApiTestBuilder().use {
+            val exhibition = it.admin().exhibitions().create()
+            val exhibitionId = exhibition.id!!
+            val layout = it.admin().pageLayouts().create(it.admin().deviceModels().create())
+            val contentVersion = it.admin().contentVersions().create(exhibition)
+            val device = createDefaultDevice(it, exhibition)
+            val deviceId = device.id!!
+
+            val page = it.admin().exhibitionPages().create(
+                exhibition = exhibition,
+                layout = layout,
+                contentVersion = contentVersion,
+                device = device
+            )
+
+            it.admin().exhibitionDevices().assertDeleteFail(400, exhibitionId, deviceId)
+            it.admin().exhibitionPages().delete(exhibitionId = exhibitionId, exhibitionPage = page)
+            it.admin().exhibitionDevices().delete(exhibitionId, device)
+        }
+    }
 }
