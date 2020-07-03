@@ -1,5 +1,7 @@
 package fi.metatavu.muisti.api.test.functional
 
+import fi.metatavu.muisti.api.client.models.Bounds
+import fi.metatavu.muisti.api.client.models.Coordinates
 import fi.metatavu.muisti.api.client.models.ExhibitionFloor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -11,11 +13,12 @@ import java.util.*
  *
  * @author Antti Leppä
  */
+
 class ExhibitionFloorTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testCreateExhibitionFloor() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val createdExhibitionFloor = it.admin().exhibitionFloors().create(exhibition.id!!, ExhibitionFloor(name = "name"))
             assertNotNull(createdExhibitionFloor)
@@ -25,7 +28,7 @@ class ExhibitionFloorTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testFindExhibitionFloor() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -42,7 +45,7 @@ class ExhibitionFloorTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListExhibitionFloors() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -62,7 +65,7 @@ class ExhibitionFloorTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testUpdateExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
@@ -73,12 +76,26 @@ class ExhibitionFloorTestsIT: AbstractFunctionalTest() {
             val foundCreatedExhibitionFloor = it.admin().exhibitionFloors().findExhibitionFloor(exhibitionId, createdExhibitionFloorId)
             assertEquals(createdExhibitionFloor.id, foundCreatedExhibitionFloor?.id)
             assertEquals("created name", createdExhibitionFloor.name)
+            val bounds = Bounds(
+                northEastCorner = Coordinates(latitude = 18.22, longitude = 28.5),
+                southWestCorner = Coordinates(latitude = 13.22, longitude = 22.5)
+            )
+            val exhibitionFloorToUpdate = ExhibitionFloor(
+                    name = "updated name",
+                    id = createdExhibitionFloorId,
+                    floorPlanUrl = "http://example.com/floorPlan.png",
+                    floorPlanBounds = bounds
+            )
 
-            val updatedExhibitionFloor = it.admin().exhibitionFloors().updateExhibitionFloor(exhibitionId, ExhibitionFloor("updated name", createdExhibitionFloorId))
+            val updatedExhibitionFloor = it.admin().exhibitionFloors().updateExhibitionFloor(exhibitionId, exhibitionFloorToUpdate)
             val foundUpdatedExhibitionFloor = it.admin().exhibitionFloors().findExhibitionFloor(exhibitionId, createdExhibitionFloorId)
-
             assertEquals(updatedExhibitionFloor!!.id, foundUpdatedExhibitionFloor?.id)
-            assertEquals("updated name", updatedExhibitionFloor.name)
+            assertEquals("updated name", foundUpdatedExhibitionFloor?.name)
+            assertEquals("http://example.com/floorPlan.png", foundUpdatedExhibitionFloor?.floorPlanUrl)
+            assertEquals(18.22, foundUpdatedExhibitionFloor?.floorPlanBounds?.northEastCorner?.latitude)
+            assertEquals(28.5, foundUpdatedExhibitionFloor?.floorPlanBounds?.northEastCorner?.longitude)
+            assertEquals(13.22, foundUpdatedExhibitionFloor?.floorPlanBounds?.southWestCorner?.latitude)
+            assertEquals(22.5, foundUpdatedExhibitionFloor?.floorPlanBounds?.southWestCorner?.longitude)
 
             it.admin().exhibitionFloors().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionFloor("name", createdExhibitionFloorId))
         }
@@ -86,7 +103,7 @@ class ExhibitionFloorTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testDeleteExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()

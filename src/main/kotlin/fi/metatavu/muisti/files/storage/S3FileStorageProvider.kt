@@ -3,20 +3,21 @@ package fi.metatavu.muisti.files.storage
 import com.amazonaws.SdkClientException
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.services.s3.model.CannedAccessControlList
-import com.amazonaws.services.s3.model.ObjectMetadata
-import com.amazonaws.services.s3.model.PutObjectRequest
+import com.amazonaws.services.s3.model.*
+import fi.metatavu.muisti.api.spec.model.StoredFile
 import fi.metatavu.muisti.files.FileMeta
 import fi.metatavu.muisti.files.InputFile
-import fi.metatavu.muisti.files.OutputFile
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
-import java.net.URI
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.*
+import javax.enterprise.context.ApplicationScoped
 
 
 /**
@@ -24,10 +25,13 @@ import java.util.*
  *
  * @author Antti Leppä
  */
-open class S3FileStorageProvider : FileStorageProvider {
+@ApplicationScoped
+class S3FileStorageProvider : FileStorageProvider {
+
     private var region: String? = null
     private var bucket: String? = null
     private var prefix: String? = null
+
     @Throws(FileStorageException::class)
     override fun init() {
         region = System.getenv("S3_FILE_STORAGE_REGION")
@@ -49,26 +53,89 @@ open class S3FileStorageProvider : FileStorageProvider {
     }
 
     @Throws(FileStorageException::class)
-    override fun store(inputFile: InputFile): OutputFile {
-        val client: AmazonS3 = client
-        val key = UUID.randomUUID().toString()
+    override fun store(inputFile: InputFile): StoredFile {
+        val fileKey = UUID.randomUUID().toString()
         val meta: FileMeta = inputFile.meta
         val folder: String = inputFile.folder
         val objectMeta = ObjectMetadata()
         objectMeta.contentType = meta.contentType
-        objectMeta.addUserMetadata("x-file-name", meta.fileName)
+        objectMeta.addUserMetadata(X_FILE_NAME, meta.fileName)
         try {
-            val tempFile = Files.createTempFile("upload", "s3")
-            FileOutputStream(tempFile.toFile()).use { fileOutputStream -> IOUtils.copy(inputFile.data, fileOutputStream) }
+            val tempFilePath = Files.createTempFile("upload", "s3")
+            val tempFile = tempFilePath.toFile()
+            FileOutputStream(tempFile).use { fileOutputStream -> IOUtils.copy(inputFile.data, fileOutputStream) }
             try {
-                FileInputStream(tempFile.toFile()).use { fileInputStream ->
-                    client.putObject(PutObjectRequest(bucket, String.format("%s/%s", folder, key), fileInputStream, objectMeta).withCannedAcl(CannedAccessControlList.PublicRead))
-                    return OutputFile(meta, URI.create(String.format("%s/%s/%s", prefix, folder, key)))
+                objectMeta.contentLength = tempFile.length()
+
+                FileInputStream(tempFile).use { fileInputStream ->
+                    val key = "$folder/$fileKey"
+                    client.putObject(PutObjectRequest(bucket, key, fileInputStream, objectMeta).withCannedAcl(CannedAccessControlList.PublicRead))
+                    return translateObject(key, objectMeta)
                 }
             } catch (e: SdkClientException) {
                 throw FileStorageException(e)
             }
         } catch (e: IOException) {
+            throw FileStorageException(e)
+        }
+    }
+
+    override fun find(storedFileId: String): StoredFile? {
+        try {
+            val s3Object = client.getObject(bucket, getKey(storedFileId))
+            return translateObject(s3Object.key, s3Object.objectMetadata)
+        } catch (e: AmazonS3Exception) {
+            if (e.statusCode == 404) {
+                return null
+            }
+
+            throw FileStorageException(e)
+        } catch (e: Exception) {
+            throw FileStorageException(e)
+        }
+    }
+
+    override fun list(folder: String): List<StoredFile> {
+        try {
+            val request = ListObjectsV2Request()
+                .withBucketName(bucket)
+                .withPrefix(folder)
+
+            val response = client.listObjectsV2(request)
+
+            return response.objectSummaries.map {
+                val key = it.key
+                val metadata: ObjectMetadata = client.getObjectMetadata(bucket, key)
+                translateObject(key, metadata)
+            }
+        } catch (e: Exception) {
+            throw FileStorageException(e)
+        }
+    }
+
+    override fun update(storedFile: StoredFile): StoredFile {
+        try {
+            val key = getKey(storedFile.id)
+            val s3Object = client.getObject(bucket, key)
+
+            val objectMeta = s3Object.objectMetadata.clone()
+            objectMeta.addUserMetadata(X_FILE_NAME, storedFile.fileName)
+
+            val request = CopyObjectRequest(this.bucket, key, this.bucket, key)
+                .withNewObjectMetadata(objectMeta)
+
+            client.copyObject(request)
+
+            return translateObject(key, objectMeta)
+        } catch (e: Exception) {
+            throw FileStorageException(e)
+        }
+    }
+
+    override fun delete(storedFileId: String) {
+        try {
+            client.deleteObject(this.bucket, this.getKey(storedFileId))
+        } catch (e: Exception) {
             throw FileStorageException(e)
         }
     }
@@ -82,4 +149,48 @@ open class S3FileStorageProvider : FileStorageProvider {
      * @return initialized S3 client
      */
     private val client: AmazonS3 get() = AmazonS3ClientBuilder.standard().withRegion(region).build()
+
+    /**
+     * Converts stored file id into S3 key
+     *
+     * @param storedFileId stored file id
+     * @return S3 key
+     */
+    private fun getKey(storedFileId: String): String {
+        return URLDecoder.decode(storedFileId, StandardCharsets.UTF_8)
+    }
+
+    /**
+     * Converts S3 key into stored file id
+     *
+     * @param key S3 key
+     * @return stored file id
+     */
+    private fun getStoredFileId(key: String): String {
+        return URLEncoder.encode(key, StandardCharsets.UTF_8)
+    }
+
+    /**
+     * Translates object details into stored file
+     *
+     * @param key S3 key
+     * @param metadata object metadata
+     * @return stored file
+     */
+    private fun translateObject(key: String, metadata: ObjectMetadata): StoredFile {
+        val result = StoredFile()
+        val fileName = metadata.userMetadata[X_FILE_NAME] ?: key
+        result.id = getStoredFileId(key)
+        result.contentType = metadata.contentType
+        result.fileName = fileName
+        result.uri = "$prefix/$key"
+
+        return result
+    }
+
+    companion object {
+        const val X_FILE_NAME = "x-file-name"
+    }
+    
+    
 }

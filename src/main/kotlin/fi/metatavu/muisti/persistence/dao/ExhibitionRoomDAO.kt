@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.dao
 
+import com.vividsolutions.jts.geom.Polygon
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor
 import fi.metatavu.muisti.persistence.model.ExhibitionRoom
@@ -26,14 +27,18 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
      * @param exhibition exhibition
      * @param floor floor where the room is
      * @param name name
+     * @param color color
+     * @param geoShape geoShape polygon
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created exhibitionRoom
      */
-    fun create(id: UUID, exhibition: Exhibition, floor: ExhibitionFloor, name: String, creatorId: UUID, lastModifierId: UUID): ExhibitionRoom {
+    fun create(id: UUID, exhibition: Exhibition, floor: ExhibitionFloor, name: String, color: String?, geoShape: Polygon?, creatorId: UUID, lastModifierId: UUID): ExhibitionRoom {
         val exhibitionRoom = ExhibitionRoom()
         exhibitionRoom.id = id
         exhibitionRoom.name = name
+        exhibitionRoom.color = color
+        exhibitionRoom.geoShape = geoShape
         exhibitionRoom.exhibition = exhibition
         exhibitionRoom.floor = floor
         exhibitionRoom.creatorId = creatorId
@@ -82,6 +87,20 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
     }
 
     /**
+     * Updates color
+     *
+     * @param exhibitionRoom exhibition room to be updated
+     * @param color color
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionRoom
+     */
+    fun updateColor(exhibitionRoom: ExhibitionRoom, color: String?, lastModifierId: UUID): ExhibitionRoom {
+        exhibitionRoom.lastModifierId = lastModifierId
+        exhibitionRoom.color = color
+        return persist(exhibitionRoom)
+    }
+
+    /**
      * Updates floor
      *
      * @param exhibitionRoom exhibition room to be updated
@@ -92,6 +111,20 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
     fun updateFloor(exhibitionRoom: ExhibitionRoom, floor: ExhibitionFloor, lastModifierId: UUID): ExhibitionRoom {
         exhibitionRoom.lastModifierId = lastModifierId
         exhibitionRoom.floor = floor
+        return persist(exhibitionRoom)
+    }
+
+    /**
+     * Updates geoShape
+     *
+     * @param exhibitionRoom exhibition room to be updated
+     * @param geoShape polygon data
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionRoom
+     */
+    fun updateGeoShape(exhibitionRoom: ExhibitionRoom, geoShape: Polygon?, lastModifierId: UUID): ExhibitionRoom {
+        exhibitionRoom.lastModifierId = lastModifierId
+        exhibitionRoom.geoShape = geoShape
         return persist(exhibitionRoom)
     }
 

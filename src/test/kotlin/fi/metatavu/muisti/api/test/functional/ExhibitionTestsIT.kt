@@ -15,7 +15,7 @@ class ExhibitionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testCreateExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             assertNotNull(it.admin().exhibitions().create())
             it.admin().exhibitions().assertCreateFail(400, "")
         }
@@ -23,7 +23,7 @@ class ExhibitionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testFindExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val nonExistingExhibitionId = UUID.randomUUID()
             it.admin().exhibitions().assertFindFail(404, nonExistingExhibitionId)
             val createdExhibition = it.admin().exhibitions().create()
@@ -35,7 +35,7 @@ class ExhibitionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListExhibitions() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             assertEquals(0, it.admin().exhibitions().listExhibitions().size)
             val createdExhibition = it.admin().exhibitions().create()
             val createdExhibitionId = createdExhibition.id!!
@@ -49,7 +49,7 @@ class ExhibitionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testUpdateExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val createdExhibition = it.admin().exhibitions().create()
             val createdExhibitionId = createdExhibition.id!!
 
@@ -74,7 +74,7 @@ class ExhibitionTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testDeleteExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val createdExhibition = it.admin().exhibitions().create()
             val createdExhibitionId = createdExhibition.id!!
             assertNotNull(it.admin().exhibitions().findExhibition(createdExhibitionId))

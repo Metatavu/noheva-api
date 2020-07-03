@@ -3,6 +3,8 @@ package fi.metatavu.muisti.contents
 import com.fasterxml.jackson.databind.ObjectMapper
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageEventTrigger
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageResource
+import fi.metatavu.muisti.api.spec.model.ExhibitionPageTransition
+import fi.metatavu.muisti.api.spec.model.Transition
 import fi.metatavu.muisti.persistence.dao.ExhibitionPageDAO
 import fi.metatavu.muisti.persistence.model.*
 import java.util.*
@@ -27,20 +29,25 @@ class ExhibitionPageController() {
      * @param name name
      * @param resources resources
      * @param eventTriggers event triggers
+     * @param enterTransitions page enter transitions
+     * @param exitTransitions page exit transitions
      * @param creatorId creating user id
      * @return created exhibition page 
      */
-    fun createExhibitionPage(exhibition: Exhibition, device: ExhibitionDevice, layout: PageLayout, contentVersion: ExhibitionContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, creatorId: UUID): ExhibitionPage {
+    fun createExhibitionPage(exhibition: Exhibition, device: ExhibitionDevice, layout: PageLayout, contentVersion: ContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, enterTransitions: List<ExhibitionPageTransition>, exitTransitions: List<ExhibitionPageTransition>, creatorId: UUID): ExhibitionPage {
         return exhibitionPageDAO.create(UUID.randomUUID(),
-                exhibition = exhibition,
-                device = device,
-                layout = layout,
-                contentVersion = contentVersion,
-                name = name,
-                resources = getDataAsString(resources),
-                eventTriggers = getDataAsString(eventTriggers),
-                creatorId = creatorId,
-                lastModifierId = creatorId)
+            exhibition = exhibition,
+            device = device,
+            layout = layout,
+            contentVersion = contentVersion,
+            name = name,
+            resources = getDataAsString(resources),
+            eventTriggers = getDataAsString(eventTriggers),
+            enterTransitions = getDataAsString(enterTransitions),
+            exitTransitions = getDataAsString(exitTransitions),
+            creatorId = creatorId,
+            lastModifierId = creatorId
+        )
     }
 
 
@@ -62,7 +69,7 @@ class ExhibitionPageController() {
      * @param exhibitionContentVersion filter by exhibition content version. Ignored if null is passed
      * @return List of exhibition pages
      */
-    fun listExhibitionPages(exhibition: Exhibition, exhibitionDevice: ExhibitionDevice?, exhibitionContentVersion: ExhibitionContentVersion?): List<ExhibitionPage> {
+    fun listExhibitionPages(exhibition: Exhibition, exhibitionDevice: ExhibitionDevice?, exhibitionContentVersion: ContentVersion?): List<ExhibitionPage> {
         return exhibitionPageDAO.list(exhibition, exhibitionDevice, exhibitionContentVersion)
     }
 
@@ -85,16 +92,20 @@ class ExhibitionPageController() {
      * @param name name
      * @param resources resources
      * @param eventTriggers event triggers
+     * @param enterTransitions page enter transitions
+     * @param exitTransitions page exit transitions
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionPage(exhibitionPage: ExhibitionPage, device: ExhibitionDevice, layout: PageLayout, contentVersion: ExhibitionContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers: List<ExhibitionPageEventTrigger>, modifierId: UUID): ExhibitionPage {
+    fun updateExhibitionPage(exhibitionPage: ExhibitionPage, device: ExhibitionDevice, layout: PageLayout, contentVersion: ContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers: List<ExhibitionPageEventTrigger>, enterTransitions: List<ExhibitionPageTransition>, exitTransitions: List<ExhibitionPageTransition>, modifierId: UUID): ExhibitionPage {
         var result = exhibitionPageDAO.updateName(exhibitionPage, name, modifierId)
         result = exhibitionPageDAO.updateLayout(result, layout, modifierId)
         result = exhibitionPageDAO.updateDevice(result, device, modifierId)
         result = exhibitionPageDAO.updateContentVersion(result, contentVersion, modifierId)
         result = exhibitionPageDAO.updateResources(result, getDataAsString(resources), modifierId)
         result = exhibitionPageDAO.updateEventTriggers(result, getDataAsString(eventTriggers), modifierId)
+        result = exhibitionPageDAO.updateEnterTransitions(result, getDataAsString(enterTransitions), modifierId)
+        result = exhibitionPageDAO.updateExitTransitions(result, getDataAsString(exitTransitions), modifierId)
         return result
     }
 

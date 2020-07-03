@@ -484,4 +484,219 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="floorplanurl" author="jari.nykanen">
+        <addColumn tableName="exhibitionfloor">
+            <column name="floorPlanUrl" type="varchar(191)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="roompolygon" author="jari.nykanen">
+        <addColumn tableName="exhibitionroom">
+            <column name="geoShape" type="longtext"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="geobounds" author="jari.nykanen">
+        <addColumn tableName="exhibitionfloor">
+            <column name="swBoundPoint" type="Geometry"/>
+            <column name="neBoundPoint" type="Geometry"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="pagetransitions" author="antti.leppa">
+        <addColumn tableName="exhibitionpage">
+            <column name="enterTransitions" type="longtext"/>
+        </addColumn>
+
+        <addColumn tableName="exhibitionpage">
+            <column name="exitTransitions" type="longtext"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="roompolygonformat" author="jari.nykanen">
+        <dropColumn tableName="exhibitionroom">
+            <column name="geoShape"/>
+        </dropColumn>
+        <addColumn tableName="exhibitionroom">
+            <column name="geoShape" type="Geometry"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="contentversionchanges" author="jari.nykanen">
+        <dropForeignKeyConstraint baseTableName="exhibitioncontentversion" constraintName="FK_EXHIBITION_CONTENT_VERSION_EXHIBITION_ID"/>
+        <renameTable oldTableName="exhibitioncontentversion" newTableName="contentversion"/>
+        <addColumn tableName="contentversion">
+            <column name="language" type="varchar(191)"/>
+        </addColumn>
+        <addForeignKeyConstraint baseTableName="contentversion" baseColumnNames="exhibition_id" constraintName="FK_CONTENT_VERSION_EXHIBITION_ID" referencedTableName="exhibition" referencedColumnNames="id"/>
+
+        <createTable tableName="groupcontentversion">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exhibition_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_GROUP_CONTENT_VERSION_EXHIBITION_ID" referencedColumnNames="id" referencedTableName="exhibition"/>
+            </column>
+            <column name="status" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contentversion_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_GROUP_CONTENT_VERSION_CONTENT_VERSION_ID" referencedColumnNames="id" referencedTableName="contentversion"/>
+            </column>
+            <column name="devicegroup_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_GROUP_CONTENT_VERSION_DEVICE_GROUP_ID" referencedColumnNames="id" referencedTableName="exhibitiondevicegroup"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+    </changeSet>
+
+    <changeSet id="visitor" author="antti.leppa">
+        <createTable tableName="visitor">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="tagId" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="userId" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exhibition_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VISITOR_EXHIBITION_ID" referencedColumnNames="id" referencedTableName="exhibition"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="visitorsessionvisitor">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="visitorSession_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VISITOR_SESSION_VISITOR_VISITORSESSION_ID" referencedColumnNames="id" referencedTableName="visitorsession"/>
+            </column>
+            <column name="visitor_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VISITOR_SESSION_VISITOR_VISITOR_ID" referencedColumnNames="id" referencedTableName="visitor"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint columnNames="tagId,exhibition_id" constraintName="UN_EXHIBITION_TAG_ID" tableName="visitor"/>
+
+        <dropTable tableName="visitorsessionuser" />
+
+    </changeSet>
+
+    <changeSet id="exhibitiondevicegroupallowvisitorsessioncreation" author="antti.leppa">
+        <addColumn tableName="exhibitiondevicegroup">
+            <column name="allowVisitorSessionCreation" type="boolean" defaultValue="false"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="visitorsessionvisiteddevicegroup" author="antti.leppa">
+        <createTable tableName="visitorsessionvisiteddevicegroup">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="visitorSession_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VISITOR_SESSION_VISITED_DEVICE_GROUP_VISITOR_SESSION_ID" referencedColumnNames="id" referencedTableName="visitorsession"/>
+            </column>
+            <column name="deviceGroup_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VISITOR_SESSION_VISITED_DEVICE_GROUP_DEVICE_GROUP_ID" referencedColumnNames="id" referencedTableName="exhibitiondevicegroup"/>
+            </column>
+            <column name="enteredAt" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exitedAt" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint columnNames="visitorSession_id,deviceGroup_id" constraintName="UN_VISITOR_SESSION_VISITED_DEVICE_GROUP_IDS" tableName="visitorsessionvisiteddevicegroup"/>
+    </changeSet>
+
+    <changeSet id="roomstocontentversion" author="jari.nykanen">
+        <createTable tableName="contentversionroom">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="contentVersion_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_CONTENT_VERSION_ROOM_CONTENTVERSION_ID" referencedColumnNames="id" referencedTableName="contentversion"/>
+            </column>
+            <column name="exhibitionRoom_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_CONTENT_VERSION_ROOM_ROOM_ID" referencedColumnNames="id" referencedTableName="exhibitionroom"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="rfidantennas" author="antti.leppa">
+        <createTable tableName="rfidantenna">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="exhibition_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_RFIDANTENNA_EXHIBITION_ID" referencedColumnNames="id" referencedTableName="exhibition"/>
+            </column>
+            <column name="deviceGroup_id" type="binary(16)">
+                <constraints nullable="true" foreignKeyName="FK_RFIDANTENNA_DEVICE_GROUP_ID" referencedColumnNames="id" referencedTableName="exhibitiondevicegroup"/>
+            </column>
+            <column name="room_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_RFIDANTENNA_ROOM_ID" referencedColumnNames="id" referencedTableName="exhibitionroom"/>
+            </column>
+            <column name="name" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="readerId" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="antennaNumber" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="locationX" type="double"/>
+            <column name="locationY" type="double"/>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="roomcolor" author="antti.leppa">
+        <addColumn tableName="exhibitionroom">
+            <column name="color" type="varchar(191)"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

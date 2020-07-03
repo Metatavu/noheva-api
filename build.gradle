@@ -8,6 +8,9 @@ buildscript {
   ext.slf4j_version = "1.6.1"
   ext.paho_version = "1.2.2"
   ext.awaitility_version = "4.0.2"
+  ext.jaxrs_functional_test_builder_version = "1.0.4"
+  ext.hibernate_spatial_version = "5.3.13.Final"
+  ext.jts_core_version = "1.14.0"
 
   repositories {
     jcenter()
@@ -79,12 +82,28 @@ dependencies {
   implementation "org.liquibase:liquibase-cdi:$liquibase_version"
   implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$paho_version"
 
+  /**
+   * Keycloak admin client
+   */
+  implementation ("org.keycloak:keycloak-admin-client:$keycloak_version") {
+    exclude group: 'org.keycloak', module: 'keycloak-core'
+    exclude group: 'org.jboss.resteasy', module: 'resteasy-multipart-provider'
+    exclude group: 'org.jboss.resteasy', module: 'resteasy-jackson2-provider'
+  }
+
+  /**
+   * Spatial dependencies
+   */
+  implementation "com.vividsolutions:jts-core:$jts_core_version"
+  implementation "org.hibernate:hibernate-spatial:$hibernate_spatial_version"
+
   testImplementation project(':api-client')
+  testImplementation project(':api-test-builder')
 
   testImplementation "org.apache.commons:commons-lang3"
   testImplementation 'junit:junit:4.12'
   testImplementation 'org.hamcrest:hamcrest:2.2'
-  testImplementation "fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:1.0.4"
+  testImplementation "fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrs_functional_test_builder_version"
   testImplementation "org.awaitility:awaitility:$awaitility_version"
 
   jacocoAgent 'org.jacoco:org.jacoco.agent:0.8.5'

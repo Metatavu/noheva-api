@@ -15,7 +15,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testCreatePageLayout() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val deviceModel = it.admin().deviceModels().create()
             val createdPageLayout = it.admin().pageLayouts().create(deviceModel)
             assertNotNull(createdPageLayout)
@@ -25,7 +25,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testFindPageLayout() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val nonExistingPageLayoutId = UUID.randomUUID()
             val deviceModel = it.admin().deviceModels().create()
             val createdPageLayout = it.admin().pageLayouts().create(deviceModel)
@@ -37,7 +37,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListPageLayouts() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             assertEquals(0, it.admin().pageLayouts().listPageLayouts().size)
 
             val deviceModel = it.admin().deviceModels().create()
@@ -100,7 +100,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testUpdateExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.boolean))
             val createdChildren = arrayOf(PageLayoutView("childid", "child", arrayOf(), arrayOf()))
             val createdData = PageLayoutView("rootid", "created widget", createdProperties, createdChildren)
@@ -167,7 +167,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testDeleteExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val nonExistingPageLayoutId = UUID.randomUUID()
             val deviceModel = it.admin().deviceModels().create()
             val createdPageLayout = it.admin().pageLayouts().create(deviceModel)

@@ -15,9 +15,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testCreateExhibitionPage() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val createdPageSubscription = it.mqtt().subscribe<MqttExhibitionPageCreate>(MqttExhibitionPageCreate::class.java,"pages/create")
-
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val deviceModel = it.admin().deviceModels().create()
@@ -33,19 +32,18 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val model = it.admin().deviceModels().create()
             val modelId = model.id!!
             val deviceId = it.admin().exhibitionDevices().create(exhibitionId, groupId, modelId).id!!
-            val contentVersion = it.admin().exhibitionContentVersions().create(exhibitionId)
+            val contentVersion = it.admin().contentVersions().create(exhibitionId)
             val contentVersionId = contentVersion.id!!
             val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId, contentVersionId)
             assertNotNull(createdExhibitionPage)
             it.admin().exhibitions().assertCreateFail(400, "")
-
             assertJsonsEqual(listOf(MqttExhibitionPageCreate(exhibitionId = exhibitionId, id = createdExhibitionPage.id)), createdPageSubscription.getMessages(1))
         }
    }
 
     @Test
     fun testFindExhibitionPage() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val deviceModel = it.admin().deviceModels().create()
@@ -62,7 +60,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
             val model = it.admin().deviceModels().create()
             val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
-            val contentVersion = it.admin().exhibitionContentVersions().create(exhibitionId)
+            val contentVersion = it.admin().contentVersions().create(exhibitionId)
             val contentVersionId = contentVersion.id!!
 
             val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId = exhibitionId, layoutId = layoutId, deviceId = deviceId, contentVersionId = contentVersionId)
@@ -77,7 +75,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListExhibitionPages() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val deviceModel = it.admin().deviceModels().create()
@@ -93,7 +91,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
             val model = it.admin().deviceModels().create()
             val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
-            val contentVersion = it.admin().exhibitionContentVersions().create(exhibitionId)
+            val contentVersion = it.admin().contentVersions().create(exhibitionId)
             val contentVersionId = contentVersion.id!!
 
             it.admin().exhibitionPages().assertListFail(404, nonExistingExhibitionId, deviceId, null)
@@ -111,7 +109,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListExhibitionPagesByContentVersion() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
@@ -125,9 +123,9 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val layout = it.admin().pageLayouts().create(model)
             val layoutId = layout.id!!
 
-            val contentVersion1 = it.admin().exhibitionContentVersions().create(exhibitionId)
+            val contentVersion1 = it.admin().contentVersions().create(exhibitionId)
             val contentVersion1Id = contentVersion1.id!!
-            val contentVersion2 = it.admin().exhibitionContentVersions().create(exhibitionId)
+            val contentVersion2 = it.admin().contentVersions().create(exhibitionId)
             val contentVersion2Id = contentVersion2.id!!
 
             it.admin().exhibitionPages().assertListFail(400, exhibitionId, deviceId, UUID.randomUUID())
@@ -155,7 +153,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testUpdateExhibition() {
-        TestBuilder().use {
+        ApiTestBuilder().use {
             val updatedPageSubscription = it.mqtt().subscribe<MqttExhibitionPageUpdate>(MqttExhibitionPageUpdate::class.java,"pages/update")
 
             val exhibition = it.admin().exhibitions().create()
@@ -178,7 +176,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
             val model = it.admin().deviceModels().create()
             val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
-            val contentVersion = it.admin().exhibitionContentVersions().create(exhibitionId)
+            val contentVersion = it.admin().contentVersions().create(exhibitionId)
             val contentVersionId = contentVersion.id!!
 
             val navigatePage = it.admin().exhibitionPages().create(exhibitionId = exhibitionId, layoutId = createLayoutId, deviceId = deviceId, contentVersionId = contentVersionId)
@@ -208,13 +206,49 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 next = arrayOf()
             )
 
+            val fadeTransition = Transition(
+                    duration = 300,
+                    animation = Animation.fade,
+                    timeInterpolation = AnimationTimeInterpolation.accelerate
+            )
+
+            val createEnterTransitions : Array<ExhibitionPageTransition> = arrayOf(
+                    ExhibitionPageTransition(
+                            transition = fadeTransition
+                    )
+            )
+
+            val morphTransition = Transition (
+                    duration = 300,
+                    animation = Animation.morph,
+                    timeInterpolation = AnimationTimeInterpolation.bounce
+            )
+
+            val morphOptions = ExhibitionPageTransitionOptions(
+                ExhibitionPageTransitionOptionsMorph(
+                    views = arrayOf(ExhibitionPageTransitionOptionsMorphView(
+                        sourceId = defaultPageLayout.id.toString(),
+                        targetId = navigatePageId.toString()
+                    ))
+                )
+            )
+
+            val createExitTransitions: Array<ExhibitionPageTransition> = arrayOf(
+                    ExhibitionPageTransition(
+                            transition = morphTransition,
+                            options = morphOptions
+                    )
+            )
+
             val createPage = ExhibitionPage(
                 layoutId = createLayoutId,
                 deviceId = deviceId,
                 name = "create page",
                 resources = arrayOf(createResource),
                 eventTriggers = arrayOf(createEventTrigger),
-                contentVersionId = contentVersionId
+                contentVersionId = contentVersionId,
+                enterTransitions = createEnterTransitions,
+                exitTransitions = createExitTransitions
             )
 
             val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, createPage)
@@ -226,6 +260,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             assertJsonsEqual(createdExhibitionPage, foundCreatedExhibitionPage)
             assertJsonsEqual(createPage.eventTriggers, createdExhibitionPage.eventTriggers)
             assertJsonsEqual(createPage.resources, createdExhibitionPage.resources)
+            assertJsonsEqual(createPage.enterTransitions, createdExhibitionPage.enterTransitions)
+            assertJsonsEqual(createPage.exitTransitions, createdExhibitionPage.exitTransitions)
 
             val updateResource = ExhibitionPageResource(
                 id = "updateresid",
@@ -254,6 +290,31 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 next = arrayOf()
             )
 
+            val updatedFadeTransition = Transition(
+                    duration = 600,
+                    animation = Animation.fade,
+                    timeInterpolation = AnimationTimeInterpolation.acceleratedecelerate
+            )
+
+            val updateEnterTransitions: Array<ExhibitionPageTransition> = arrayOf(
+                    ExhibitionPageTransition(
+                            transition = updatedFadeTransition
+                    )
+            )
+
+            val updatedMorphTransition = Transition (
+                    duration = 600,
+                    animation = Animation.morph,
+                    timeInterpolation = AnimationTimeInterpolation.acceleratedecelerate
+            )
+
+            val updateExitTransitions: Array<ExhibitionPageTransition> = arrayOf(
+                    ExhibitionPageTransition(
+                            transition = updatedMorphTransition,
+                            options = morphOptions
+                    )
+            )
+
             val updatePage = ExhibitionPage(
                 id = createdExhibitionPageId,
                 layoutId = updateLayoutId,
@@ -261,7 +322,9 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 name = "update page",
                 resources = arrayOf(updateResource),
                 eventTriggers = arrayOf(updateEventTrigger),
-                contentVersionId = contentVersionId
+                contentVersionId = contentVersionId,
+                enterTransitions = updateEnterTransitions,
+                exitTransitions = updateExitTransitions
             )
 
             val updatedExhibitionPage = it.admin().exhibitionPages().updateExhibitionPage(exhibitionId, updatePage)
@@ -274,6 +337,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             assertJsonsEqual(updatedExhibitionPage, updatedExhibitionPage)
             assertJsonsEqual(updatePage.eventTriggers, updatedExhibitionPage.eventTriggers)
             assertJsonsEqual(updatePage.resources, updatedExhibitionPage.resources)
+            assertJsonsEqual(updatePage.enterTransitions, updatedExhibitionPage.enterTransitions)
+            assertJsonsEqual(updatePage.exitTransitions, updatedExhibitionPage.exitTransitions)
 
             it.admin().exhibitionPages().assertUpdateFail(404, nonExistingExhibitionId, updatePage)
             it.admin().exhibitionPages().assertUpdateFail(400, exhibitionId, updatePage.copy( layoutId = UUID.randomUUID()))
@@ -283,8 +348,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testDeleteExhibition() {
-        TestBuilder().use {
+    fun testDeletePage() {
+        ApiTestBuilder().use {
             val deletePageSubscription = it.mqtt().subscribe<MqttExhibitionPageDelete>(MqttExhibitionPageDelete::class.java,"pages/delete")
 
             val exhibition = it.admin().exhibitions().create()
@@ -303,7 +368,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val group = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
             val model = it.admin().deviceModels().create()
             val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
-            val contentVersion = it.admin().exhibitionContentVersions().create(exhibitionId)
+            val contentVersion = it.admin().contentVersions().create(exhibitionId)
             val contentVersionId = contentVersion.id!!
 
             val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId = exhibitionId, layoutId = layoutId, deviceId = deviceId, contentVersionId = contentVersionId)
@@ -319,6 +384,21 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             it.admin().exhibitionPages().assertDeleteFail(404, exhibitionId, createdExhibitionPageId)
 
             assertJsonsEqual(listOf(MqttExhibitionPageDelete(exhibitionId = exhibitionId, id = createdExhibitionPage.id)), deletePageSubscription.getMessages(1))
+        }
+    }
+
+    @Test
+    fun testDeleteIndexPage() {
+        ApiTestBuilder().use {
+            val exhibition = it.admin().exhibitions().create()
+            val exhibitionId = exhibition.id!!
+            val device = createDefaultDevice(it, exhibition)
+            val page = createDefaultPage(it, exhibition)
+            val pageId = page.id!!
+            it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId = exhibitionId, payload = device.copy(indexPageId = pageId))
+            it.admin().exhibitionPages().assertDeleteFail(400, exhibitionId = exhibitionId, id = pageId)
+            it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId = exhibitionId, payload = device.copy(indexPageId = null))
+            it.admin().exhibitionPages().delete(exhibitionId = exhibitionId, exhibitionPage = page)
         }
     }
 

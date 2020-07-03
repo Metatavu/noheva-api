@@ -6,13 +6,12 @@ import java.util.*
 import javax.persistence.*
 
 /**
- * JPA entity representing visitor session
+ * JPA entity representing visitor
  *
  * @author Antti Leppä
  */
 @Entity
-@Inheritance (strategy = InheritanceType.JOINED)
-open class VisitorSession {
+class VisitorSession {
 
     @Id
     var id: UUID? = null

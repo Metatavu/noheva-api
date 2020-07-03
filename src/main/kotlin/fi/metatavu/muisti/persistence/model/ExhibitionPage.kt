@@ -26,7 +26,7 @@ class ExhibitionPage {
     var layout: PageLayout? = null
 
     @ManyToOne
-    var contentVersion: ExhibitionContentVersion? = null
+    var contentVersion: ContentVersion? = null
 
     @NotEmpty
     @Column(nullable = false)
@@ -41,6 +41,12 @@ class ExhibitionPage {
     @Column(nullable = false)
     @Lob
     var eventTriggers: String? = null
+
+    @Lob
+    var enterTransitions: String? = null
+
+    @Lob
+    var exitTransitions: String? = null
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null

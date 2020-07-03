@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.model
 
+import com.vividsolutions.jts.geom.Polygon
 import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*
@@ -25,6 +26,11 @@ class ExhibitionRoom {
     @NotEmpty
     @Column(nullable = false)
     var name: String? = null
+
+    var color: String? = null
+
+    @Column
+    var geoShape: Polygon? = null
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null

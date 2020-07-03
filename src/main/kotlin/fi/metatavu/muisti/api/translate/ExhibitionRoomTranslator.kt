@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.api.translate
 
+import fi.metatavu.muisti.geometry.getGeoShape
 import javax.enterprise.context.ApplicationScoped
 
 /**
@@ -14,12 +15,13 @@ class ExhibitionRoomTranslator: AbstractTranslator<fi.metatavu.muisti.persistenc
         result.exhibitionId = entity.exhibition?.id
         result.floorId = entity.floor?.id
         result.name = entity.name
+        result.color = entity.color
+        result.geoShape = getGeoShape(entity.geoShape)
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
         result.createdAt = entity.createdAt
         result.modifiedAt = entity.modifiedAt
         return result
     }
-
 }
 
