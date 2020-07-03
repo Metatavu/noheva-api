@@ -577,10 +577,21 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         deviceId ?: return createNotFound("Device not found")
 
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(deviceId) ?: return createNotFound("Device $deviceId not found")
-        exhibitionDeviceController.deleteExhibitionDevice(exhibitionDevice)
 
+        val devicePages = exhibitionPageController.listExhibitionPages(
+            exhibition = exhibition,
+            exhibitionDevice = exhibitionDevice,
+            exhibitionContentVersion = null
+        )
+
+        if (devicePages.isNotEmpty()) {
+            val devicePageIds = devicePages.map { it.id }.joinToString()
+            return createBadRequest("Cannot delete device $deviceId because it's pages $devicePageIds are assigned to the device")
+        }
+
+        exhibitionDeviceController.deleteExhibitionDevice(exhibitionDevice)
         realtimeNotificationController.notifyDeviceDelete(id = deviceId, exhibitionId = exhibitionId)
 
         return createNoContent()
