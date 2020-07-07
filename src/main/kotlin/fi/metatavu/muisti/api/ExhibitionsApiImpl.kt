@@ -1063,7 +1063,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         return createOk(groupContentVersionTranslator.translate(groupContentVersion))
     }
 
-    override fun listGroupContentVersions(exhibitionId: UUID?, contentVersionId: UUID?): Response {
+    override fun listGroupContentVersions(exhibitionId: UUID?, contentVersionId: UUID?, deviceGroupId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
 
@@ -1072,7 +1072,12 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createBadRequest("Content version $contentVersionId not found")
         }
 
-        val groupContentVersions = groupContentVersionController.listGroupContentVersions(exhibition = exhibition, contentVersion = contentVersion)
+        var deviceGroup: fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup? = null
+        if (deviceGroupId != null) {
+            deviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId)?: return createBadRequest("Content version $deviceGroupId not found")
+        }
+
+        val groupContentVersions = groupContentVersionController.listGroupContentVersions(exhibition = exhibition, contentVersion = contentVersion, deviceGroup = deviceGroup)
 
         return createOk(groupContentVersions.map (groupContentVersionTranslator::translate))
     }
