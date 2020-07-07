@@ -1074,7 +1074,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         var deviceGroup: fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup? = null
         if (deviceGroupId != null) {
-            deviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId)?: return createBadRequest("Content version $deviceGroupId not found")
+            deviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId)?: return createBadRequest("Device group $deviceGroupId not found")
         }
 
         val groupContentVersions = groupContentVersionController.listGroupContentVersions(exhibition = exhibition, contentVersion = contentVersion, deviceGroup = deviceGroup)

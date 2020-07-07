@@ -133,9 +133,11 @@ class GroupContentVersionTestsIT: AbstractFunctionalTest() {
 
         it.admin().groupContentVersions().assertCount(2, exhibitionId = exhibitionId, contentVersionId = null, deviceGroupId = null)
         it.admin().groupContentVersions().assertCount(0, exhibitionId = exhibitionId, contentVersionId = contentVersionId3, deviceGroupId = null)
-        it.admin().groupContentVersions().assertCount(1, exhibitionId = exhibitionId, contentVersionId = contentVersionId3, deviceGroupId = null)
+        it.admin().groupContentVersions().assertCount(2, exhibitionId = exhibitionId, contentVersionId = null, deviceGroupId = createdDeviceGroupId)
+        it.admin().groupContentVersions().assertCount(1, exhibitionId = exhibitionId, contentVersionId = contentVersionId1, deviceGroupId = null)
+        it.admin().groupContentVersions().assertCount(1, exhibitionId = exhibitionId, contentVersionId = contentVersionId1, deviceGroupId = createdDeviceGroupId)
 
-        val groupContentVersions1 = it.admin().groupContentVersions().listGroupContentVersions(exhibitionId = exhibitionId, contentVersionId = null, deviceGroupId = createdDeviceGroupId)
+        val groupContentVersions1 = it.admin().groupContentVersions().listGroupContentVersions(exhibitionId = exhibitionId, contentVersionId = contentVersionId1, deviceGroupId = createdDeviceGroupId)
         assertEquals(1, groupContentVersions1.size)
         assertEquals(groupContentVersion1.id!!, groupContentVersions1[0].id)
         assertEquals(contentVersionId1, groupContentVersions1[0].contentVersionId)
@@ -158,7 +160,15 @@ class GroupContentVersionTestsIT: AbstractFunctionalTest() {
       val exhibitionId = exhibition.id!!
       val contentVersionId = it.admin().contentVersions().create(exhibitionId).id!!
       val deviceGroupId = createDefaultDeviceGroup(testBuilder = it, exhibition = exhibition).id!!
-      val groupContentVersionId = it.admin().groupContentVersions().create(exhibitionId = exhibitionId, contentVersionId = contentVersionId, deviceGroupId = deviceGroupId).id!!
+
+      val groupContentVersionToCreate = GroupContentVersion(
+        name = "Group content",
+        status = GroupContentVersionStatus.notstarted,
+        deviceGroupId = deviceGroupId,
+        contentVersionId = contentVersionId
+      )
+
+      val groupContentVersionId = it.admin().groupContentVersions().create(exhibitionId = exhibitionId, payload = groupContentVersionToCreate).id!!
 
       it.admin().groupContentVersions().assertDeleteFail(expectedStatus = 404, exhibitionId =  UUID.randomUUID(), groupContentVersionId = groupContentVersionId)
       it.admin().groupContentVersions().assertDeleteFail(expectedStatus = 404, exhibitionId = exhibitionId, groupContentVersionId = UUID.randomUUID())
