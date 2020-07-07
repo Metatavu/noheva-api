@@ -466,7 +466,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val foundRoom = exhibitionRoomController.findExhibitionRoomById(id = roomId)
 
-        val contentVersions = contentVersionController.listContentVersions(exhibition = foundExhibition, exhibitionRoom = foundRoom)
+        val contentVersions = contentVersionController.listContentVersions(exhibition = exhibition, exhibitionRoom = exhibitionRoom)
         if (contentVersions.isNotEmpty()) {
             val contentVersionIds = contentVersions.map { it.id }.joinToString()
             return createBadRequest("Cannot delete room $roomId because it's used in content versions $contentVersionIds")
