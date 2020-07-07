@@ -831,7 +831,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createNotFound("Room $deviceGroupId not found")
 
-        val groupContentVersions = groupContentVersionController.listGroupContentVersions(exhibition = foundExhibition, contentVersion = null, deviceGroup = exhibitionDeviceGroup)
+        val groupContentVersions = groupContentVersionController.listGroupContentVersions(exhibition = exhibition, contentVersion = null, deviceGroup = exhibitionDeviceGroup)
 
         if (groupContentVersions.isNotEmpty()) {
             val groupContentVersionIds = groupContentVersions.map { it.id }.joinToString()
