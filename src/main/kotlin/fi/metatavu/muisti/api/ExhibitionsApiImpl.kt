@@ -464,7 +464,6 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionRoom = exhibitionRoomController.findExhibitionRoomById(roomId) ?: return createNotFound("Room $roomId not found")
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val foundRoom = exhibitionRoomController.findExhibitionRoomById(id = roomId)
 
         val contentVersions = contentVersionController.listContentVersions(exhibition = exhibition, exhibitionRoom = exhibitionRoom)
         if (contentVersions.isNotEmpty()) {
