@@ -15,7 +15,7 @@ import javax.inject.Inject
  * @author Heikki Kurhinen
  */
 @ApplicationScoped
-class ImageReader private constructor() {
+class ImageReader {
 
     @Inject
     private lateinit var logger: Logger
