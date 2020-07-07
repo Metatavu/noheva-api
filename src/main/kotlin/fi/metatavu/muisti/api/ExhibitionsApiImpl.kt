@@ -463,7 +463,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionRoom = exhibitionRoomController.findExhibitionRoomById(roomId) ?: return createNotFound("Room $roomId not found")
-        val foundExhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val foundRoom = exhibitionRoomController.findExhibitionRoomById(id = roomId)
 
         val contentVersions = contentVersionController.listContentVersions(exhibition = foundExhibition, exhibitionRoom = foundRoom)
