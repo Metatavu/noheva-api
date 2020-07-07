@@ -3,6 +3,7 @@ package fi.metatavu.muisti.api
 import fi.metatavu.muisti.api.spec.DeviceModelsApi
 import fi.metatavu.muisti.api.spec.model.DeviceModel
 import fi.metatavu.muisti.api.translate.DeviceModelTranslator
+import fi.metatavu.muisti.contents.PageLayoutController
 import fi.metatavu.muisti.devices.DeviceModelController
 import java.util.*
 import javax.ejb.Stateful
@@ -25,6 +26,9 @@ class DeviceModelsApiImpl: DeviceModelsApi, AbstractApi() {
 
     @Inject
     private lateinit var deviceModelTranslator: DeviceModelTranslator
+
+    @Inject
+    private lateinit var pageLayoutController: PageLayoutController
 
     /* Device models */
 
@@ -74,6 +78,14 @@ class DeviceModelsApiImpl: DeviceModelsApi, AbstractApi() {
         deviceModelId ?: return createNotFound(DEVICE_MODEL_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
+
+        val layouts = pageLayoutController.listPageLayouts(deviceModel = deviceModel, screenOrientation = null)
+
+        if (layouts.isNotEmpty()) {
+            val layoutIds = layouts.map { it.id }.joinToString()
+            return createBadRequest("Device model $deviceModelId cannot be deleted because layouts $layoutIds are using it")
+        }
+        
         deviceModelController.deleteDeviceModel(deviceModel)
         return createNoContent()
     }

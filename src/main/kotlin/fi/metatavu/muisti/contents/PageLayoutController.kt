@@ -59,15 +59,6 @@ class PageLayoutController() {
     }
 
     /**
-     * Lists all page layouts
-     *
-     * @returns all page layouts
-     */
-    fun listPageLayouts(): List<PageLayout> {
-        return pageLayoutDAO.listAll()
-    }
-
-    /**
      * Updates an exhibition page layout
      *
      * @param pageLayout exhibition page layout to be updated

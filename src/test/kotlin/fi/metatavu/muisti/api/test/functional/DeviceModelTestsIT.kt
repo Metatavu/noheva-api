@@ -1,9 +1,6 @@
 package fi.metatavu.muisti.api.test.functional
 
-import fi.metatavu.muisti.api.client.models.DeviceModel
-import fi.metatavu.muisti.api.client.models.DeviceModelCapabilities
-import fi.metatavu.muisti.api.client.models.DeviceModelDimensions
-import fi.metatavu.muisti.api.client.models.DeviceModelDisplayMetrics
+import fi.metatavu.muisti.api.client.models.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -80,7 +77,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testUpdateExhibition() {
+    fun testUpdateDeviceModel() {
         ApiTestBuilder().use {
             val createDimensions = DeviceModelDimensions(8000.0, 6000.0, 1.0, 7900.0, 5900.0)
             val createDisplayMetrics = DeviceModelDisplayMetrics(
@@ -151,14 +148,28 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testDeleteExhibition() {
+    fun testDeleteDeviceModel() {
         ApiTestBuilder().use {
             val nonExistingSessionVariableId = UUID.randomUUID()
             val createdDeviceModel = it.admin().deviceModels().create()
             val createdDeviceModelId = createdDeviceModel.id!!
 
+            val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.boolean))
+            val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.button, arrayOf(), arrayOf()))
+            val createdData = PageLayoutView("rootid", PageLayoutWidgetType.frameLayout, createdProperties, createdChildren)
+            val createdPageLayout = it.admin().pageLayouts().create(PageLayout(
+                name = "created name",
+                data = createdData,
+                thumbnailUrl = "http://example.com/thumbnail.png",
+                screenOrientation = ScreenOrientation.portrait,
+                modelId = createdDeviceModelId
+            ))
+
             assertNotNull(it.admin().deviceModels().findDeviceModel(createdDeviceModelId))
             it.admin().deviceModels().assertDeleteFail(404, nonExistingSessionVariableId)
+            it.admin().deviceModels().assertDeleteFail(400, createdDeviceModelId)
+
+            it.admin().pageLayouts().delete(createdPageLayout.id!!)
 
             it.admin().deviceModels().delete(createdDeviceModel)
 
