@@ -48,9 +48,10 @@ class GroupContentVersionDAO() : AbstractDAO<GroupContentVersion>() {
      *
      * @param exhibition filter by exhibition
      * @param contentVersion filter by content version. Ignored if null is passed
+     * @param deviceGroup filter by device group. Ignored if null is passed
      * @return List of group content versions
      */
-    fun list(exhibition: Exhibition, contentVersion: ContentVersion?): List<GroupContentVersion> {
+    fun list(exhibition: Exhibition, contentVersion: ContentVersion?, deviceGroup: ExhibitionDeviceGroup?): List<GroupContentVersion> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<GroupContentVersion> = criteriaBuilder.createQuery(GroupContentVersion::class.java)
@@ -61,6 +62,10 @@ class GroupContentVersionDAO() : AbstractDAO<GroupContentVersion>() {
 
         if (contentVersion != null) {
             restrictions.add(criteriaBuilder.equal(root.get(GroupContentVersion_.contentVersion), contentVersion))
+        }
+
+        if (deviceGroup != null) {
+            restrictions.add(criteriaBuilder.equal(root.get(GroupContentVersion_.deviceGroup), deviceGroup))
         }
 
         criteria.select(root)
