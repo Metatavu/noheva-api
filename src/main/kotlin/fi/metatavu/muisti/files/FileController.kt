@@ -4,7 +4,9 @@ import fi.metatavu.muisti.api.spec.model.StoredFile
 import fi.metatavu.muisti.files.storage.FileStorageException
 import fi.metatavu.muisti.files.storage.FileStorageProvider
 import org.apache.commons.lang3.StringUtils
+import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
+import javax.ejb.AccessTimeout
 import javax.ejb.Singleton
 import javax.enterprise.context.ApplicationScoped
 import javax.enterprise.inject.Any
@@ -18,6 +20,7 @@ import javax.inject.Inject
  */
 @ApplicationScoped
 @Singleton
+@AccessTimeout(value = 8, unit = TimeUnit.HOURS)
 class FileController {
 
     @Inject
