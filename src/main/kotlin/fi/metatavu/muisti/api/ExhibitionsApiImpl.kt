@@ -828,7 +828,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         deviceGroupId?: return createNotFound("Device group not found")
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-        val foundExhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createNotFound("Room $deviceGroupId not found")
 
         val groupContentVersions = groupContentVersionController.listGroupContentVersions(exhibition = foundExhibition, contentVersion = null, deviceGroup = exhibitionDeviceGroup)
