@@ -99,7 +99,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testUpdateExhibition() {
+    fun testUpdatePageLayout() {
         ApiTestBuilder().use {
             val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.boolean))
             val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.button, arrayOf(), arrayOf()))
@@ -166,7 +166,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testDeleteExhibition() {
+    fun testDeletePageLayout() {
         ApiTestBuilder().use {
             val nonExistingPageLayoutId = UUID.randomUUID()
             val deviceModel = it.admin().deviceModels().create()

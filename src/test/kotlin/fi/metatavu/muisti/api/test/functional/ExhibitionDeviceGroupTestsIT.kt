@@ -1,9 +1,6 @@
 package fi.metatavu.muisti.api.test.functional
 
-import fi.metatavu.muisti.api.client.models.ExhibitionDeviceGroup
-import fi.metatavu.muisti.api.client.models.MqttDeviceGroupCreate
-import fi.metatavu.muisti.api.client.models.MqttDeviceGroupDelete
-import fi.metatavu.muisti.api.client.models.MqttDeviceGroupUpdate
+import fi.metatavu.muisti.api.client.models.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -171,13 +168,26 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId = room.id!!
 
+            val createdContentVersion = it.admin().contentVersions().create(exhibitionId)
             val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+
+            val groupContentVersionToCreate = GroupContentVersion(
+                name = "Group name",
+                status = GroupContentVersionStatus.notstarted,
+                deviceGroupId = createdExhibitionDeviceGroup.id!!,
+                contentVersionId = createdContentVersion.id!!
+            )
+
+            val createdGroupContentVersion = it.admin().groupContentVersions().create(exhibitionId = exhibitionId, payload = groupContentVersionToCreate)
             val createdExhibitionDeviceGroupId = createdExhibitionDeviceGroup.id!!
 
             assertNotNull(it.admin().exhibitionDeviceGroups().findExhibitionDeviceGroup(exhibitionId, createdExhibitionDeviceGroupId))
             it.admin().exhibitionDeviceGroups().assertDeleteFail(404, exhibitionId, nonExistingSessionVariableId)
             it.admin().exhibitionDeviceGroups().assertDeleteFail(404, nonExistingExhibitionId, createdExhibitionDeviceGroupId)
             it.admin().exhibitionDeviceGroups().assertDeleteFail(404, nonExistingExhibitionId, nonExistingSessionVariableId)
+            it.admin().exhibitionDeviceGroups().assertDeleteFail(400, exhibitionId = exhibitionId, id = createdExhibitionDeviceGroupId)
+
+            it.admin().groupContentVersions().delete(exhibitionId = exhibitionId, groupContentVersion = createdGroupContentVersion)
 
             it.admin().exhibitionDeviceGroups().delete(exhibitionId, createdExhibitionDeviceGroup)
             assertJsonsEqual(listOf(MqttDeviceGroupDelete(exhibitionId = exhibitionId, id = createdExhibitionDeviceGroup.id!!)), mqttSubscription.getMessages(1))
