@@ -36,6 +36,7 @@ class DeviceModelTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.m
         result.capabilities = capabilities
         result.dimensions = dimensions
         result.displayMetrics = displayMetrics
+        result.screenOrientation = entity.screenOrientation
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
         result.createdAt = entity.createdAt

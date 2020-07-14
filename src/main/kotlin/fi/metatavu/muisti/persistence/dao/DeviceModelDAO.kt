@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.dao
 
+import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.persistence.model.DeviceModel
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
@@ -29,11 +30,12 @@ class DeviceModelDAO() : AbstractDAO<DeviceModel>() {
      * @param xdpi xdpi
      * @param ydpi ydpi
      * @param capabilityTouch whether device has touch capability
+     * @param screenOrientation screen orientation
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created deviceModel
      */
-    fun create(id: UUID, manufacturer: String, model: String, deviceWidth: Double?, deviceHeight: Double?, deviceDepth: Double?, screenWidth: Double?, screenHeight: Double?, widthPixels: Int?, heightPixels: Int?, density: Double?, xdpi: Double?, ydpi: Double?, capabilityTouch: Boolean, creatorId: UUID, lastModifierId: UUID): DeviceModel {
+    fun create(id: UUID, manufacturer: String, model: String, deviceWidth: Double?, deviceHeight: Double?, deviceDepth: Double?, screenWidth: Double?, screenHeight: Double?, widthPixels: Int?, heightPixels: Int?, density: Double?, xdpi: Double?, ydpi: Double?, capabilityTouch: Boolean, screenOrientation: ScreenOrientation, creatorId: UUID, lastModifierId: UUID): DeviceModel {
         val deviceModel = DeviceModel()
         deviceModel.id = id
         deviceModel.manufacturer = manufacturer
@@ -49,6 +51,7 @@ class DeviceModelDAO() : AbstractDAO<DeviceModel>() {
         deviceModel.xdpi = xdpi
         deviceModel.ydpi = ydpi
         deviceModel.capabilityTouch = capabilityTouch
+        deviceModel.screenOrientation = screenOrientation
         deviceModel.creatorId = creatorId
         deviceModel.lastModifierId = lastModifierId
         return persist(deviceModel)
@@ -232,6 +235,20 @@ class DeviceModelDAO() : AbstractDAO<DeviceModel>() {
     fun updateCapabilityTouch(deviceModel: DeviceModel, capabilityTouch: Boolean, lastModifierId: UUID): DeviceModel {
         deviceModel.lastModifierId = lastModifierId
         deviceModel.capabilityTouch = capabilityTouch
+        return persist(deviceModel)
+    }
+
+    /**
+     * Updates screen orientation
+     *
+     * @param deviceModel exhibition device model
+     * @param screenOrientation screen orientation
+     * @param lastModifierId last modifier's id
+     * @return updated deviceModel
+     */
+    fun updateScreenOrientation(deviceModel: DeviceModel, screenOrientation: ScreenOrientation, lastModifierId: UUID): DeviceModel {
+        deviceModel.lastModifierId = lastModifierId
+        deviceModel.screenOrientation = screenOrientation
         return persist(deviceModel)
     }
 
