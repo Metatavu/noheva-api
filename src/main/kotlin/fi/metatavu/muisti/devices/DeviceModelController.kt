@@ -2,6 +2,7 @@ package fi.metatavu.muisti.devices
 
 import fi.metatavu.muisti.api.spec.model.DeviceModelDimensions
 import fi.metatavu.muisti.api.spec.model.DeviceModelDisplayMetrics
+import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.persistence.dao.DeviceModelDAO
 import fi.metatavu.muisti.persistence.model.DeviceModel
 import java.util.*
@@ -25,10 +26,11 @@ class DeviceModelController() {
      * @param dimensions device physical dimensions
      * @param displayMetrics display metrics
      * @param capabilityTouch whether device has touch capability
+     * @param screenOrientation screen orientation
      * @param creatorId creating user id
      * @return created exhibition device model
      */
-    fun createDeviceModel(manufacturer: String, model: String, dimensions: DeviceModelDimensions, displayMetrics: DeviceModelDisplayMetrics, capabilityTouch: Boolean, creatorId: UUID): DeviceModel {
+    fun createDeviceModel(manufacturer: String, model: String, dimensions: DeviceModelDimensions, displayMetrics: DeviceModelDisplayMetrics, capabilityTouch: Boolean, screenOrientation: ScreenOrientation, creatorId: UUID): DeviceModel {
         return deviceModelDAO.create(UUID.randomUUID(),
                 manufacturer = manufacturer,
                 model = model,
@@ -43,6 +45,7 @@ class DeviceModelController() {
                 xdpi = displayMetrics.xdpi,
                 ydpi = displayMetrics.ydpi,
                 capabilityTouch = capabilityTouch,
+                screenOrientation = screenOrientation,
                 creatorId = creatorId,
                 lastModifierId = creatorId)
     }
@@ -75,10 +78,11 @@ class DeviceModelController() {
      * @param dimensions device physical dimensions
      * @param displayMetrics display metrics
      * @param capabilityTouch whether device has touch capability
+     * @param screenOrientation screen orientation
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateDeviceModel(deviceModel: DeviceModel, manufacturer: String, model: String, dimensions: DeviceModelDimensions, displayMetrics: DeviceModelDisplayMetrics, capabilityTouch: Boolean, modifierId: UUID): DeviceModel {
+    fun updateDeviceModel(deviceModel: DeviceModel, manufacturer: String, model: String, dimensions: DeviceModelDimensions, displayMetrics: DeviceModelDisplayMetrics, capabilityTouch: Boolean, screenOrientation: ScreenOrientation, modifierId: UUID): DeviceModel {
         deviceModelDAO.updateManufacturer(deviceModel, manufacturer, modifierId)
         deviceModelDAO.updateModel(deviceModel, model, modifierId)
         deviceModelDAO.updateDeviceWidth(deviceModel, dimensions.deviceWidth, modifierId)
@@ -92,6 +96,7 @@ class DeviceModelController() {
         deviceModelDAO.updateXdpi(deviceModel, displayMetrics.xdpi, modifierId)
         deviceModelDAO.updateYdpi(deviceModel, displayMetrics.ydpi, modifierId)
         deviceModelDAO.updateCapabilityTouch(deviceModel, capabilityTouch, modifierId)
+        deviceModelDAO.updateScreenOrientation(deviceModel, screenOrientation, modifierId)
         return deviceModel
     }
 

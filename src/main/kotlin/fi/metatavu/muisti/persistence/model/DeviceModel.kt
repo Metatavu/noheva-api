@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.model
 
+import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*
@@ -46,6 +47,10 @@ class DeviceModel {
 
     @Column(nullable = false)
     var capabilityTouch: Boolean = false
+
+    @Enumerated (EnumType.STRING)
+    @Column(nullable = false)
+    var screenOrientation: ScreenOrientation? = null
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null

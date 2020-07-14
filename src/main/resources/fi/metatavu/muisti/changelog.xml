@@ -699,4 +699,14 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="devicemodelorientation" author="jari.nykanen">
+        <addColumn tableName="devicemodel">
+            <column name="screenOrientation" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <sql>UPDATE devicemodel SET screenOrientation = 'PORTRAIT'</sql>
+    </changeSet>
+
 </databaseChangeLog>

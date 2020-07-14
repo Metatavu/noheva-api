@@ -31,7 +31,8 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
                 model = "model",
                 dimensions = dimensions,
                 displayMetrics = displayMetrics,
-                capabilities = capabilities
+                capabilities = capabilities,
+                screenOrientation = ScreenOrientation.portrait
             ))
 
             assertNotNull(createdDeviceModel)
@@ -46,6 +47,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             assertEquals(515.154, createdDeviceModel.displayMetrics.xdpi)
             assertEquals(514.597, createdDeviceModel.displayMetrics.ydpi)
             assertEquals(false, createdDeviceModel.capabilities.touch)
+            assertEquals(ScreenOrientation.portrait, createdDeviceModel.screenOrientation)
             assertEquals("manu", createdDeviceModel.manufacturer)
             assertEquals("model", createdDeviceModel.model)
 
@@ -94,7 +96,8 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
                 model = "model",
                 dimensions = createDimensions,
                 displayMetrics = createDisplayMetrics,
-                capabilities = createCapabilities
+                capabilities = createCapabilities,
+                screenOrientation = ScreenOrientation.portrait
             ))
 
             val createdDeviceModelId = createdDeviceModel.id!!
@@ -112,7 +115,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             assertEquals(3.5, createdDeviceModel.displayMetrics.density)
             assertEquals(515.154, createdDeviceModel.displayMetrics.xdpi)
             assertEquals(514.597, createdDeviceModel.displayMetrics.ydpi)
-
+            assertEquals(ScreenOrientation.portrait, createdDeviceModel.screenOrientation)
             assertEquals(false, createdDeviceModel.capabilities.touch)
             assertEquals("manu", createdDeviceModel.manufacturer)
             assertEquals("model", createdDeviceModel.model)
@@ -127,7 +130,15 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             )
 
             val updateCapabilities = DeviceModelCapabilities(true)
-            val updatedDeviceModel = it.admin().deviceModels().updateDeviceModel(DeviceModel("altmanu", "altmodel", updateDimensions, updateDisplayMetrics, updateCapabilities, createdDeviceModelId))
+            val updatedDeviceModel = it.admin().deviceModels().updateDeviceModel(DeviceModel(
+                    manufacturer = "altmanu",
+                    model= "altmodel",
+                    dimensions = updateDimensions,
+                    displayMetrics = updateDisplayMetrics,
+                    capabilities = updateCapabilities,
+                    screenOrientation = ScreenOrientation.landscape,
+                    id = createdDeviceModelId
+            ))
             val foundUpdatedDeviceModel = it.admin().deviceModels().findDeviceModel(createdDeviceModelId)
 
             assertEquals(updatedDeviceModel!!.id, foundUpdatedDeviceModel?.id)
@@ -142,6 +153,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             assertEquals(215.154, updatedDeviceModel.displayMetrics.xdpi)
             assertEquals(214.597, updatedDeviceModel.displayMetrics.ydpi)
             assertEquals(true, updatedDeviceModel.capabilities.touch)
+            assertEquals(ScreenOrientation.landscape, updatedDeviceModel.screenOrientation)
             assertEquals("altmanu", updatedDeviceModel.manufacturer)
             assertEquals("altmodel", updatedDeviceModel.model)
         }
