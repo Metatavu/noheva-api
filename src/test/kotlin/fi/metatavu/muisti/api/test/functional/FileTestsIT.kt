@@ -64,7 +64,7 @@ class FileTestsIT : AbstractFunctionalTest() {
             assertEquals("image/jpeg", folderFiles.firstOrNull{ it.id == storedFile2.id }?.contentType)
 
             val rootFiles = builder.admin().files().listStoredFiles("/")
-            assertEquals(1, rootFiles.size)
+            assertEquals(2, rootFiles.size)
             assertEquals(folder, rootFiles.first().fileName)
             assertEquals("inode/directory", rootFiles.first().contentType)
         }

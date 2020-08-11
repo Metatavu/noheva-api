@@ -8,12 +8,12 @@ import javax.persistence.*
 import javax.validation.constraints.NotEmpty
 
 /**
- * JPA entity representing page layout
+ * JPA entity representing sub layout
  *
- * @author Antti Leppä
+ * @author Jari Nykänen
  */
 @Entity
-class PageLayout {
+class SubLayout {
 
     @Id
     var id: UUID? = null
@@ -26,16 +26,6 @@ class PageLayout {
     @Column(nullable = false)
     @Lob
     var data: String? = null
-
-    @URL
-    var thumbnailUrl: String? = null
-
-    @ManyToOne
-    var deviceModel: DeviceModel? = null
-
-    @Enumerated (EnumType.STRING)
-    @Column(nullable = false)
-    var screenOrientation: ScreenOrientation? = null
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null
