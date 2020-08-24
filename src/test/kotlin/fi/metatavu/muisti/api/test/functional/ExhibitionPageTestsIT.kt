@@ -266,7 +266,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val updateResource = ExhibitionPageResource(
                 id = "updateresid",
                 data = "https://example.com/updated.png",
-                type = ExhibitionPageResourceType.video
+                type = ExhibitionPageResourceType.video,
+                scripted = true
             )
 
             val updateEvent = ExhibitionPageEvent(
