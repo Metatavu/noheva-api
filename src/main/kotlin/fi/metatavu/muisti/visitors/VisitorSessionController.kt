@@ -131,7 +131,7 @@ class VisitorSessionController {
                 changed = true
             } else {
                 if (!StringUtils.isBlank(variable.value)) {
-                    if (variable.value.equals(existingSessionVariable.value)) {
+                    if (variable.value != existingSessionVariable.value) {
                         visitorSessionVariableDAO.updateValue(existingSessionVariable, variable.value)
                         changed = true
                     }
