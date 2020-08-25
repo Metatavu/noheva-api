@@ -128,7 +128,12 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
                 tagId = "tag3"
             ))
 
-            val createVariables = arrayOf(VisitorSessionVariable("key1", "val1"), VisitorSessionVariable("key2", "val2"))
+            val createVariables = arrayOf(
+                VisitorSessionVariable("key1", "val1"),
+                VisitorSessionVariable("key2", "val2"),
+                VisitorSessionVariable("key3", "val3")
+            )
+
             val createVisitorIds = arrayOf(visitor1.id!!, visitor2.id!!)
 
             val createdVisitorSession = it.admin().visitorSessions().create(exhibitionId, VisitorSession(
@@ -155,17 +160,23 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
             assertEquals(createdVisitorSession.id, foundCreatedVisitorSession?.id)
             assertEquals(createdVisitorSession.state, foundCreatedVisitorSession?.state)
             assertEquals(createdVisitorSession.visitorIds.size, 2)
-            assertEquals(createdVisitorSession.variables!!.size, 2)
+            assertEquals(createdVisitorSession.variables!!.size, 3)
             assertTrue(createdVisitorSession.visitorIds.contains(visitor1.id))
             assertTrue(createdVisitorSession.visitorIds.contains(visitor2.id))
             assertEquals("val1", createdVisitorSession.variables!!.find { session -> session.name == "key1" }!!.value)
             assertEquals("val2", createdVisitorSession.variables!!.find { session -> session.name == "key2" }!!.value)
+            assertEquals("val3", createdVisitorSession.variables!!.find { session -> session.name == "key3" }!!.value)
 
             assertEquals(foundCreatedVisitorSession?.visitedDeviceGroups?.size, 2)
             assertNotNull(foundCreatedVisitorSession?.visitedDeviceGroups?.firstOrNull { item ->  item.deviceGroupId == deviceGroupId1 })
             assertNotNull(foundCreatedVisitorSession?.visitedDeviceGroups?.firstOrNull { item ->  item.deviceGroupId == deviceGroupId2 })
 
-            val updateVariables = arrayOf(VisitorSessionVariable("key3", "val3"), VisitorSessionVariable("key2", "val2"))
+            val updateVariables = arrayOf(
+                VisitorSessionVariable("key4", "val4"),
+                VisitorSessionVariable("key3", "upd3"),
+                VisitorSessionVariable("key2", "val2")
+            )
+
             val updateVisitorIds = arrayOf(visitor3.id!!, visitor2.id!!)
             val visitedDeviceGroups = arrayOf<VisitorSessionVisitedDeviceGroup>()
 
@@ -193,10 +204,11 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
             assertEquals(updatedVisitorSession!!.id, foundUpdatedVisitorSession?.id)
             assertEquals(updatedVisitorSession.state, foundUpdatedVisitorSession?.state)
             assertEquals(updatedVisitorSession.visitorIds.size, 2)
-            assertEquals(updatedVisitorSession.variables!!.size, 2)
+            assertEquals(updatedVisitorSession.variables!!.size, 3)
             assertTrue(updatedVisitorSession.visitorIds.contains(visitor3.id))
             assertTrue(updatedVisitorSession.visitorIds.contains(visitor2.id))
-            assertEquals("val3", updatedVisitorSession.variables!!.find { session -> session.name == "key3" }!!.value)
+            assertEquals("val4", updatedVisitorSession.variables!!.find { session -> session.name == "key4" }!!.value)
+            assertEquals("upd3", updatedVisitorSession.variables!!.find { session -> session.name == "key3" }!!.value)
             assertEquals("val2", updatedVisitorSession.variables!!.find { session -> session.name == "key2" }!!.value)
 
             assertEquals(updatedVisitorSession.visitedDeviceGroups?.size, 2)
