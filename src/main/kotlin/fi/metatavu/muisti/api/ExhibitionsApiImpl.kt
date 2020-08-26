@@ -561,6 +561,24 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val groupChanged = exhibitionDevice.exhibitionDeviceGroup?.id != exhibitionGroup.id
         val location = payload.location
         val screenOrientation = payload.screenOrientation
+        val pages = mutableListOf<fi.metatavu.muisti.persistence.model.ExhibitionPage>()
+        val pageOrder = payload.pageOrder.distinct()
+
+        for (element in pageOrder) {
+            val page = exhibitionPageController.findExhibitionPageById(element) ?: return createBadRequest("Could not find page $element")
+
+            if (page.device?.id != deviceId) {
+                return createBadRequest("Page $element does not belong to this device")
+            }
+
+            pages.add(page)
+        }
+
+        val devicePageCount = exhibitionPageController.getDevicePageCount(device = exhibitionDevice)
+        if (devicePageCount.toInt() != pages.size) {
+            return createBadRequest("Device pageOrder count (${pages.size}) does not match device page count ($devicePageCount)")
+        }
+
         val result = exhibitionDeviceController.updateExhibitionDevice(
             exhibitionDevice = exhibitionDevice,
             exhibitionDeviceGroup = exhibitionGroup,
@@ -571,6 +589,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             screenOrientation = screenOrientation,
             modifierId = userId
         )
+
+        pages.forEachIndexed { index, page ->
+            exhibitionPageController.updateExhibitionPageOrderNumber(page, index, userId)
+        }
 
         realtimeNotificationController.notifyDeviceUpdate(id = deviceId, exhibitionId = exhibitionId, groupChanged = groupChanged)
 
@@ -867,6 +889,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             contentVersion = contentVersion,
             layout = layout,
             name = name,
+            orderNumber = exhibitionPageController.getNextOrderNumber(device),
             resources = resources,
             eventTriggers = eventTriggers,
             enterTransitions = enterTransitions,

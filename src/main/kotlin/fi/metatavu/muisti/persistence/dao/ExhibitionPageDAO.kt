@@ -24,6 +24,7 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      * @param contentVersion content version
      * @param layout layout
      * @param name name
+     * @param orderNumber order number
      * @param resources resources
      * @param eventTriggers event triggers
      * @param enterTransitions page enter transitions
@@ -32,13 +33,14 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      * @param lastModifierId last modifier's id
      * @return created exhibitionPage
      */
-    fun create(id: UUID, exhibition: Exhibition, contentVersion: ContentVersion, device : ExhibitionDevice, layout: PageLayout, name: String, resources: String, eventTriggers: String, enterTransitions: String?, exitTransitions: String?, creatorId: UUID, lastModifierId: UUID): ExhibitionPage {
+    fun create(id: UUID, exhibition: Exhibition, contentVersion: ContentVersion, device : ExhibitionDevice, layout: PageLayout, name: String, orderNumber: Int, resources: String, eventTriggers: String, enterTransitions: String?, exitTransitions: String?, creatorId: UUID, lastModifierId: UUID): ExhibitionPage {
         val exhibitionPage = ExhibitionPage()
         exhibitionPage.id = id
         exhibitionPage.device = device
         exhibitionPage.layout = layout
         exhibitionPage.contentVersion = contentVersion
         exhibitionPage.name = name
+        exhibitionPage.orderNumber = orderNumber
         exhibitionPage.eventTriggers = eventTriggers
         exhibitionPage.resources = resources
         exhibitionPage.enterTransitions = enterTransitions
@@ -94,7 +96,56 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
         criteria.select(root)
         criteria.where(criteriaBuilder.equal(root.get(ExhibitionPage_.layout), layout))
         val query: TypedQuery<ExhibitionPage> = entityManager.createQuery<ExhibitionPage>(criteria)
-        return query.getResultList()
+        return query.resultList
+    }
+
+    /**
+     * Returns device page ids in ascending order by orderNumber field
+     *
+     * @param device device
+     * @return device page ids in ascending order by orderNumber field
+     */
+    fun listPageIdsByDeviceInAscOrderNumberOrder(device : ExhibitionDevice): List<UUID> {
+        val entityManager = getEntityManager()
+        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteria: CriteriaQuery<UUID> = criteriaBuilder.createQuery(UUID::class.java)
+        val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)
+        criteria.select(root.get(ExhibitionPage_.id))
+        criteria.where(criteriaBuilder.equal(root.get(ExhibitionPage_.device), device))
+        criteria.orderBy(criteriaBuilder.asc(root.get(ExhibitionPage_.orderNumber)))
+        return entityManager.createQuery<UUID>(criteria).resultList
+    }
+
+    /**
+     * Returns page count by device
+     *
+     * @param device device
+     * @return page count by device
+     */
+    fun countByDevice(device : ExhibitionDevice): Long {
+        val entityManager = getEntityManager()
+        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteria: CriteriaQuery<Long> = criteriaBuilder.createQuery(Long::class.java)
+        val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)
+        criteria.select(criteriaBuilder.count(root))
+        criteria.where(criteriaBuilder.equal(root.get(ExhibitionPage_.device), device))
+        return entityManager.createQuery<Long>(criteria).singleResult
+    }
+
+    /**
+     * Returns max order number by device
+     *
+     * @param device device
+     * @return max order number by device
+     */
+    fun maxOrderNumberByDevice(device : ExhibitionDevice): Int? {
+        val entityManager = getEntityManager()
+        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteria: CriteriaQuery<Int> = criteriaBuilder.createQuery(Int::class.java)
+        val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)
+        criteria.select(criteriaBuilder.max(root.get(ExhibitionPage_.orderNumber)))
+        criteria.where(criteriaBuilder.equal(root.get(ExhibitionPage_.device), device))
+        return entityManager.createQuery<Int>(criteria).resultList.firstOrNull()
     }
 
     /**
@@ -145,11 +196,25 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
      * @param exhibitionPage exhibition page
      * @param name name
      * @param lastModifierId last modifier's id
-     * @return updated exhibitionPage
+     * @return updated exhibition page
      */
     fun updateName(exhibitionPage: ExhibitionPage, name: String, lastModifierId: UUID): ExhibitionPage {
         exhibitionPage.lastModifierId = lastModifierId
         exhibitionPage.name = name
+        return persist(exhibitionPage)
+    }
+
+    /**
+     * Updates order number
+     *
+     * @param exhibitionPage exhibition page
+     * @param orderNumber order number
+     * @param lastModifierId last modifier's id
+     * @return updated exhibition page
+     */
+    fun updateOrderNumber(exhibitionPage: ExhibitionPage, orderNumber: Int, lastModifierId: UUID): ExhibitionPage {
+        exhibitionPage.lastModifierId = lastModifierId
+        exhibitionPage.orderNumber = orderNumber
         return persist(exhibitionPage)
     }
 
