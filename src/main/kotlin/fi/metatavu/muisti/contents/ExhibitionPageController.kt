@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageEventTrigger
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageResource
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageTransition
-import fi.metatavu.muisti.api.spec.model.Transition
 import fi.metatavu.muisti.persistence.dao.ExhibitionPageDAO
 import fi.metatavu.muisti.persistence.model.*
 import java.util.*
@@ -27,6 +26,7 @@ class ExhibitionPageController() {
      * @param layout layout
      * @param contentVersion content version
      * @param name name
+     * @param orderNumber order number
      * @param resources resources
      * @param eventTriggers event triggers
      * @param enterTransitions page enter transitions
@@ -34,13 +34,14 @@ class ExhibitionPageController() {
      * @param creatorId creating user id
      * @return created exhibition page 
      */
-    fun createExhibitionPage(exhibition: Exhibition, device: ExhibitionDevice, layout: PageLayout, contentVersion: ContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, enterTransitions: List<ExhibitionPageTransition>, exitTransitions: List<ExhibitionPageTransition>, creatorId: UUID): ExhibitionPage {
+    fun createExhibitionPage(exhibition: Exhibition, device: ExhibitionDevice, layout: PageLayout, contentVersion: ContentVersion, name: String, orderNumber: Int, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, enterTransitions: List<ExhibitionPageTransition>, exitTransitions: List<ExhibitionPageTransition>, creatorId: UUID): ExhibitionPage {
         return exhibitionPageDAO.create(UUID.randomUUID(),
             exhibition = exhibition,
             device = device,
             layout = layout,
             contentVersion = contentVersion,
             name = name,
+            orderNumber = orderNumber,
             resources = getDataAsString(resources),
             eventTriggers = getDataAsString(eventTriggers),
             enterTransitions = getDataAsString(enterTransitions),
@@ -49,7 +50,6 @@ class ExhibitionPageController() {
             lastModifierId = creatorId
         )
     }
-
 
     /**
      * Finds an exhibition page by id
@@ -83,6 +83,35 @@ class ExhibitionPageController() {
     }
 
     /**
+     * Returns next order number for device
+     *
+     * @param device device
+     * @return next order number for device
+     */
+    fun getNextOrderNumber(device : ExhibitionDevice): Int {
+        val orderNumber = exhibitionPageDAO.maxOrderNumberByDevice(device = device) ?: 0
+        return orderNumber + 1
+    }
+
+    /**
+     * Returns device page ids in order defined by page order number
+     *
+     * @return device page ids in order defined by page order number
+     */
+    fun getDevicePageIdsOrder(device : ExhibitionDevice): List<UUID> {
+        return exhibitionPageDAO.listPageIdsByDeviceInAscOrderNumberOrder(device = device)
+    }
+
+    /**
+     * Returns device page count
+     *
+     * @return device page count
+     */
+    fun getDevicePageCount(device : ExhibitionDevice): Long {
+        return exhibitionPageDAO.countByDevice(device = device)
+    }
+
+    /**
      * Updates an exhibition page 
      *
      * @param exhibitionPage exhibition page  to be updated
@@ -107,6 +136,18 @@ class ExhibitionPageController() {
         result = exhibitionPageDAO.updateEnterTransitions(result, getDataAsString(enterTransitions), modifierId)
         result = exhibitionPageDAO.updateExitTransitions(result, getDataAsString(exitTransitions), modifierId)
         return result
+    }
+
+    /**
+     * Updates exhibition page order number
+     *
+     * @param exhibitionPage exhibition page  to be updated
+     * @param orderNumber order number
+     * @param modifierId modifying user id
+     * @return updated exhibition
+     */
+    fun updateExhibitionPageOrderNumber(exhibitionPage: ExhibitionPage, orderNumber: Int, modifierId: UUID): ExhibitionPage {
+        return exhibitionPageDAO.updateOrderNumber(exhibitionPage, orderNumber, modifierId)
     }
 
     /**

@@ -49,6 +49,9 @@ class ExhibitionPage {
     var exitTransitions: String? = null
 
     @Column(nullable = false)
+    var orderNumber: Int? = null
+
+    @Column(nullable = false)
     var createdAt: OffsetDateTime? = null
 
     @Column(nullable = false)

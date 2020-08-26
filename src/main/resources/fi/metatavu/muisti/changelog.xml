@@ -735,4 +735,12 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="pageordernumber" author="antti.leppa">
+        <addColumn tableName="exhibitionpage">
+            <column name="orderNumber" type="INTEGER" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
