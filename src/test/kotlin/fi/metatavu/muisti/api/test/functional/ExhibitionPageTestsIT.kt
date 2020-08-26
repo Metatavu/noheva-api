@@ -203,7 +203,9 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 events = arrayOf(createEvent),
                 clickViewId =  "createviewid",
                 delay = 0,
-                next = arrayOf()
+                next = arrayOf(),
+                id = UUID.randomUUID(),
+                name = "Create View"
             )
 
             val fadeTransition = Transition(
@@ -288,7 +290,9 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 keyDown = "A",
                 keyUp = "B",
                 deviceGroupEvent = "groupevent",
-                next = arrayOf()
+                next = arrayOf(),
+                id = UUID.randomUUID(),
+                name = "Update View"
             )
 
             val updatedFadeTransition = Transition(
