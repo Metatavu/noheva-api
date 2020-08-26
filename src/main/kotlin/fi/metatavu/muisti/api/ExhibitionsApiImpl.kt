@@ -565,7 +565,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val pageOrder = payload.pageOrder.distinct()
 
         for (element in pageOrder) {
-            val page = exhibitionPageController.findExhibitionPageById(element)?: return createBadRequest("Could not find page $element")
+            val page = exhibitionPageController.findExhibitionPageById(element) ?: return createBadRequest("Could not find page $element")
 
             if (page.device?.id != deviceId) {
                 return createBadRequest("Page $element does not belong to this device")
