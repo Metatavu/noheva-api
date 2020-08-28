@@ -404,9 +404,8 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun findExhibitionRoom(exhibitionId: UUID?, roomId: UUID?): Response {
-        if (exhibitionId == null || roomId == null) {
-            return createNotFound(EXHIBITION_NOT_FOUND)
-        }
+        exhibitionId ?: return createBadRequest("Missing exhibition ID")
+        roomId ?: return createBadRequest("Missing room ID")
 
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
@@ -458,13 +457,19 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     }
 
     override fun deleteExhibitionRoom(exhibitionId: UUID?, roomId: UUID?): Response {
-        if (exhibitionId == null || roomId == null) {
-            return createNotFound(EXHIBITION_NOT_FOUND)
-        }
+        exhibitionId ?: return createBadRequest("Missing exhibition ID")
+        roomId ?: return createBadRequest("Missing room ID")
 
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionRoom = exhibitionRoomController.findExhibitionRoomById(roomId) ?: return createNotFound("Room $roomId not found")
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+
+        val contentVersions = contentVersionController.listContentVersions(exhibition = exhibition, exhibitionRoom = exhibitionRoom)
+        if (contentVersions.isNotEmpty()) {
+            val contentVersionIds = contentVersions.map { it.id }.joinToString()
+            return createBadRequest("Cannot delete room $roomId because it's used in content versions $contentVersionIds")
+        }
 
         exhibitionRoomController.deleteExhibitionRoom(exhibitionRoom)
 
@@ -556,6 +561,24 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val groupChanged = exhibitionDevice.exhibitionDeviceGroup?.id != exhibitionGroup.id
         val location = payload.location
         val screenOrientation = payload.screenOrientation
+        val pages = mutableListOf<fi.metatavu.muisti.persistence.model.ExhibitionPage>()
+        val pageOrder = payload.pageOrder.distinct()
+
+        for (element in pageOrder) {
+            val page = exhibitionPageController.findExhibitionPageById(element) ?: return createBadRequest("Could not find page $element")
+
+            if (page.device?.id != deviceId) {
+                return createBadRequest("Page $element does not belong to this device")
+            }
+
+            pages.add(page)
+        }
+
+        val devicePageCount = exhibitionPageController.getDevicePageCount(device = exhibitionDevice)
+        if (devicePageCount.toInt() != pages.size) {
+            return createBadRequest("Device pageOrder count (${pages.size}) does not match device page count ($devicePageCount)")
+        }
+
         val result = exhibitionDeviceController.updateExhibitionDevice(
             exhibitionDevice = exhibitionDevice,
             exhibitionDeviceGroup = exhibitionGroup,
@@ -566,6 +589,10 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             screenOrientation = screenOrientation,
             modifierId = userId
         )
+
+        pages.forEachIndexed { index, page ->
+            exhibitionPageController.updateExhibitionPageOrderNumber(page, index, userId)
+        }
 
         realtimeNotificationController.notifyDeviceUpdate(id = deviceId, exhibitionId = exhibitionId, groupChanged = groupChanged)
 
@@ -822,8 +849,16 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         deviceGroupId?: return createNotFound("Device group not found")
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createNotFound("Room $deviceGroupId not found")
+
+        val groupContentVersions = groupContentVersionController.listGroupContentVersions(exhibition = exhibition, contentVersion = null, deviceGroup = exhibitionDeviceGroup)
+
+        if (groupContentVersions.isNotEmpty()) {
+            val groupContentVersionIds = groupContentVersions.map { it.id }.joinToString()
+            return createBadRequest("Cannot delete page $deviceGroupId because it's used in group content versions $groupContentVersionIds")
+        }
+
         exhibitionDeviceGroupController.deleteExhibitionDeviceGroup(exhibitionDeviceGroup)
 
         realtimeNotificationController.notifyDeviceGroupDelete(id = deviceGroupId, exhibitionId = exhibitionId)
@@ -854,6 +889,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             contentVersion = contentVersion,
             layout = layout,
             name = name,
+            orderNumber = exhibitionPageController.getNextOrderNumber(device),
             resources = resources,
             eventTriggers = eventTriggers,
             enterTransitions = enterTransitions,
@@ -1063,7 +1099,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         return createOk(groupContentVersionTranslator.translate(groupContentVersion))
     }
 
-    override fun listGroupContentVersions(exhibitionId: UUID?, contentVersionId: UUID?): Response {
+    override fun listGroupContentVersions(exhibitionId: UUID?, contentVersionId: UUID?, deviceGroupId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
 
@@ -1072,7 +1108,12 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createBadRequest("Content version $contentVersionId not found")
         }
 
-        val groupContentVersions = groupContentVersionController.listGroupContentVersions(exhibition = exhibition, contentVersion = contentVersion)
+        var deviceGroup: fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup? = null
+        if (deviceGroupId != null) {
+            deviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId)?: return createBadRequest("Device group $deviceGroupId not found")
+        }
+
+        val groupContentVersions = groupContentVersionController.listGroupContentVersions(exhibition = exhibition, contentVersion = contentVersion, deviceGroup = deviceGroup)
 
         return createOk(groupContentVersions.map (groupContentVersionTranslator::translate))
     }

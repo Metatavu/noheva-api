@@ -8,7 +8,7 @@ import javax.persistence.*
 import javax.validation.constraints.NotEmpty
 
 /**
- * JPA entity representing exhibition device group
+ * JPA entity representing page layout
  *
  * @author Antti Leppä
  */

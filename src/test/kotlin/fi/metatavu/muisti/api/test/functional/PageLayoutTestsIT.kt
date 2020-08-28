@@ -47,8 +47,8 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             val anotherCreatedModelId = secondDeviceModel.id!!
 
             val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.boolean))
-            val createdChildren = arrayOf(PageLayoutView("childid", "child", arrayOf(), arrayOf()))
-            val createdData = PageLayoutView("rootid", "created widget", createdProperties, createdChildren)
+            val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.button, arrayOf(), arrayOf()))
+            val createdData = PageLayoutView("rootid", PageLayoutWidgetType.frameLayout, createdProperties, createdChildren)
 
             val defaultPageLayout = PageLayout(
                     name = "created name",
@@ -99,11 +99,11 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testUpdateExhibition() {
+    fun testUpdatePageLayout() {
         ApiTestBuilder().use {
             val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.boolean))
-            val createdChildren = arrayOf(PageLayoutView("childid", "child", arrayOf(), arrayOf()))
-            val createdData = PageLayoutView("rootid", "created widget", createdProperties, createdChildren)
+            val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.button, arrayOf(), arrayOf()))
+            val createdData = PageLayoutView("rootid", PageLayoutWidgetType.frameLayout, createdProperties, createdChildren)
             val createdDeviceModelId = it.admin().deviceModels().create().id!!
             val updateDeviceModelId = it.admin().deviceModels().create().id!!
 
@@ -123,7 +123,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             assertEquals("http://example.com/thumbnail.png", createdPageLayout.thumbnailUrl)
             assertEquals(createdDeviceModelId, createdPageLayout.modelId)
             assertEquals(ScreenOrientation.portrait, createdPageLayout.screenOrientation)
-            assertEquals("created widget", createdPageLayout.data.widget)
+            assertEquals(PageLayoutWidgetType.frameLayout, createdPageLayout.data.widget)
             assertEquals(1, createdPageLayout.data.properties.size)
             assertEquals("name", createdPageLayout.data.properties[0].name)
             assertEquals("true", createdPageLayout.data.properties[0].value)
@@ -135,7 +135,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             val updatedChildren = arrayOf<PageLayoutView>()
             val updatedData = PageLayoutView(
                 id = "updatedid",
-                widget = "updated widget",
+                widget = PageLayoutWidgetType.mediaView,
                 properties = updatedProperties,
                 children = updatedChildren
             )
@@ -156,7 +156,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             assertEquals("http://example.com/updated.png", updatedPageLayout.thumbnailUrl)
             assertEquals(updateDeviceModelId, updatedPageLayout.modelId)
             assertEquals(ScreenOrientation.landscape, updatedPageLayout.screenOrientation)
-            assertEquals("updated widget", updatedPageLayout.data.widget)
+            assertEquals(PageLayoutWidgetType.mediaView, updatedPageLayout.data.widget)
             assertEquals(1, updatedPageLayout.data.properties.size)
             assertEquals("uname", updatedPageLayout.data.properties[0].name)
             assertEquals("str", updatedPageLayout.data.properties[0].value)
@@ -166,7 +166,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testDeleteExhibition() {
+    fun testDeletePageLayout() {
         ApiTestBuilder().use {
             val nonExistingPageLayoutId = UUID.randomUUID()
             val deviceModel = it.admin().deviceModels().create()

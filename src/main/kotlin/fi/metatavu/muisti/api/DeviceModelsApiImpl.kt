@@ -3,6 +3,7 @@ package fi.metatavu.muisti.api
 import fi.metatavu.muisti.api.spec.DeviceModelsApi
 import fi.metatavu.muisti.api.spec.model.DeviceModel
 import fi.metatavu.muisti.api.translate.DeviceModelTranslator
+import fi.metatavu.muisti.contents.PageLayoutController
 import fi.metatavu.muisti.devices.DeviceModelController
 import java.util.*
 import javax.ejb.Stateful
@@ -26,6 +27,9 @@ class DeviceModelsApiImpl: DeviceModelsApi, AbstractApi() {
     @Inject
     private lateinit var deviceModelTranslator: DeviceModelTranslator
 
+    @Inject
+    private lateinit var pageLayoutController: PageLayoutController
+
     /* Device models */
 
     override fun createDeviceModel(payload: DeviceModel?): Response {
@@ -36,7 +40,8 @@ class DeviceModelsApiImpl: DeviceModelsApi, AbstractApi() {
         val dimensions = payload.dimensions
         val displayMetrics = payload.displayMetrics
         val capabilityTouch = payload.capabilities.touch
-        val deviceModel = deviceModelController.createDeviceModel(manufacturer, model, dimensions, displayMetrics, capabilityTouch, userId)
+        val screenOrientation = payload.screenOrientation
+        val deviceModel = deviceModelController.createDeviceModel(manufacturer, model, dimensions, displayMetrics, capabilityTouch, screenOrientation, userId)
         return createOk(deviceModelTranslator.translate(deviceModel))
     }
 
@@ -63,9 +68,10 @@ class DeviceModelsApiImpl: DeviceModelsApi, AbstractApi() {
 
         val displayMetrics = payload.displayMetrics
         val capabilityTouch = payload.capabilities.touch
+        val screenOrientation = payload.screenOrientation
 
         val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
-        val result = deviceModelController.updateDeviceModel(deviceModel, manufacturer, model, dimensions, displayMetrics, capabilityTouch, userId)
+        val result = deviceModelController.updateDeviceModel(deviceModel, manufacturer, model, dimensions, displayMetrics, capabilityTouch, screenOrientation, userId)
 
         return createOk(deviceModelTranslator.translate(result))
     }
@@ -74,6 +80,14 @@ class DeviceModelsApiImpl: DeviceModelsApi, AbstractApi() {
         deviceModelId ?: return createNotFound(DEVICE_MODEL_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
+
+        val layouts = pageLayoutController.listPageLayouts(deviceModel = deviceModel, screenOrientation = null)
+
+        if (layouts.isNotEmpty()) {
+            val layoutIds = layouts.map { it.id }.joinToString()
+            return createBadRequest("Device model $deviceModelId cannot be deleted because layouts $layoutIds are using it")
+        }
+        
         deviceModelController.deleteDeviceModel(deviceModel)
         return createNoContent()
     }

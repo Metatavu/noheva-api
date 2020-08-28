@@ -55,13 +55,19 @@ class FileTestsIT : AbstractFunctionalTest() {
             val storedFile2 = builder.admin().files().upload(folder, "test-image-2.jpg", "image/jpeg", filename = null)
             assertNotNull(storedFile2)
 
-            val files = builder.admin().files().listStoredFiles(folder)
-            assertEquals(2, files.size)
+            val folderFiles = builder.admin().files().listStoredFiles(folder)
+            assertEquals(2, folderFiles.size)
 
-            assertEquals("test-image.jpg", files.firstOrNull{ it.id == storedFile1.id }?.fileName)
-            assertEquals("image/jpeg", files.firstOrNull{ it.id == storedFile1.id }?.contentType)
-            assertEquals("test-image-2.jpg", files.firstOrNull{ it.id == storedFile2.id }?.fileName)
-            assertEquals("image/jpeg", files.firstOrNull{ it.id == storedFile2.id }?.contentType)
+            assertEquals("test-image.jpg", folderFiles.firstOrNull{ it.id == storedFile1.id }?.fileName)
+            assertEquals("image/jpeg", folderFiles.firstOrNull{ it.id == storedFile1.id }?.contentType)
+            assertEquals("test-image-2.jpg", folderFiles.firstOrNull{ it.id == storedFile2.id }?.fileName)
+            assertEquals("image/jpeg", folderFiles.firstOrNull{ it.id == storedFile2.id }?.contentType)
+
+            val rootFiles = builder.admin().files().listStoredFiles("/")
+
+            val folderFile = rootFiles.firstOrNull { rootFile -> rootFile.fileName == folder }
+            assertNotNull(folderFile)
+            assertEquals("inode/directory", folderFile?.contentType)
         }
     }
 
