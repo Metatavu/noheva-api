@@ -55,7 +55,7 @@ class ExhibitionPageController() {
      * Finds an exhibition page by id
      *
      * @param id exhibition page id
-     * @return found exhibition page  or null if not found
+     * @return found exhibition page or null if not found
      */
     fun findExhibitionPageById(id: UUID): ExhibitionPage? {
         return exhibitionPageDAO.findById(id)
@@ -94,15 +94,6 @@ class ExhibitionPageController() {
     }
 
     /**
-     * Returns device page ids in order defined by page order number
-     *
-     * @return device page ids in order defined by page order number
-     */
-    fun getDevicePageIdsOrder(device : ExhibitionDevice): List<UUID> {
-        return exhibitionPageDAO.listPageIdsByDeviceInAscOrderNumberOrder(device = device)
-    }
-
-    /**
      * Returns device page count
      *
      * @return device page count
@@ -124,9 +115,22 @@ class ExhibitionPageController() {
      * @param enterTransitions page enter transitions
      * @param exitTransitions page exit transitions
      * @param modifierId modifying user id
-     * @return updated exhibition
+     * @param orderNumber order number
+     * @return updated exhibition page
      */
-    fun updateExhibitionPage(exhibitionPage: ExhibitionPage, device: ExhibitionDevice, layout: PageLayout, contentVersion: ContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers: List<ExhibitionPageEventTrigger>, enterTransitions: List<ExhibitionPageTransition>, exitTransitions: List<ExhibitionPageTransition>, modifierId: UUID): ExhibitionPage {
+    fun updateExhibitionPage(
+            exhibitionPage: ExhibitionPage,
+            device: ExhibitionDevice,
+            layout: PageLayout,
+            contentVersion: ContentVersion,
+            name: String,
+            resources: List<ExhibitionPageResource>,
+            eventTriggers: List<ExhibitionPageEventTrigger>,
+            enterTransitions: List<ExhibitionPageTransition>,
+            exitTransitions: List<ExhibitionPageTransition>,
+            orderNumber: Int,
+            modifierId: UUID)
+        : ExhibitionPage {
         var result = exhibitionPageDAO.updateName(exhibitionPage, name, modifierId)
         result = exhibitionPageDAO.updateLayout(result, layout, modifierId)
         result = exhibitionPageDAO.updateDevice(result, device, modifierId)
@@ -135,6 +139,7 @@ class ExhibitionPageController() {
         result = exhibitionPageDAO.updateEventTriggers(result, getDataAsString(eventTriggers), modifierId)
         result = exhibitionPageDAO.updateEnterTransitions(result, getDataAsString(enterTransitions), modifierId)
         result = exhibitionPageDAO.updateExitTransitions(result, getDataAsString(exitTransitions), modifierId)
+        result = exhibitionPageDAO.updateOrderNumber(result, orderNumber, modifierId)
         return result
     }
 
@@ -144,7 +149,7 @@ class ExhibitionPageController() {
      * @param exhibitionPage exhibition page  to be updated
      * @param orderNumber order number
      * @param modifierId modifying user id
-     * @return updated exhibition
+     * @return updated exhibition page
      */
     fun updateExhibitionPageOrderNumber(exhibitionPage: ExhibitionPage, orderNumber: Int, modifierId: UUID): ExhibitionPage {
         return exhibitionPageDAO.updateOrderNumber(exhibitionPage, orderNumber, modifierId)
@@ -157,6 +162,52 @@ class ExhibitionPageController() {
      */
     fun deleteExhibitionPage(exhibitionPage: ExhibitionPage) {
         return exhibitionPageDAO.delete(exhibitionPage)
+    }
+
+    /**
+     * Update page order numbers for all pages related to one device
+     *
+     * @param updatedPagesOldOrderNumber update page's old order number
+     * @param updatedPagesNewOrderNumber updated page's new order number
+     * @param pages list of pages
+     * @param userId user id
+     */
+    fun updatePageOrders(oldOrderNumber: Int, newOrderNumber: Int?, pages: List<ExhibitionPage>, userId: UUID) {
+
+        if (pages.size < 2) {
+            return
+        }
+
+        /**
+         * Case when page has been deleted
+         */
+        if (newOrderNumber === null) {
+            pages.forEach { page ->
+                val orderNumber = page.orderNumber ?: return
+                if (orderNumber > oldOrderNumber) {
+                    updateExhibitionPageOrderNumber(page, orderNumber - 1, userId)
+                }
+            }
+            return
+        }
+
+        pages.forEach { page ->
+            val orderNumber = page.orderNumber ?: return
+
+            /**
+             * Case when page order number has been increased
+             */
+            if (orderNumber > oldOrderNumber && orderNumber <= newOrderNumber ) {
+                updateExhibitionPageOrderNumber(page, orderNumber - 1, userId)
+            }
+
+            /**
+             * Case when page order number has been decreased
+             */
+            if (orderNumber < oldOrderNumber && orderNumber >= newOrderNumber) {
+                updateExhibitionPageOrderNumber(page, orderNumber + 1, userId)
+            }
+        }
     }
 
     /**

@@ -26,6 +26,7 @@ class ExhibitionPageTranslator: AbstractTranslator<fi.metatavu.muisti.persistenc
         result.eventTriggers = getEventTriggers(entity.eventTriggers)
         result.enterTransitions = getTransitions(entity.enterTransitions)
         result.exitTransitions = getTransitions(entity.exitTransitions)
+        result.orderNumber = entity.orderNumber
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
         result.createdAt = entity.createdAt
