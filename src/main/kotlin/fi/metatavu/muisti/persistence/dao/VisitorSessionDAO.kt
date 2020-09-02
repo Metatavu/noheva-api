@@ -25,6 +25,7 @@ class VisitorSessionDAO : AbstractDAO<VisitorSession>() {
      * @param id id
      * @param exhibition exhibition
      * @param state state
+     * @param language language
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created visitorSession
@@ -64,6 +65,7 @@ class VisitorSessionDAO : AbstractDAO<VisitorSession>() {
     /**
      * Updates state
      *
+     * @param visitorSession visitor session
      * @param state state
      * @param lastModifierId last modifier's id
      * @return updated visitorSession
@@ -77,6 +79,7 @@ class VisitorSessionDAO : AbstractDAO<VisitorSession>() {
     /**
      * Updates language
      *
+     * @param visitorSession visitor session
      * @param language language
      * @param lastModifierId last modifier's id
      * @return updated visitorSession
