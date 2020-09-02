@@ -148,7 +148,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val nonExistingModelId = UUID.randomUUID()
             var screenOrientation = ScreenOrientation.portrait
 
-            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, ExhibitionDevice( groupId = group1.id!!, modelId = model1.id!!, name = "created name", location = Point(-123.0, 234.0), screenOrientation = screenOrientation))
+            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, ExhibitionDevice(groupId = group1.id!!, modelId = model1.id!!, name = "created name", location = Point(-123.0, 234.0), screenOrientation = screenOrientation))
             val createdExhibitionDeviceId = createdExhibitionDevice.id!!
 
             val foundCreatedExhibitionDevice = it.admin().exhibitionDevices().findExhibitionDevice(exhibitionId, createdExhibitionDeviceId)
