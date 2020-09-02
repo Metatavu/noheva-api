@@ -16,7 +16,7 @@ import kotlin.collections.ArrayList
  * @author Antti Leppä
  */
 @ApplicationScoped
-class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
+class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
 
     /**
      * Creates new ExhibitionDevice
@@ -25,7 +25,6 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
      * @param exhibition exhibition
      * @param exhibitionDeviceGroup exhibitionDeviceGroup
      * @param deviceModel deviceModel
-     * @param indexPage device index page
      * @param name name
      * @param locationX location x
      * @param locationY location y
@@ -34,14 +33,13 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
      * @param lastModifierId last modifier's id
      * @return created exhibitionDevice
      */
-    fun create(id: UUID, exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, indexPage: ExhibitionPage?, name: String, locationX: Double?, locationY: Double?, screenOrientation: ScreenOrientation, creatorId: UUID, lastModifierId: UUID): ExhibitionDevice {
+    fun create(id: UUID, exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, name: String, locationX: Double?, locationY: Double?, screenOrientation: ScreenOrientation, creatorId: UUID, lastModifierId: UUID): ExhibitionDevice {
         val exhibitionDevice = ExhibitionDevice()
         exhibitionDevice.id = id
         exhibitionDevice.name = name
         exhibitionDevice.exhibition = exhibition
         exhibitionDevice.exhibitionDeviceGroup = exhibitionDeviceGroup
         exhibitionDevice.deviceModel = deviceModel
-        exhibitionDevice.indexPage = indexPage
         exhibitionDevice.locationX = locationX
         exhibitionDevice.locationY = locationY
         exhibitionDevice.screenOrientation = screenOrientation
@@ -75,22 +73,6 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
 
         val query: TypedQuery<ExhibitionDevice> = entityManager.createQuery<ExhibitionDevice>(criteria)
         return query.resultList
-    }
-
-    /**
-     * Lists devices by index page
-     *
-     * @param indexPage index page
-     * @return device list
-     */
-    fun listByIndexPage(indexPage: ExhibitionPage?): List<ExhibitionDevice> {
-        val entityManager = getEntityManager()
-        val criteriaBuilder = entityManager.criteriaBuilder
-        val criteria: CriteriaQuery<ExhibitionDevice> = criteriaBuilder.createQuery(ExhibitionDevice::class.java)
-        val root: Root<ExhibitionDevice> = criteria.from(ExhibitionDevice::class.java)
-        criteria.select(root)
-        criteria.where(criteriaBuilder.equal(root.get(ExhibitionDevice_.indexPage), indexPage))
-        return entityManager.createQuery(criteria).resultList
     }
 
     /**
@@ -174,20 +156,6 @@ class ExhibitionDeviceDAO() : AbstractDAO<ExhibitionDevice>() {
     fun updateExhibitionDeviceGroup(exhibitionDevice: ExhibitionDevice, exhibitionDeviceGroup: ExhibitionDeviceGroup, lastModifierId: UUID): ExhibitionDevice {
         exhibitionDevice.lastModifierId = lastModifierId
         exhibitionDevice.exhibitionDeviceGroup = exhibitionDeviceGroup
-        return persist(exhibitionDevice)
-    }
-
-    /**
-     * Updates index page
-     *
-     * @param exhibitionDevice exhibition device to be updated
-     * @param indexPage index page
-     * @param lastModifierId last modifier's id
-     * @return updated exhibitionDevice
-     */
-    fun updateIndexPage(exhibitionDevice: ExhibitionDevice, indexPage: ExhibitionPage?, lastModifierId: UUID): ExhibitionDevice {
-        exhibitionDevice.lastModifierId = lastModifierId
-        exhibitionDevice.indexPage = indexPage
         return persist(exhibitionDevice)
     }
 

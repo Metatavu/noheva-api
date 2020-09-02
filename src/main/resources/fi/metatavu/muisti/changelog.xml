@@ -749,4 +749,12 @@
         <sql>UPDATE ExhibitionPage SET resources = REPLACE(resources, '"scripted":false', '"mode": "static"')</sql>
     </changeSet>
 
+    <changeSet id="exhibitionpage" author="antti.leppa">
+        <dropForeignKeyConstraint baseTableName="exhibitiondevice" constraintName="FK_EXHIBITION_DEVICE_INDEX_PAGE_ID"/>
+
+        <dropColumn tableName="exhibitiondevice">
+            <column name="indexPage_id"/>
+        </dropColumn>
+    </changeSet>
+
 </databaseChangeLog>
