@@ -14,7 +14,7 @@ import javax.persistence.criteria.Root
  * @author Antti Leppä
  */
 @ApplicationScoped
-class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
+class ExhibitionPageDAO : AbstractDAO<ExhibitionPage>() {
 
     /**
      * Creates new ExhibitionPage
@@ -97,55 +97,6 @@ class ExhibitionPageDAO() : AbstractDAO<ExhibitionPage>() {
         criteria.where(criteriaBuilder.equal(root.get(ExhibitionPage_.layout), layout))
         val query: TypedQuery<ExhibitionPage> = entityManager.createQuery<ExhibitionPage>(criteria)
         return query.resultList
-    }
-
-    /**
-     * Returns device page ids in ascending order by orderNumber field
-     *
-     * @param device device
-     * @return device page ids in ascending order by orderNumber field
-     */
-    fun listPageIdsByDeviceInAscOrderNumberOrder(device : ExhibitionDevice): List<UUID> {
-        val entityManager = getEntityManager()
-        val criteriaBuilder = entityManager.criteriaBuilder
-        val criteria: CriteriaQuery<UUID> = criteriaBuilder.createQuery(UUID::class.java)
-        val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)
-        criteria.select(root.get(ExhibitionPage_.id))
-        criteria.where(criteriaBuilder.equal(root.get(ExhibitionPage_.device), device))
-        criteria.orderBy(criteriaBuilder.asc(root.get(ExhibitionPage_.orderNumber)))
-        return entityManager.createQuery<UUID>(criteria).resultList
-    }
-
-    /**
-     * Returns page count by device
-     *
-     * @param device device
-     * @return page count by device
-     */
-    fun countByDevice(device : ExhibitionDevice): Long {
-        val entityManager = getEntityManager()
-        val criteriaBuilder = entityManager.criteriaBuilder
-        val criteria: CriteriaQuery<Long> = criteriaBuilder.createQuery(Long::class.java)
-        val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)
-        criteria.select(criteriaBuilder.count(root))
-        criteria.where(criteriaBuilder.equal(root.get(ExhibitionPage_.device), device))
-        return entityManager.createQuery<Long>(criteria).singleResult
-    }
-
-    /**
-     * Returns max order number by device
-     *
-     * @param device device
-     * @return max order number by device
-     */
-    fun maxOrderNumberByDevice(device : ExhibitionDevice): Int? {
-        val entityManager = getEntityManager()
-        val criteriaBuilder = entityManager.criteriaBuilder
-        val criteria: CriteriaQuery<Int> = criteriaBuilder.createQuery(Int::class.java)
-        val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)
-        criteria.select(criteriaBuilder.max(root.get(ExhibitionPage_.orderNumber)))
-        criteria.where(criteriaBuilder.equal(root.get(ExhibitionPage_.device), device))
-        return entityManager.createQuery<Int>(criteria).resultList.firstOrNull()
     }
 
     /**

@@ -152,7 +152,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testUpdateExhibition() {
+    fun testUpdatePage() {
         ApiTestBuilder().use {
             val updatedPageSubscription = it.mqtt().subscribe<MqttExhibitionPageUpdate>(MqttExhibitionPageUpdate::class.java,"pages/update")
 
@@ -246,6 +246,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 layoutId = createLayoutId,
                 deviceId = deviceId,
                 name = "create page",
+                orderNumber = 0,
                 resources = arrayOf(createResource),
                 eventTriggers = arrayOf(createEventTrigger),
                 contentVersionId = contentVersionId,
@@ -329,7 +330,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 eventTriggers = arrayOf(updateEventTrigger),
                 contentVersionId = contentVersionId,
                 enterTransitions = updateEnterTransitions,
-                exitTransitions = updateExitTransitions
+                exitTransitions = updateExitTransitions,
+                orderNumber = 1
             )
 
             val updatedExhibitionPage = it.admin().exhibitionPages().updateExhibitionPage(exhibitionId, updatePage)
@@ -379,16 +381,12 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId = exhibitionId, layoutId = layoutId, deviceId = deviceId, contentVersionId = contentVersionId)
             val createdExhibitionPageId = createdExhibitionPage.id!!
 
-            assertJsonsEqual(arrayOf(createdExhibitionPageId), it.admin().exhibitionDevices().findExhibitionDevice(exhibitionId = exhibitionId, exhibitionDeviceId = deviceId)?.pageOrder)
-
             assertNotNull(it.admin().exhibitionPages().findExhibitionPage(exhibitionId, createdExhibitionPageId))
             it.admin().exhibitionPages().assertDeleteFail(404, exhibitionId, nonExistingSessionVariableId)
             it.admin().exhibitionPages().assertDeleteFail(404, nonExistingExhibitionId, createdExhibitionPageId)
             it.admin().exhibitionPages().assertDeleteFail(404, nonExistingExhibitionId, nonExistingSessionVariableId)
 
             it.admin().exhibitionPages().delete(exhibitionId, createdExhibitionPage)
-
-            assertJsonsEqual(emptyArray<UUID>(), it.admin().exhibitionDevices().findExhibitionDevice(exhibitionId = exhibitionId, exhibitionDeviceId = deviceId)?.pageOrder)
 
             it.admin().exhibitionPages().assertDeleteFail(404, exhibitionId, createdExhibitionPageId)
 
