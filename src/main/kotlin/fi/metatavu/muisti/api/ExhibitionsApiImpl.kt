@@ -302,7 +302,13 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             visitedDeviceGroupList.add(deviceGroup)
         }
 
-        val visitorSession = visitorSessionController.createVisitorSession(exhibition, payload.state, userId)
+        val visitorSession = visitorSessionController.createVisitorSession(
+            exhibition = exhibition,
+            state = payload.state,
+            language = payload.language,
+            creatorId = userId
+        )
+
         visitorSessionController.setVisitorSessionVisitors(visitorSession, visitors)
         visitorSessionController.setVisitorSessionVariables(visitorSession, payload.variables)
         visitorSessionController.setVisitorSessionVisitedDeviceGroups(visitorSession, payload.visitedDeviceGroups, visitedDeviceGroupList)
@@ -358,7 +364,13 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             visitedDeviceGroupList.add(deviceGroup)
         }
 
-        val result = visitorSessionController.updateVisitorSession(visitorSession, payload.state, userId)
+        val result = visitorSessionController.updateVisitorSession(
+            visitorSession = visitorSession,
+            state = payload.state,
+            language = payload.language,
+            lastModfierId =  userId
+        )
+
         val usersChanged = visitorSessionController.setVisitorSessionVisitors(visitorSession, visitors)
         val variablesChanged = visitorSessionController.setVisitorSessionVariables(result, payload.variables)
         visitorSessionController.setVisitorSessionVisitedDeviceGroups(visitorSession, payload.visitedDeviceGroups, visitedDeviceGroupList)

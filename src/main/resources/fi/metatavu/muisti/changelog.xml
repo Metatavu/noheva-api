@@ -757,4 +757,12 @@
         </dropColumn>
     </changeSet>
 
+    <changeSet id="visitorsessionlanguage" author="antti.leppa">
+        <addColumn tableName="visitorsession">
+            <column name="language" type="varchar(191)" defaultValue="FI">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

@@ -37,6 +37,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
                 visitorIds = arrayOf(visitor1.id!!, visitor2.id!!),
                 variables = createVariables,
                 visitedDeviceGroups = arrayOf(),
+                language = "FI",
                 state = VisitorSessionState.cOMPLETE
             ))
 
@@ -140,6 +141,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
                 state = VisitorSessionState.pENDING,
                 visitorIds = createVisitorIds,
                 variables = createVariables,
+                language = "FI",
                 visitedDeviceGroups = arrayOf(
                     VisitorSessionVisitedDeviceGroup(
                         deviceGroupId = deviceGroupId1,
@@ -159,6 +161,8 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
             assertEquals(createdVisitorSession.id, foundCreatedVisitorSession?.id)
             assertEquals(createdVisitorSession.state, foundCreatedVisitorSession?.state)
+            assertEquals("FI", foundCreatedVisitorSession?.language)
+            assertEquals(createdVisitorSession.language, foundCreatedVisitorSession?.language)
             assertEquals(createdVisitorSession.visitorIds.size, 2)
             assertEquals(createdVisitorSession.variables!!.size, 3)
             assertTrue(createdVisitorSession.visitorIds.contains(visitor1.id))
@@ -185,6 +189,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
                 state = VisitorSessionState.cOMPLETE,
                 variables = updateVariables,
                 visitorIds = updateVisitorIds,
+                language = "EN",
                 visitedDeviceGroups = arrayOf(
                     VisitorSessionVisitedDeviceGroup(
                         deviceGroupId = deviceGroupId3,
@@ -203,6 +208,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
             assertEquals(updatedVisitorSession!!.id, foundUpdatedVisitorSession?.id)
             assertEquals(updatedVisitorSession.state, foundUpdatedVisitorSession?.state)
+            assertEquals(updatedVisitorSession.language, "EN")
             assertEquals(updatedVisitorSession.visitorIds.size, 2)
             assertEquals(updatedVisitorSession.variables!!.size, 3)
             assertTrue(updatedVisitorSession.visitorIds.contains(visitor3.id))
@@ -220,6 +226,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
                 state = VisitorSessionState.cOMPLETE,
                 variables = updateVariables,
                 visitorIds = updateVisitorIds,
+                language = "FI",
                 visitedDeviceGroups = visitedDeviceGroups
             ))
 

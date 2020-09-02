@@ -36,16 +36,29 @@ class VisitorSessionController {
 
     /**
      * Creates a new visitor session
+     *
+     * @param exhibition exhibition
+     * @param state state
+     * @param language language
+     * @param creatorId creator id
+     * @return created visitor session
      */
-    fun createVisitorSession(exhibition: Exhibition, state: VisitorSessionState, creatorId: UUID): VisitorSession {
-        return visitorSessionDAO.create(UUID.randomUUID(), exhibition, state, creatorId, creatorId)
+    fun createVisitorSession(exhibition: Exhibition, state: VisitorSessionState, language: String, creatorId: UUID): VisitorSession {
+        return visitorSessionDAO.create(
+            id = UUID.randomUUID(),
+            exhibition = exhibition,
+            state = state,
+            language = language,
+            creatorId = creatorId,
+            lastModifierId = creatorId
+        )
     }
 
     /**
      * Finds a visitor session by id
      *
      * @param id id
-     * @return visitor session id
+     * @return visitor session or null if not found
      */
     fun findVisitorSessionById(id: UUID): VisitorSession? {
         return visitorSessionDAO.findById(id)
@@ -78,11 +91,14 @@ class VisitorSessionController {
      *
      * @param visitorSession visitor session to be updated
      * @param state new state
+     * @param language language
      * @param lastModfierId modifier user id
      * @return updated visitor session
      */
-    fun updateVisitorSession(visitorSession: VisitorSession, state: VisitorSessionState, lastModfierId: UUID): VisitorSession {
-        return visitorSessionDAO.updateState(visitorSession, state, lastModfierId)
+    fun updateVisitorSession(visitorSession: VisitorSession, state: VisitorSessionState, language: String, lastModfierId: UUID): VisitorSession {
+        var result = visitorSessionDAO.updateState(visitorSession, state, lastModfierId)
+        result = visitorSessionDAO.updateLanguage(result, language, lastModfierId)
+        return result
     }
 
     /**
@@ -106,7 +122,7 @@ class VisitorSessionController {
             }
         }
 
-        changed = changed || !existingSessionVisitors.isEmpty()
+        changed = changed || existingSessionVisitors.isNotEmpty()
 
         existingSessionVisitors.forEach(visitorSessionVisitorDAO::delete)
 
@@ -141,7 +157,7 @@ class VisitorSessionController {
             }
         }
 
-        changed = changed || !existingSessionVariables.isEmpty()
+        changed = changed || existingSessionVariables.isNotEmpty()
         existingSessionVariables.forEach(visitorSessionVariableDAO::delete)
 
         return changed
