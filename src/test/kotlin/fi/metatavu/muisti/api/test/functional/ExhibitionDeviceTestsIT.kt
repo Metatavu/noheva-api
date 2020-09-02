@@ -1,7 +1,8 @@
 package fi.metatavu.muisti.api.test.functional
 
 import fi.metatavu.muisti.api.client.models.*
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import java.util.*
 
@@ -35,40 +36,6 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, ExhibitionDevice(groupId = group.id!!, modelId = UUID.randomUUID(), name = "name", screenOrientation = screenOrientation))
         }
    }
-
-    @Test
-    fun testDeviceIndexPage() {
-        ApiTestBuilder().use {
-            val exhibition = it.admin().exhibitions().create()
-            val group = createDefaultDeviceGroup(it, exhibition)
-            val model = it.admin().deviceModels().create()
-            val page = createDefaultPage(it, exhibition)
-
-            val deviceWithIndex = it.admin().exhibitionDevices().create(exhibitionId = exhibition.id!!, payload = ExhibitionDevice(
-                name = "with index",
-                screenOrientation = ScreenOrientation.landscape,
-                groupId = group.id!!,
-                modelId = model.id!!,
-                indexPageId = page.id!!
-            ))
-
-            val deviceWithoutIndex = it.admin().exhibitionDevices().create(exhibitionId = exhibition.id!!, payload = ExhibitionDevice(
-                name = "with index",
-                screenOrientation = ScreenOrientation.landscape,
-                groupId = group.id!!,
-                modelId = model.id!!
-            ))
-
-            assertEquals(page.id, deviceWithIndex.indexPageId)
-            assertNull(deviceWithoutIndex.indexPageId)
-
-            val updatedDevice = it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId = exhibition.id!!, payload = deviceWithoutIndex.copy(indexPageId = page.id!!))
-            assertEquals(updatedDevice?.indexPageId, page.id)
-            assertEquals(it.admin().exhibitionDevices().findExhibitionDevice(exhibitionId = exhibition.id!!, exhibitionDeviceId = updatedDevice?.id!!)?.indexPageId, page.id)
-
-            it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId = exhibition.id!!, payload = deviceWithoutIndex.copy(indexPageId = UUID.randomUUID()))
-        }
-    }
 
     @Test
     fun testFindDevice() {

@@ -3,7 +3,10 @@ package fi.metatavu.muisti.devices
 import fi.metatavu.muisti.api.spec.model.Point
 import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.persistence.dao.ExhibitionDeviceDAO
-import fi.metatavu.muisti.persistence.model.*
+import fi.metatavu.muisti.persistence.model.DeviceModel
+import fi.metatavu.muisti.persistence.model.Exhibition
+import fi.metatavu.muisti.persistence.model.ExhibitionDevice
+import fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -12,7 +15,7 @@ import javax.inject.Inject
  * Controller for exhibition device s
  */
 @ApplicationScoped
-class ExhibitionDeviceController() {
+class ExhibitionDeviceController {
 
     @Inject
     private lateinit var exhibitionDeviceDAO: ExhibitionDeviceDAO
@@ -23,19 +26,17 @@ class ExhibitionDeviceController() {
      * @param exhibition exhibition
      * @param exhibitionDeviceGroup exhibition device group
      * @param deviceModel device model
-     * @param indexPage device index page
      * @param name device name
      * @param location location
      * @param screenOrientation screen orientation
      * @param creatorId creating user id
      * @return created exhibition device 
      */
-    fun createExhibitionDevice(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, indexPage: ExhibitionPage?, name: String, location: Point?, screenOrientation: ScreenOrientation, creatorId: UUID): ExhibitionDevice {
+    fun createExhibitionDevice(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, name: String, location: Point?, screenOrientation: ScreenOrientation, creatorId: UUID): ExhibitionDevice {
         return exhibitionDeviceDAO.create(id = UUID.randomUUID(),
             exhibition = exhibition,
             exhibitionDeviceGroup = exhibitionDeviceGroup,
             deviceModel = deviceModel,
-            indexPage = indexPage,
             name = name,
             locationX = location?.x,
             locationY = location?.y,
@@ -65,33 +66,21 @@ class ExhibitionDeviceController() {
     }
 
     /**
-     * Lists devices by index page
-     *
-     * @param indexPage index page
-     * @return device list
-     */
-    fun listIndexPageDevices(indexPage: ExhibitionPage?): List<ExhibitionDevice> {
-        return exhibitionDeviceDAO.listByIndexPage(indexPage)
-    }
-
-    /**
      * Updates an exhibition device
      *
      * @param exhibitionDevice exhibition device to be updated
      * @param exhibitionDeviceGroup exhibition device group
      * @param deviceModel device model
-     * @param indexPage device index page
      * @param name device name
      * @param location location
      * @param screenOrientation screen orientation
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionDevice(exhibitionDevice: ExhibitionDevice, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, indexPage: ExhibitionPage?, name: String, location: Point?, screenOrientation: ScreenOrientation, modifierId: UUID): ExhibitionDevice {
+    fun updateExhibitionDevice(exhibitionDevice: ExhibitionDevice, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, name: String, location: Point?, screenOrientation: ScreenOrientation, modifierId: UUID): ExhibitionDevice {
         var result = exhibitionDeviceDAO.updateName(exhibitionDevice, name, modifierId)
         result = exhibitionDeviceDAO.updateExhibitionDeviceGroup(result, exhibitionDeviceGroup, modifierId)
         result = exhibitionDeviceDAO.updateExhibitionDeviceModel(result, deviceModel, modifierId)
-        result = exhibitionDeviceDAO.updateIndexPage(result, indexPage, modifierId)
         result = exhibitionDeviceDAO.updateLocationX(result, location?.x, modifierId)
         result = exhibitionDeviceDAO.updateLocationY(result, location?.y, modifierId)
         result = exhibitionDeviceDAO.updateScreenOrientation(result, screenOrientation, modifierId)

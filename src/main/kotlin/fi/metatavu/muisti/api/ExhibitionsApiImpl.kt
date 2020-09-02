@@ -490,15 +490,9 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         val location = payload.location
         val screenOrientation = payload.screenOrientation
 
-        var indexPage: fi.metatavu.muisti.persistence.model.ExhibitionPage? = null
-        if (payload.indexPageId != null) {
-            indexPage = exhibitionPageController.findExhibitionPageById(payload.indexPageId) ?: return createBadRequest("Specified index page ${payload.indexPageId} does not exist")
-        }
-
         val exhibitionDevice = exhibitionDeviceController.createExhibitionDevice(
             exhibition = exhibition,
             exhibitionDeviceGroup = exhibitionGroup,
-            indexPage = indexPage,
             deviceModel = model,
             name = payload.name,
             location = location,
@@ -547,12 +541,6 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         deviceId ?: return createNotFound("Device not found")
         payload.groupId ?: return createBadRequest("Missing exhibition group id")
         val exhibitionGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(payload.groupId) ?: return createBadRequest("Invalid exhibition group id ${payload.groupId}")
-
-        var indexPage: fi.metatavu.muisti.persistence.model.ExhibitionPage? = null
-        if (payload.indexPageId != null) {
-            indexPage = exhibitionPageController.findExhibitionPageById(payload.indexPageId) ?: return createBadRequest("Specified index page ${payload.indexPageId} does not exist")
-        }
-
         val model = deviceModelController.findDeviceModelById(payload.modelId) ?: return createBadRequest("Device model $payload.modelId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
 
@@ -566,7 +554,6 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             exhibitionDevice = exhibitionDevice,
             exhibitionDeviceGroup = exhibitionGroup,
             deviceModel = model,
-            indexPage = indexPage,
             name = payload.name,
             location = location,
             screenOrientation = screenOrientation,
@@ -961,12 +948,6 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val page = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
-        val indexPageDevices = exhibitionDeviceController.listIndexPageDevices(page)
-
-        if (indexPageDevices.isNotEmpty()) {
-            val deviceIds = indexPageDevices.map { it.id }.joinToString()
-            return createBadRequest("Cannot delete page $pageId because it's assigned as index page to devices $deviceIds")
-        }
 
         exhibitionPageController.deleteExhibitionPage(page)
         realtimeNotificationController.notifyExhibitionPageDelete(exhibitionId, pageId)
