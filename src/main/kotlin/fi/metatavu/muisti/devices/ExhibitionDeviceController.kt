@@ -12,7 +12,7 @@ import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 
 /**
- * Controller for exhibition device s
+ * Controller for exhibition devices
  */
 @ApplicationScoped
 class ExhibitionDeviceController {
