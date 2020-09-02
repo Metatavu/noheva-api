@@ -31,8 +31,8 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             assertNotNull(createdDevice)
             assertJsonsEqual(listOf(MqttDeviceCreate(exhibitionId = exhibitionId, id = createdDevice.id!!)), mqttSubscription.getMessages(1))
 
-            it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, ExhibitionDevice( groupId = UUID.randomUUID(), modelId = model.id!!, name = "name", screenOrientation = screenOrientation))
-            it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, ExhibitionDevice( groupId = group.id!!, modelId = UUID.randomUUID(), name = "name", screenOrientation = screenOrientation))
+            it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, ExhibitionDevice(groupId = UUID.randomUUID(), modelId = model.id!!, name = "name", screenOrientation = screenOrientation))
+            it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, ExhibitionDevice(groupId = group.id!!, modelId = UUID.randomUUID(), name = "name", screenOrientation = screenOrientation))
         }
    }
 
