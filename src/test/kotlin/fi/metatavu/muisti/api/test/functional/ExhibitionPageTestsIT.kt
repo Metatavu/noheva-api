@@ -246,6 +246,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 layoutId = createLayoutId,
                 deviceId = deviceId,
                 name = "create page",
+                orderNumber = 0,
                 resources = arrayOf(createResource),
                 eventTriggers = arrayOf(createEventTrigger),
                 contentVersionId = contentVersionId,
@@ -405,111 +406,6 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             it.admin().exhibitionPages().assertDeleteFail(400, exhibitionId = exhibitionId, id = pageId)
             it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId = exhibitionId, payload = device.copy(indexPageId = null))
             it.admin().exhibitionPages().delete(exhibitionId = exhibitionId, exhibitionPage = page)
-        }
-    }
-
-    @Test
-    fun testUpdatePageOrder() {
-        ApiTestBuilder().use {
-            val updatedPageSubscription = it.mqtt().subscribe<MqttExhibitionPageUpdate>(MqttExhibitionPageUpdate::class.java,"pages/update")
-
-            val exhibition = it.admin().exhibitions().create()
-            val exhibitionId = exhibition.id!!
-            val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
-            val floorId = floor.id!!
-            val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
-            val roomId = room.id!!
-
-            val deviceModel = it.admin().deviceModels().create()
-            val defaultPageLayout = it.admin().pageLayouts().create(deviceModel)
-            val createLayout = it.admin().pageLayouts().create(defaultPageLayout)
-            val createdLayoutId = createLayout.id!!
-
-            val group = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
-            val model = it.admin().deviceModels().create()
-            val deviceId = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!).id!!
-            val contentVersion = it.admin().contentVersions().create(exhibitionId)
-            val contentVersionId = contentVersion.id!!
-            val allPages = it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersionId)
-            val page1 = it.admin().exhibitionPages().create(exhibitionId, createdLayoutId, deviceId, contentVersionId)
-
-            assertEquals(1, page1.orderNumber)
-            val page2 = it.admin().exhibitionPages().create(exhibitionId, createdLayoutId, deviceId, contentVersionId)
-            assertEquals(1, page1.orderNumber)
-            assertEquals(2, page2.orderNumber)
-            val page3 = it.admin().exhibitionPages().create(exhibitionId, createdLayoutId, deviceId, contentVersionId)
-            assertEquals(3, page3.orderNumber)
-            val page4 = it.admin().exhibitionPages().create(exhibitionId, createdLayoutId, deviceId, contentVersionId)
-            val page5 = it.admin().exhibitionPages().create(exhibitionId, createdLayoutId, deviceId, contentVersionId)
-            val page6 = it.admin().exhibitionPages().create(exhibitionId, createdLayoutId, deviceId, contentVersionId)
-
-            val updatePage = ExhibitionPage(
-                    id = page5.id!!,
-                    layoutId = page5.layoutId,
-                    deviceId = deviceId,
-                    name = "update page",
-                    resources = arrayOf(),
-                    eventTriggers = arrayOf(),
-                    contentVersionId = contentVersionId,
-                    enterTransitions = arrayOf(),
-                    exitTransitions = arrayOf(),
-                    orderNumber = 2
-            )
-
-            val updatedPage5 = it.admin().exhibitionPages().updateExhibitionPage(exhibitionId, updatePage)
-            val foundPage1 = it.admin().exhibitionPages().findExhibitionPage(exhibitionId, page1.id!!)
-            val foundPage2 = it.admin().exhibitionPages().findExhibitionPage(exhibitionId, page2.id!!)
-            val foundPage3 = it.admin().exhibitionPages().findExhibitionPage(exhibitionId, page3.id!!)
-            val foundPage4 = it.admin().exhibitionPages().findExhibitionPage(exhibitionId, page4.id!!)
-            val foundPage6 = it.admin().exhibitionPages().findExhibitionPage(exhibitionId, page6.id!!)
-
-            assertEquals(1, foundPage1?.orderNumber)
-            assertEquals(3, foundPage2?.orderNumber)
-            assertEquals(4, foundPage3?.orderNumber)
-            assertEquals(5, foundPage4?.orderNumber)
-            assertEquals(2, updatedPage5?.orderNumber)
-            assertEquals(6, foundPage6?.orderNumber)
-
-            val anotherUpdatePage = ExhibitionPage(
-                    id = page5.id!!,
-                    layoutId = page5.layoutId,
-                    deviceId = deviceId,
-                    name = "update page",
-                    resources = arrayOf(),
-                    eventTriggers = arrayOf(),
-                    contentVersionId = contentVersionId,
-                    enterTransitions = arrayOf(),
-                    exitTransitions = arrayOf(),
-                    orderNumber = 5
-            )
-
-            val orderReturnedPage5 = it.admin().exhibitionPages().updateExhibitionPage(exhibitionId, anotherUpdatePage)
-            val orderReturnedPage1 = it.admin().exhibitionPages().findExhibitionPage(exhibitionId, page1.id!!)
-            val orderReturnedPage2 = it.admin().exhibitionPages().findExhibitionPage(exhibitionId, page2.id!!)
-            val orderReturnedPage3 = it.admin().exhibitionPages().findExhibitionPage(exhibitionId, page3.id!!)
-            val orderReturnedPage4 = it.admin().exhibitionPages().findExhibitionPage(exhibitionId, page4.id!!)
-            val orderReturnedPage6 = it.admin().exhibitionPages().findExhibitionPage(exhibitionId, page6.id!!)
-
-            assertEquals(1, orderReturnedPage1?.orderNumber)
-            assertEquals(2, orderReturnedPage2?.orderNumber)
-            assertEquals(3, orderReturnedPage3?.orderNumber)
-            assertEquals(4, orderReturnedPage4?.orderNumber)
-            assertEquals(5, orderReturnedPage5?.orderNumber)
-            assertEquals(6, orderReturnedPage6?.orderNumber)
-
-            it.admin().exhibitionPages().delete(exhibitionId, page3.id!!)
-
-            val orderRemovedPage1 = it.admin().exhibitionPages().findExhibitionPage(exhibitionId, page1.id!!)
-            val orderRemovedPage2 = it.admin().exhibitionPages().findExhibitionPage(exhibitionId, page2.id!!)
-            val orderRemovedPage4 = it.admin().exhibitionPages().findExhibitionPage(exhibitionId, page4.id!!)
-            val orderRemovedPage5 = it.admin().exhibitionPages().findExhibitionPage(exhibitionId, page5.id!!)
-            val orderRemovedPage6 = it.admin().exhibitionPages().findExhibitionPage(exhibitionId, page6.id!!)
-
-            assertEquals(1, orderRemovedPage1?.orderNumber)
-            assertEquals(2, orderRemovedPage2?.orderNumber)
-            assertEquals(3, orderRemovedPage4?.orderNumber)
-            assertEquals(4, orderRemovedPage5?.orderNumber)
-            assertEquals(5, orderRemovedPage6?.orderNumber)
         }
     }
 

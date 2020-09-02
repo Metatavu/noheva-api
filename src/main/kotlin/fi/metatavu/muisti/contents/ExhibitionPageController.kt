@@ -83,26 +83,6 @@ class ExhibitionPageController() {
     }
 
     /**
-     * Returns next order number for device
-     *
-     * @param device device
-     * @return next order number for device
-     */
-    fun getNextOrderNumber(device : ExhibitionDevice): Int {
-        val orderNumber = exhibitionPageDAO.maxOrderNumberByDevice(device = device) ?: 0
-        return orderNumber + 1
-    }
-
-    /**
-     * Returns device page count
-     *
-     * @return device page count
-     */
-    fun getDevicePageCount(device : ExhibitionDevice): Long {
-        return exhibitionPageDAO.countByDevice(device = device)
-    }
-
-    /**
      * Updates an exhibition page 
      *
      * @param exhibitionPage exhibition page  to be updated
@@ -144,70 +124,12 @@ class ExhibitionPageController() {
     }
 
     /**
-     * Updates exhibition page order number
-     *
-     * @param exhibitionPage exhibition page  to be updated
-     * @param orderNumber order number
-     * @param modifierId modifying user id
-     * @return updated exhibition page
-     */
-    fun updateExhibitionPageOrderNumber(exhibitionPage: ExhibitionPage, orderNumber: Int, modifierId: UUID): ExhibitionPage {
-        return exhibitionPageDAO.updateOrderNumber(exhibitionPage, orderNumber, modifierId)
-    }
-
-    /**
      * Deletes an exhibition page 
      *
      * @param exhibitionPage exhibition page to be deleted
      */
     fun deleteExhibitionPage(exhibitionPage: ExhibitionPage) {
         return exhibitionPageDAO.delete(exhibitionPage)
-    }
-
-    /**
-     * Update page order numbers for all pages related to one device
-     *
-     * @param updatedPagesOldOrderNumber update page's old order number
-     * @param updatedPagesNewOrderNumber updated page's new order number
-     * @param pages list of pages
-     * @param userId user id
-     */
-    fun updatePageOrders(oldOrderNumber: Int, newOrderNumber: Int?, pages: List<ExhibitionPage>, userId: UUID) {
-
-        if (pages.size < 2) {
-            return
-        }
-
-        /**
-         * Case when page has been deleted
-         */
-        if (newOrderNumber === null) {
-            pages.forEach { page ->
-                val orderNumber = page.orderNumber ?: return
-                if (orderNumber > oldOrderNumber) {
-                    updateExhibitionPageOrderNumber(page, orderNumber - 1, userId)
-                }
-            }
-            return
-        }
-
-        pages.forEach { page ->
-            val orderNumber = page.orderNumber ?: return
-
-            /**
-             * Case when page order number has been increased
-             */
-            if (orderNumber > oldOrderNumber && orderNumber <= newOrderNumber ) {
-                updateExhibitionPageOrderNumber(page, orderNumber - 1, userId)
-            }
-
-            /**
-             * Case when page order number has been decreased
-             */
-            if (orderNumber < oldOrderNumber && orderNumber >= newOrderNumber) {
-                updateExhibitionPageOrderNumber(page, orderNumber + 1, userId)
-            }
-        }
     }
 
     /**

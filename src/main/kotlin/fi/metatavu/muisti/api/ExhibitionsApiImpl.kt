@@ -32,7 +32,7 @@ import javax.ws.rs.core.Response
 @RequestScoped
 @Stateful
 @Suppress("unused")
-class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
+class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
 
     @Inject
     private lateinit var logger: Logger
@@ -861,6 +861,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val eventTriggers = payload.eventTriggers
         val enterTransitions = payload.enterTransitions
         val exitTransitions = payload.exitTransitions
+        val orderNumber = payload.orderNumber
 
         val exhibitionPage = exhibitionPageController.createExhibitionPage(
             exhibition = exhibition,
@@ -868,7 +869,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             contentVersion = contentVersion,
             layout = layout,
             name = name,
-            orderNumber = exhibitionPageController.getNextOrderNumber(device),
+            orderNumber = orderNumber,
             resources = resources,
             eventTriggers = eventTriggers,
             enterTransitions = enterTransitions,
@@ -919,7 +920,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         pageId ?: return createNotFound(EXHIBITION_NOT_FOUND)
 
-        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val layout = pageLayoutController.findPageLayoutById(payload.layoutId) ?: return createBadRequest("Layout $payload.layoutId not found")
         val device = exhibitionDeviceController.findExhibitionDeviceById(payload.deviceId) ?: return createBadRequest("Device ${payload.deviceId} not found")
@@ -933,7 +934,6 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
 
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionPage = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
-        val currentOrderNumber = exhibitionPage.orderNumber ?: return createBadRequest("Page $pageId didn't have order number")
         val updatedPage = exhibitionPageController.updateExhibitionPage(exhibitionPage,
             device = device,
             layout = layout,
@@ -947,14 +947,6 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
             modifierId = userId
         )
 
-        val pages = exhibitionPageController.listExhibitionPages(
-            exhibition = exhibition,
-            exhibitionDevice = device,
-            exhibitionContentVersion = null
-        ).filter { page -> page.id !== updatedPage.id }
-        val updatedOrderNumber = updatedPage.orderNumber ?: return createInternalServerError("Page ${updatedPage.id} didn't have page order!")
-        exhibitionPageController.updatePageOrders(currentOrderNumber, updatedOrderNumber, pages, userId)
-
         realtimeNotificationController.notifyExhibitionPageUpdate(exhibitionId, pageId)
 
         return createOk(exhibitionPageTranslator.translate(updatedPage))
@@ -963,29 +955,20 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
     override fun deleteExhibitionPage(exhibitionId: UUID?, pageId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         pageId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
 
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val page = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
-        val orderNumber = page.orderNumber ?: return createBadRequest("Page ${page.id} didn't have a order number")
         val indexPageDevices = exhibitionDeviceController.listIndexPageDevices(page)
-        val device = exhibitionDeviceController.findExhibitionDeviceById(page.device?.id!!)
 
         if (indexPageDevices.isNotEmpty()) {
             val deviceIds = indexPageDevices.map { it.id }.joinToString()
             return createBadRequest("Cannot delete page $pageId because it's assigned as index page to devices $deviceIds")
         }
 
-        val pages = exhibitionPageController.listExhibitionPages(
-                exhibition = exhibition,
-                exhibitionDevice = device,
-                exhibitionContentVersion = null
-        ).filter { it -> it.id !== page.id }
-
         exhibitionPageController.deleteExhibitionPage(page)
-        exhibitionPageController.updatePageOrders(orderNumber, null,  pages, userId)
         realtimeNotificationController.notifyExhibitionPageDelete(exhibitionId, pageId)
         return createNoContent()
     }
@@ -1078,7 +1061,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound("Content version $contentVersionId not found")
 
         val deviceGroupId = payload.deviceGroupId
-        val deviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createBadRequest("Invalid exhibition group id ${deviceGroupId}")
+        val deviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createBadRequest("Invalid exhibition group id $deviceGroupId")
 
         val name = payload.name
         val status = payload.status
@@ -1133,7 +1116,7 @@ class ExhibitionsApiImpl(): ExhibitionsApi, AbstractApi() {
         val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound("Content version $contentVersionId not found")
 
         val deviceGroupId = payload.deviceGroupId
-        val deviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createBadRequest("Invalid exhibition group id ${deviceGroupId}")
+        val deviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createBadRequest("Invalid exhibition group id $deviceGroupId")
 
         val name = payload.name
         val status = payload.status
