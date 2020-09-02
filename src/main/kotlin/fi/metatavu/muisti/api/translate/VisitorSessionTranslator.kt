@@ -39,6 +39,7 @@ class VisitorSessionTranslator: AbstractTranslator<fi.metatavu.muisti.persistenc
         result.id = entity.id
         result.exhibitionId = entity.exhibition?.id
         result.state = entity.state
+        result.language = entity.language
         result.visitorIds = visitorIds
         result.visitedDeviceGroups = visitedDeviceGroups
         result.variables = variables
