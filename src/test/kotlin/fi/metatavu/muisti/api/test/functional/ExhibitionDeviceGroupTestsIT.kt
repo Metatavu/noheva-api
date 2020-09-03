@@ -15,29 +15,31 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testCreateExhibitionDeviceGroup() {
-        ApiTestBuilder().use {
-            val mqttSubscription = it.mqtt().subscribe(MqttDeviceGroupCreate::class.java,"devicegroups/create")
+      ApiTestBuilder().use {
+        val mqttSubscription = it.mqtt().subscribe(MqttDeviceGroupCreate::class.java,"devicegroups/create")
 
-            val exhibition = it.admin().exhibitions().create()
-            val exhibitionId = exhibition.id!!
-            val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
-            val floorId = floor.id!!
-            val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
-            val roomId = room.id!!
+        val exhibition = it.admin().exhibitions().create()
+        val exhibitionId = exhibition.id!!
+        val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
+        val floorId = floor.id!!
+        val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
+        val roomId = room.id!!
 
-            val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(exhibition.id!!,
-              ExhibitionDeviceGroup(
-                name = "name",
-                roomId = roomId,
-                allowVisitorSessionCreation = false
-              )
-            )
+        val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(exhibition.id!!,
+          ExhibitionDeviceGroup(
+            name = "name",
+            roomId = roomId,
+            allowVisitorSessionCreation = false,
+            visitorSessionEndTimeout = 5000
+          )
+        )
 
-            assertJsonsEqual(listOf(MqttDeviceGroupCreate(exhibitionId = exhibitionId, id = createdExhibitionDeviceGroup.id!!)), mqttSubscription.getMessages(1))
+        assertJsonsEqual(listOf(MqttDeviceGroupCreate(exhibitionId = exhibitionId, id = createdExhibitionDeviceGroup.id!!)), mqttSubscription.getMessages(1))
 
-            assertNotNull(createdExhibitionDeviceGroup)
-            it.admin().exhibitions().assertCreateFail(400, "")
-        }
+        assertNotNull(createdExhibitionDeviceGroup)
+        it.admin().exhibitions().assertCreateFail(400, "")
+        assertEquals(5000, createdExhibitionDeviceGroup.visitorSessionEndTimeout)
+      }
    }
 
     @Test
@@ -105,53 +107,58 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testUpdateExhibitionDeviceGroup() {
-        ApiTestBuilder().use {
-            val mqttSubscription= it.mqtt().subscribe(MqttDeviceGroupUpdate::class.java,"devicegroups/update")
-            val exhibition = it.admin().exhibitions().create()
-            val exhibitionId = exhibition.id!!
-            val nonExistingExhibitionId = UUID.randomUUID()
-            val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
-            val floorId = floor.id!!
-            val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
-            val roomId = room.id!!
+      ApiTestBuilder().use {
+        val mqttSubscription= it.mqtt().subscribe(MqttDeviceGroupUpdate::class.java,"devicegroups/update")
+        val exhibition = it.admin().exhibitions().create()
+        val exhibitionId = exhibition.id!!
+        val nonExistingExhibitionId = UUID.randomUUID()
+        val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
+        val floorId = floor.id!!
+        val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
+        val roomId = room.id!!
 
-            val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(
-                exhibitionId = exhibitionId,
-                payload = ExhibitionDeviceGroup(
-                    name = "created name",
-                    roomId = roomId,
-                    allowVisitorSessionCreation = false
-                )
-            )
+        val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(
+          exhibitionId = exhibitionId,
+          payload = ExhibitionDeviceGroup(
+            name = "created name",
+            roomId = roomId,
+            allowVisitorSessionCreation = false,
+            visitorSessionEndTimeout = 5000
+          )
+        )
 
-            val createdExhibitionDeviceGroupId = createdExhibitionDeviceGroup.id!!
+        val createdExhibitionDeviceGroupId = createdExhibitionDeviceGroup.id!!
 
-            val foundCreatedExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().findExhibitionDeviceGroup(exhibitionId, createdExhibitionDeviceGroupId)
-            assertEquals(createdExhibitionDeviceGroup.id, foundCreatedExhibitionDeviceGroup?.id)
-            assertEquals("created name", createdExhibitionDeviceGroup.name)
-            assertEquals(false, createdExhibitionDeviceGroup.allowVisitorSessionCreation)
+        val foundCreatedExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().findExhibitionDeviceGroup(exhibitionId, createdExhibitionDeviceGroupId)
+        assertEquals(createdExhibitionDeviceGroup.id, foundCreatedExhibitionDeviceGroup?.id)
+        assertEquals("created name", createdExhibitionDeviceGroup.name)
+        assertEquals(false, createdExhibitionDeviceGroup.allowVisitorSessionCreation)
+        assertEquals(5000, createdExhibitionDeviceGroup.visitorSessionEndTimeout)
 
-            val updatedExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().updateExhibitionDeviceGroup(exhibitionId, ExhibitionDeviceGroup(
-              name = "updated name",
-              roomId = roomId,
-              id = createdExhibitionDeviceGroupId,
-              allowVisitorSessionCreation = true
-            ))
+        val updatedExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().updateExhibitionDeviceGroup(exhibitionId, ExhibitionDeviceGroup(
+          name = "updated name",
+          roomId = roomId,
+          id = createdExhibitionDeviceGroupId,
+          allowVisitorSessionCreation = true,
+          visitorSessionEndTimeout = 6000
+        ))
 
-            assertJsonsEqual(listOf(MqttDeviceGroupUpdate(exhibitionId = exhibitionId, id = createdExhibitionDeviceGroup.id!!)), mqttSubscription.getMessages(1))
+        assertJsonsEqual(listOf(MqttDeviceGroupUpdate(exhibitionId = exhibitionId, id = createdExhibitionDeviceGroup.id!!)), mqttSubscription.getMessages(1))
 
-            val foundUpdatedExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().findExhibitionDeviceGroup(exhibitionId, createdExhibitionDeviceGroupId)
+        val foundUpdatedExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().findExhibitionDeviceGroup(exhibitionId, createdExhibitionDeviceGroupId)
 
-            assertEquals(updatedExhibitionDeviceGroup!!.id, foundUpdatedExhibitionDeviceGroup?.id)
-            assertEquals("updated name", updatedExhibitionDeviceGroup.name)
-            assertEquals(true, updatedExhibitionDeviceGroup.allowVisitorSessionCreation)
+        assertEquals(updatedExhibitionDeviceGroup!!.id, foundUpdatedExhibitionDeviceGroup?.id)
+        assertEquals("updated name", updatedExhibitionDeviceGroup.name)
+        assertEquals(true, updatedExhibitionDeviceGroup.allowVisitorSessionCreation)
+        assertEquals(6000, updatedExhibitionDeviceGroup.visitorSessionEndTimeout)
 
-            it.admin().exhibitionDeviceGroups().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDeviceGroup(
-                name = "name",
-                id = createdExhibitionDeviceGroupId,
-                allowVisitorSessionCreation = false
-            ))
-        }
+        it.admin().exhibitionDeviceGroups().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDeviceGroup(
+          name = "name",
+          id = createdExhibitionDeviceGroupId,
+          allowVisitorSessionCreation = false,
+          visitorSessionEndTimeout = 5000
+        ))
+      }
     }
 
     @Test

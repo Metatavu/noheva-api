@@ -629,6 +629,9 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             room = exhibitionRoomController.findExhibitionRoomById(payload.roomId) ?: return createBadRequest("Invalid room id ${payload.roomId}")
         }
 
+        val visitorSessionStartThreshold = payload.visitorSessionStartThreshold
+        val visitorSessionEndThreshold = payload.visitorSessionEndThreshold
+
         val rfidAntenna = rfidAntennaController.createRfidAntenna(
             exhibition = exhibition,
             deviceGroup = deviceGroup,
@@ -637,6 +640,8 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             readerId = payload.readerId,
             antennaNumber = payload.antennaNumber,
             location = payload.location,
+            visitorSessionStartThreshold = visitorSessionStartThreshold,
+            visitorSessionEndThreshold = visitorSessionEndThreshold,
             creatorId = userId
         )
 
@@ -716,6 +721,9 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             room = exhibitionRoomController.findExhibitionRoomById(payload.roomId) ?: return createBadRequest("Invalid room id ${payload.roomId}")
         }
 
+        val visitorSessionStartThreshold = payload.visitorSessionStartThreshold
+        val visitorSessionEndThreshold = payload.visitorSessionEndThreshold
+
         val groupChanged = rfidAntenna.deviceGroup?.id != deviceGroup?.id
 
         val result = rfidAntennaController.updateRfidAntenna(
@@ -726,6 +734,8 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             readerId = payload.readerId,
             antennaNumber = payload.antennaNumber,
             location = payload.location,
+            visitorSessionStartThreshold = visitorSessionStartThreshold,
+            visitorSessionEndThreshold = visitorSessionEndThreshold,
             modifierId = userId
         )
 
@@ -759,11 +769,13 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val room = exhibitionRoomController.findExhibitionRoomById(payload.roomId)  ?: return createNotFound("Exhibition room ${payload.roomId} not found")
+        val visitorSessionEndTimeout = payload.visitorSessionEndTimeout
 
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.createExhibitionDeviceGroup(exhibition,
             name = payload.name,
             allowVisitorSessionCreation = payload.allowVisitorSessionCreation,
             room = room,
+            visitorSessionEndTimeout = visitorSessionEndTimeout,
             creatorId = userId
         )
 
@@ -808,6 +820,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val room = exhibitionRoomController.findExhibitionRoomById(payload.roomId)  ?: return createNotFound("Exhibition room ${payload.roomId} not found")
+        val visitorSessionEndTimeout = payload.visitorSessionEndTimeout
 
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createNotFound("Room $deviceGroupId not found")
         val result = exhibitionDeviceGroupController.updateExhibitionDeviceGroup(
@@ -815,6 +828,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             room = room,
             name = payload.name,
             allowVisitorSessionCreation = payload.allowVisitorSessionCreation,
+            visitorSessionEndTimeout = visitorSessionEndTimeout,
             modifierId = userId
         )
 
