@@ -41,6 +41,12 @@ class RfidAntenna {
     var locationY: Double? = null
 
     @Column(nullable = false)
+    var visitorSessionStartThreshold: Int? = null
+
+    @Column(nullable = false)
+    var visitorSessionEndThreshold: Int? = null
+
+    @Column(nullable = false)
     var createdAt: OffsetDateTime? = null
 
     @Column(nullable = false)

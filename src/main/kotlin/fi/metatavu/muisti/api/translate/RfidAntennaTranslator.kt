@@ -23,6 +23,8 @@ class RfidAntennaTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.m
         result.antennaNumber = entity.antennaNumber
         result.name = entity.name
         result.location = location
+        result.visitorSessionStartThreshold = entity.visitorSessionStartThreshold
+        result.visitorSessionEndThreshold = entity.visitorSessionEndThreshold
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
         result.createdAt = entity.createdAt

@@ -765,4 +765,25 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="visitorsessionsettings" author="jari.nykanen">
+        <addColumn tableName="exhibitiondevicegroup">
+            <column name="visitorSessionEndTimeout" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="rfidantenna">
+            <column name="visitorSessionStartThreshold" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="visitorSessionEndThreshold" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <sql>UPDATE exhibitiondevicegroup SET visitorSessionEndTimeout = 5000</sql>
+        <sql>UPDATE rfidantenna SET visitorSessionStartThreshold = 80</sql>
+        <sql>UPDATE rfidantenna SET visitorSessionEndThreshold = 10</sql>
+    </changeSet>
+
 </databaseChangeLog>
