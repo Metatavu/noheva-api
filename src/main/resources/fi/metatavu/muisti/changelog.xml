@@ -743,4 +743,47 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="scriptedmode" author="antti.leppa">
+        <sql>UPDATE ExhibitionPage SET resources = REPLACE(resources, '"scripted":null', '"mode": "static"')</sql>
+        <sql>UPDATE ExhibitionPage SET resources = REPLACE(resources, '"scripted":true', '"mode": "scripted"')</sql>
+        <sql>UPDATE ExhibitionPage SET resources = REPLACE(resources, '"scripted":false', '"mode": "static"')</sql>
+    </changeSet>
+
+    <changeSet id="exhibitionpage" author="antti.leppa">
+        <dropForeignKeyConstraint baseTableName="exhibitiondevice" constraintName="FK_EXHIBITION_DEVICE_INDEX_PAGE_ID"/>
+
+        <dropColumn tableName="exhibitiondevice">
+            <column name="indexPage_id"/>
+        </dropColumn>
+    </changeSet>
+
+    <changeSet id="visitorsessionlanguage" author="antti.leppa">
+        <addColumn tableName="visitorsession">
+            <column name="language" type="varchar(191)" defaultValue="FI">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="visitorsessionsettings" author="jari.nykanen">
+        <addColumn tableName="exhibitiondevicegroup">
+            <column name="visitorSessionEndTimeout" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="rfidantenna">
+            <column name="visitorSessionStartThreshold" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="visitorSessionEndThreshold" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <sql>UPDATE exhibitiondevicegroup SET visitorSessionEndTimeout = 5000</sql>
+        <sql>UPDATE rfidantenna SET visitorSessionStartThreshold = 80</sql>
+        <sql>UPDATE rfidantenna SET visitorSessionEndThreshold = 10</sql>
+    </changeSet>
+
 </databaseChangeLog>

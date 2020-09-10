@@ -16,7 +16,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
     @Test
     fun testCreateExhibitionPage() {
         ApiTestBuilder().use {
-            val createdPageSubscription = it.mqtt().subscribe<MqttExhibitionPageCreate>(MqttExhibitionPageCreate::class.java,"pages/create")
+            val createdPageSubscription = it.mqtt().subscribe(MqttExhibitionPageCreate::class.java,"pages/create")
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val deviceModel = it.admin().deviceModels().create()
@@ -152,9 +152,9 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testUpdateExhibition() {
+    fun testUpdatePage() {
         ApiTestBuilder().use {
-            val updatedPageSubscription = it.mqtt().subscribe<MqttExhibitionPageUpdate>(MqttExhibitionPageUpdate::class.java,"pages/update")
+            val updatedPageSubscription = it.mqtt().subscribe(MqttExhibitionPageUpdate::class.java,"pages/update")
 
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
@@ -246,6 +246,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 layoutId = createLayoutId,
                 deviceId = deviceId,
                 name = "create page",
+                orderNumber = 0,
                 resources = arrayOf(createResource),
                 eventTriggers = arrayOf(createEventTrigger),
                 contentVersionId = contentVersionId,
@@ -269,7 +270,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 id = "updateresid",
                 data = "https://example.com/updated.png",
                 type = ExhibitionPageResourceType.video,
-                scripted = true
+                mode = PageResourceMode.scripted
             )
 
             val updateEvent = ExhibitionPageEvent(
@@ -329,7 +330,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 eventTriggers = arrayOf(updateEventTrigger),
                 contentVersionId = contentVersionId,
                 enterTransitions = updateEnterTransitions,
-                exitTransitions = updateExitTransitions
+                exitTransitions = updateExitTransitions,
+                orderNumber = 1
             )
 
             val updatedExhibitionPage = it.admin().exhibitionPages().updateExhibitionPage(exhibitionId, updatePage)
@@ -355,7 +357,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
     @Test
     fun testDeletePage() {
         ApiTestBuilder().use {
-            val deletePageSubscription = it.mqtt().subscribe<MqttExhibitionPageDelete>(MqttExhibitionPageDelete::class.java,"pages/delete")
+            val deletePageSubscription = it.mqtt().subscribe(MqttExhibitionPageDelete::class.java,"pages/delete")
 
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
@@ -389,21 +391,6 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             it.admin().exhibitionPages().assertDeleteFail(404, exhibitionId, createdExhibitionPageId)
 
             assertJsonsEqual(listOf(MqttExhibitionPageDelete(exhibitionId = exhibitionId, id = createdExhibitionPage.id)), deletePageSubscription.getMessages(1))
-        }
-    }
-
-    @Test
-    fun testDeleteIndexPage() {
-        ApiTestBuilder().use {
-            val exhibition = it.admin().exhibitions().create()
-            val exhibitionId = exhibition.id!!
-            val device = createDefaultDevice(it, exhibition)
-            val page = createDefaultPage(it, exhibition)
-            val pageId = page.id!!
-            it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId = exhibitionId, payload = device.copy(indexPageId = pageId))
-            it.admin().exhibitionPages().assertDeleteFail(400, exhibitionId = exhibitionId, id = pageId)
-            it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId = exhibitionId, payload = device.copy(indexPageId = null))
-            it.admin().exhibitionPages().delete(exhibitionId = exhibitionId, exhibitionPage = page)
         }
     }
 

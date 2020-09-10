@@ -1,7 +1,8 @@
 package fi.metatavu.muisti.api.test.functional
 
 import fi.metatavu.muisti.api.client.models.*
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import java.util.*
 
@@ -27,50 +28,14 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
 
             val model = it.admin().deviceModels().create()
             val screenOrientation = ScreenOrientation.portrait
-            val createdDevice = it.admin().exhibitionDevices().create(exhibitionId, ExhibitionDevice( groupId = group.id!!, modelId = model.id!!, name = "name", screenOrientation = screenOrientation, pageOrder = emptyArray()))
+            val createdDevice = it.admin().exhibitionDevices().create(exhibitionId, ExhibitionDevice( groupId = group.id!!, modelId = model.id!!, name = "name", screenOrientation = screenOrientation))
             assertNotNull(createdDevice)
             assertJsonsEqual(listOf(MqttDeviceCreate(exhibitionId = exhibitionId, id = createdDevice.id!!)), mqttSubscription.getMessages(1))
 
-            it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, ExhibitionDevice( groupId = UUID.randomUUID(), modelId = model.id!!, name = "name", screenOrientation = screenOrientation, pageOrder = emptyArray()))
-            it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, ExhibitionDevice( groupId = group.id!!, modelId = UUID.randomUUID(), name = "name", screenOrientation = screenOrientation, pageOrder = emptyArray()))
+            it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, ExhibitionDevice(groupId = UUID.randomUUID(), modelId = model.id!!, name = "name", screenOrientation = screenOrientation))
+            it.admin().exhibitionDevices().assertCreateFail(400, exhibitionId, ExhibitionDevice(groupId = group.id!!, modelId = UUID.randomUUID(), name = "name", screenOrientation = screenOrientation))
         }
    }
-
-    @Test
-    fun testDeviceIndexPage() {
-        ApiTestBuilder().use {
-            val exhibition = it.admin().exhibitions().create()
-            val group = createDefaultDeviceGroup(it, exhibition)
-            val model = it.admin().deviceModels().create()
-            val page = createDefaultPage(it, exhibition)
-
-            val deviceWithIndex = it.admin().exhibitionDevices().create(exhibitionId = exhibition.id!!, payload = ExhibitionDevice(
-                name = "with index",
-                screenOrientation = ScreenOrientation.landscape,
-                groupId = group.id!!,
-                modelId = model.id!!,
-                indexPageId = page.id!!,
-                pageOrder = emptyArray()
-            ))
-
-            val deviceWithoutIndex = it.admin().exhibitionDevices().create(exhibitionId = exhibition.id!!, payload = ExhibitionDevice(
-                name = "with index",
-                screenOrientation = ScreenOrientation.landscape,
-                groupId = group.id!!,
-                modelId = model.id!!,
-                pageOrder = emptyArray()
-            ))
-
-            assertEquals(page.id, deviceWithIndex.indexPageId)
-            assertNull(deviceWithoutIndex.indexPageId)
-
-            val updatedDevice = it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId = exhibition.id!!, payload = deviceWithoutIndex.copy(indexPageId = page.id!!))
-            assertEquals(updatedDevice?.indexPageId, page.id)
-            assertEquals(it.admin().exhibitionDevices().findExhibitionDevice(exhibitionId = exhibition.id!!, exhibitionDeviceId = updatedDevice?.id!!)?.indexPageId, page.id)
-
-            it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId = exhibition.id!!, payload = deviceWithoutIndex.copy(indexPageId = UUID.randomUUID()))
-        }
-    }
 
     @Test
     fun testFindDevice() {
@@ -150,7 +115,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val nonExistingModelId = UUID.randomUUID()
             var screenOrientation = ScreenOrientation.portrait
 
-            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, ExhibitionDevice( groupId = group1.id!!, modelId = model1.id!!, name = "created name", location = Point(-123.0, 234.0), screenOrientation = screenOrientation, pageOrder = emptyArray()))
+            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, ExhibitionDevice(groupId = group1.id!!, modelId = model1.id!!, name = "created name", location = Point(-123.0, 234.0), screenOrientation = screenOrientation))
             val createdExhibitionDeviceId = createdExhibitionDevice.id!!
 
             val foundCreatedExhibitionDevice = it.admin().exhibitionDevices().findExhibitionDevice(exhibitionId, createdExhibitionDeviceId)
@@ -169,8 +134,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
                 screenOrientation = screenOrientation,
                 id = createdExhibitionDeviceId,
                 exhibitionId = exhibitionId,
-                location = Point(123.2, -234.4),
-                pageOrder = emptyArray()
+                location = Point(123.2, -234.4)
             ))
 
             it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId, updatedExhibitionDevice!!)
@@ -193,9 +157,9 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             assertEquals(group2.id, updatedExhibitionDevice.groupId)
             assertEquals(ScreenOrientation.landscape, updatedExhibitionDevice.screenOrientation)
 
-            it.admin().exhibitionDevices().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDevice(groupId = group1.id!!, modelId = model2.id!!, name = "name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId, pageOrder = emptyArray()))
-            it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = nonExistingGroupId, modelId = model2.id!!, name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId, pageOrder = emptyArray()))
-            it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = group1.id!!, modelId = nonExistingModelId, name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId, pageOrder = emptyArray()))
+            it.admin().exhibitionDevices().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDevice(groupId = group1.id!!, modelId = model2.id!!, name = "name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId))
+            it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = nonExistingGroupId, modelId = model2.id!!, name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId))
+            it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = group1.id!!, modelId = nonExistingModelId, name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId))
         }
     }
 
@@ -250,63 +214,6 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             it.admin().exhibitionDevices().assertDeleteFail(400, exhibitionId, deviceId)
             it.admin().exhibitionPages().delete(exhibitionId = exhibitionId, exhibitionPage = page)
             it.admin().exhibitionDevices().delete(exhibitionId, device)
-        }
-    }
-
-    @Test
-    fun testDevicePageOrder() {
-        ApiTestBuilder().use {
-            val exhibition = it.admin().exhibitions().create()
-            var device = createDefaultDevice(it, exhibition)
-            val foreignDevice = createDefaultDevice(it, exhibition)
-
-            val exhibitionId = exhibition.id!!
-            val deviceId = device.id!!
-
-            assertEquals(0, device.pageOrder.size)
-
-            val layout = it.admin().pageLayouts().create(it.admin().deviceModels().create())
-            val contentVersion = it.admin().contentVersions().create(exhibition)
-            val pages = (0..2).map {
-                _ -> it.admin().exhibitionPages().create(
-                    exhibition = exhibition,
-                    layout = layout,
-                    contentVersion = contentVersion,
-                    device = device
-                )
-            }
-
-            val pageIds = pages.map { page -> page.id!! }
-
-            val foreignPages  = (0..2).map {
-                _ -> it.admin().exhibitionPages().create(
-                    exhibition = exhibition,
-                    layout = layout,
-                    contentVersion = contentVersion,
-                    device = foreignDevice
-                )
-            }
-
-            device = it.admin().exhibitionDevices().findExhibitionDevice(exhibitionId = exhibitionId, exhibitionDeviceId = deviceId)!!
-
-            assertEquals(pageIds.size, device.pageOrder.size)
-            assertJsonsEqual(pageIds, device.pageOrder)
-
-            val updatedPageIds = arrayOf<UUID>(pageIds[1], pageIds[0], pageIds[2])
-
-            device = it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId, device.copy(pageOrder = updatedPageIds))!!
-
-            assertEquals(updatedPageIds.size, device.pageOrder.size)
-            assertJsonsEqual(updatedPageIds, device.pageOrder)
-
-            val foreignPageIds = foreignPages.map { page -> page.id!! }.toTypedArray()
-            it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, device.copy(pageOrder = foreignPageIds))
-
-            val partialPageIds = arrayOf<UUID>(pageIds[1], pageIds[0])
-            it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, device.copy(pageOrder = partialPageIds))
-
-            val duplicatePageIds = arrayOf<UUID>(pageIds[1], pageIds[0], pageIds[1])
-            it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, device.copy(pageOrder = duplicatePageIds))
         }
     }
 }

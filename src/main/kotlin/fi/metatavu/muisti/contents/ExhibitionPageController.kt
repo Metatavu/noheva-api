@@ -55,7 +55,7 @@ class ExhibitionPageController() {
      * Finds an exhibition page by id
      *
      * @param id exhibition page id
-     * @return found exhibition page  or null if not found
+     * @return found exhibition page or null if not found
      */
     fun findExhibitionPageById(id: UUID): ExhibitionPage? {
         return exhibitionPageDAO.findById(id)
@@ -83,35 +83,6 @@ class ExhibitionPageController() {
     }
 
     /**
-     * Returns next order number for device
-     *
-     * @param device device
-     * @return next order number for device
-     */
-    fun getNextOrderNumber(device : ExhibitionDevice): Int {
-        val orderNumber = exhibitionPageDAO.maxOrderNumberByDevice(device = device) ?: 0
-        return orderNumber + 1
-    }
-
-    /**
-     * Returns device page ids in order defined by page order number
-     *
-     * @return device page ids in order defined by page order number
-     */
-    fun getDevicePageIdsOrder(device : ExhibitionDevice): List<UUID> {
-        return exhibitionPageDAO.listPageIdsByDeviceInAscOrderNumberOrder(device = device)
-    }
-
-    /**
-     * Returns device page count
-     *
-     * @return device page count
-     */
-    fun getDevicePageCount(device : ExhibitionDevice): Long {
-        return exhibitionPageDAO.countByDevice(device = device)
-    }
-
-    /**
      * Updates an exhibition page 
      *
      * @param exhibitionPage exhibition page  to be updated
@@ -124,9 +95,22 @@ class ExhibitionPageController() {
      * @param enterTransitions page enter transitions
      * @param exitTransitions page exit transitions
      * @param modifierId modifying user id
-     * @return updated exhibition
+     * @param orderNumber order number
+     * @return updated exhibition page
      */
-    fun updateExhibitionPage(exhibitionPage: ExhibitionPage, device: ExhibitionDevice, layout: PageLayout, contentVersion: ContentVersion, name: String, resources: List<ExhibitionPageResource>, eventTriggers: List<ExhibitionPageEventTrigger>, enterTransitions: List<ExhibitionPageTransition>, exitTransitions: List<ExhibitionPageTransition>, modifierId: UUID): ExhibitionPage {
+    fun updateExhibitionPage(
+            exhibitionPage: ExhibitionPage,
+            device: ExhibitionDevice,
+            layout: PageLayout,
+            contentVersion: ContentVersion,
+            name: String,
+            resources: List<ExhibitionPageResource>,
+            eventTriggers: List<ExhibitionPageEventTrigger>,
+            enterTransitions: List<ExhibitionPageTransition>,
+            exitTransitions: List<ExhibitionPageTransition>,
+            orderNumber: Int,
+            modifierId: UUID)
+        : ExhibitionPage {
         var result = exhibitionPageDAO.updateName(exhibitionPage, name, modifierId)
         result = exhibitionPageDAO.updateLayout(result, layout, modifierId)
         result = exhibitionPageDAO.updateDevice(result, device, modifierId)
@@ -135,19 +119,8 @@ class ExhibitionPageController() {
         result = exhibitionPageDAO.updateEventTriggers(result, getDataAsString(eventTriggers), modifierId)
         result = exhibitionPageDAO.updateEnterTransitions(result, getDataAsString(enterTransitions), modifierId)
         result = exhibitionPageDAO.updateExitTransitions(result, getDataAsString(exitTransitions), modifierId)
+        result = exhibitionPageDAO.updateOrderNumber(result, orderNumber, modifierId)
         return result
-    }
-
-    /**
-     * Updates exhibition page order number
-     *
-     * @param exhibitionPage exhibition page  to be updated
-     * @param orderNumber order number
-     * @param modifierId modifying user id
-     * @return updated exhibition
-     */
-    fun updateExhibitionPageOrderNumber(exhibitionPage: ExhibitionPage, orderNumber: Int, modifierId: UUID): ExhibitionPage {
-        return exhibitionPageDAO.updateOrderNumber(exhibitionPage, orderNumber, modifierId)
     }
 
     /**

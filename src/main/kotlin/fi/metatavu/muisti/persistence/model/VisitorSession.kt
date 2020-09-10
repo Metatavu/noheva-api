@@ -33,6 +33,9 @@ class VisitorSession {
 
     var state: VisitorSessionState? = null
 
+    @Column(nullable = false)
+    var language: String? = null
+
     /**
      * JPA pre-persist event handler
      */

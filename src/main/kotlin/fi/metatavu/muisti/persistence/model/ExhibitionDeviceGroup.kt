@@ -30,6 +30,9 @@ class ExhibitionDeviceGroup {
     var name: String? = null
 
     @Column(nullable = false)
+    var visitorSessionEndTimeout: Long? = null
+
+    @Column(nullable = false)
     var createdAt: OffsetDateTime? = null
 
     @Column(nullable = false)
