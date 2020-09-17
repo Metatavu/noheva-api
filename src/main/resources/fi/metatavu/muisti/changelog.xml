@@ -795,7 +795,7 @@
     </changeSet>
   
     <changeSet id="devicegroupvisitorsessionstartstrategysetdefaults" author="antti.leinonen">
-        <sql>UPDATE exhibitiondevicegroup SET visitorSessionStartStrategy = othersblock</sql>
+        <sql>UPDATE exhibitiondevicegroup SET visitorSessionStartStrategy = 'OTHERSBLOCK'</sql>
     </changeSet>
 
 </databaseChangeLog>
