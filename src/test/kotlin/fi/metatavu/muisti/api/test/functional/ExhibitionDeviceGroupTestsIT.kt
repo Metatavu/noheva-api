@@ -155,7 +155,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
         assertEquals("updated name", updatedExhibitionDeviceGroup.name)
         assertEquals(true, updatedExhibitionDeviceGroup.allowVisitorSessionCreation)
         assertEquals(6000, updatedExhibitionDeviceGroup.visitorSessionEndTimeout)
-        assertEquals(DeviceGroupVisitorSessionStartStrategy.endothers, createdExhibitionDeviceGroup.visitorSessionStartStrategy)
+        assertEquals(DeviceGroupVisitorSessionStartStrategy.endothers, updatedExhibitionDeviceGroup.visitorSessionStartStrategy)
 
         it.admin().exhibitionDeviceGroups().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDeviceGroup(
           name = "name",
