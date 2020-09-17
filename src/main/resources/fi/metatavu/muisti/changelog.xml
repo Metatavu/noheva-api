@@ -786,4 +786,12 @@
         <sql>UPDATE rfidantenna SET visitorSessionEndThreshold = 10</sql>
     </changeSet>
 
+    <changeSet id="devicegroupvisitorsessionstartstrategy" author="antti.leppa">
+        <addColumn tableName="exhibitiondevicegroup">
+            <column name="visitorSessionStartStrategy" type="varchar(20)" defaultValue="othersblock">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

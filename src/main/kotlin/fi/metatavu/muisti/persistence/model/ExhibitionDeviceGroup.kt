@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.model
 
+import fi.metatavu.muisti.api.spec.model.DeviceGroupVisitorSessionStartStrategy
 import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*
@@ -31,6 +32,10 @@ class ExhibitionDeviceGroup {
 
     @Column(nullable = false)
     var visitorSessionEndTimeout: Long? = null
+
+    @Enumerated (EnumType.STRING)
+    @Column(nullable = false)
+    var visitorSessionStartStrategy: DeviceGroupVisitorSessionStartStrategy? = null
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null
