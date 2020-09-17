@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.dao
 
+import fi.metatavu.muisti.api.spec.model.DeviceGroupVisitorSessionStartStrategy
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup
 import fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup_
@@ -28,6 +29,7 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
    * @param name name
    * @param allowVisitorSessionCreation whether the group allows new visitor session creation
    * @param visitorSessionEndTimeout visitor session end timeout in milliseconds
+   * @param visitorSessionStartStrategy visitor session start strategy
    * @param creatorId creator's id
    * @param lastModifierId last modifier's id
    * @return created exhibitionDeviceGroup
@@ -39,6 +41,7 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
     name: String,
     allowVisitorSessionCreation: Boolean,
     visitorSessionEndTimeout: Long,
+    visitorSessionStartStrategy: DeviceGroupVisitorSessionStartStrategy,
     creatorId: UUID,
     lastModifierId: UUID
   ): ExhibitionDeviceGroup {
@@ -49,6 +52,7 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
     exhibitionDeviceGroup.room = room
     exhibitionDeviceGroup.allowVisitorSessionCreation = allowVisitorSessionCreation
     exhibitionDeviceGroup.visitorSessionEndTimeout = visitorSessionEndTimeout
+    exhibitionDeviceGroup.visitorSessionStartStrategy = visitorSessionStartStrategy
     exhibitionDeviceGroup.creatorId = creatorId
     exhibitionDeviceGroup.lastModifierId = lastModifierId
     return persist(exhibitionDeviceGroup)
@@ -109,7 +113,21 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
   }
 
   /**
-   * Updates visitor session end timeout
+   * Updates visitor session start strategy
+   *
+   * @param exhibitionDeviceGroup exhibition device group to be updated
+   * @param visitorSessionStartStrategy visitor session start strategy
+   * @param lastModifierId last modifier's id
+   * @return updated exhibitionDeviceGroup
+   */
+  fun updateVisitorSessionStartStrategy(exhibitionDeviceGroup: ExhibitionDeviceGroup, visitorSessionStartStrategy: DeviceGroupVisitorSessionStartStrategy, lastModifierId: UUID): ExhibitionDeviceGroup {
+    exhibitionDeviceGroup.lastModifierId = lastModifierId
+    exhibitionDeviceGroup.visitorSessionStartStrategy = visitorSessionStartStrategy
+    return persist(exhibitionDeviceGroup)
+  }
+
+  /**
+   * Updates visitor session start strategy
    *
    * @param exhibitionDeviceGroup exhibition device group to be updated
    * @param visitorSessionEndTimeout visitor session end timeout in milliseconds

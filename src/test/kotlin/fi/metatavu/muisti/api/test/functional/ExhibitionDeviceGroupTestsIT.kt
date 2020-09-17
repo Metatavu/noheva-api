@@ -30,7 +30,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             name = "name",
             roomId = roomId,
             allowVisitorSessionCreation = false,
-            visitorSessionEndTimeout = 5000
+            visitorSessionEndTimeout = 5000,
+            visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.othersblock
           )
         )
 
@@ -123,7 +124,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             name = "created name",
             roomId = roomId,
             allowVisitorSessionCreation = false,
-            visitorSessionEndTimeout = 5000
+            visitorSessionEndTimeout = 5000,
+            visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.othersblock
           )
         )
 
@@ -134,13 +136,15 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
         assertEquals("created name", createdExhibitionDeviceGroup.name)
         assertEquals(false, createdExhibitionDeviceGroup.allowVisitorSessionCreation)
         assertEquals(5000, createdExhibitionDeviceGroup.visitorSessionEndTimeout)
+        assertEquals(DeviceGroupVisitorSessionStartStrategy.othersblock, createdExhibitionDeviceGroup.visitorSessionStartStrategy)
 
         val updatedExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().updateExhibitionDeviceGroup(exhibitionId, ExhibitionDeviceGroup(
           name = "updated name",
           roomId = roomId,
           id = createdExhibitionDeviceGroupId,
           allowVisitorSessionCreation = true,
-          visitorSessionEndTimeout = 6000
+          visitorSessionEndTimeout = 6000,
+          visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.endothers
         ))
 
         assertJsonsEqual(listOf(MqttDeviceGroupUpdate(exhibitionId = exhibitionId, id = createdExhibitionDeviceGroup.id!!)), mqttSubscription.getMessages(1))
@@ -151,12 +155,14 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
         assertEquals("updated name", updatedExhibitionDeviceGroup.name)
         assertEquals(true, updatedExhibitionDeviceGroup.allowVisitorSessionCreation)
         assertEquals(6000, updatedExhibitionDeviceGroup.visitorSessionEndTimeout)
+        assertEquals(DeviceGroupVisitorSessionStartStrategy.endothers, updatedExhibitionDeviceGroup.visitorSessionStartStrategy)
 
         it.admin().exhibitionDeviceGroups().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDeviceGroup(
           name = "name",
           id = createdExhibitionDeviceGroupId,
           allowVisitorSessionCreation = false,
-          visitorSessionEndTimeout = 5000
+          visitorSessionEndTimeout = 5000,
+          visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.endothers
         ))
       }
     }
