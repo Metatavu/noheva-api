@@ -770,12 +770,14 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val room = exhibitionRoomController.findExhibitionRoomById(payload.roomId)  ?: return createNotFound("Exhibition room ${payload.roomId} not found")
         val visitorSessionEndTimeout = payload.visitorSessionEndTimeout
+        val visitorSessionStartStrategy = payload.visitorSessionStartStrategy
 
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.createExhibitionDeviceGroup(exhibition,
             name = payload.name,
             allowVisitorSessionCreation = payload.allowVisitorSessionCreation,
             room = room,
             visitorSessionEndTimeout = visitorSessionEndTimeout,
+            visitorSessionStartStrategy = visitorSessionStartStrategy,
             creatorId = userId
         )
 
@@ -821,6 +823,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val room = exhibitionRoomController.findExhibitionRoomById(payload.roomId)  ?: return createNotFound("Exhibition room ${payload.roomId} not found")
         val visitorSessionEndTimeout = payload.visitorSessionEndTimeout
+        val visitorSessionStartStrategy = payload.visitorSessionStartStrategy
 
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(deviceGroupId) ?: return createNotFound("Room $deviceGroupId not found")
         val result = exhibitionDeviceGroupController.updateExhibitionDeviceGroup(
@@ -829,6 +832,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             name = payload.name,
             allowVisitorSessionCreation = payload.allowVisitorSessionCreation,
             visitorSessionEndTimeout = visitorSessionEndTimeout,
+            visitorSessionStartStrategy = visitorSessionStartStrategy,
             modifierId = userId
         )
 

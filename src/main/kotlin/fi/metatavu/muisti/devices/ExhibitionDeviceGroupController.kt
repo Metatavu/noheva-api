@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.devices
 
+import fi.metatavu.muisti.api.spec.model.DeviceGroupVisitorSessionStartStrategy
 import fi.metatavu.muisti.persistence.dao.ExhibitionDeviceGroupDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup
@@ -12,7 +13,7 @@ import javax.inject.Inject
  * Controller for exhibition device groups
  */
 @ApplicationScoped
-class ExhibitionDeviceGroupController() {
+class ExhibitionDeviceGroupController {
 
   @Inject
   private lateinit var exhibitionDeviceGroupDAO: ExhibitionDeviceGroupDAO
@@ -25,6 +26,7 @@ class ExhibitionDeviceGroupController() {
    * @param name device group name
    * @param allowVisitorSessionCreation whether the group allows new visitor session creation
    * @param visitorSessionEndTimeout visitor session end timeout in milliseconds
+   * @param visitorSessionStartStrategy visitor session start strategy
    * @param creatorId creating user id
    * @return created exhibition device group
    */
@@ -34,6 +36,7 @@ class ExhibitionDeviceGroupController() {
     name: String,
     allowVisitorSessionCreation: Boolean,
     visitorSessionEndTimeout: Long,
+    visitorSessionStartStrategy: DeviceGroupVisitorSessionStartStrategy,
     creatorId: UUID
   ): ExhibitionDeviceGroup {
     return exhibitionDeviceGroupDAO.create(
@@ -43,6 +46,7 @@ class ExhibitionDeviceGroupController() {
       name = name,
       allowVisitorSessionCreation = allowVisitorSessionCreation,
       visitorSessionEndTimeout = visitorSessionEndTimeout,
+      visitorSessionStartStrategy = visitorSessionStartStrategy,
       creatorId = creatorId,
       lastModifierId = creatorId
     )
@@ -76,6 +80,7 @@ class ExhibitionDeviceGroupController() {
    * @param name group name
    * @param allowVisitorSessionCreation whether the group allows new visitor session creation
    * @param visitorSessionEndTimeout visitor session end timeout in milliseconds
+   * @param visitorSessionStartStrategy visitor session start strategy
    * @param room room
    * @param modifierId modifying user id
    * @return updated exhibition
@@ -85,6 +90,7 @@ class ExhibitionDeviceGroupController() {
     name: String,
     allowVisitorSessionCreation: Boolean,
     visitorSessionEndTimeout: Long,
+    visitorSessionStartStrategy: DeviceGroupVisitorSessionStartStrategy,
     room: ExhibitionRoom,
     modifierId: UUID
   ): ExhibitionDeviceGroup {
@@ -92,6 +98,7 @@ class ExhibitionDeviceGroupController() {
     result = exhibitionDeviceGroupDAO.updateRoom(result, room, modifierId)
     result = exhibitionDeviceGroupDAO.updateAllowVisitorSessionCreation(result, allowVisitorSessionCreation, modifierId)
     result = exhibitionDeviceGroupDAO.updateVisitorSessionEndTimeout(result, visitorSessionEndTimeout, modifierId)
+    result = exhibitionDeviceGroupDAO.updateVisitorSessionStartStrategy(result, visitorSessionStartStrategy, modifierId)
     return result
   }
 
