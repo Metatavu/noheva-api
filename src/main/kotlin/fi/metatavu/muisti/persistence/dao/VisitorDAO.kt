@@ -69,10 +69,11 @@ class VisitorDAO : AbstractDAO<Visitor>() {
      * Lists visitors
      *
      * @param exhibition exhibition
-     * @param tagId tagId
+     * @param tagId filter results by tag id
+     * @param userId filter results by user id
      * @return List of visitors
      */
-    fun list(exhibition: Exhibition?, tagId: String?): List<Visitor> {
+    fun list(exhibition: Exhibition?, tagId: String?, userId: UUID?): List<Visitor> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<Visitor> = criteriaBuilder.createQuery(Visitor::class.java)
@@ -82,6 +83,10 @@ class VisitorDAO : AbstractDAO<Visitor>() {
 
         if (tagId != null) {
             restrictions.add(criteriaBuilder.equal(root.get(Visitor_.tagId), tagId))
+        }
+
+        if (userId != null) {
+            restrictions.add(criteriaBuilder.equal(root.get(Visitor_.userId), userId))
         }
 
         criteria.select(root)

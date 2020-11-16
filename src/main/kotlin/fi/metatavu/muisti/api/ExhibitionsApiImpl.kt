@@ -15,6 +15,7 @@ import fi.metatavu.muisti.realtime.RealtimeNotificationController
 import fi.metatavu.muisti.visitors.VisitorController
 import fi.metatavu.muisti.visitors.VisitorSessionController
 import org.apache.commons.lang3.StringUtils
+import org.keycloak.representations.idm.UserRepresentation
 import org.slf4j.Logger
 import java.util.*
 import java.util.stream.Collectors
@@ -193,7 +194,24 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
 
         var userRepresentation = keycloakController.findUserByEmail(payload.email)
         if (userRepresentation == null) {
-            userRepresentation = keycloakController.createUser(email = payload.email, realmRoles = listOf("visitor"))
+            userRepresentation = keycloakController.createUser(
+                email = payload.email,
+                birthYear = payload.birthYear,
+                firstName = payload.firstName,
+                language = payload.language,
+                lastName = payload.lastName,
+                phone = payload.phone,
+                realmRoles = listOf("visitor")
+            )
+        } else {
+            userRepresentation = keycloakController.updateUser(
+                userRepresentation = userRepresentation,
+                birthYear = payload.birthYear,
+                firstName = payload.firstName,
+                language = payload.language,
+                lastName = payload.lastName,
+                phone = payload.phone
+            )
         }
 
         userRepresentation ?: return createInternalServerError("Failed to create visitor user")
@@ -218,14 +236,21 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         return createOk(visitorTranslator.translate(visitor))
     }
 
-    override fun listVisitors(exhibitionId: UUID?, tagId: String?): Response {
+    override fun listVisitors(exhibitionId: UUID?, tagId: String?, email: String?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        var userId: UUID? = null
+
+        if (email != null) {
+            val userRepresentation = keycloakController.findUserByEmail(email = email) ?: return createOk(arrayOf<Visitor>())
+            userId = UUID.fromString(userRepresentation.id)
+        }
 
         val visitors = visitorController.listVisitors(
             exhibition = exhibition,
-            tagId = tagId
+            tagId = tagId,
+            userId = userId
         )
 
         return createOk(visitors.map (visitorTranslator::translate))
@@ -239,6 +264,17 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val visitor = visitorController.findVisitorById(visitorId) ?: return createNotFound("Visitor $visitorId not found")
+
+        val userRepresentation = keycloakController.findUserById(visitor.userId)?: return createInternalServerError("Failed to find visitor user")
+
+        keycloakController.updateUser(
+            userRepresentation = userRepresentation,
+            birthYear = payload.birthYear,
+            firstName = payload.firstName,
+            language = payload.language,
+            lastName = payload.lastName,
+            phone = payload.phone
+        )
 
         val result = visitorController.updateVisitor(
             visitor = visitor,

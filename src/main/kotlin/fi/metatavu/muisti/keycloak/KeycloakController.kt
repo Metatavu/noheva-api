@@ -69,19 +69,29 @@ class KeycloakController {
      * Creates new Keycloak user
      *
      * @param email user email
+     * @param language user's language
+     * @param firstName user's first name
+     * @param lastName user's last name
+     * @param phone user's phone number
+     * @param birthYear user's birth year
      * @param realmRoles list of realm roles
-     * @return created user or null when creation has failed
+     * @return created user representation or null when creation has failed
      */
-    fun createUser(email: String, realmRoles: List<String>): UserRepresentation? {
-        val usersResource= keycloakClient.realm(realm).users()
-        val user = UserRepresentation()
-        user.email = email
-        user.username = email
-        user.isEnabled = true
-        user.realmRoles = realmRoles
+    fun createUser(email: String, language: String, firstName: String?, lastName: String?, phone: String?, birthYear: Int?, realmRoles: List<String>): UserRepresentation? {
+        val usersResource = keycloakClient.realm(realm).users()
+        val userRepresentation = UserRepresentation()
+        userRepresentation.email = email
+        userRepresentation.firstName = firstName
+        userRepresentation.lastName = lastName
+        userRepresentation.username = email
+        userRepresentation.isEnabled = true
+        userRepresentation.realmRoles = realmRoles
+        userRepresentation.singleAttribute(USER_ATTRIBUTE_LANGUAGE, language)
+        userRepresentation.singleAttribute(USER_ATTRIBUTE_PHONE, phone)
+        userRepresentation.singleAttribute(USER_ATTRIBUTE_BIRTH_YEAR, birthYear?.toString())
 
         try {
-            val userId = getCreatedResponseId(usersResource.create(user))
+            val userId = getCreatedResponseId(usersResource.create(userRepresentation))
             userId ?: return null
             return usersResource.get(userId.toString()).toRepresentation()
         } catch (e: javax.ws.rs.WebApplicationException) {
@@ -91,6 +101,32 @@ class KeycloakController {
         }
 
         return null
+    }
+
+    /**
+     * Updates Keycloak user
+     *
+     * @param userRepresentation user representation in Keycloak
+     * @param language user's language
+     * @param firstName user's first name
+     * @param lastName user's last name
+     * @param phone user's phone number
+     * @param birthYear user's birth year
+     * @return updated user representation
+     */
+    fun updateUser(userRepresentation: UserRepresentation, language: String, firstName: String?, lastName: String?, phone: String?, birthYear: Int?): UserRepresentation {
+        val usersResource = keycloakClient.realm(realm).users()
+        val userResource = usersResource.get(userRepresentation.id)
+
+        userRepresentation.firstName = firstName
+        userRepresentation.lastName = lastName
+        userRepresentation.singleAttribute(USER_ATTRIBUTE_LANGUAGE, language)
+        userRepresentation.singleAttribute(USER_ATTRIBUTE_PHONE, phone)
+        userRepresentation.singleAttribute(USER_ATTRIBUTE_BIRTH_YEAR, birthYear?.toString())
+
+        userResource.update(userRepresentation)
+
+        return userRepresentation
     }
 
     /**
@@ -119,6 +155,36 @@ class KeycloakController {
         }
 
         return listOf()
+    }
+
+    /**
+     * Returns user's language
+     *
+     * @param userRepresentation Keycloak user representation
+     * @return user's language
+     */
+    fun getUserLanguage(userRepresentation: UserRepresentation?): String {
+        return getUserSingleAttribute(userRepresentation, USER_ATTRIBUTE_LANGUAGE) ?: DEFAULT_LANGUAGE
+    }
+
+    /**
+     * Returns user's phone number or null if not specified
+     *
+     * @param userRepresentation Keycloak user representation
+     * @return user's phone number or null if not specified
+     */
+    fun getUserPhone(userRepresentation: UserRepresentation?): String? {
+        return getUserSingleAttribute(userRepresentation, USER_ATTRIBUTE_PHONE)
+    }
+
+    /**
+     * Returns user's birth day or null if not specified
+     *
+     * @param userRepresentation Keycloak user representation
+     * @return user's birth day or null if not specified
+     */
+    fun getUserBirthYear(userRepresentation: UserRepresentation?): Int? {
+        return getUserSingleAttribute(userRepresentation, USER_ATTRIBUTE_BIRTH_YEAR)?.toInt()
     }
 
     /**
@@ -156,6 +222,18 @@ class KeycloakController {
         return if (matcher.find()) {
             UUID.fromString(matcher.group(1))
         } else null
+    }
+
+    /**
+     * Returns single attribute value from Keycloak representation
+     *
+     * @param userRepresentation Keycloak user representation
+     * @param key attribute key
+     * @return user attribute value
+     */
+    private fun getUserSingleAttribute(userRepresentation: UserRepresentation?, key: String): String? {
+        val attributes = userRepresentation?.attributes ?: return null
+        return attributes[key]?.first() ?: return null
     }
 
     /**
@@ -261,5 +339,12 @@ class KeycloakController {
     @JsonIgnoreProperties(ignoreUnknown = true)
     private class IdExtract {
         var id: String? = null
+    }
+
+    companion object {
+        const val DEFAULT_LANGUAGE = "fi"
+        const val USER_ATTRIBUTE_LANGUAGE = "language"
+        const val USER_ATTRIBUTE_PHONE = "phone"
+        const val USER_ATTRIBUTE_BIRTH_YEAR = "birth-year"
     }
 }

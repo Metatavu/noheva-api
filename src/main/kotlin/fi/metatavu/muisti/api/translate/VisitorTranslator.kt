@@ -22,6 +22,11 @@ class VisitorTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model
         result.email = userRepresentation?.email
         result.tagId = entity.tagId
         result.userId = entity.userId
+        result.firstName = userRepresentation?.firstName
+        result.lastName = userRepresentation?.lastName
+        result.birthYear = keycloakController.getUserBirthYear(userRepresentation)
+        result.language = keycloakController.getUserLanguage(userRepresentation)
+        result.phone = keycloakController.getUserPhone(userRepresentation)
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
         result.createdAt = entity.createdAt

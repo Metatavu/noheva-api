@@ -23,12 +23,14 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
             val visitor1 = it.admin().visitors().create(exhibitionId, Visitor(
                 email = "visitor1@example.com",
-                tagId = "tag1"
+                tagId = "tag1",
+                language = "fi"
             ))
 
             val visitor2 = it.admin().visitors().create(exhibitionId, Visitor(
                 email = "visitor2@example.com",
-                tagId = "tag2"
+                tagId = "tag2",
+                language = "fi"
             ))
 
             val createVariables = arrayOf(VisitorSessionVariable("key1", "val1"), VisitorSessionVariable("key2", "val2"))
@@ -116,17 +118,20 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
             val visitor1 = it.admin().visitors().create(exhibitionId, Visitor(
                 email = "visitor1@example.com",
-                tagId = "tag1"
+                tagId = "tag1",
+                language = "fi"
             ))
 
             val visitor2 = it.admin().visitors().create(exhibitionId, Visitor(
                 email = "visitor2@example.com",
-                tagId = "tag2"
+                tagId = "tag2",
+                language = "fi"
             ))
 
             val visitor3 = it.admin().visitors().create(exhibitionId, Visitor(
                 email = "visitor3@example.com",
-                tagId = "tag3"
+                tagId = "tag3",
+                language = "fi"
             ))
 
             val createVariables = arrayOf(

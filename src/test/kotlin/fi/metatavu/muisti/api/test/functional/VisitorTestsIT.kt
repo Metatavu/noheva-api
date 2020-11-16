@@ -21,6 +21,7 @@ class VisitorTestsIT: AbstractFunctionalTest() {
             val exhibitionId = exhibition.id!!
             val createdVisitor = it.admin().visitors().create(exhibitionId, Visitor(
                 email = "visitor@example.com",
+                language = "fi",
                 tagId = "faketag"
             ))
 
@@ -57,6 +58,7 @@ class VisitorTestsIT: AbstractFunctionalTest() {
 
             it.admin().visitors().create(exhibitionId, Visitor(
                     email = "test@example.com",
+                    language = "fi",
                     tagId = "testtag"
             ))
 
@@ -74,27 +76,54 @@ class VisitorTestsIT: AbstractFunctionalTest() {
 
             it.admin().visitors().create(exhibitionId, Visitor(
                     email = "visitor1@example.com",
+                    language = "fi",
                     tagId = "faketag1"
             ))
 
             it.admin().visitors().create(exhibitionId, Visitor(
                     email = "visitor2@example.com",
+                    language = "fi",
                     tagId = "faketag2"
             ))
 
-            val visitors1 = it.admin().visitors().listVisitors(exhibitionId = exhibitionId, tagId = null)
+            val visitors1 = it.admin().visitors().listVisitors(
+                exhibitionId = exhibitionId,
+                tagId = null,
+                email = null
+            )
             assertEquals(2, visitors1.size)
             assertNotNull(visitors1.firstOrNull { visitor ->  visitor.tagId == "faketag1" })
             assertNotNull(visitors1.firstOrNull { visitor ->  visitor.tagId == "faketag2" })
 
-            val visitors2 = it.admin().visitors().listVisitors(exhibitionId = exhibitionId, tagId = "faketag2")
+            val visitors2 = it.admin().visitors().listVisitors(
+                exhibitionId = exhibitionId,
+                tagId = "faketag2",
+                email = null
+            )
             assertEquals(1, visitors2.size)
             assertNotNull(visitors2.firstOrNull { visitor ->  visitor.tagId == "faketag2" })
 
-            val visitors3 = it.admin().visitors().listVisitors(exhibitionId = exhibitionId, tagId = "noexistingtag")
-            assertEquals(0, visitors3.size)
+            val visitors3 = it.admin().visitors().listVisitors(
+                exhibitionId = exhibitionId,
+                tagId = null,
+                email = "visitor1@example.com"
+            )
+            assertEquals(1, visitors3.size)
+            assertEquals("visitor1@example.com", visitors3.first().email)
 
-            it.admin().visitors().assertListFail(404, exhibitionId = nonExistingExhibitionId, tagId = null)
+            it.admin().visitors().assertCount(
+                expected = 0,
+                exhibitionId = exhibitionId,
+                tagId = "noexistingtag",
+                email = null
+            )
+
+            it.admin().visitors().assertListFail(
+                expectedStatus = 404,
+                exhibitionId = nonExistingExhibitionId,
+                tagId = null,
+                email = null
+            )
         }
     }
 
@@ -107,19 +136,38 @@ class VisitorTestsIT: AbstractFunctionalTest() {
 
             val createdVisitor = it.admin().visitors().create(exhibitionId, Visitor(
                 email = "visitor@example.com",
+                language = "fi",
+                firstName = "First",
+                lastName = "Last",
+                phone = "+358 01 234 5678",
+                birthYear = 1980,
                 tagId = "faketag"
             ))
 
             assertEquals("faketag", createdVisitor.tagId)
             assertEquals("visitor@example.com", createdVisitor.email)
+            assertEquals("First", createdVisitor.firstName)
+            assertEquals("Last", createdVisitor.lastName)
+            assertEquals("+358 01 234 5678", createdVisitor.phone)
+            assertEquals(1980, createdVisitor.birthYear)
 
             val updatedVisitor = it.admin().visitors().updateVisitor(exhibitionId, Visitor(
-                    id = createdVisitor.id,
-                    email = "visitor@example.com",
-                    tagId = "updatetag"
+                id = createdVisitor.id,
+                language = "fi",
+                email = "visitor@example.com",
+                tagId = "updatetag",
+                firstName = "First name",
+                lastName = "Last name",
+                phone = "+358 12 345 6789",
+                birthYear = 1985
             ))
 
             assertEquals("updatetag", updatedVisitor?.tagId)
+            assertEquals("First name", updatedVisitor?.firstName)
+            assertEquals("Last name", updatedVisitor?.lastName)
+            assertEquals("+358 12 345 6789", updatedVisitor?.phone)
+            assertEquals(1985, updatedVisitor?.birthYear)
+
             assertJsonsEqual(listOf(MqttVisitorUpdate(exhibitionId = exhibitionId, id = createdVisitor.id!!)), mqttSubscription.getMessages(1))
         }
     }
