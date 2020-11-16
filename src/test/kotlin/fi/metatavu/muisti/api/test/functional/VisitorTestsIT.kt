@@ -21,6 +21,7 @@ class VisitorTestsIT: AbstractFunctionalTest() {
             val exhibitionId = exhibition.id!!
             val createdVisitor = it.admin().visitors().create(exhibitionId, Visitor(
                 email = "visitor@example.com",
+                language = "fi",
                 tagId = "faketag"
             ))
 
@@ -57,6 +58,7 @@ class VisitorTestsIT: AbstractFunctionalTest() {
 
             it.admin().visitors().create(exhibitionId, Visitor(
                     email = "test@example.com",
+                    language = "fi",
                     tagId = "testtag"
             ))
 
@@ -74,11 +76,13 @@ class VisitorTestsIT: AbstractFunctionalTest() {
 
             it.admin().visitors().create(exhibitionId, Visitor(
                     email = "visitor1@example.com",
+                    language = "fi",
                     tagId = "faketag1"
             ))
 
             it.admin().visitors().create(exhibitionId, Visitor(
                     email = "visitor2@example.com",
+                    language = "fi",
                     tagId = "faketag2"
             ))
 
@@ -107,19 +111,42 @@ class VisitorTestsIT: AbstractFunctionalTest() {
 
             val createdVisitor = it.admin().visitors().create(exhibitionId, Visitor(
                 email = "visitor@example.com",
+                language = "fi",
+                firstName = "First",
+                lastName = "Last",
+                phone = "+358 01 234 5678",
+                birthYear = 1980,
                 tagId = "faketag"
             ))
 
+            val createdVisitorId = createdVisitor.id!!
+
             assertEquals("faketag", createdVisitor.tagId)
             assertEquals("visitor@example.com", createdVisitor.email)
+            assertEquals("First", createdVisitor.firstName)
+            assertEquals("Last", createdVisitor.lastName)
+            assertEquals("+358 01 234 5678", createdVisitor.phone)
+            assertEquals(1980, createdVisitor.birthYear)
 
             val updatedVisitor = it.admin().visitors().updateVisitor(exhibitionId, Visitor(
                     id = createdVisitor.id,
+                    language = "fi",
                     email = "visitor@example.com",
                     tagId = "updatetag"
             ))
 
             assertEquals("updatetag", updatedVisitor?.tagId)
+            assertEquals("First name", updatedVisitor?.firstName)
+            assertEquals("Last name", updatedVisitor?.lastName)
+            assertEquals("+358 12 345 6789", updatedVisitor?.phone)
+            assertEquals(1980, updatedVisitor?.birthYear)
+
+            val foundVisitor = it.admin().visitors().findVisitor(
+                exhibitionId = exhibitionId,
+                visitorId = createdVisitorId
+            )
+
+            assertJsonsEqual(updatedVisitor, foundVisitor)
             assertJsonsEqual(listOf(MqttVisitorUpdate(exhibitionId = exhibitionId, id = createdVisitor.id!!)), mqttSubscription.getMessages(1))
         }
     }

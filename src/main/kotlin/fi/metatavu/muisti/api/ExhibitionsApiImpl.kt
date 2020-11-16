@@ -193,7 +193,24 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
 
         var userRepresentation = keycloakController.findUserByEmail(payload.email)
         if (userRepresentation == null) {
-            userRepresentation = keycloakController.createUser(email = payload.email, realmRoles = listOf("visitor"))
+            userRepresentation = keycloakController.createUser(
+                email = payload.email,
+                birthYear = payload.birthYear,
+                firstName = payload.firstName,
+                language = payload.language,
+                lastName = payload.lastName,
+                phone = payload.phone,
+                realmRoles = listOf("visitor")
+            )
+        } else {
+            userRepresentation = keycloakController.updateUser(
+                userRepresentation = userRepresentation,
+                birthYear = payload.birthYear,
+                firstName = payload.firstName,
+                language = payload.language,
+                lastName = payload.lastName,
+                phone = payload.phone
+            )
         }
 
         userRepresentation ?: return createInternalServerError("Failed to create visitor user")
@@ -239,6 +256,17 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val visitor = visitorController.findVisitorById(visitorId) ?: return createNotFound("Visitor $visitorId not found")
+
+        val userRepresentation = keycloakController.findUserById(visitor.userId)?: return createInternalServerError("Failed to find visitor user")
+
+        keycloakController.updateUser(
+            userRepresentation = userRepresentation,
+            birthYear = payload.birthYear,
+            firstName = payload.firstName,
+            language = payload.language,
+            lastName = payload.lastName,
+            phone = payload.phone
+        )
 
         val result = visitorController.updateVisitor(
             visitor = visitor,
