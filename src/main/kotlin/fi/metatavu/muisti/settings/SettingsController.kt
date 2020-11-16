@@ -60,7 +60,7 @@ class SettingsController {
     }
 
     companion object {
-        const val DEFAULT_VISITOR_SESSION_TIMEOUT = Duration.ofHours(6)
+        val DEFAULT_VISITOR_SESSION_TIMEOUT = Duration.ofHours(6)
     }
 
 }
