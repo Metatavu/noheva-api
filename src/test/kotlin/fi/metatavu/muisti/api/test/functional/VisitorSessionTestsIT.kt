@@ -1,8 +1,11 @@
 package fi.metatavu.muisti.api.test.functional
 
+import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.*
+import org.awaitility.Awaitility
 import org.junit.Assert.*
 import org.junit.Test
+import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -74,6 +77,19 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
+    fun testFindVisitorSessionTimeout() {
+        ApiTestBuilder().use {
+            val exhibition = it.admin().exhibitions().create()
+            val exhibitionId = exhibition.id!!
+            val createdVisitorSession = it.admin().visitorSessions().create(exhibitionId)
+            val createdVisitorSessionId = createdVisitorSession.id!!
+            assertNotNull(it.admin().visitorSessions().findVisitorSession(exhibitionId, createdVisitorSessionId))
+            waitForVisitorSessionNotFound(apiTestBuilder = it, exhibitionId = exhibitionId, visitorSessionId = createdVisitorSessionId)
+            it.admin().visitorSessions().assertFindFail(expectedStatus = 404, exhibitionId = exhibitionId, visitorSessionId = createdVisitorSessionId)
+        }
+    }
+
+    @Test
     fun testListVisitorSessions() {
         ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
@@ -90,6 +106,19 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
             assertEquals(createdVisitorSessionId, visitorSessions[0].id)
             it.admin().visitorSessions().delete(exhibitionId, createdVisitorSessionId)
             assertEquals(0, it.admin().visitorSessions().listVisitorSessions(exhibitionId = exhibitionId, tagId = null).size)
+        }
+    }
+
+    @Test
+    fun testListVisitorSessionTimeout() {
+        ApiTestBuilder().use {
+            val exhibition = it.admin().exhibitions().create()
+            val exhibitionId = exhibition.id!!
+            val createdVisitorSession = it.admin().visitorSessions().create(exhibitionId)
+            val createdVisitorSessionId = createdVisitorSession.id!!
+            it.admin().visitorSessions().assertCount(expected = 1, exhibitionId = exhibitionId, tagId = null)
+            waitForVisitorSessionNotFound(apiTestBuilder = it, exhibitionId = exhibitionId, visitorSessionId = createdVisitorSessionId)
+            it.admin().visitorSessions().assertCount(expected = 0, exhibitionId = exhibitionId, tagId = null)
         }
     }
 
@@ -257,6 +286,39 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
             assertJsonsEqual(listOf(MqttExhibitionVisitorSessionDelete(exhibitionId = exhibitionId, id = createdVisitorSession.id!!)), mqttSubscription.getMessages(1))
         }
+    }
+
+    /**
+     * Waits for visitor session for to be timed out
+     *
+     * @param apiTestBuilder API test builder instance
+     * @param exhibitionId exhibition id
+     * @param visitorSessionId visitor session id
+     */
+    private fun waitForVisitorSessionNotFound(apiTestBuilder: ApiTestBuilder, exhibitionId: UUID, visitorSessionId: UUID) {
+        Awaitility
+            .await().atMost(Duration.ofMinutes(5))
+            .pollInterval(Duration.ofSeconds(10))
+            .until {
+                !isVisitorSessionFound(apiTestBuilder = apiTestBuilder, exhibitionId = exhibitionId, visitorSessionId = visitorSessionId)
+            }
+    }
+
+    /**
+     * Checks whether visitor session can be found from the API
+     *
+     * @param apiTestBuilder API test builder instance
+     * @param exhibitionId exhibition id
+     * @param visitorSessionId visitor session id
+     */
+    private fun isVisitorSessionFound(apiTestBuilder: ApiTestBuilder, exhibitionId: UUID, visitorSessionId: UUID): Boolean {
+        try {
+            apiTestBuilder.admin().visitorSessions().findVisitorSession(exhibitionId = exhibitionId, visitorSessionId = visitorSessionId)
+        } catch (e: ClientException) {
+            return e.statusCode != 404
+        }
+
+        return true
     }
 
 }

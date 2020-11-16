@@ -67,6 +67,7 @@ services:
       MQTT_SERVER_URL: test-mqtt
       MQTT_TOPIC: test
       FILE_STORAGE_PROVIDER: S3
+      VISITOR_SESSION_TIMEOUT: PT1M
     volumes:
       - $JACOCO_AGENT:/opt/jacoco-jacocoagent.jar
       - $JACOCO:/opt/jacoco
