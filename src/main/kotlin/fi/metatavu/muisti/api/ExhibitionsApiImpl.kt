@@ -326,7 +326,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         visitorSessionId ?: return createNotFound(VISITOR_SESSION_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val visitorSession = visitorSessionController.findVisitorSessionById(id = visitorSessionId, returnExpired = false) ?: return createNotFound("Visitor session $visitorSessionId not found")
+        val visitorSession = visitorSessionController.findVisitorSessionById(id = visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
 
         return createOk(visitorSessionTranslator.translate(visitorSession))
     }
@@ -352,7 +352,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
 
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val visitorSession = visitorSessionController.findVisitorSessionById(id = visitorSessionId, returnExpired = false) ?: return createNotFound("Visitor session $visitorSessionId not found")
+        val visitorSession = visitorSessionController.findVisitorSessionById(id = visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
 
         val visitors = mutableListOf<fi.metatavu.muisti.persistence.model.Visitor>()
         for (visitorId in payload.visitorIds) {
@@ -389,7 +389,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         visitorSessionId ?: return createNotFound(VISITOR_SESSION_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val visitorSession = visitorSessionController.findVisitorSessionById(id = visitorSessionId, returnExpired = true) ?: return createNotFound("Visitor session $visitorSessionId not found")
+        val visitorSession = visitorSessionController.findVisitorSessionById(id = visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
 
         visitorSessionController.deleteVisitorSession(visitorSession)
 

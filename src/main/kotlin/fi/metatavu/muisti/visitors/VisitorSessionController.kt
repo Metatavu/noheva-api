@@ -62,16 +62,10 @@ class VisitorSessionController {
      * Finds a visitor session by id. Method returns null for deprecated visitor sessions
      *
      * @param id id
-     * @param returnExpired whether to return expired visitor sessions
      * @return visitor session or null if not found
      */
-    fun findVisitorSessionById(id: UUID, returnExpired: Boolean): VisitorSession? {
-        if (returnExpired) {
-            return visitorSessionDAO.findById(id = id)
-        }
-
-        val createdAfter = settingsController.getVisitorSessionValidAfter()
-        return visitorSessionDAO.find(id = id, createdAfter = createdAfter)
+    fun findVisitorSessionById(id: UUID): VisitorSession? {
+        return visitorSessionDAO.findById(id = id)
     }
 
     /**

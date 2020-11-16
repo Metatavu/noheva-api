@@ -43,29 +43,6 @@ class VisitorSessionDAO : AbstractDAO<VisitorSession>() {
     }
 
     /**
-     * Find visitor session
-     *
-     * @param id visitor session id
-     * @param createdAfter created after specified time
-     * @return Found visitor session or null if not found
-     */
-    fun find(id: UUID, createdAfter: OffsetDateTime): VisitorSession? {
-        val entityManager = getEntityManager()
-        val criteriaBuilder = entityManager.criteriaBuilder
-        val criteria: CriteriaQuery<VisitorSession> = criteriaBuilder.createQuery(VisitorSession::class.java)
-        val root: Root<VisitorSession> = criteria.from(VisitorSession::class.java)
-
-        val restrictions = ArrayList<Predicate>()
-        restrictions.add(criteriaBuilder.equal(root.get(VisitorSession_.id), id))
-        restrictions.add(criteriaBuilder.greaterThan(root.get(VisitorSession_.createdAt), createdAfter))
-
-        criteria.select(root)
-        criteria.where(*restrictions.toTypedArray())
-
-        return getSingleResult(entityManager.createQuery(criteria))
-    }
-
-    /**
      * Lists visitor sessions
      *
      * @param exhibition exhibition

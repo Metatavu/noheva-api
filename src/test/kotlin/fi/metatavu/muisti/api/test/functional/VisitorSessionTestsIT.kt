@@ -77,19 +77,6 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testFindVisitorSessionTimeout() {
-        ApiTestBuilder().use {
-            val exhibition = it.admin().exhibitions().create()
-            val exhibitionId = exhibition.id!!
-            val createdVisitorSession = it.admin().visitorSessions().create(exhibitionId)
-            val createdVisitorSessionId = createdVisitorSession.id!!
-            assertNotNull(it.admin().visitorSessions().findVisitorSession(exhibitionId, createdVisitorSessionId))
-            waitForVisitorSessionNotFound(apiTestBuilder = it, exhibitionId = exhibitionId, visitorSessionId = createdVisitorSessionId)
-            it.admin().visitorSessions().assertFindFail(expectedStatus = 404, exhibitionId = exhibitionId, visitorSessionId = createdVisitorSessionId)
-        }
-    }
-
-    @Test
     fun testListVisitorSessions() {
         ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
