@@ -299,13 +299,9 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
      * @param visitorSessionId visitor session id
      */
     private fun isVisitorSessionFound(apiTestBuilder: ApiTestBuilder, exhibitionId: UUID, visitorSessionId: UUID): Boolean {
-        try {
-            apiTestBuilder.admin().visitorSessions().findVisitorSession(exhibitionId = exhibitionId, visitorSessionId = visitorSessionId)
-        } catch (e: ClientException) {
-            return e.statusCode != 404
-        }
-
-        return true
+        return apiTestBuilder.admin().visitorSessions()
+            .listVisitorSessions(exhibitionId = exhibitionId, tagId = null)
+            .firstOrNull { it.id == visitorSessionId } != null
     }
 
 }
