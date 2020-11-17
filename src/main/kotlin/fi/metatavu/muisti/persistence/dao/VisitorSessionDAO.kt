@@ -4,6 +4,7 @@ import fi.metatavu.muisti.api.spec.model.VisitorSessionState
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.VisitorSession
 import fi.metatavu.muisti.persistence.model.VisitorSession_
+import java.time.OffsetDateTime
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
@@ -45,9 +46,10 @@ class VisitorSessionDAO : AbstractDAO<VisitorSession>() {
      * Lists visitor sessions
      *
      * @param exhibition exhibition
+     * @param createdAfter created after specified time
      * @return List of visitor sessions
      */
-    fun list(exhibition: Exhibition): List<VisitorSession> {
+    fun list(exhibition: Exhibition, createdAfter: OffsetDateTime): List<VisitorSession> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<VisitorSession> = criteriaBuilder.createQuery(VisitorSession::class.java)
@@ -55,6 +57,7 @@ class VisitorSessionDAO : AbstractDAO<VisitorSession>() {
 
         val restrictions = ArrayList<Predicate>()
         restrictions.add(criteriaBuilder.equal(root.get(VisitorSession_.exhibition), exhibition))
+        restrictions.add(criteriaBuilder.greaterThan(root.get(VisitorSession_.createdAt), createdAfter))
 
         criteria.select(root)
         criteria.where(*restrictions.toTypedArray())

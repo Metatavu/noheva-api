@@ -12,6 +12,7 @@ import fi.metatavu.muisti.devices.RfidAntennaController
 import fi.metatavu.muisti.exhibitions.*
 import fi.metatavu.muisti.keycloak.KeycloakController
 import fi.metatavu.muisti.realtime.RealtimeNotificationController
+import fi.metatavu.muisti.settings.SettingsController
 import fi.metatavu.muisti.visitors.VisitorController
 import fi.metatavu.muisti.visitors.VisitorSessionController
 import org.apache.commons.lang3.StringUtils
@@ -46,6 +47,9 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
 
     @Inject
     private lateinit var visitorSessionController: VisitorSessionController
+
+    @Inject
+    private lateinit var settingsController: SettingsController
 
     @Inject
     private lateinit var visitorSessionTranslator: VisitorSessionTranslator
@@ -358,7 +362,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         visitorSessionId ?: return createNotFound(VISITOR_SESSION_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val visitorSession = visitorSessionController.findVisitorSessionById(visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
+        val visitorSession = visitorSessionController.findVisitorSessionById(id = visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
 
         return createOk(visitorSessionTranslator.translate(visitorSession))
     }
@@ -384,7 +388,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
 
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val visitorSession = visitorSessionController.findVisitorSessionById(visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
+        val visitorSession = visitorSessionController.findVisitorSessionById(id = visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
 
         val visitors = mutableListOf<fi.metatavu.muisti.persistence.model.Visitor>()
         for (visitorId in payload.visitorIds) {
@@ -421,7 +425,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         visitorSessionId ?: return createNotFound(VISITOR_SESSION_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val visitorSession = visitorSessionController.findVisitorSessionById(visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
+        val visitorSession = visitorSessionController.findVisitorSessionById(id = visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
 
         visitorSessionController.deleteVisitorSession(visitorSession)
 
