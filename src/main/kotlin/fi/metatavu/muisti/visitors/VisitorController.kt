@@ -1,6 +1,5 @@
 package fi.metatavu.muisti.visitors
 
-import fi.metatavu.muisti.keycloak.KeycloakController
 import fi.metatavu.muisti.persistence.dao.VisitorDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.Visitor
@@ -17,9 +16,6 @@ class VisitorController {
 
     @Inject
     private lateinit var visitorDAO: VisitorDAO
-
-    @Inject
-    private lateinit var keycloakController: KeycloakController
 
     /**
      * Creates new visitor
@@ -65,13 +61,15 @@ class VisitorController {
      * Lists visitors by exhibition
      *
      * @param exhibition exhibition
-     * @param tagId tagId
+     * @param tagId filter results by tag id
+     * @param userId filter results by user id
      * @return list of visitors in exhibition
      */
-    fun listVisitors(exhibition: Exhibition, tagId: String?): List<Visitor> {
+    fun listVisitors(exhibition: Exhibition, tagId: String?, userId: UUID?): List<Visitor> {
         return visitorDAO.list(
             exhibition = exhibition,
-            tagId = tagId
+            tagId = tagId,
+            userId = userId
         )
     }
 

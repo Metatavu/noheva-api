@@ -8,6 +8,7 @@ import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup
 import fi.metatavu.muisti.persistence.model.Visitor
 import fi.metatavu.muisti.persistence.model.VisitorSession
+import fi.metatavu.muisti.settings.SettingsController
 import org.apache.commons.lang3.StringUtils
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
@@ -18,6 +19,9 @@ import javax.inject.Inject
  */
 @ApplicationScoped
 class VisitorSessionController {
+
+    @Inject
+    private lateinit var settingsController: SettingsController
 
     @Inject
     private lateinit var visitorDAO: VisitorDAO
@@ -55,17 +59,17 @@ class VisitorSessionController {
     }
 
     /**
-     * Finds a visitor session by id
+     * Finds a visitor session by id. Method returns null for deprecated visitor sessions
      *
      * @param id id
      * @return visitor session or null if not found
      */
     fun findVisitorSessionById(id: UUID): VisitorSession? {
-        return visitorSessionDAO.findById(id)
+        return visitorSessionDAO.findById(id = id)
     }
 
     /**
-     * Lists visitor sessions
+     * Lists visitor sessions. Method only lists visitor sessions that are still valid (not deprecated)
      *
      * @param exhibition filter by exhibition
      * @param tagId filter by tagId
@@ -83,7 +87,9 @@ class VisitorSessionController {
             return visitorSessionVisitorDAO.listSessionsByVisitor(visitor = visitor)
         }
 
-        return visitorSessionDAO.list(exhibition = exhibition)
+        val createdAfter = settingsController.getVisitorSessionValidAfter()
+
+        return visitorSessionDAO.list(exhibition = exhibition, createdAfter = createdAfter)
     }
 
     /**

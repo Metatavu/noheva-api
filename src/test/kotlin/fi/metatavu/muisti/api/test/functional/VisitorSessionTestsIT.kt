@@ -1,8 +1,11 @@
 package fi.metatavu.muisti.api.test.functional
 
+import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.*
+import org.awaitility.Awaitility
 import org.junit.Assert.*
 import org.junit.Test
+import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -23,12 +26,14 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
             val visitor1 = it.admin().visitors().create(exhibitionId, Visitor(
                 email = "visitor1@example.com",
-                tagId = "tag1"
+                tagId = "tag1",
+                language = "fi"
             ))
 
             val visitor2 = it.admin().visitors().create(exhibitionId, Visitor(
                 email = "visitor2@example.com",
-                tagId = "tag2"
+                tagId = "tag2",
+                language = "fi"
             ))
 
             val createVariables = arrayOf(VisitorSessionVariable("key1", "val1"), VisitorSessionVariable("key2", "val2"))
@@ -94,6 +99,19 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
+    fun testListVisitorSessionTimeout() {
+        ApiTestBuilder().use {
+            val exhibition = it.admin().exhibitions().create()
+            val exhibitionId = exhibition.id!!
+            val createdVisitorSession = it.admin().visitorSessions().create(exhibitionId)
+            val createdVisitorSessionId = createdVisitorSession.id!!
+            it.admin().visitorSessions().assertCount(expected = 1, exhibitionId = exhibitionId, tagId = null)
+            waitForVisitorSessionNotFound(apiTestBuilder = it, exhibitionId = exhibitionId, visitorSessionId = createdVisitorSessionId)
+            it.admin().visitorSessions().assertCount(expected = 0, exhibitionId = exhibitionId, tagId = null)
+        }
+    }
+
+    @Test
     fun testUpdateVisitorSession() {
         ApiTestBuilder().use {
             val mqttSubscription = it.mqtt().subscribe(MqttExhibitionVisitorSessionUpdate::class.java,"visitorsessions/update")
@@ -116,17 +134,20 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
             val visitor1 = it.admin().visitors().create(exhibitionId, Visitor(
                 email = "visitor1@example.com",
-                tagId = "tag1"
+                tagId = "tag1",
+                language = "fi"
             ))
 
             val visitor2 = it.admin().visitors().create(exhibitionId, Visitor(
                 email = "visitor2@example.com",
-                tagId = "tag2"
+                tagId = "tag2",
+                language = "fi"
             ))
 
             val visitor3 = it.admin().visitors().create(exhibitionId, Visitor(
                 email = "visitor3@example.com",
-                tagId = "tag3"
+                tagId = "tag3",
+                language = "fi"
             ))
 
             val createVariables = arrayOf(
@@ -257,6 +278,35 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
             assertJsonsEqual(listOf(MqttExhibitionVisitorSessionDelete(exhibitionId = exhibitionId, id = createdVisitorSession.id!!)), mqttSubscription.getMessages(1))
         }
+    }
+
+    /**
+     * Waits for visitor session for to be timed out
+     *
+     * @param apiTestBuilder API test builder instance
+     * @param exhibitionId exhibition id
+     * @param visitorSessionId visitor session id
+     */
+    private fun waitForVisitorSessionNotFound(apiTestBuilder: ApiTestBuilder, exhibitionId: UUID, visitorSessionId: UUID) {
+        Awaitility
+            .await().atMost(Duration.ofMinutes(5))
+            .pollInterval(Duration.ofSeconds(10))
+            .until {
+                !isVisitorSessionFound(apiTestBuilder = apiTestBuilder, exhibitionId = exhibitionId, visitorSessionId = visitorSessionId)
+            }
+    }
+
+    /**
+     * Checks whether visitor session can be found from the API
+     *
+     * @param apiTestBuilder API test builder instance
+     * @param exhibitionId exhibition id
+     * @param visitorSessionId visitor session id
+     */
+    private fun isVisitorSessionFound(apiTestBuilder: ApiTestBuilder, exhibitionId: UUID, visitorSessionId: UUID): Boolean {
+        return apiTestBuilder.admin().visitorSessions()
+            .listVisitorSessions(exhibitionId = exhibitionId, tagId = null)
+            .firstOrNull { it.id == visitorSessionId } != null
     }
 
 }
