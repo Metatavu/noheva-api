@@ -82,19 +82,23 @@ class VariableVariableTestsIT: AbstractFunctionalTest() {
 
             val createdVisitorVariable = it.admin().visitorVariables().create(exhibitionId, VisitorVariable(
                 name = "bool",
-                type = VisitorVariableType.boolean
+                type = VisitorVariableType.text,
+                enum = arrayOf("one", "two")
             ))
 
             assertEquals("bool", createdVisitorVariable.name)
-            assertEquals(VisitorVariableType.boolean, createdVisitorVariable.type)
+            assertEquals(VisitorVariableType.text, createdVisitorVariable.type)
+            assertArrayEquals(arrayOf("one", "two"), createdVisitorVariable.enum)
 
-            val updatedVisitorVariable = it.admin().visitorVariables().updateVisitorVariable(exhibitionId = exhibitionId, body = createdVisitorVariable.copy(name = "upd", type = VisitorVariableType.number))
+            val updatedVisitorVariable = it.admin().visitorVariables().updateVisitorVariable(exhibitionId = exhibitionId, body = createdVisitorVariable.copy(name = "upd", type = VisitorVariableType.number, enum = arrayOf("one", "three")))
             assertEquals("upd", updatedVisitorVariable?.name)
             assertEquals(VisitorVariableType.number, updatedVisitorVariable?.type)
+            assertArrayEquals(arrayOf("one", "three"), updatedVisitorVariable?.enum)
 
             val foundVisitorVariable = it.admin().visitorVariables().findVisitorVariable(exhibitionId = exhibitionId, visitorVariableId = createdVisitorVariable.id!!)
             assertEquals("upd", foundVisitorVariable?.name)
             assertEquals(VisitorVariableType.number, foundVisitorVariable?.type)
+            assertArrayEquals(arrayOf("one", "three"), foundVisitorVariable?.enum)
         }
     }
 

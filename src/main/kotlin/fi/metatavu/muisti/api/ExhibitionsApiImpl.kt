@@ -336,6 +336,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
                 exhibition = exhibition,
                 name = payload.name,
                 type = payload.type,
+                enum = payload.enum,
                 creatorId = userId
         )
 
@@ -378,6 +379,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
                 visitorVariable = visitorVariable,
                 name = payload.name,
                 type = payload.type,
+                enum = payload.enum,
                 lastModifierId = userId
         )
 
@@ -403,6 +405,12 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+
+        for (variable in payload.variables) {
+            if (!visitorSessionController.isValidVisitorSessionVariable(exhibition = exhibition, visitorSessionVariable = variable)) {
+                return createBadRequest("Variable ${variable.name} is not valid")
+            }
+        }
 
         val visitors = mutableListOf<fi.metatavu.muisti.persistence.model.Visitor>()
         for (visitorId in payload.visitorIds) {
@@ -460,9 +468,15 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         visitorSessionId ?: return createNotFound(VISITOR_SESSION_NOT_FOUND)
-
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+
+        for (variable in payload.variables) {
+            if (!visitorSessionController.isValidVisitorSessionVariable(exhibition = exhibition, visitorSessionVariable = variable)) {
+                return createBadRequest("Variable ${variable.name} is not valid")
+            }
+        }
+
         val visitorSession = visitorSessionController.findVisitorSessionById(id = visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
 
         val visitors = mutableListOf<fi.metatavu.muisti.persistence.model.Visitor>()

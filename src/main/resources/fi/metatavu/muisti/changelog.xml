@@ -821,12 +821,24 @@
             <column name="type" type="varchar(191)">
                 <constraints nullable="false"/>
             </column>
+            <column name="enum" type="longtext"/>
             <column name="exhibition_id" type="binary(16)">
                 <constraints nullable="false" foreignKeyName="FK_VISITORVARIABLE_EXHIBITION_ID" referencedColumnNames="id" referencedTableName="exhibition"/>
             </column>
         </createTable>
 
         <addUniqueConstraint columnNames="name,exhibition_id" constraintName="UN_VISITOR_VARIABLE_NAME_EXHIBITION_ID" tableName="visitorvariable"/>
+
+        <sql>
+          INSERT INTO
+            VisitorVariable (id, createdat, modifiedat, creatorid, lastmodifierid, exhibition_id, name, type)
+          SELECT
+            uuid(), now(), now(), (SELECT creatorid FROM visitorsession LIMIT 1), (SELECT creatorid FROM visitorsession LIMIT 1), (SELECT exhibition_id FROM visitorsession WHERE id = visitorSession_id) AS exhibition_id, name, 'text'
+          FROM
+            VisitorSessionVariable
+          GROUP BY
+            exhibition_id, name
+        </sql>
     </changeSet>
 
 </databaseChangeLog>

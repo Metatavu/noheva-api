@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.visitors
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import fi.metatavu.muisti.api.spec.model.VisitorVariableType
 import fi.metatavu.muisti.persistence.dao.*
 import fi.metatavu.muisti.persistence.model.Exhibition
@@ -26,12 +27,13 @@ class VisitorVariableController {
      * @param creatorId creator id
      * @return created visitor variable
      */
-    fun createVisitorVariable(exhibition: Exhibition, name: String, type: VisitorVariableType, creatorId: UUID): VisitorVariable {
+    fun createVisitorVariable(exhibition: Exhibition, name: String, type: VisitorVariableType, enum: List<String>, creatorId: UUID): VisitorVariable {
         return visitorVariableDAO.create(
             id = UUID.randomUUID(),
             exhibition = exhibition,
             name = name,
             type = type,
+            enum = getEnumAsString(enum),
             creatorId = creatorId,
             lastModifierId = creatorId
         )
@@ -45,6 +47,17 @@ class VisitorVariableController {
      */
     fun findVisitorVariableById(id: UUID): VisitorVariable? {
         return visitorVariableDAO.findById(id = id)
+    }
+
+    /**
+     * Finds a visitor variable by exhibition and name
+     *
+     * @param exhibition exhibition
+     * @param name name
+     * @return visitor variable or null if not found
+     */
+    fun findVisitorVariableByExhibitionAndName(exhibition: Exhibition, name: String): VisitorVariable? {
+        return visitorVariableDAO.list(exhibition = exhibition, name = name).firstOrNull()
     }
 
     /**
@@ -64,12 +77,14 @@ class VisitorVariableController {
      * @param visitorVariable visitor variable to be updated
      * @param name new name
      * @param type type
+     * @param enum enum
      * @param lastModifierId modifier user id
      * @return updated visitor variable
      */
-    fun updateVisitorVariable(visitorVariable: VisitorVariable, name: String, type: VisitorVariableType, lastModifierId: UUID): VisitorVariable {
+    fun updateVisitorVariable(visitorVariable: VisitorVariable, name: String, type: VisitorVariableType, enum: List<String>?, lastModifierId: UUID): VisitorVariable {
         var result = visitorVariableDAO.updateName(visitorVariable, name, lastModifierId)
         result = visitorVariableDAO.updateType(result, type, lastModifierId)
+        result = visitorVariableDAO.updateEnum(result, getEnumAsString(enum), lastModifierId)
         return result
     }
 
@@ -80,6 +95,18 @@ class VisitorVariableController {
      */
     fun deleteVisitorVariable(visitorVariable: VisitorVariable) {
         visitorVariableDAO.delete(visitorVariable)
+    }
+
+    /**
+     * Serializes the enum JSON string
+     *
+     * @param enum enum
+     * @return JSON string
+     */
+    private fun getEnumAsString(enum: List<String>?): String? {
+        enum ?: return null
+        val objectMapper = ObjectMapper()
+        return objectMapper.writeValueAsString(enum)
     }
 
 }

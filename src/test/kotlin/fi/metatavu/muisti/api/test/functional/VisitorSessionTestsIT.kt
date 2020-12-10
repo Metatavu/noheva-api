@@ -1,6 +1,5 @@
 package fi.metatavu.muisti.api.test.functional
 
-import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.*
 import org.awaitility.Awaitility
 import org.junit.Assert.*
@@ -36,6 +35,13 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
                 language = "fi"
             ))
 
+            for (name in arrayOf("key1", "key2", "key3", "key4")) {
+                it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
+                        name = name,
+                        type = VisitorVariableType.text
+                ))
+            }
+
             val createVariables = arrayOf(VisitorSessionVariable("key1", "val1"), VisitorSessionVariable("key2", "val2"))
 
             val createdVisitorSession = it.admin().visitorSessions().create(exhibitionId, VisitorSession(
@@ -59,7 +65,99 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
             assertJsonsEqual(listOf(MqttExhibitionVisitorSessionCreate(exhibitionId = exhibitionId, id = createdVisitorSession.id!!)), mqttSubscription.getMessages(1))
         }
-   }
+    }
+
+    @Test
+    fun testValidateVisitorSessionVariable() {
+        ApiTestBuilder().use {
+            val exhibition = it.admin().exhibitions().create()
+            val exhibitionId = exhibition.id!!
+
+            it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
+                name = "text",
+                type = VisitorVariableType.text
+            ))
+
+            it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
+                name = "number",
+                type = VisitorVariableType.number
+            ))
+
+            it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
+                name = "boolean",
+                type = VisitorVariableType.boolean
+            ))
+
+            it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
+                name = "enum",
+                type = VisitorVariableType.enumerated,
+                enum = arrayOf("valid")
+            ))
+
+            val visitor = it.admin().visitors().create(exhibitionId, Visitor(
+                email = "visitor1@example.com",
+                tagId = "tag1",
+                language = "fi"
+            ))
+
+            it.admin().visitorSessions().assertCreateFail(expectedStatus = 400, exhibitionId = exhibitionId, payload = VisitorSession(
+                visitorIds = arrayOf(visitor.id!!),
+                variables = arrayOf(VisitorSessionVariable("key1", "val1")),
+                visitedDeviceGroups = arrayOf(),
+                language = "FI",
+                state = VisitorSessionState.cOMPLETE
+            ))
+
+            it.admin().visitorSessions().assertCreateFail(expectedStatus = 400, exhibitionId = exhibitionId, payload = VisitorSession(
+                visitorIds = arrayOf(visitor.id!!),
+                variables = arrayOf(VisitorSessionVariable("number", "val1")),
+                visitedDeviceGroups = arrayOf(),
+                language = "FI",
+                state = VisitorSessionState.cOMPLETE
+            ))
+
+            it.admin().visitorSessions().assertCreateFail(expectedStatus = 400, exhibitionId = exhibitionId, payload = VisitorSession(
+                visitorIds = arrayOf(visitor.id!!),
+                variables = arrayOf(VisitorSessionVariable("boolean", "val1")),
+                visitedDeviceGroups = arrayOf(),
+                language = "FI",
+                state = VisitorSessionState.cOMPLETE
+            ))
+
+            it.admin().visitorSessions().assertCreateFail(expectedStatus = 400, exhibitionId = exhibitionId, payload = VisitorSession(
+                visitorIds = arrayOf(visitor.id!!),
+                variables = arrayOf(VisitorSessionVariable("enum", "val1")),
+                visitedDeviceGroups = arrayOf(),
+                language = "FI",
+                state = VisitorSessionState.cOMPLETE
+            ))
+
+            it.admin().visitorSessions().create(exhibitionId = exhibitionId, payload = VisitorSession(
+                    visitorIds = arrayOf(visitor.id!!),
+                    variables = arrayOf(VisitorSessionVariable("number", "12")),
+                    visitedDeviceGroups = arrayOf(),
+                    language = "FI",
+                    state = VisitorSessionState.cOMPLETE
+            ))
+
+            it.admin().visitorSessions().create(exhibitionId = exhibitionId, payload = VisitorSession(
+                    visitorIds = arrayOf(visitor.id!!),
+                    variables = arrayOf(VisitorSessionVariable("boolean", "true")),
+                    visitedDeviceGroups = arrayOf(),
+                    language = "FI",
+                    state = VisitorSessionState.cOMPLETE
+            ))
+
+            it.admin().visitorSessions().create(exhibitionId = exhibitionId, payload = VisitorSession(
+                    visitorIds = arrayOf(visitor.id!!),
+                    variables = arrayOf(VisitorSessionVariable("enum", "valid")),
+                    visitedDeviceGroups = arrayOf(),
+                    language = "FI",
+                    state = VisitorSessionState.cOMPLETE
+            ))
+
+        }
+    }
 
     @Test
     fun testFindVisitorSession() {
@@ -149,6 +247,13 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
                 tagId = "tag3",
                 language = "fi"
             ))
+
+            for (name in arrayOf("key1", "key2", "key3", "key4")) {
+                it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
+                    name = name,
+                    type = VisitorVariableType.text
+                ))
+            }
 
             val createVariables = arrayOf(
                 VisitorSessionVariable("key1", "val1"),

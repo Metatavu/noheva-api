@@ -24,15 +24,17 @@ class VisitorVariableDAO() : AbstractDAO<VisitorVariable>() {
      * @param exhibition exhibition
      * @param name name
      * @param type type
+     * @param enum enum
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created VisitorVariable
      */
-    fun create(id: UUID, exhibition: Exhibition, name: String, type: VisitorVariableType, creatorId: UUID, lastModifierId: UUID): VisitorVariable {
+    fun create(id: UUID, exhibition: Exhibition, name: String, type: VisitorVariableType, enum: String?, creatorId: UUID, lastModifierId: UUID): VisitorVariable {
         val result = VisitorVariable()
         result.exhibition = exhibition
         result.name = name
         result.type = type
+        result.enum = enum
         result.id = id
         result.creatorId = creatorId
         result.lastModifierId = lastModifierId
@@ -90,6 +92,20 @@ class VisitorVariableDAO() : AbstractDAO<VisitorVariable>() {
     fun updateType(visitorVariable: VisitorVariable, type: VisitorVariableType, lastModifierId: UUID): VisitorVariable {
         visitorVariable.lastModifierId = lastModifierId
         visitorVariable.type = type
+        return persist(visitorVariable)
+    }
+
+    /**
+     * Updates enum
+     *
+     * @param visitorVariable visitor variable
+     * @param enum enum
+     * @param lastModifierId last modifier's id
+     * @return updated visitor variable
+     */
+    fun updateEnum(visitorVariable: VisitorVariable, enum: String?, lastModifierId: UUID): VisitorVariable {
+        visitorVariable.lastModifierId = lastModifierId
+        visitorVariable.enum = enum
         return persist(visitorVariable)
     }
 

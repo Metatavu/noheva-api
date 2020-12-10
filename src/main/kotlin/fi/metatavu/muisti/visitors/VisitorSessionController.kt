@@ -3,13 +3,16 @@ package fi.metatavu.muisti.visitors
 import fi.metatavu.muisti.api.spec.model.VisitorSessionState
 import fi.metatavu.muisti.api.spec.model.VisitorSessionVariable
 import fi.metatavu.muisti.api.spec.model.VisitorSessionVisitedDeviceGroup
+import fi.metatavu.muisti.api.spec.model.VisitorVariableType
 import fi.metatavu.muisti.persistence.dao.*
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup
 import fi.metatavu.muisti.persistence.model.Visitor
 import fi.metatavu.muisti.persistence.model.VisitorSession
 import fi.metatavu.muisti.settings.SettingsController
+import org.apache.commons.lang3.BooleanUtils
 import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.math.NumberUtils
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -22,6 +25,9 @@ class VisitorSessionController {
 
     @Inject
     private lateinit var settingsController: SettingsController
+
+    @Inject
+    private lateinit var visitorVariableController: VisitorVariableController
 
     @Inject
     private lateinit var visitorDAO: VisitorDAO
@@ -133,6 +139,32 @@ class VisitorSessionController {
         existingSessionVisitors.forEach(visitorSessionVisitorDAO::delete)
 
         return changed
+    }
+
+    /**
+     * Returns whether visitor session variable is valid or not
+     *
+     * @param exhibition exhibition
+     * @param visitorSessionVariable visitor session variable
+     * @return whether visitor session variable is valid or not
+     */
+    fun isValidVisitorSessionVariable(exhibition: Exhibition, visitorSessionVariable: VisitorSessionVariable): Boolean {
+        val value = visitorSessionVariable.value
+        if (value.isNullOrEmpty()) {
+            return true
+        }
+
+        val visitorVariable = visitorVariableController.findVisitorVariableByExhibitionAndName(exhibition = exhibition, name = visitorSessionVariable.name)
+        visitorVariable ?: return false
+
+        when (visitorVariable.type) {
+            VisitorVariableType.BOOLEAN -> return BooleanUtils.toBooleanObject(value) != null
+            VisitorVariableType.NUMBER -> return NumberUtils.isParsable(value)
+            VisitorVariableType.TEXT -> return true
+            VisitorVariableType.ENUMERATED -> return visitorVariable.enum?.contains(visitorSessionVariable.value, false) ?: false
+        }
+
+        return false
     }
 
     /**
