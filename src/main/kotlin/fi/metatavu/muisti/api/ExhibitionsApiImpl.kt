@@ -15,8 +15,8 @@ import fi.metatavu.muisti.realtime.RealtimeNotificationController
 import fi.metatavu.muisti.settings.SettingsController
 import fi.metatavu.muisti.visitors.VisitorController
 import fi.metatavu.muisti.visitors.VisitorSessionController
+import fi.metatavu.muisti.visitors.VisitorVariableController
 import org.apache.commons.lang3.StringUtils
-import org.keycloak.representations.idm.UserRepresentation
 import org.slf4j.Logger
 import java.util.*
 import java.util.stream.Collectors
@@ -113,6 +113,12 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
 
     @Inject
     private lateinit var deviceModelController: DeviceModelController
+
+    @Inject
+    private lateinit var visitorVariableController: VisitorVariableController
+
+    @Inject
+    private lateinit var visitorVariableTranslator: VisitorVariableTranslator
 
     @Inject
     private lateinit var realtimeNotificationController: RealtimeNotificationController
@@ -320,6 +326,76 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         return createOk(result)
     }
 
+    override fun createVisitorVariable(exhibitionId: UUID?, payload: VisitorVariable?): Response {
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+
+        val visitorVariable = visitorVariableController.createVisitorVariable(
+                exhibition = exhibition,
+                name = payload.name,
+                type = payload.type,
+                creatorId = userId
+        )
+
+        return createOk(visitorVariableTranslator.translate(visitorVariable))
+    }
+
+    override fun findVisitorVariable(exhibitionId: UUID?, visitorVariableId: UUID?): Response {
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        visitorVariableId ?: return createNotFound(VISITOR_VARIABLE_NOT_FOUND)
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val visitorVariable = visitorVariableController.findVisitorVariableById(id = visitorVariableId) ?: return createNotFound("Visitor variable $visitorVariableId not found")
+
+        return createOk(visitorVariableTranslator.translate(visitorVariable))
+    }
+
+    override fun listVisitorVariables(exhibitionId: UUID?, name: String?): Response {
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+
+        val visitorVariables = visitorVariableController.listVisitorVariables(
+            exhibition = exhibition,
+            name = name
+        )
+
+        return createOk(visitorVariables.map (visitorVariableTranslator::translate))
+    }
+
+    override fun updateVisitorVariable(exhibitionId: UUID?, visitorVariableId: UUID?, payload: VisitorVariable?): Response {
+        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        visitorVariableId ?: return createNotFound(VISITOR_VARIABLE_NOT_FOUND)
+
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val visitorVariable = visitorVariableController.findVisitorVariableById(id = visitorVariableId) ?: return createNotFound("Visitor variable $visitorVariableId not found")
+
+        val result = visitorVariableController.updateVisitorVariable(
+                visitorVariable = visitorVariable,
+                name = payload.name,
+                type = payload.type,
+                lastModifierId = userId
+        )
+
+        return createOk(visitorVariableTranslator.translate(result))
+    }
+
+    override fun deleteVisitorVariable(exhibitionId: UUID?, visitorVariableId: UUID?): Response {
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        visitorVariableId ?: return createNotFound(VISITOR_VARIABLE_NOT_FOUND)
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val visitorVariable = visitorVariableController.findVisitorVariableById(id = visitorVariableId) ?: return createNotFound("Visitor variable $visitorVariableId not found")
+
+        visitorVariableController.deleteVisitorVariable(visitorVariable)
+
+        return createNoContent()
+    }
+
     /* VisitorSessions */
 
     override fun createVisitorSession(exhibitionId: UUID?, payload: VisitorSession?): Response {
@@ -378,7 +454,6 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         )
 
         return createOk(visitorSessions.map (visitorSessionTranslator::translate))
-
     }
 
     override fun updateVisitorSession(exhibitionId: UUID?, visitorSessionId: UUID?, payload: VisitorSession?): Response {
