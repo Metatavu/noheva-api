@@ -24,6 +24,7 @@ class VisitorVariableController {
      * @param exhibition exhibition
      * @param name name
      * @param type type
+     * @param enum enumerated type allowed values
      * @param creatorId creator id
      * @return created visitor variable
      */
@@ -77,7 +78,7 @@ class VisitorVariableController {
      * @param visitorVariable visitor variable to be updated
      * @param name new name
      * @param type type
-     * @param enum enum
+     * @param enum enumerated type allowed values
      * @param lastModifierId modifier user id
      * @return updated visitor variable
      */

@@ -24,7 +24,7 @@ class VisitorVariableDAO() : AbstractDAO<VisitorVariable>() {
      * @param exhibition exhibition
      * @param name name
      * @param type type
-     * @param enum enum
+     * @param enum enumerated type allowed values
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created VisitorVariable
@@ -99,7 +99,7 @@ class VisitorVariableDAO() : AbstractDAO<VisitorVariable>() {
      * Updates enum
      *
      * @param visitorVariable visitor variable
-     * @param enum enum
+     * @param enum enumerated type allowed values
      * @param lastModifierId last modifier's id
      * @return updated visitor variable
      */
