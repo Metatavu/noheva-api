@@ -126,6 +126,4 @@ class VariableVariableTestsIT: AbstractFunctionalTest() {
             it.admin().visitorVariables().assertDeleteFail(404, exhibitionId, createdVisitorVariableId)
         }
     }
-
-
 }
