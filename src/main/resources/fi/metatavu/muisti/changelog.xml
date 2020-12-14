@@ -841,4 +841,8 @@
         </sql>
     </changeSet>
 
+    <changeSet id="visitorvariablesfix" author="antti.leppa">
+        <sql>UPDATE VisitorVariable SET type = 'TEXT'</sql>
+    </changeSet>
+
 </databaseChangeLog>
