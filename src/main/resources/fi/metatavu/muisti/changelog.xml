@@ -833,7 +833,7 @@
           INSERT INTO
             VisitorVariable (id, createdat, modifiedat, creatorid, lastmodifierid, exhibition_id, name, type)
           SELECT
-            uuid(), now(), now(), (SELECT creatorid FROM visitorsession LIMIT 1), (SELECT creatorid FROM visitorsession LIMIT 1), (SELECT exhibition_id FROM visitorsession WHERE id = visitorSession_id) AS exhibition_id, name, 'text'
+            UNHEX(REPLACE(UUID(), "-","")), now(), now(), (SELECT creatorid FROM visitorsession LIMIT 1), (SELECT creatorid FROM visitorsession LIMIT 1), (SELECT exhibition_id FROM visitorsession WHERE id = visitorSession_id) AS exhibition_id, name, 'text'
           FROM
             VisitorSessionVariable
           GROUP BY
