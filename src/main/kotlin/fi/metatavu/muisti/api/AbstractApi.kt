@@ -341,6 +341,7 @@ abstract class AbstractApi {
         const val CONTENT_VERSION_NOT_FOUND = "Content version not found"
         const val GROUP_CONTENT_VERSION_NOT_FOUND = "Group content version not found"
         const val STORED_FILE_NOT_FOUND = "Stored file not found"
+        const val VISITOR_VARIABLE_NOT_FOUND = "Visitor variable not found"
     }
 
     /**
