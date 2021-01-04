@@ -38,6 +38,9 @@ class ExhibitionDevice {
     @Column(nullable = false)
     var screenOrientation: ScreenOrientation? = null
 
+    @ManyToOne
+    var idlePage: ExhibitionPage? = null
+
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null
 

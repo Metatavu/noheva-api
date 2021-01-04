@@ -3,10 +3,7 @@ package fi.metatavu.muisti.devices
 import fi.metatavu.muisti.api.spec.model.Point
 import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.persistence.dao.ExhibitionDeviceDAO
-import fi.metatavu.muisti.persistence.model.DeviceModel
-import fi.metatavu.muisti.persistence.model.Exhibition
-import fi.metatavu.muisti.persistence.model.ExhibitionDevice
-import fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup
+import fi.metatavu.muisti.persistence.model.*
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -29,10 +26,11 @@ class ExhibitionDeviceController {
      * @param name device name
      * @param location location
      * @param screenOrientation screen orientation
+     * @param idlePage idle page
      * @param creatorId creating user id
      * @return created exhibition device 
      */
-    fun createExhibitionDevice(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, name: String, location: Point?, screenOrientation: ScreenOrientation, creatorId: UUID): ExhibitionDevice {
+    fun createExhibitionDevice(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, name: String, location: Point?, screenOrientation: ScreenOrientation, idlePage: ExhibitionPage?, creatorId: UUID): ExhibitionDevice {
         return exhibitionDeviceDAO.create(id = UUID.randomUUID(),
             exhibition = exhibition,
             exhibitionDeviceGroup = exhibitionDeviceGroup,
@@ -41,6 +39,7 @@ class ExhibitionDeviceController {
             locationX = location?.x,
             locationY = location?.y,
             screenOrientation = screenOrientation,
+            idlePage = idlePage,
             creatorId = creatorId,
             lastModifierId = creatorId
         )
@@ -74,16 +73,18 @@ class ExhibitionDeviceController {
      * @param name device name
      * @param location location
      * @param screenOrientation screen orientation
+     * @param idlePage idle page
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionDevice(exhibitionDevice: ExhibitionDevice, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, name: String, location: Point?, screenOrientation: ScreenOrientation, modifierId: UUID): ExhibitionDevice {
+    fun updateExhibitionDevice(exhibitionDevice: ExhibitionDevice, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, name: String, location: Point?, screenOrientation: ScreenOrientation, idlePage: ExhibitionPage?, modifierId: UUID): ExhibitionDevice {
         var result = exhibitionDeviceDAO.updateName(exhibitionDevice, name, modifierId)
         result = exhibitionDeviceDAO.updateExhibitionDeviceGroup(result, exhibitionDeviceGroup, modifierId)
         result = exhibitionDeviceDAO.updateExhibitionDeviceModel(result, deviceModel, modifierId)
         result = exhibitionDeviceDAO.updateLocationX(result, location?.x, modifierId)
         result = exhibitionDeviceDAO.updateLocationY(result, location?.y, modifierId)
         result = exhibitionDeviceDAO.updateScreenOrientation(result, screenOrientation, modifierId)
+        result = exhibitionDeviceDAO.updateIdlePage(result, idlePage, modifierId)
         return result
     }
 
