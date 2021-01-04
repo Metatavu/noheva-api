@@ -845,4 +845,10 @@
         <sql>UPDATE VisitorVariable SET type = 'TEXT'</sql>
     </changeSet>
 
+    <changeSet id="visitorvariableeditable" author="antti.leppa">
+        <addColumn tableName="visitorvariable">
+            <column name="editableFromUI" type="boolean" defaultValue="false"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

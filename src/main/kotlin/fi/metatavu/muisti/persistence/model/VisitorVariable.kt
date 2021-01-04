@@ -30,6 +30,9 @@ class VisitorVariable {
     @Column(nullable = false)
     var type:VisitorVariableType? = null
 
+    @Column(nullable = false)
+    var editableFromUI: Boolean? = null
+
     @Lob
     var enum: String? = null
 

@@ -17,6 +17,7 @@ class VisitorVariableTranslator: AbstractTranslator<fi.metatavu.muisti.persisten
         result.name = entity.name
         result.type = entity.type
         result.enum = getEnum(entity.enum)
+        result.editableFromUI = entity.editableFromUI
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
         result.createdAt = entity.createdAt
