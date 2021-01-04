@@ -20,12 +20,14 @@ class VariableVariableTestsIT: AbstractFunctionalTest() {
 
             val createdVisitorVariable = it.admin().visitorVariables().create(exhibitionId, VisitorVariable(
                 name = "bool",
+                editableFromUI = true,
                 type = VisitorVariableType.boolean
             ))
 
             assertNotNull(createdVisitorVariable)
             assertEquals("bool", createdVisitorVariable.name)
             assertEquals(VisitorVariableType.boolean, createdVisitorVariable.type)
+            assertEquals(true, createdVisitorVariable.editableFromUI)
 
             it.admin().exhibitions().assertCreateFail(400, "")
         }
@@ -38,7 +40,7 @@ class VariableVariableTestsIT: AbstractFunctionalTest() {
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingVisitorVariableId = UUID.randomUUID()
-            val createdVisitorVariable = it.admin().visitorVariables().create(exhibitionId, VisitorVariable(name = "var", type = VisitorVariableType.number))
+            val createdVisitorVariable = it.admin().visitorVariables().create(exhibitionId, VisitorVariable(name = "var", type = VisitorVariableType.number, editableFromUI = false))
             val createdVisitorVariableId = createdVisitorVariable.id!!
 
             it.admin().visitorVariables().assertFindFail(404, exhibitionId, nonExistingVisitorVariableId)
@@ -60,7 +62,7 @@ class VariableVariableTestsIT: AbstractFunctionalTest() {
             it.admin().visitorVariables().assertListFail(404, exhibitionId = nonExistingExhibitionId, name = null)
             assertEquals(0, it.admin().visitorVariables().listVisitorVariables(exhibitionId = exhibitionId, name = null).size)
 
-            val createdVisitorVariable = it.admin().visitorVariables().create(exhibitionId, VisitorVariable(name = "name", type = VisitorVariableType.number))
+            val createdVisitorVariable = it.admin().visitorVariables().create(exhibitionId, VisitorVariable(name = "name", type = VisitorVariableType.number, editableFromUI = false))
             val createdVisitorVariableId = createdVisitorVariable.id!!
 
             assertEquals(1, it.admin().visitorVariables().listVisitorVariables(exhibitionId = exhibitionId, name = null).size)
@@ -83,20 +85,24 @@ class VariableVariableTestsIT: AbstractFunctionalTest() {
             val createdVisitorVariable = it.admin().visitorVariables().create(exhibitionId, VisitorVariable(
                 name = "bool",
                 type = VisitorVariableType.text,
+                editableFromUI = true,
                 enum = arrayOf("one", "two")
             ))
 
             assertEquals("bool", createdVisitorVariable.name)
             assertEquals(VisitorVariableType.text, createdVisitorVariable.type)
+            assertEquals(true, createdVisitorVariable.editableFromUI)
             assertArrayEquals(arrayOf("one", "two"), createdVisitorVariable.enum)
 
-            val updatedVisitorVariable = it.admin().visitorVariables().updateVisitorVariable(exhibitionId = exhibitionId, body = createdVisitorVariable.copy(name = "upd", type = VisitorVariableType.number, enum = arrayOf("one", "three")))
+            val updatedVisitorVariable = it.admin().visitorVariables().updateVisitorVariable(exhibitionId = exhibitionId, body = createdVisitorVariable.copy(name = "upd", type = VisitorVariableType.number, enum = arrayOf("one", "three"), editableFromUI = false))
             assertEquals("upd", updatedVisitorVariable?.name)
             assertEquals(VisitorVariableType.number, updatedVisitorVariable?.type)
+            assertEquals(false, updatedVisitorVariable?.editableFromUI)
             assertArrayEquals(arrayOf("one", "three"), updatedVisitorVariable?.enum)
 
             val foundVisitorVariable = it.admin().visitorVariables().findVisitorVariable(exhibitionId = exhibitionId, visitorVariableId = createdVisitorVariable.id!!)
             assertEquals("upd", foundVisitorVariable?.name)
+            assertEquals(false, foundVisitorVariable?.editableFromUI)
             assertEquals(VisitorVariableType.number, foundVisitorVariable?.type)
             assertArrayEquals(arrayOf("one", "three"), foundVisitorVariable?.enum)
         }
@@ -111,7 +117,8 @@ class VariableVariableTestsIT: AbstractFunctionalTest() {
             val nonExistingSessionVariableId = UUID.randomUUID()
             val createdVisitorVariable = it.admin().visitorVariables().create(exhibitionId, VisitorVariable(
                 name = "bool",
-                type = VisitorVariableType.boolean
+                type = VisitorVariableType.boolean,
+                editableFromUI = false
             ))
 
             val createdVisitorVariableId = createdVisitorVariable.id!!

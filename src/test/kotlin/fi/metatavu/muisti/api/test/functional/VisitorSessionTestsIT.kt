@@ -38,7 +38,8 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
             for (name in arrayOf("key1", "key2", "key3", "key4")) {
                 it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
                         name = name,
-                        type = VisitorVariableType.text
+                        type = VisitorVariableType.text,
+                        editableFromUI = false
                 ))
             }
 
@@ -75,23 +76,27 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
             it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
                 name = "text",
-                type = VisitorVariableType.text
+                type = VisitorVariableType.text,
+                editableFromUI = false
             ))
 
             it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
                 name = "number",
-                type = VisitorVariableType.number
+                type = VisitorVariableType.number,
+                editableFromUI = false
             ))
 
             it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
                 name = "boolean",
-                type = VisitorVariableType.boolean
+                type = VisitorVariableType.boolean,
+                editableFromUI = false
             ))
 
             it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
                 name = "enum",
                 type = VisitorVariableType.enumerated,
-                enum = arrayOf("valid")
+                enum = arrayOf("valid"),
+                editableFromUI = false
             ))
 
             val visitor = it.admin().visitors().create(exhibitionId, Visitor(
@@ -251,7 +256,8 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
             for (name in arrayOf("key1", "key2", "key3", "key4")) {
                 it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
                     name = name,
-                    type = VisitorVariableType.text
+                    type = VisitorVariableType.text,
+                    editableFromUI = false
                 ))
             }
 

@@ -337,6 +337,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
                 name = payload.name,
                 type = payload.type,
                 enum = payload.enum,
+                editableFromUI = payload.editableFromUI,
                 creatorId = userId
         )
 
@@ -380,6 +381,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
                 name = payload.name,
                 type = payload.type,
                 enum = payload.enum,
+                editableFromUI = payload.editableFromUI,
                 lastModifierId = userId
         )
 
