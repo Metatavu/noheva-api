@@ -29,11 +29,12 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
      * @param locationX location x
      * @param locationY location y
      * @param screenOrientation screen orientation
+     * @param idlePage idle page
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created exhibitionDevice
      */
-    fun create(id: UUID, exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, name: String, locationX: Double?, locationY: Double?, screenOrientation: ScreenOrientation, creatorId: UUID, lastModifierId: UUID): ExhibitionDevice {
+    fun create(id: UUID, exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, name: String, locationX: Double?, locationY: Double?, screenOrientation: ScreenOrientation, idlePage: ExhibitionPage?, creatorId: UUID, lastModifierId: UUID): ExhibitionDevice {
         val exhibitionDevice = ExhibitionDevice()
         exhibitionDevice.id = id
         exhibitionDevice.name = name
@@ -43,6 +44,7 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
         exhibitionDevice.locationX = locationX
         exhibitionDevice.locationY = locationY
         exhibitionDevice.screenOrientation = screenOrientation
+        exhibitionDevice.idlePage = idlePage
         exhibitionDevice.creatorId = creatorId
         exhibitionDevice.lastModifierId = lastModifierId
         return persist(exhibitionDevice)
@@ -156,6 +158,20 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
     fun updateExhibitionDeviceGroup(exhibitionDevice: ExhibitionDevice, exhibitionDeviceGroup: ExhibitionDeviceGroup, lastModifierId: UUID): ExhibitionDevice {
         exhibitionDevice.lastModifierId = lastModifierId
         exhibitionDevice.exhibitionDeviceGroup = exhibitionDeviceGroup
+        return persist(exhibitionDevice)
+    }
+
+    /**
+     * Updates idle page
+     *
+     * @param exhibitionDevice exhibition device to be updated
+     * @param idlePage idle page
+     * @param lastModifierId last modifier's id
+     * @return updated exhibition device
+     */
+    fun updateIdlePage(exhibitionDevice: ExhibitionDevice, idlePage: ExhibitionPage?, lastModifierId: UUID): ExhibitionDevice {
+        exhibitionDevice.lastModifierId = lastModifierId
+        exhibitionDevice.idlePage = idlePage
         return persist(exhibitionDevice)
     }
 
