@@ -2,6 +2,12 @@
 # Script for cleaning and building Muisti-API project.
 # Run this in the "scripts" folder of muisti-api
 
+clear
+echo "Console cleared"
+echo "Stopping old docker containers..."
+for i in `docker ps -qa`; do docker stop $i; done;
+echo "Containers stopped"
+
 cd ../api-spec/
 echo "Cleaning api-spec folder"
 rm -fR src build
