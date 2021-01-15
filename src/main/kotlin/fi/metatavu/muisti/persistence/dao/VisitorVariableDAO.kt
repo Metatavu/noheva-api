@@ -25,17 +25,19 @@ class VisitorVariableDAO() : AbstractDAO<VisitorVariable>() {
      * @param name name
      * @param type type
      * @param enum enumerated type allowed values
+     * @param editableFromUI whether the visitor variable should be editable from the customer service UI
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created VisitorVariable
      */
-    fun create(id: UUID, exhibition: Exhibition, name: String, type: VisitorVariableType, enum: String?, creatorId: UUID, lastModifierId: UUID): VisitorVariable {
+    fun create(id: UUID, exhibition: Exhibition, name: String, type: VisitorVariableType, enum: String?, editableFromUI: Boolean, creatorId: UUID, lastModifierId: UUID): VisitorVariable {
         val result = VisitorVariable()
         result.exhibition = exhibition
         result.name = name
         result.type = type
         result.enum = enum
         result.id = id
+        result.editableFromUI = editableFromUI
         result.creatorId = creatorId
         result.lastModifierId = lastModifierId
         return persist(result)
@@ -108,6 +110,21 @@ class VisitorVariableDAO() : AbstractDAO<VisitorVariable>() {
         visitorVariable.enum = enum
         return persist(visitorVariable)
     }
+
+    /**
+     * Updates editableFromUI
+     *
+     * @param visitorVariable visitor variable
+     * @param editableFromUI whether the visitor variable should be editable from the customer service UI
+     * @param lastModifierId last modifier's id
+     * @return updated visitor variable
+     */
+    fun updateEditableFromUI(visitorVariable: VisitorVariable, editableFromUI: Boolean, lastModifierId: UUID): VisitorVariable {
+        visitorVariable.lastModifierId = lastModifierId
+        visitorVariable.editableFromUI = editableFromUI
+        return persist(visitorVariable)
+    }
+
 
 }
 

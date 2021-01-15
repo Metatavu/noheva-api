@@ -337,6 +337,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
                 name = payload.name,
                 type = payload.type,
                 enum = payload.enum,
+                editableFromUI = payload.editableFromUI,
                 creatorId = userId
         )
 
@@ -380,6 +381,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
                 name = payload.name,
                 type = payload.type,
                 enum = payload.enum,
+                editableFromUI = payload.editableFromUI,
                 lastModifierId = userId
         )
 
@@ -631,6 +633,11 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         val location = payload.location
         val screenOrientation = payload.screenOrientation
 
+        var idlePage: fi.metatavu.muisti.persistence.model.ExhibitionPage? = null
+        if (payload.idlePageId != null) {
+            idlePage = exhibitionPageController.findExhibitionPageById(payload.idlePageId) ?: return createBadRequest("Idle page ${payload.idlePageId} not found")
+        }
+
         val exhibitionDevice = exhibitionDeviceController.createExhibitionDevice(
             exhibition = exhibition,
             exhibitionDeviceGroup = exhibitionGroup,
@@ -638,6 +645,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             name = payload.name,
             location = location,
             screenOrientation = screenOrientation,
+            idlePage = idlePage,
             creatorId = userId
         )
 
@@ -691,6 +699,11 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         val location = payload.location
         val screenOrientation = payload.screenOrientation
 
+        var idlePage: fi.metatavu.muisti.persistence.model.ExhibitionPage? = null
+        if (payload.idlePageId != null) {
+            idlePage = exhibitionPageController.findExhibitionPageById(payload.idlePageId) ?: return createBadRequest("Idle page ${payload.idlePageId} not found")
+        }
+
         val result = exhibitionDeviceController.updateExhibitionDevice(
             exhibitionDevice = exhibitionDevice,
             exhibitionDeviceGroup = exhibitionGroup,
@@ -698,6 +711,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             name = payload.name,
             location = location,
             screenOrientation = screenOrientation,
+            idlePage = idlePage,
             modifierId = userId
         )
 

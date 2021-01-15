@@ -106,6 +106,9 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId = room.id!!
 
+            val idlePage1 = createDefaultPage(testBuilder = it, exhibition = exhibition)
+            val idlePage2 = createDefaultPage(testBuilder = it, exhibition = exhibition)
+
             val group1 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
             val group2 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
 
@@ -115,7 +118,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val nonExistingModelId = UUID.randomUUID()
             var screenOrientation = ScreenOrientation.portrait
 
-            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, ExhibitionDevice(groupId = group1.id!!, modelId = model1.id!!, name = "created name", location = Point(-123.0, 234.0), screenOrientation = screenOrientation))
+            val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, ExhibitionDevice(groupId = group1.id!!, modelId = model1.id!!, name = "created name", location = Point(-123.0, 234.0), screenOrientation = screenOrientation, idlePageId = idlePage1.id))
             val createdExhibitionDeviceId = createdExhibitionDevice.id!!
 
             val foundCreatedExhibitionDevice = it.admin().exhibitionDevices().findExhibitionDevice(exhibitionId, createdExhibitionDeviceId)
@@ -125,6 +128,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             assertEquals(234.0, createdExhibitionDevice.location?.y)
             assertEquals(ScreenOrientation.portrait, createdExhibitionDevice.screenOrientation)
             assertEquals(model1.id, createdExhibitionDevice.modelId)
+            assertEquals(idlePage1.id, createdExhibitionDevice.idlePageId)
             screenOrientation = ScreenOrientation.landscape
 
             val updatedExhibitionDevice = it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId, ExhibitionDevice(
@@ -134,7 +138,8 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
                 screenOrientation = screenOrientation,
                 id = createdExhibitionDeviceId,
                 exhibitionId = exhibitionId,
-                location = Point(123.2, -234.4)
+                location = Point(123.2, -234.4),
+                idlePageId = idlePage2.id
             ))
 
             it.admin().exhibitionDevices().updateExhibitionDevice(exhibitionId, updatedExhibitionDevice!!)
@@ -156,10 +161,12 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             assertEquals(model2.id, updatedExhibitionDevice.modelId)
             assertEquals(group2.id, updatedExhibitionDevice.groupId)
             assertEquals(ScreenOrientation.landscape, updatedExhibitionDevice.screenOrientation)
+            assertEquals(idlePage2.id, updatedExhibitionDevice.idlePageId)
 
             it.admin().exhibitionDevices().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDevice(groupId = group1.id!!, modelId = model2.id!!, name = "name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId))
             it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = nonExistingGroupId, modelId = model2.id!!, name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId))
             it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = group1.id!!, modelId = nonExistingModelId, name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId))
+            it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = group1.id!!, modelId = model2.id!!, name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId, idlePageId = UUID.randomUUID()))
         }
     }
 

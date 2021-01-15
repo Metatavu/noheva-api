@@ -25,15 +25,17 @@ class VisitorVariableController {
      * @param name name
      * @param type type
      * @param enum enumerated type allowed values
+     * @param editableFromUI whether the visitor variable should be editable from the customer service UI
      * @param creatorId creator id
      * @return created visitor variable
      */
-    fun createVisitorVariable(exhibition: Exhibition, name: String, type: VisitorVariableType, enum: List<String>, creatorId: UUID): VisitorVariable {
+    fun createVisitorVariable(exhibition: Exhibition, name: String, type: VisitorVariableType, enum: List<String>, editableFromUI: Boolean, creatorId: UUID): VisitorVariable {
         return visitorVariableDAO.create(
             id = UUID.randomUUID(),
             exhibition = exhibition,
             name = name,
             type = type,
+            editableFromUI = editableFromUI,
             enum = getEnumAsString(enum),
             creatorId = creatorId,
             lastModifierId = creatorId
@@ -79,13 +81,15 @@ class VisitorVariableController {
      * @param name new name
      * @param type type
      * @param enum enumerated type allowed values
+     * @param editableFromUI whether the visitor variable should be editable from the customer service UI
      * @param lastModifierId modifier user id
      * @return updated visitor variable
      */
-    fun updateVisitorVariable(visitorVariable: VisitorVariable, name: String, type: VisitorVariableType, enum: List<String>?, lastModifierId: UUID): VisitorVariable {
+    fun updateVisitorVariable(visitorVariable: VisitorVariable, name: String, type: VisitorVariableType, enum: List<String>?, editableFromUI: Boolean, lastModifierId: UUID): VisitorVariable {
         var result = visitorVariableDAO.updateName(visitorVariable, name, lastModifierId)
         result = visitorVariableDAO.updateType(result, type, lastModifierId)
         result = visitorVariableDAO.updateEnum(result, getEnumAsString(enum), lastModifierId)
+        result = visitorVariableDAO.updateEditableFromUI(result, editableFromUI, lastModifierId)
         return result
     }
 

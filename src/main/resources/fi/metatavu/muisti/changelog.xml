@@ -845,4 +845,18 @@
         <sql>UPDATE VisitorVariable SET type = 'TEXT'</sql>
     </changeSet>
 
+    <changeSet id="visitorvariableeditable" author="antti.leppa">
+        <addColumn tableName="visitorvariable">
+            <column name="editableFromUI" type="boolean" defaultValue="false"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="exhibitiondeviceidlepage" author="antti.leppa">
+        <addColumn tableName="exhibitiondevice">
+            <column name="idlePage_id" type="binary(16)">
+                <constraints nullable="true" foreignKeyName="FK_EXHIBITION_DEVICE_IDLE_PAGE_ID" referencedColumnNames="id" referencedTableName="exhibitionpage"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
