@@ -45,6 +45,7 @@ class GroupContentVersionController {
      * @param idMapper id mapper
      * @param namePrefix name prefix for the copied device (e.g. Copy of original device)
      * @param creatorId id of user that created the copy
+     * @return a copy of a group content version
      */
     fun copyGroupContentVersion(
         sourceGroupContentVersion: GroupContentVersion,
