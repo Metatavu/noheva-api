@@ -1,10 +1,10 @@
 package fi.metatavu.muisti.exhibitions
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import fi.metatavu.muisti.persistence.dao.ContentVersionDAO
 import fi.metatavu.muisti.persistence.dao.ContentVersionRoomDAO
 import fi.metatavu.muisti.persistence.model.*
+import fi.metatavu.muisti.utils.CopyException
+import fi.metatavu.muisti.utils.IdMapper
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -13,7 +13,7 @@ import javax.inject.Inject
  * Controller for content versions
  */
 @ApplicationScoped
-class ContentVersionController() {
+class ContentVersionController {
 
     @Inject
     private lateinit var contentVersionDAO: ContentVersionDAO
@@ -34,6 +34,42 @@ class ContentVersionController() {
     }
 
     /**
+     * Creates a copy of a content version
+     *
+     * @param sourceContentVersion source content version
+     * @param idMapper id mapper
+     * @param namePrefix name prefix for the copied device (e.g. Copy of original device)
+     * @param creatorId id of user that created the copy
+     * @return a copy of a content version
+     */
+    fun copyContentVersion(
+        sourceContentVersion: ContentVersion,
+        idMapper: IdMapper,
+        namePrefix: String,
+        creatorId: UUID
+    ): ContentVersion {
+        val id = idMapper.getNewId(sourceContentVersion.id) ?: throw CopyException("Target content version id not found")
+        val result = contentVersionDAO.create(
+            id = id,
+            exhibition = sourceContentVersion.exhibition ?: throw CopyException("Source content version exhibition not found"),
+            name = "$namePrefix${sourceContentVersion.name}",
+            language = sourceContentVersion.language ?: throw CopyException("Source content version language not found"),
+            creatorId = creatorId,
+            lastModifierId = creatorId
+        )
+
+        val sourceContentVersionRooms = contentVersionRoomDAO.listRoomsByContentVersion(sourceContentVersion)
+            .mapNotNull { contentVersionRoom -> contentVersionRoom.exhibitionRoom }
+
+        setContentVersionRooms(
+            contentVersion = result,
+            rooms = sourceContentVersionRooms
+        )
+
+        return result
+    }
+
+    /**
      * Finds content version by id
      *
      * @param id content version id
@@ -47,10 +83,12 @@ class ContentVersionController() {
      * Lists content versions in an exhibitions
      * @param exhibition exhibition
      * @param exhibitionRoom exhibition room
-     *
      * @returns list of content versions
      */
-    fun listContentVersions(exhibition: Exhibition, exhibitionRoom: ExhibitionRoom?): List<ContentVersion> {
+    fun listContentVersions(
+        exhibition: Exhibition,
+        exhibitionRoom: ExhibitionRoom?
+    ): List<ContentVersion> {
 
         if (exhibitionRoom != null) {
             return contentVersionRoomDAO.listContentVersionsByRoom(exhibitionRoom)
