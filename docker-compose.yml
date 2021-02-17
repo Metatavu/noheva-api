@@ -34,7 +34,7 @@ services:
     volumes:
       - ./test-volumes/keycloak:/opt/docker
   test-mqtt:
-    image: eclipse-mosquitto
+    image: eclipse-mosquitto@sha256:7554e4f05739e0ce57baf331930d4e16d14f25c1ff6fb5309618ac556560e49a
     ports:
       - 1883:1883
   muisti-api:
