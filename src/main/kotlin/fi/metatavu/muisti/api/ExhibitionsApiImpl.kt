@@ -1039,6 +1039,16 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         val layout = pageLayoutController.findPageLayoutById(payload.layoutId) ?: return createBadRequest("Layout $payload.layoutId not found")
         val device = exhibitionDeviceController.findExhibitionDeviceById(payload.deviceId) ?: return createBadRequest("Device ${payload.deviceId} not found")
         val contentVersion = contentVersionController.findContentVersionById(payload.contentVersionId) ?: return createBadRequest("Content version ${payload.contentVersionId} not found")
+        val contentGroupVersions = groupContentVersionController.listGroupContentVersions(
+            exhibition = exhibition,
+            deviceGroup = device.exhibitionDeviceGroup,
+            contentVersion = contentVersion
+        )
+
+        if (contentGroupVersions.isEmpty()) {
+            return createBadRequest("Cannot create page for device ${device.id} and content " +
+                    "version ${contentVersion.id} because they are not connected by any contentGroupVersions")
+        }
 
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val name = payload.name
