@@ -6,13 +6,19 @@ import fi.metatavu.muisti.api.spec.model.ExhibitionPageEventTrigger
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageResource
 import fi.metatavu.muisti.api.spec.model.ExhibitionPageTransition
 import fi.metatavu.muisti.api.spec.model.Transition
+import fi.metatavu.muisti.contents.ExhibitionPageController
+import fi.metatavu.muisti.persistence.dao.ExhibitionPageDAO
 import javax.enterprise.context.ApplicationScoped
+import javax.inject.Inject
 
 /**
  * Translator for translating JPA exhibition page  entities into REST resources
  */
 @ApplicationScoped
 class ExhibitionPageTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.ExhibitionPage, fi.metatavu.muisti.api.spec.model.ExhibitionPage>() {
+
+    @Inject
+    private lateinit var exhibitionPageController: ExhibitionPageController
 
     override fun translate(entity: fi.metatavu.muisti.persistence.model.ExhibitionPage): fi.metatavu.muisti.api.spec.model.ExhibitionPage {
         val result = fi.metatavu.muisti.api.spec.model.ExhibitionPage()
@@ -23,7 +29,7 @@ class ExhibitionPageTranslator: AbstractTranslator<fi.metatavu.muisti.persistenc
         result.contentVersionId = entity.contentVersion?.id
         result.name = entity.name
         result.resources = getResources(entity.resources)
-        result.eventTriggers = getEventTriggers(entity.eventTriggers)
+        result.eventTriggers = exhibitionPageController.parseEventTriggers(entity.eventTriggers)
         result.enterTransitions = getTransitions(entity.enterTransitions)
         result.exitTransitions = getTransitions(entity.exitTransitions)
         result.orderNumber = entity.orderNumber
@@ -45,18 +51,6 @@ class ExhibitionPageTranslator: AbstractTranslator<fi.metatavu.muisti.persistenc
         resources ?: return listOf()
         val objectMapper = ObjectMapper()
         return objectMapper.readValue(resources)
-    }
-
-    /**
-     * Reads event triggers string as event triggers object
-     *
-     * @param eventTriggers event triggers string
-     * @return event triggers object
-     */
-    private fun getEventTriggers(eventTriggers: String?): List<ExhibitionPageEventTrigger> {
-        eventTriggers ?: return listOf()
-        val objectMapper = ObjectMapper()
-        return objectMapper.readValue(eventTriggers)
     }
 
     /**
