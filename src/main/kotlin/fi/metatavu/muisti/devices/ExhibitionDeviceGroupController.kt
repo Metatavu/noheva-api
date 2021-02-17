@@ -141,6 +141,52 @@ class ExhibitionDeviceGroupController {
     val id = idMapper.assignId(sourceDeviceGroup.id) ?: throw CopyException("Could not assign target source group id")
     val exhibition = sourceDeviceGroup.exhibition ?: throw CopyException("Source device group exhibition not found")
 
+    val targetDeviceGroup = exhibitionDeviceGroupDAO.create(
+      id,
+      exhibition = exhibition,
+      room = sourceDeviceGroup.room ?: throw CopyException("Source device group room not found"),
+      name = "$namePrefix${sourceDeviceGroup.name}",
+      allowVisitorSessionCreation = sourceDeviceGroup.allowVisitorSessionCreation ?: throw CopyException("Source device group allowVisitorSessionCreation not found"),
+      visitorSessionEndTimeout = sourceDeviceGroup.visitorSessionEndTimeout ?: throw CopyException("Source device group visitorSessionEndTimeout not found"),
+      visitorSessionStartStrategy = sourceDeviceGroup.visitorSessionStartStrategy ?: throw CopyException("Source device group visitorSessionStartStrategy not found"),
+      creatorId = creatorId,
+      lastModifierId = creatorId
+    )
+
+    copyResources(exhibition, sourceDeviceGroup, targetDeviceGroup, namePrefix, idMapper, creatorId)
+
+    logger.info("Copied device group {} -> {}", sourceDeviceGroup.id, targetDeviceGroup.id)
+
+    return targetDeviceGroup
+  }
+
+  /**
+   * Deletes an exhibition device group
+   *
+   * @param exhibitionDeviceGroup exhibition device group to be deleted
+   */
+  fun deleteExhibitionDeviceGroup(exhibitionDeviceGroup: ExhibitionDeviceGroup) {
+    return exhibitionDeviceGroupDAO.delete(exhibitionDeviceGroup)
+  }
+
+  /**
+   * Copies resources related to source device group into target device group
+   *
+   * @param exhibition exhibition
+   * @param sourceDeviceGroup copy source device group
+   * @param targetDeviceGroup copy target device group
+   * @param namePrefix name prefix for the copied device (e.g. Copy of group content version)
+   * @param idMapper id mapper
+   * @param creatorId id of user that created the copy
+   */
+  private fun copyResources(
+    exhibition: Exhibition,
+    sourceDeviceGroup: ExhibitionDeviceGroup,
+    targetDeviceGroup: ExhibitionDeviceGroup,
+    namePrefix: String,
+    idMapper: IdMapper,
+    creatorId: UUID
+  ) {
     // Resolve source resources
 
     val sourceDevices = deviceController.listExhibitionDevices(
@@ -159,8 +205,8 @@ class ExhibitionDeviceGroupController {
     )
 
     val sourceContentVersions = sourceGroupContentVersions
-        .mapNotNull(GroupContentVersion::contentVersion)
-        .distinctBy(ContentVersion::id)
+      .mapNotNull(GroupContentVersion::contentVersion)
+      .distinctBy(ContentVersion::id)
 
     // Assign ids for target resources
 
@@ -169,21 +215,9 @@ class ExhibitionDeviceGroupController {
     sourceContentVersions.map(ContentVersion::id).map(idMapper::assignId)
     sourcePages.map(ExhibitionPage::id).map(idMapper::assignId)
 
-    logger.info("Copying {} devices, {} content versions, {} group content versions and {} pages).",
-      sourceDevices.size, sourceContentVersions.size, sourceGroupContentVersions.size, sourcePages.size)
-
-    // Copy resources
-
-    val targetDeviceGroup = exhibitionDeviceGroupDAO.create(
-      id,
-      exhibition = exhibition,
-      room = sourceDeviceGroup.room ?: throw CopyException("Source device group room not found"),
-      name = "$namePrefix${sourceDeviceGroup.name}",
-      allowVisitorSessionCreation = sourceDeviceGroup.allowVisitorSessionCreation ?: throw CopyException("Source device group allowVisitorSessionCreation not found"),
-      visitorSessionEndTimeout = sourceDeviceGroup.visitorSessionEndTimeout ?: throw CopyException("Source device group visitorSessionEndTimeout not found"),
-      visitorSessionStartStrategy = sourceDeviceGroup.visitorSessionStartStrategy ?: throw CopyException("Source device group visitorSessionStartStrategy not found"),
-      creatorId = creatorId,
-      lastModifierId = creatorId
+    logger.info(
+      "Copying {} devices, {} content versions, {} group content versions and {} pages).",
+      sourceDevices.size, sourceContentVersions.size, sourceGroupContentVersions.size, sourcePages.size
     )
 
     val targetContentVersions = copyContentVersions(
@@ -220,19 +254,6 @@ class ExhibitionDeviceGroupController {
     )
 
     updateDeviceIdlePages(sourceDevices, idMapper, targetDevices, targetPages, creatorId)
-
-    logger.info("Copied device group {} -> {}", sourceDeviceGroup.id, targetDeviceGroup.id)
-
-    return targetDeviceGroup
-  }
-
-  /**
-   * Deletes an exhibition device group
-   *
-   * @param exhibitionDeviceGroup exhibition device group to be deleted
-   */
-  fun deleteExhibitionDeviceGroup(exhibitionDeviceGroup: ExhibitionDeviceGroup) {
-    return exhibitionDeviceGroupDAO.delete(exhibitionDeviceGroup)
   }
 
   /**
@@ -296,7 +317,7 @@ class ExhibitionDeviceGroupController {
     creatorId: UUID
   ): List<ExhibitionPage> {
     return sourcePages.map { sourcePage ->
-      var targetDevice = getCopyTargetDevice(source = sourcePage.device, idMapper = idMapper, targets = targetDevices)
+      val targetDevice = getCopyTargetDevice(source = sourcePage.device, idMapper = idMapper, targets = targetDevices)
       val targetContentVersion = getCopyTargetContentVersion(
         idMapper = idMapper,
         source = sourcePage.contentVersion,
