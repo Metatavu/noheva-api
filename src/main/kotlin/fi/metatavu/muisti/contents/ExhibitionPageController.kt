@@ -41,7 +41,19 @@ class ExhibitionPageController {
      * @param creatorId creating user id
      * @return created exhibition page 
      */
-    fun createPage(exhibition: Exhibition, device: ExhibitionDevice, layout: PageLayout, contentVersion: ContentVersion, name: String, orderNumber: Int, resources: List<ExhibitionPageResource>, eventTriggers:  List<ExhibitionPageEventTrigger>, enterTransitions: List<ExhibitionPageTransition>, exitTransitions: List<ExhibitionPageTransition>, creatorId: UUID): ExhibitionPage {
+    fun createPage(
+        exhibition: Exhibition,
+        device: ExhibitionDevice,
+        layout: PageLayout,
+        contentVersion: ContentVersion,
+        name: String,
+        orderNumber: Int,
+        resources: List<ExhibitionPageResource>,
+        eventTriggers:  List<ExhibitionPageEventTrigger>,
+        enterTransitions: List<ExhibitionPageTransition>,
+        exitTransitions: List<ExhibitionPageTransition>,
+        creatorId: UUID
+    ): ExhibitionPage {
         return exhibitionPageDAO.create(UUID.randomUUID(),
             exhibition = exhibition,
             device = device,
