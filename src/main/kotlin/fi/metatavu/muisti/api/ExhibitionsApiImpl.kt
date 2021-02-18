@@ -928,7 +928,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             try {
                 exhibitionDeviceGroupController.copyDeviceGroup(
                     sourceDeviceGroup = sourceDeviceGroup,
-                    namePrefix = "",
+                    namePrefix = "Copy of ",
                     creatorId = userId
                 )
             } catch (e: CopyException) {
