@@ -28,6 +28,7 @@ class ExhibitionPageController {
     /**
      * Creates new exhibition page 
      *
+     * @param exhibition exhibition
      * @param device device
      * @param layout layout
      * @param contentVersion content version
