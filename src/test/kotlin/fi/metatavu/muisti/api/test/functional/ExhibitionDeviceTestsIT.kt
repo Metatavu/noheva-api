@@ -206,6 +206,11 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = nonExistingGroupId, modelId = model2.id!!, name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId))
             it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = group1.id!!, modelId = nonExistingModelId, name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId))
             it.admin().exhibitionDevices().assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = group1.id!!, modelId = model2.id!!, name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId, idlePageId = UUID.randomUUID()))
+
+            it.admin().exhibitionDevices().updateExhibitionDevice(
+                exhibitionId = exhibitionId,
+                payload = updatedExhibitionDevice.copy(idlePageId = null)
+            )
         }
     }
 
