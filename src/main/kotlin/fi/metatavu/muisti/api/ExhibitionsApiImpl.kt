@@ -937,7 +937,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             }
         } else {
             payload ?: return createBadRequest(MISSING_REQUEST_BODY)
-            val room = exhibitionRoomController.findExhibitionRoomById(payload.roomId)  ?: return createNotFound("Exhibition room ${payload.roomId} not found")
+            val room = exhibitionRoomController.findExhibitionRoomById(payload.roomId) ?: return createNotFound("Exhibition room ${payload.roomId} not found")
 
             exhibitionDeviceGroupController.createExhibitionDeviceGroup(
                 exhibition,
