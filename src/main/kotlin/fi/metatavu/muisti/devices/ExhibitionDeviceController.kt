@@ -104,7 +104,7 @@ class ExhibitionDeviceController {
     /**
      * Lists devices by idle page
      *
-     * @param idlePage idlePage
+     * @param idlePage device idle page
      * @return List of devices
      */
     fun listDevicesByIdlePage(idlePage: ExhibitionPage): List<ExhibitionDevice> {
