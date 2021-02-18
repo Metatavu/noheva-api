@@ -1237,10 +1237,23 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
 
     override fun deleteContentVersion(exhibitionId: UUID?, contentVersionId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         contentVersionId?: return createNotFound(CONTENT_VERSION_NOT_FOUND)
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound("Content version $contentVersionId not found")
+
+        val groupContentVersions = groupContentVersionController.listGroupContentVersions(
+            contentVersion = contentVersion,
+            exhibition = exhibition,
+            deviceGroup = null
+        )
+
+        if (groupContentVersions.isNotEmpty()) {
+            val groupContentVersionIds = groupContentVersions.map { it.id }.joinToString()
+            return createBadRequest("Cannot delete content version $contentVersionId because it's used in group content versions $groupContentVersionIds")
+        }
+
         contentVersionController.deleteContentVersion(contentVersion)
         return createNoContent()
     }
