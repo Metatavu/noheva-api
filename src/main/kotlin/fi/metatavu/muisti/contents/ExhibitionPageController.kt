@@ -85,7 +85,7 @@ class ExhibitionPageController {
         )
 
         return exhibitionPageDAO.create(
-            id,
+            id = id,
             exhibition = sourcePage.exhibition ?: throw CopyException("Source page exhibition not found"),
             device = device,
             layout = sourcePage.layout ?: throw CopyException("Source page layout not found"),
