@@ -1157,6 +1157,12 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val page = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
 
+        val idlePageDevices = exhibitionDeviceController.listDevicesByIdlePage(idlePage = page)
+        if (idlePageDevices.isNotEmpty()) {
+            val idlePageDeviceIds = idlePageDevices.map { it.id }.joinToString()
+            return createBadRequest("Cannot delete page $pageId because it's used as idle page in devices $idlePageDeviceIds")
+        }
+
         exhibitionPageController.deleteExhibitionPage(page)
         realtimeNotificationController.notifyExhibitionPageDelete(exhibitionId, pageId)
         return createNoContent()

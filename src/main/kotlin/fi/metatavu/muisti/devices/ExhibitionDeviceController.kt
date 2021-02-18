@@ -102,6 +102,16 @@ class ExhibitionDeviceController {
     }
 
     /**
+     * Lists devices by idle page
+     *
+     * @param idlePage idlePage
+     * @return List of devices
+     */
+    fun listDevicesByIdlePage(idlePage: ExhibitionPage): List<ExhibitionDevice> {
+        return exhibitionDeviceDAO.listByIdlePage(idlePage = idlePage)
+    }
+
+    /**
      * Updates an exhibition device
      *
      * @param exhibitionDevice exhibition device to be updated
