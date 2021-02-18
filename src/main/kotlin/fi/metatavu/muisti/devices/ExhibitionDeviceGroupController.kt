@@ -142,7 +142,7 @@ class ExhibitionDeviceGroupController {
     val exhibition = sourceDeviceGroup.exhibition ?: throw CopyException("Source device group exhibition not found")
 
     val targetDeviceGroup = exhibitionDeviceGroupDAO.create(
-      id,
+      id = id,
       exhibition = exhibition,
       room = sourceDeviceGroup.room ?: throw CopyException("Source device group room not found"),
       name = "$namePrefix${sourceDeviceGroup.name}",
