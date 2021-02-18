@@ -1046,8 +1046,9 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         )
 
         if (contentGroupVersions.isEmpty()) {
-            return createBadRequest("Cannot create page for device ${device.id} and content " +
-                    "version ${contentVersion.id} because they are not connected by any contentGroupVersions")
+            return createBadRequest(
+                "Cannot create page for device ${device.id} and content version ${contentVersion.id} because they are not connected by any contentGroupVersions"
+            )
         }
 
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
