@@ -134,7 +134,7 @@ class ExhibitionDeviceGroupController {
     namePrefix: String,
     creatorId: UUID
   ): ExhibitionDeviceGroup {
-    logger.info("Creating copy of device group {}", sourceDeviceGroup.id)
+    logger.debug("Creating copy of device group {}", sourceDeviceGroup.id)
 
     val idMapper = IdMapper()
 
@@ -155,7 +155,7 @@ class ExhibitionDeviceGroupController {
 
     copyResources(exhibition, sourceDeviceGroup, targetDeviceGroup, namePrefix, idMapper, creatorId)
 
-    logger.info("Copied device group {} -> {}", sourceDeviceGroup.id, targetDeviceGroup.id)
+    logger.debug("Copied device group {} -> {}", sourceDeviceGroup.id, targetDeviceGroup.id)
 
     return targetDeviceGroup
   }
@@ -215,7 +215,7 @@ class ExhibitionDeviceGroupController {
     sourceContentVersions.map(ContentVersion::id).map(idMapper::assignId)
     sourcePages.map(ExhibitionPage::id).map(idMapper::assignId)
 
-    logger.info(
+    logger.debug(
       "Copying {} devices, {} content versions, {} group content versions and {} pages).",
       sourceDevices.size, sourceContentVersions.size, sourceGroupContentVersions.size, sourcePages.size
     )
@@ -291,7 +291,7 @@ class ExhibitionDeviceGroupController {
         creatorId = creatorId
       )
 
-      logger.info("Copied group content version {} -> {}", sourceGroupContentVersion.id, targetGroupContentVersion.id)
+      logger.debug("Copied group content version {} -> {}", sourceGroupContentVersion.id, targetGroupContentVersion.id)
 
       targetGroupContentVersion
     }
@@ -333,7 +333,7 @@ class ExhibitionDeviceGroupController {
         creatorId = creatorId
       )
 
-      logger.info("Copied content version {} -> {}", sourcePage.id, targetPage.id)
+      logger.debug("Copied content version {} -> {}", sourcePage.id, targetPage.id)
 
       targetPage
     }
@@ -362,7 +362,7 @@ class ExhibitionDeviceGroupController {
         creatorId = creatorId
       )
 
-      logger.info("Copied content version {} -> {}", sourceContentVersion.id, targetContentVersion.id)
+      logger.debug("Copied content version {} -> {}", sourceContentVersion.id, targetContentVersion.id)
 
       targetContentVersion
     }
@@ -395,7 +395,7 @@ class ExhibitionDeviceGroupController {
         creatorId = creatorId
       )
 
-      logger.info("Copied device {} -> {}", sourceDevice.id, targetDevice.id)
+      logger.debug("Copied device {} -> {}", sourceDevice.id, targetDevice.id)
 
       targetDevice
     }
