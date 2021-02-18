@@ -100,6 +100,24 @@ class ExhibitionPageDAO : AbstractDAO<ExhibitionPage>() {
     }
 
     /**
+     * Lists pages by device group
+     *
+     * @param deviceGroup device group
+     * @return List of pages in device group
+     */
+    fun listByDeviceGroup(deviceGroup: ExhibitionDeviceGroup): List<ExhibitionPage> {
+        val entityManager = getEntityManager()
+        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteria: CriteriaQuery<ExhibitionPage> = criteriaBuilder.createQuery(ExhibitionPage::class.java)
+        val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)
+        val deviceJoin = root.join(ExhibitionPage_.device)
+        criteria.select(root)
+        criteria.where(criteriaBuilder.equal(deviceJoin.get(ExhibitionDevice_.exhibitionDeviceGroup), deviceGroup))
+        val query: TypedQuery<ExhibitionPage> = entityManager.createQuery<ExhibitionPage>(criteria)
+        return query.resultList
+    }
+
+    /**
      * Updates layout
      *
      * @param exhibitionPage exhibition page

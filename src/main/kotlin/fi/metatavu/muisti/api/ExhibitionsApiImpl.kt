@@ -13,6 +13,7 @@ import fi.metatavu.muisti.exhibitions.*
 import fi.metatavu.muisti.keycloak.KeycloakController
 import fi.metatavu.muisti.realtime.RealtimeNotificationController
 import fi.metatavu.muisti.settings.SettingsController
+import fi.metatavu.muisti.utils.CopyException
 import fi.metatavu.muisti.visitors.VisitorController
 import fi.metatavu.muisti.visitors.VisitorSessionController
 import fi.metatavu.muisti.visitors.VisitorVariableController
@@ -188,6 +189,12 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
 
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+
+        val contentVersions = contentVersionController.listContentVersions(exhibition = exhibition, exhibitionRoom = null)
+        if (contentVersions.isNotEmpty()) {
+            val contentVersionIds = contentVersions.map { it.id }.joinToString()
+            return createBadRequest("Cannot delete exhibition $exhibitionId because it's used in content versions $contentVersionIds")
+        }
 
         exhibitionController.deleteExhibition(exhibition)
 
@@ -906,27 +913,45 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
 
     /* Exhibition device groups */
 
-    override fun createExhibitionDeviceGroup(exhibitionId: UUID?, payload: ExhibitionDeviceGroup?): Response {
-        payload ?: return createBadRequest(MISSING_REQUEST_BODY)
+    override fun createExhibitionDeviceGroup(
+        exhibitionId: UUID?,
+        sourceDeviceGroupId: UUID?,
+        payload: ExhibitionDeviceGroup?
+    ): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-        val room = exhibitionRoomController.findExhibitionRoomById(payload.roomId)  ?: return createNotFound("Exhibition room ${payload.roomId} not found")
-        val visitorSessionEndTimeout = payload.visitorSessionEndTimeout
-        val visitorSessionStartStrategy = payload.visitorSessionStartStrategy
 
-        val exhibitionDeviceGroup = exhibitionDeviceGroupController.createExhibitionDeviceGroup(exhibition,
-            name = payload.name,
-            allowVisitorSessionCreation = payload.allowVisitorSessionCreation,
-            room = room,
-            visitorSessionEndTimeout = visitorSessionEndTimeout,
-            visitorSessionStartStrategy = visitorSessionStartStrategy,
-            creatorId = userId
-        )
+        val deviceGroup = if (sourceDeviceGroupId != null) {
+            val sourceDeviceGroup = exhibitionDeviceGroupController.findExhibitionDeviceGroupById(id = sourceDeviceGroupId) ?: return createBadRequest("Source device group $sourceDeviceGroupId not found")
 
-        realtimeNotificationController.notifyDeviceGroupCreate(id = exhibitionDeviceGroup.id!!, exhibitionId = exhibitionId)
+            try {
+                exhibitionDeviceGroupController.copyDeviceGroup(
+                    sourceDeviceGroup = sourceDeviceGroup,
+                    namePrefix = "",
+                    creatorId = userId
+                )
+            } catch (e: CopyException) {
+                logger.error("Failed to copy device group", e)
+                return createInternalServerError("Failed to copy device group")
+            }
+        } else {
+            payload ?: return createBadRequest(MISSING_REQUEST_BODY)
+            val room = exhibitionRoomController.findExhibitionRoomById(payload.roomId) ?: return createNotFound("Exhibition room ${payload.roomId} not found")
 
-        return createOk(exhibitionDeviceGroupTranslator.translate(exhibitionDeviceGroup))
+            exhibitionDeviceGroupController.createExhibitionDeviceGroup(
+                exhibition = exhibition,
+                name = payload.name,
+                allowVisitorSessionCreation = payload.allowVisitorSessionCreation,
+                room = room,
+                visitorSessionEndTimeout = payload.visitorSessionEndTimeout,
+                visitorSessionStartStrategy = payload.visitorSessionStartStrategy,
+                creatorId = userId
+            )
+        }
+
+        realtimeNotificationController.notifyDeviceGroupCreate(id = deviceGroup.id!!, exhibitionId = exhibitionId)
+        return createOk(exhibitionDeviceGroupTranslator.translate(deviceGroup))
     }
 
     override fun findExhibitionDeviceGroup(exhibitionId: UUID?, deviceGroupId: UUID?): Response {
@@ -995,7 +1020,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
 
         if (groupContentVersions.isNotEmpty()) {
             val groupContentVersionIds = groupContentVersions.map { it.id }.joinToString()
-            return createBadRequest("Cannot delete page $deviceGroupId because it's used in group content versions $groupContentVersionIds")
+            return createBadRequest("Cannot delete device group $deviceGroupId because it's used in group content versions $groupContentVersionIds")
         }
 
         exhibitionDeviceGroupController.deleteExhibitionDeviceGroup(exhibitionDeviceGroup)
@@ -1014,6 +1039,17 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         val layout = pageLayoutController.findPageLayoutById(payload.layoutId) ?: return createBadRequest("Layout $payload.layoutId not found")
         val device = exhibitionDeviceController.findExhibitionDeviceById(payload.deviceId) ?: return createBadRequest("Device ${payload.deviceId} not found")
         val contentVersion = contentVersionController.findContentVersionById(payload.contentVersionId) ?: return createBadRequest("Content version ${payload.contentVersionId} not found")
+        val contentGroupVersions = groupContentVersionController.listGroupContentVersions(
+            exhibition = exhibition,
+            deviceGroup = device.exhibitionDeviceGroup,
+            contentVersion = contentVersion
+        )
+
+        if (contentGroupVersions.isEmpty()) {
+            return createBadRequest(
+                "Cannot create page for device ${device.id} and content version ${contentVersion.id} because they are not connected by any contentGroupVersions"
+            )
+        }
 
         val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val name = payload.name
@@ -1023,7 +1059,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         val exitTransitions = payload.exitTransitions
         val orderNumber = payload.orderNumber
 
-        val exhibitionPage = exhibitionPageController.createExhibitionPage(
+        val exhibitionPage = exhibitionPageController.createPage(
             exhibition = exhibition,
             device = device,
             contentVersion = contentVersion,
@@ -1068,7 +1104,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         var contentVersion: fi.metatavu.muisti.persistence.model.ContentVersion? = null
         if (contentVersionId != null) {
             contentVersion = contentVersionController.findContentVersionById(contentVersionId)
-            contentVersion ?: return createBadRequest(CONTENT_VERSION_NOT_FOUND)
+            contentVersion ?: return createBadRequest("Content version $contentVersionId not found")
         }
 
         val exhibitionPages = exhibitionPageController.listExhibitionPages(exhibition, exhibitionDevice, contentVersion)
@@ -1121,6 +1157,12 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val page = exhibitionPageController.findExhibitionPageById(pageId) ?: return createNotFound("Page $pageId not found")
+
+        val idlePageDevices = exhibitionDeviceController.listDevicesByIdlePage(idlePage = page)
+        if (idlePageDevices.isNotEmpty()) {
+            val idlePageDeviceIds = idlePageDevices.map { it.id }.joinToString()
+            return createBadRequest("Cannot delete page $pageId because it's used as idle page in devices $idlePageDeviceIds")
+        }
 
         exhibitionPageController.deleteExhibitionPage(page)
         realtimeNotificationController.notifyExhibitionPageDelete(exhibitionId, pageId)
