@@ -940,7 +940,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             val room = exhibitionRoomController.findExhibitionRoomById(payload.roomId) ?: return createNotFound("Exhibition room ${payload.roomId} not found")
 
             exhibitionDeviceGroupController.createExhibitionDeviceGroup(
-                exhibition,
+                exhibition = exhibition,
                 name = payload.name,
                 allowVisitorSessionCreation = payload.allowVisitorSessionCreation,
                 room = room,
