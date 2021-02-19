@@ -59,6 +59,28 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
   }
 
   /**
+   * Finds a device group by id
+   *
+   * @param name name
+   * @param room room
+   * @return found exhibition device group or null if not found
+   */
+  fun findByNameAndRoom(name: String, room: ExhibitionRoom?): ExhibitionDeviceGroup? {
+    val entityManager = getEntityManager()
+    val criteriaBuilder = entityManager.criteriaBuilder
+    val criteria: CriteriaQuery<ExhibitionDeviceGroup> = criteriaBuilder.createQuery(ExhibitionDeviceGroup::class.java)
+    val root: Root<ExhibitionDeviceGroup> = criteria.from(ExhibitionDeviceGroup::class.java)
+
+    criteria.select(root)
+    criteria.where(criteriaBuilder.and(
+      criteriaBuilder.equal(root.get(ExhibitionDeviceGroup_.name), name),
+      criteriaBuilder.equal(root.get(ExhibitionDeviceGroup_.room), room)
+    ))
+
+    return getSingleResult(entityManager.createQuery<ExhibitionDeviceGroup>(criteria))
+  }
+
+  /**
    * Lists exhibition device groups
    *
    * @param exhibition exhibition

@@ -24,6 +24,7 @@ class ContentVersion {
     @Column(nullable = false)
     var name: String? = null
 
+    @NotEmpty
     @Column(nullable = false)
     var language: String? = null
 

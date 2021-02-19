@@ -54,7 +54,6 @@ class ExhibitionDeviceController {
      * @param deviceGroup target device for the copied device
      * @param idlePage target idle page for the copied device
      * @param idMapper id mapper
-     * @param namePrefix name prefix for the copied device (e.g. Copy of original device)
      * @param creatorId id of user that created the copy
      */
     fun copyDevice(
@@ -62,7 +61,6 @@ class ExhibitionDeviceController {
         deviceGroup: ExhibitionDeviceGroup,
         idlePage: ExhibitionPage?,
         idMapper: IdMapper,
-        namePrefix: String,
         creatorId: UUID
     ): ExhibitionDevice {
         val id = idMapper.getNewId(sourceDevice.id) ?: throw CopyException("Target device id not found")
@@ -72,7 +70,7 @@ class ExhibitionDeviceController {
             exhibition = sourceDevice.exhibition ?: throw CopyException("Source device exhibition not found"),
             exhibitionDeviceGroup = deviceGroup,
             deviceModel = sourceDevice.deviceModel ?: throw CopyException("Source device model not found"),
-            name = "$namePrefix${sourceDevice.name}",
+            name = sourceDevice.name ?: throw CopyException("Source device name not found"),
             locationX = sourceDevice.locationX,
             locationY = sourceDevice.locationY,
             screenOrientation = sourceDevice.screenOrientation ?: throw CopyException("Source device screen orientation not found"),

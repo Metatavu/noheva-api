@@ -79,7 +79,6 @@ class ExhibitionPageController {
      * @param device target device for the copied page
      * @param contentVersion target content version for the copied page
      * @param idMapper id mapper
-     * @param namePrefix name prefix for the copied page (e.g. Copy of original page)
      * @param creatorId id of user that created the copy
      * @return copied page
      */
@@ -88,7 +87,6 @@ class ExhibitionPageController {
         device: ExhibitionDevice,
         contentVersion: ContentVersion,
         idMapper: IdMapper,
-        namePrefix: String,
         creatorId: UUID
     ): ExhibitionPage {
         val id = idMapper.getNewId(sourcePage.id) ?: throw CopyException("Target page id not found")
@@ -103,7 +101,7 @@ class ExhibitionPageController {
             device = device,
             layout = sourcePage.layout ?: throw CopyException("Source page layout not found"),
             contentVersion = contentVersion,
-            name = "$namePrefix${sourcePage.name}",
+            name = sourcePage.name ?: throw CopyException("Source page name not found"),
             orderNumber = sourcePage.orderNumber ?: throw CopyException("Source page orderNumber not found"),
             resources = sourcePage.resources ?: throw CopyException("Source page resources not found"),
             eventTriggers = getDataAsString(eventTriggers),
