@@ -104,7 +104,7 @@ class ContentVersionController {
     }
 
     /**
-     * Finds content version by name, language and rooms
+     * Finds content version by name, rooms and language 
      *
      * @param name name
      * @param language language
