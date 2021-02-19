@@ -238,7 +238,7 @@ class ExhibitionDeviceGroupController {
     sourceContentVersions.map(ContentVersion::id).map(idMapper::assignId)
     sourcePages.map(ExhibitionPage::id).map(idMapper::assignId)
 
-    logger.info(
+    logger.debug(
       "Copying {} devices, {} content versions, {} group content versions and {} pages).",
       sourceDevices.size, sourceContentVersions.size, sourceGroupContentVersions.size, sourcePages.size
     )
