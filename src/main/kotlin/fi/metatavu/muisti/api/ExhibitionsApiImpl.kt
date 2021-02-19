@@ -1245,7 +1245,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             )
 
             if (anotherContentVersion != null && contentVersionId != contentVersion.id) {
-                return createBadRequest("Another content version with same and and language already exists in given room")
+                return createBadRequest("Another content version with same name and language already exists in given room")
             }
         }
 
