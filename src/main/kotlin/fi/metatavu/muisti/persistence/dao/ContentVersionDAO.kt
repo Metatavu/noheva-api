@@ -5,7 +5,6 @@ import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
 import javax.persistence.criteria.CriteriaQuery
-import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 
 /**
@@ -14,7 +13,7 @@ import javax.persistence.criteria.Root
  * @author Antti Leppä
  */
 @ApplicationScoped
-class ContentVersionDAO() : AbstractDAO<ContentVersion>() {
+class ContentVersionDAO : AbstractDAO<ContentVersion>() {
 
     /**
      * Creates new ContentVersion
@@ -36,6 +35,34 @@ class ContentVersionDAO() : AbstractDAO<ContentVersion>() {
         contentVersion.creatorId = creatorId
         contentVersion.lastModifierId = lastModifierId
         return persist(contentVersion)
+    }
+
+    /**
+     * Finds content version by name, room and language 
+     *
+     * @param name name
+     * @param language language
+     * @param room root
+     * @return found content version or null if not found
+     */
+    fun findByNameRoomAndLanguage(name: String, language: String, room: ExhibitionRoom): ContentVersion? {
+        val entityManager = getEntityManager()
+        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteria: CriteriaQuery<ContentVersion> = criteriaBuilder.createQuery(ContentVersion::class.java)
+        val root: Root<ContentVersionRoom> = criteria.from(ContentVersionRoom::class.java)
+        val contentVersionJoin = root.join(ContentVersionRoom_.contentVersion)
+
+        criteria.select(root.get(ContentVersionRoom_.contentVersion)).distinct(true)
+
+        criteria.where(
+            criteriaBuilder.and(
+                criteriaBuilder.equal(root.get(ContentVersionRoom_.exhibitionRoom), room),
+                criteriaBuilder.equal(contentVersionJoin.get(ContentVersion_.name), name),
+                criteriaBuilder.equal(contentVersionJoin.get(ContentVersion_.language), language)
+            )
+        )
+
+        return getSingleResult(entityManager.createQuery<ContentVersion>(criteria))
     }
 
     /**

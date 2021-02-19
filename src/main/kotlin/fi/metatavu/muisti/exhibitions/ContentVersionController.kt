@@ -38,32 +38,40 @@ class ContentVersionController {
      *
      * @param sourceContentVersion source content version
      * @param idMapper id mapper
-     * @param namePrefix name prefix for the copied device (e.g. Copy of original device)
      * @param creatorId id of user that created the copy
      * @return a copy of a content version
      */
     fun copyContentVersion(
         sourceContentVersion: ContentVersion,
         idMapper: IdMapper,
-        namePrefix: String,
         creatorId: UUID
     ): ContentVersion {
         val id = idMapper.getNewId(sourceContentVersion.id) ?: throw CopyException("Target content version id not found")
+        val sourceName = sourceContentVersion.name ?: throw CopyException("Source content version name not found")
+        val language = sourceContentVersion.language ?: throw CopyException("Source content language name not found")
+        val rooms = contentVersionRoomDAO.listRoomsByContentVersion(sourceContentVersion)
+            .mapNotNull { contentVersionRoom -> contentVersionRoom.exhibitionRoom }
+
+        val name = getUniqueName(
+            desiredName = sourceName,
+            language = language,
+            rooms = rooms
+        )
+
         val result = contentVersionDAO.create(
             id = id,
             exhibition = sourceContentVersion.exhibition ?: throw CopyException("Source content version exhibition not found"),
-            name = "$namePrefix${sourceContentVersion.name}",
-            language = sourceContentVersion.language ?: throw CopyException("Source content version language not found"),
+            name = name,
+            language = language,
             creatorId = creatorId,
             lastModifierId = creatorId
         )
 
-        val sourceContentVersionRooms = contentVersionRoomDAO.listRoomsByContentVersion(sourceContentVersion)
-            .mapNotNull { contentVersionRoom -> contentVersionRoom.exhibitionRoom }
+
 
         setContentVersionRooms(
             contentVersion = result,
-            rooms = sourceContentVersionRooms
+            rooms = rooms
         )
 
         return result
@@ -77,6 +85,38 @@ class ContentVersionController {
      */
     fun findContentVersionById(id: UUID): ContentVersion? {
         return contentVersionDAO.findById(id)
+    }
+
+    /**
+     * Finds content version by name, room and language
+     *
+     * @param name name
+     * @param language language
+     * @param room room
+     * @return found content version or null if not found
+     */
+    fun findContentVersionByNameRoomAndLanguage(name: String, language: String, room: ExhibitionRoom): ContentVersion? {
+        return contentVersionDAO.findByNameRoomAndLanguage(
+            name = name,
+            room = room,
+            language = language
+        )
+    }
+
+    /**
+     * Finds content version by name, rooms and language 
+     *
+     * @param name name
+     * @param language language
+     * @param rooms rooms
+     * @return found content version or null if not found
+     */
+    fun findContentVersionByNameRoomsAndLanguage(name: String, language: String, rooms: List<ExhibitionRoom>): ContentVersion? {
+        return rooms.map { findContentVersionByNameRoomAndLanguage(
+            language = language,
+            name = name,
+            room = it
+        ) }.firstOrNull()
     }
 
     /**
@@ -140,5 +180,34 @@ class ContentVersionController {
     fun deleteContentVersion(contentVersion: ContentVersion) {
         contentVersionRoomDAO.listRoomsByContentVersion(contentVersion).forEach(contentVersionRoomDAO::delete)
         contentVersionDAO.delete(contentVersion)
+    }
+
+    /**
+     * Returns unique name for content version
+     *
+     * @param desiredName desired name
+     * @param language language
+     * @param rooms rooms of content version
+     * @return unique name for content version
+     */
+    private fun getUniqueName(
+        desiredName: String,
+        language: String,
+        rooms: List<ExhibitionRoom>
+    ): String {
+        var result = desiredName
+        var index = 1
+
+        do {
+            findContentVersionByNameRoomsAndLanguage(
+                name = result,
+                language = language,
+                rooms = rooms
+            ) ?: return result
+
+            index++
+
+            result = "$desiredName $index"
+        } while (true)
     }
 }

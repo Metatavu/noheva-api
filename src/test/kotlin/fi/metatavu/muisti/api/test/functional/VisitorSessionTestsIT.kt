@@ -228,11 +228,11 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
             val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId = room.id!!
 
-            val deviceGroup1 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+            val deviceGroup1 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId, name = "Group 1")
             val deviceGroupId1 = deviceGroup1.id!!
-            val deviceGroup2 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+            val deviceGroup2 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId, name = "Group 2")
             val deviceGroupId2 = deviceGroup2.id!!
-            val deviceGroup3 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+            val deviceGroup3 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId, name = "Group 3")
             val deviceGroupId3 = deviceGroup3.id!!
 
             val visitor1 = it.admin().visitors().create(exhibitionId, Visitor(

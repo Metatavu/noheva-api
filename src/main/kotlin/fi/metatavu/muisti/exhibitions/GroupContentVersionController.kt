@@ -40,19 +40,17 @@ class GroupContentVersionController {
      * Creates a copy of a group content version
      *
      * @param sourceGroupContentVersion source group content version
-     * @param contentVersion target content version for copied group content version
+     * @param targetContentVersion target content version for copied group content version
      * @param deviceGroup target device group for copied group content version
      * @param idMapper id mapper
-     * @param namePrefix name prefix for the copied device (e.g. Copy of original device)
      * @param creatorId id of user that created the copy
      * @return a copy of a group content version
      */
     fun copyGroupContentVersion(
         sourceGroupContentVersion: GroupContentVersion,
-        contentVersion: ContentVersion,
+        targetContentVersion: ContentVersion,
         deviceGroup: ExhibitionDeviceGroup,
         idMapper: IdMapper,
-        namePrefix: String,
         creatorId: UUID
     ): GroupContentVersion {
         val id = idMapper.getNewId(sourceGroupContentVersion.id) ?: throw CopyException("Target group content version id not found")
@@ -60,9 +58,9 @@ class GroupContentVersionController {
         return groupContentVersionDAO.create(
             id = id,
             exhibition = sourceGroupContentVersion.exhibition ?: throw CopyException("Source group content version exhibition not found"),
-            name = "$namePrefix${sourceGroupContentVersion.name}",
+            name = sourceGroupContentVersion.name ?: throw CopyException("Source group content version name not found"),
             status = sourceGroupContentVersion.status ?: throw CopyException("Source group content status not found"),
-            contentVersion = contentVersion,
+            contentVersion = targetContentVersion,
             deviceGroup = deviceGroup,
             creatorId = creatorId,
             lastModifierId = creatorId

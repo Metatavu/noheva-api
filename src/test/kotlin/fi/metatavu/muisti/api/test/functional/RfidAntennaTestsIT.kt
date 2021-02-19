@@ -25,7 +25,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
         val floorId = floor.id!!
         val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
         val roomId = room.id!!
-        val group = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+        val group = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId, name = "Group 1")
         val createdRfidAntenna = it.admin().rfidAntennas().create(
           exhibitionId,
           RfidAntenna(
@@ -112,8 +112,8 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
             val room2 = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId2 = room2.id!!
 
-            val group1 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId1)
-            val group2 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId2)
+            val group1 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId1, name = "Group 1")
+            val group2 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId2, name = "Group 2")
             val nonExistingExhibitionId = UUID.randomUUID()
 
             it.admin().rfidAntennas().assertListFail(expectedStatus = 404, exhibitionId = nonExistingExhibitionId, deviceGroupId = null, roomId = null)
@@ -165,8 +165,8 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
         val room2 = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
         val roomId2 = room2.id!!
 
-        val group1 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId1)
-        val group2 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId2)
+        val group1 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId1, name = "Group 1")
+        val group2 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId2, name = "Group 2")
 
         val createdRfidAntenna = it.admin().rfidAntennas().create(exhibitionId, RfidAntenna(
           groupId = group1.id!!,
@@ -295,7 +295,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
             val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId = room.id!!
 
-            val group = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+            val group = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId, name = "Group 1")
             val createdRfidAntenna = it.admin().rfidAntennas().create(exhibitionId, RfidAntenna(
                 groupId = group.id!!,
                 roomId = roomId,

@@ -65,7 +65,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(
                 exhibitionId = exhibitionId,
-                roomId = roomId
+                roomId = roomId,
+                name = "Group 1"
             )
 
             val createdExhibitionDeviceGroupId = createdExhibitionDeviceGroup.id!!
@@ -95,11 +96,21 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(
                 exhibitionId = exhibitionId,
-                roomId = roomId1
+                roomId = roomId1,
+                name = "Group 1"
             )
 
-            it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId2)
-            it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId2)
+            it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibitionId,
+                roomId = roomId2,
+                name = "Group 2"
+            )
+
+            it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibitionId,
+                roomId = roomId2,
+                name = "Group 3"
+            )
 
             it.admin().exhibitionDeviceGroups().assertCount(1, exhibitionId = exhibitionId, roomId = roomId1)
             it.admin().exhibitionDeviceGroups().assertCount(2, exhibitionId = exhibitionId, roomId = roomId2)
@@ -191,7 +202,11 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             val roomId = room.id!!
 
             val createdContentVersion = it.admin().contentVersions().create(exhibitionId)
-            val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+            val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibitionId,
+                roomId = roomId,
+                name = "Group 1"
+            )
 
             val groupContentVersionToCreate = GroupContentVersion(
                 name = "Group name",
@@ -251,7 +266,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             assertNotNull(targetDeviceGroup.id)
             assertNotEquals(sourceDeviceGroup.id, targetDeviceGroup.id)
             assertEquals(sourceDeviceGroup.allowVisitorSessionCreation, targetDeviceGroup.allowVisitorSessionCreation)
-            assertEquals(sourceDeviceGroup.name, targetDeviceGroup.name)
+            assertEquals("${sourceDeviceGroup.name} 2", targetDeviceGroup.name)
             assertEquals(sourceDeviceGroup.visitorSessionEndTimeout, targetDeviceGroup.visitorSessionEndTimeout)
             assertEquals(sourceDeviceGroup.visitorSessionStartStrategy, targetDeviceGroup.visitorSessionStartStrategy)
             assertEquals(sourceDeviceGroup.exhibitionId, targetDeviceGroup.exhibitionId)
@@ -375,10 +390,12 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             assertEquals(sourceContentVersions.flatten().size, targetContentVersions.size)
 
             val sampleSourceContentVersion = sourceContentVersions.flatten().find { contentVersion -> contentVersion.name == "1 at FI" }
-            val sampleTargetContentVersion = targetContentVersions.find { contentVersion -> contentVersion.name == "1 at FI" }
+            assertNotNull(sampleSourceContentVersion)
+            val sampleTargetContentVersion = targetContentVersions.find { contentVersion -> contentVersion.name == "${sampleSourceContentVersion?.name} 2" }
+            assertNotNull(targetContentVersions.joinToString(",") { it.name }, sampleTargetContentVersion)
 
             assertNotEquals(sampleSourceContentVersion?.id, sampleTargetContentVersion?.id)
-            assertEquals(sampleSourceContentVersion?.name, sampleTargetContentVersion?.name)
+            assertEquals("${sampleSourceContentVersion?.name} 2", sampleTargetContentVersion?.name)
             assertEquals(sampleSourceContentVersion?.language, sampleTargetContentVersion?.language)
             assertArrayEquals(sampleSourceContentVersion?.rooms, sampleTargetContentVersion?.rooms)
             assertEquals(sampleSourceContentVersion?.exhibitionId, sampleTargetContentVersion?.exhibitionId)

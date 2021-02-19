@@ -859,4 +859,8 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="exhibitiondevicegroupuniquename" author="antti.leppa">
+        <addUniqueConstraint columnNames="room_id,name" constraintName="UN_DEVICE_GROUP_ROOM_NAME" tableName="exhibitiondevicegroup"/>
+    </changeSet>
+
 </databaseChangeLog>
