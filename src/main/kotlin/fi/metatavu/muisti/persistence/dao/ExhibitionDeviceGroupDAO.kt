@@ -59,7 +59,7 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
   }
 
   /**
-   * Finds a device group by id
+   * Finds a device group name and room
    *
    * @param name name
    * @param room room
