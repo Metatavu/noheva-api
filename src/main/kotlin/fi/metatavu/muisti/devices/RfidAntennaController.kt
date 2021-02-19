@@ -2,10 +2,9 @@ package fi.metatavu.muisti.devices
 
 import fi.metatavu.muisti.api.spec.model.Point
 import fi.metatavu.muisti.persistence.dao.RfidAntennaDAO
-import fi.metatavu.muisti.persistence.model.Exhibition
-import fi.metatavu.muisti.persistence.model.ExhibitionDeviceGroup
-import fi.metatavu.muisti.persistence.model.ExhibitionRoom
-import fi.metatavu.muisti.persistence.model.RfidAntenna
+import fi.metatavu.muisti.persistence.model.*
+import fi.metatavu.muisti.utils.CopyException
+import fi.metatavu.muisti.utils.IdMapper
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -57,6 +56,39 @@ class RfidAntennaController {
       locationY = location.y,
       visitorSessionStartThreshold = visitorSessionStartThreshold,
       visitorSessionEndThreshold = visitorSessionEndThreshold,
+      creatorId = creatorId,
+      lastModifierId = creatorId
+    )
+  }
+
+  /**
+   * Creates a copy of an antenna
+   *
+   * @param sourceAntenna source device
+   * @param deviceGroup target device for the copied device
+   * @param idMapper id mapper
+   * @param creatorId id of user that created the copy
+   */
+  fun copyAntenna(
+    sourceAntenna: RfidAntenna,
+    deviceGroup: ExhibitionDeviceGroup,
+    idMapper: IdMapper,
+    creatorId: UUID
+  ): RfidAntenna {
+    val id = idMapper.getNewId(sourceAntenna.id) ?: throw CopyException("Target antenna id not found")
+
+    return rfidAntennaDAO.create(
+      id = id,
+      exhibition = sourceAntenna.exhibition ?: throw CopyException("Source antenna exhibition not found"),
+      deviceGroup = deviceGroup,
+      room = sourceAntenna.room ?: throw CopyException("Source antenna room not found"),
+      name = sourceAntenna.name ?: throw CopyException("Source antenna name not found"),
+      readerId = sourceAntenna.readerId ?: throw CopyException("Source antenna readerId not found"),
+      antennaNumber = sourceAntenna.antennaNumber ?: throw CopyException("Source antenna antennaNumber not found"),
+      locationX = sourceAntenna.locationX,
+      locationY = sourceAntenna.locationY,
+      visitorSessionStartThreshold = sourceAntenna.visitorSessionStartThreshold ?: throw CopyException("Source antenna antennaNumber not found"),
+      visitorSessionEndThreshold = sourceAntenna.visitorSessionEndThreshold ?: throw CopyException("Source antenna antennaNumber not found"),
       creatorId = creatorId,
       lastModifierId = creatorId
     )
