@@ -310,6 +310,84 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
+    fun testCopyDeviceGroupWithAntennas() {
+        ApiTestBuilder().use {
+            val exhibition = it.admin().exhibitions().create()
+            val sourceDeviceGroup = createDefaultDeviceGroup(testBuilder = it, exhibition = exhibition)
+            val exhibitionId = exhibition.id!!
+            val sourceGroupId = sourceDeviceGroup.id!!
+            val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
+            val floorId = floor.id!!
+            val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
+            val roomId = room.id!!
+
+            val sourceAntennas = (1..3).map { i ->
+                it.admin().rfidAntennas().create(
+                    exhibitionId = exhibitionId,
+                    payload = RfidAntenna(
+                        name = "Antenna $i",
+                        groupId = sourceGroupId,
+                        roomId = roomId,
+                        location = Point(-123.0, 234.0),
+                        readerId = "id $i",
+                        antennaNumber = 15,
+                        visitorSessionStartThreshold = 80,
+                        visitorSessionEndThreshold = 10
+                    ))
+            }
+
+            assertEquals(3, sourceAntennas.size)
+
+            val targetDeviceGroup = it.admin().exhibitionDeviceGroups().copy(
+                exhibitionId = exhibitionId,
+                sourceDeviceGroupId = sourceGroupId
+            )
+
+            assertNotNull(targetDeviceGroup)
+            assertNotNull(targetDeviceGroup.id)
+            val targetDeviceGroupId = targetDeviceGroup.id!!
+
+            val targetAntennas = it.admin().rfidAntennas().listRfidAntennas(
+                exhibitionId = exhibitionId,
+                deviceGroupId = targetDeviceGroupId,
+                roomId = null
+            )
+
+            assertEquals(3, targetAntennas.size)
+
+            val sourceAntennaIds = sourceAntennas.mapNotNull(RfidAntenna::id)
+            val targetAntennaIds = targetAntennas.mapNotNull(RfidAntenna::id)
+            assertTrue(targetAntennaIds.intersect(sourceAntennaIds).isEmpty())
+
+            val sampleSourceAntenna = sourceAntennas.find { targetAntenna -> targetAntenna.name == "Antenna 1" }
+            val sampleTargetAntenna = targetAntennas.find { targetDevice -> targetDevice.name == "Antenna 1" }
+
+            assertNotNull(sampleSourceAntenna)
+            assertNotNull(sampleTargetAntenna)
+
+            assertNotEquals(sampleSourceAntenna?.id, sampleTargetAntenna?.id)
+            assertNotEquals(sampleSourceAntenna?.groupId, sampleTargetAntenna?.groupId)
+            assertEquals(sampleSourceAntenna?.readerId, sampleTargetAntenna?.readerId)
+            assertEquals(sampleSourceAntenna?.antennaNumber, sampleTargetAntenna?.antennaNumber)
+            assertEquals(sampleSourceAntenna?.visitorSessionStartThreshold, sampleTargetAntenna?.visitorSessionStartThreshold)
+            assertEquals(sampleSourceAntenna?.visitorSessionEndThreshold, sampleTargetAntenna?.visitorSessionEndThreshold)
+            assertEquals(sampleSourceAntenna?.name, sampleTargetAntenna?.name)
+            assertEquals(sampleSourceAntenna?.roomId, sampleTargetAntenna?.roomId)
+            assertEquals(sampleSourceAntenna?.exhibitionId, sampleTargetAntenna?.exhibitionId)
+            assertEquals(sampleSourceAntenna?.location?.x, sampleTargetAntenna?.location?.x)
+            assertEquals(sampleSourceAntenna?.location?.y, sampleTargetAntenna?.location?.y)
+
+            cleanupCopiedResources(
+                apiTestBuilder = it,
+                exhibitionId = exhibitionId,
+                targetDeviceGroupId = targetDeviceGroupId
+            )
+
+        }
+
+    }
+
+    @Test
     fun testCopyDeviceGroupWithContentVersions() {
         ApiTestBuilder().use {
             val languages = listOf("FI", "SV", "EN")
@@ -392,7 +470,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             val sampleSourceContentVersion = sourceContentVersions.flatten().find { contentVersion -> contentVersion.name == "1 at FI" }
             assertNotNull(sampleSourceContentVersion)
             val sampleTargetContentVersion = targetContentVersions.find { contentVersion -> contentVersion.name == "${sampleSourceContentVersion?.name} 2" }
-            assertNotNull(targetContentVersions.joinToString(",") { it.name }, sampleTargetContentVersion)
+            assertNotNull(sampleTargetContentVersion)
 
             assertNotEquals(sampleSourceContentVersion?.id, sampleTargetContentVersion?.id)
             assertEquals("${sampleSourceContentVersion?.name} 2", sampleTargetContentVersion?.name)
@@ -820,6 +898,19 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                     payload = targetDevice.copy(idlePageId = null)
                 )
             }
+
+        val targetAntennas = apiTestBuilder.admin().rfidAntennas().listRfidAntennas(
+            exhibitionId = exhibitionId,
+            deviceGroupId = targetDeviceGroupId,
+            roomId = null
+        )
+
+        targetAntennas.forEach { targetAntenna ->
+            apiTestBuilder.admin().rfidAntennas().delete(
+                exhibitionId = exhibitionId,
+                rfidAntennaId = targetAntenna.id!!
+            )
+        }
 
         targetDevices.forEach { targetDevice ->
             apiTestBuilder.admin().exhibitionPages().listExhibitionPages(

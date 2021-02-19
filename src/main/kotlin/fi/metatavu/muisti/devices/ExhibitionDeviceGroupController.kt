@@ -29,6 +29,9 @@ class ExhibitionDeviceGroupController {
   private lateinit var deviceController: ExhibitionDeviceController
 
   @Inject
+  private lateinit var antennaController: RfidAntennaController
+
+  @Inject
   private lateinit var pageController: ExhibitionPageController
 
   @Inject
@@ -217,6 +220,12 @@ class ExhibitionDeviceGroupController {
       exhibitionDeviceGroup = sourceDeviceGroup
     )
 
+    val sourceAntennas = antennaController.listRfidAntennas(
+      exhibition = exhibition,
+      deviceGroup = sourceDeviceGroup,
+      room = null
+    )
+
     val sourceGroupContentVersions = groupContentVersionController.listGroupContentVersions(
       exhibition = exhibition,
       deviceGroup = sourceDeviceGroup,
@@ -234,6 +243,7 @@ class ExhibitionDeviceGroupController {
     // Assign ids for target resources
 
     sourceDevices.map(ExhibitionDevice::id).map(idMapper::assignId)
+    sourceAntennas.map(RfidAntenna::id).map(idMapper::assignId)
     sourceGroupContentVersions.map(GroupContentVersion::id).map(idMapper::assignId)
     sourceContentVersions.map(ContentVersion::id).map(idMapper::assignId)
     sourcePages.map(ExhibitionPage::id).map(idMapper::assignId)
@@ -251,6 +261,13 @@ class ExhibitionDeviceGroupController {
 
     val targetDevices = copyDevices(
       sourceDevices = sourceDevices,
+      targetDeviceGroup = targetDeviceGroup,
+      idMapper = idMapper,
+      creatorId = creatorId
+    )
+
+    copyAntennas(
+      sourceAntennas = sourceAntennas,
       targetDeviceGroup = targetDeviceGroup,
       idMapper = idMapper,
       creatorId = creatorId
@@ -405,6 +422,35 @@ class ExhibitionDeviceGroupController {
       logger.debug("Copied device {} -> {}", sourceDevice.id, targetDevice.id)
 
       targetDevice
+    }
+  }
+
+  /**
+   * Copies antennas
+   *
+   * @param sourceAntennas copy source antennas
+   * @param targetDeviceGroup copy target device group
+   * @param idMapper id mapper
+   * @param creatorId id of user that created the copy
+   * @return copied devices
+   */
+  private fun copyAntennas(
+    sourceAntennas: List<RfidAntenna>,
+    targetDeviceGroup: ExhibitionDeviceGroup,
+    idMapper: IdMapper,
+    creatorId: UUID
+  ): List<RfidAntenna> {
+    return sourceAntennas.map { sourceAntenna ->
+      val targetAntenna = antennaController.copyAntenna(
+        sourceAntenna = sourceAntenna,
+        deviceGroup = targetDeviceGroup,
+        idMapper = idMapper,
+        creatorId = creatorId
+      )
+
+      logger.debug("Copied antenna {} -> {}", sourceAntenna.id, targetAntenna.id)
+
+      targetAntenna
     }
   }
 
