@@ -24,7 +24,11 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val floorId = floor.id!!
             val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId = room.id!!
-            val group = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+            val group = it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibitionId,
+                roomId = roomId,
+                name = "Group 1"
+            )
 
             val model = it.admin().deviceModels().create()
             val screenOrientation = ScreenOrientation.portrait
@@ -46,7 +50,12 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val floorId = floor.id!!
             val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId = room.id!!
-            val group = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+            val group = it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibitionId,
+                roomId = roomId,
+                name = "Group 1"
+            )
+
             val model = it.admin().deviceModels().create()
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingExhibitionDeviceId = UUID.randomUUID()
@@ -70,8 +79,18 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId = room.id!!
 
-            val group1 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
-            val group2 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+            val group1 = it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibitionId,
+                roomId = roomId,
+                name = "Group 1"
+            )
+
+            val group2 = it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibitionId,
+                roomId = roomId,
+                name = "Group 2"
+            )
+
             val model = it.admin().deviceModels().create()
             val nonExistingExhibitionId = UUID.randomUUID()
 
@@ -110,8 +129,17 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
 
             val contentVersion1 = it.admin().contentVersions().create(exhibitionId)
             val contentVersion2 = it.admin().contentVersions().create(exhibitionId)
-            val group1 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
-            val group2 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+            val group1 = it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibitionId,
+                roomId = roomId,
+                name = "Group 1"
+            )
+
+            val group2 = it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibitionId,
+                roomId = roomId,
+                name = "Group 2"
+            )
 
             it.admin().groupContentVersions().create(
                 exhibitionId = exhibitionId,
@@ -228,7 +256,12 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId = room.id!!
 
-            val group = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+            val group = it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibitionId,
+                roomId = roomId,
+                name = "Group 1"
+            )
+
             val model = it.admin().deviceModels().create()
             val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, group.id!!, model.id!!)
             val createdExhibitionDeviceId = createdExhibitionDevice.id!!
@@ -258,7 +291,12 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val floorId = floor.id!!
             val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId = room.id!!
-            val deviceGroup = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+            val deviceGroup = it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibitionId,
+                roomId = roomId,
+                name = "Group 1"
+            )
+
             val deviceGroupId = deviceGroup.id!!
             val device = createDefaultDevice(it, exhibition, deviceGroup)
             val deviceId = device.id!!

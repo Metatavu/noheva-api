@@ -21,7 +21,11 @@ class GroupContentVersionTestsIT: AbstractFunctionalTest() {
         val createContentVersionId = it.admin().contentVersions().create(exhibitionId).id!!
         val createdFloorId = it.admin().exhibitionFloors().create(exhibitionId).id!!
         val createdRoomId = it.admin().exhibitionRooms().create(exhibitionId, createdFloorId).id!!
-        val createdDeviceGroupId = it.admin().exhibitionDeviceGroups().create(exhibitionId, createdRoomId).id!!
+        val createdDeviceGroupId = it.admin().exhibitionDeviceGroups().create(
+          exhibitionId = exhibitionId,
+          roomId = createdRoomId,
+          name = "Group 1"
+        ).id!!
 
         val groupContentVersionToCreate = GroupContentVersion(
             name = "Group name",
@@ -43,7 +47,11 @@ class GroupContentVersionTestsIT: AbstractFunctionalTest() {
       val createdContentVersionId = it.admin().contentVersions().create(exhibitionId).id!!
       val createdFloorId = it.admin().exhibitionFloors().create(exhibitionId).id!!
       val createdRoomId = it.admin().exhibitionRooms().create(exhibitionId, createdFloorId).id!!
-      val createdDeviceGroupId = it.admin().exhibitionDeviceGroups().create(exhibitionId, createdRoomId).id!!
+      val createdDeviceGroupId = it.admin().exhibitionDeviceGroups().create(
+        exhibitionId = exhibitionId,
+        roomId = createdRoomId,
+        name = "Group 1"
+      ).id!!
 
       val groupContentVersionToCreate = GroupContentVersion(
         name = "Group name",
@@ -83,7 +91,11 @@ class GroupContentVersionTestsIT: AbstractFunctionalTest() {
       val createdContentVersionId = it.admin().contentVersions().create(exhibitionId).id!!
       val createdFloorId = it.admin().exhibitionFloors().create(exhibitionId).id!!
       val createdRoomId = it.admin().exhibitionRooms().create(exhibitionId, createdFloorId).id!!
-      val createdDeviceGroupId = it.admin().exhibitionDeviceGroups().create(exhibitionId, createdRoomId).id!!
+      val createdDeviceGroupId = it.admin().exhibitionDeviceGroups().create(
+        exhibitionId = exhibitionId,
+        roomId = createdRoomId,
+        name = "Group 1"
+      ).id!!
 
       val groupContentVersionToCreate = GroupContentVersion(
         name = "Group name",
@@ -115,7 +127,11 @@ class GroupContentVersionTestsIT: AbstractFunctionalTest() {
         val contentVersionId3 = it.admin().contentVersions().create(exhibitionId).id!!
         val createdFloorId = it.admin().exhibitionFloors().create(exhibitionId).id!!
         val createdRoomId = it.admin().exhibitionRooms().create(exhibitionId, createdFloorId).id!!
-        val createdDeviceGroupId = it.admin().exhibitionDeviceGroups().create(exhibitionId, createdRoomId).id!!
+        val createdDeviceGroupId = it.admin().exhibitionDeviceGroups().create(
+          exhibitionId = exhibitionId,
+          roomId = createdRoomId,
+          name = "Group 1"
+        ).id!!
 
         val groupContentVersion1 = it.admin().groupContentVersions().create(exhibitionId, GroupContentVersion(
           name = "Group content 1",

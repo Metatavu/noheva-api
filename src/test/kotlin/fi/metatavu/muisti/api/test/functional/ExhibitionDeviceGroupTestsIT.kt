@@ -65,7 +65,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(
                 exhibitionId = exhibitionId,
-                roomId = roomId
+                roomId = roomId,
+                name = "Group 1"
             )
 
             val createdExhibitionDeviceGroupId = createdExhibitionDeviceGroup.id!!
@@ -95,11 +96,21 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(
                 exhibitionId = exhibitionId,
-                roomId = roomId1
+                roomId = roomId1,
+                name = "Group 1"
             )
 
-            it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId2)
-            it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId2)
+            it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibitionId,
+                roomId = roomId2,
+                name = "Group 2"
+            )
+
+            it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibitionId,
+                roomId = roomId2,
+                name = "Group 3"
+            )
 
             it.admin().exhibitionDeviceGroups().assertCount(1, exhibitionId = exhibitionId, roomId = roomId1)
             it.admin().exhibitionDeviceGroups().assertCount(2, exhibitionId = exhibitionId, roomId = roomId2)
@@ -191,7 +202,11 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             val roomId = room.id!!
 
             val createdContentVersion = it.admin().contentVersions().create(exhibitionId)
-            val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId)
+            val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibitionId,
+                roomId = roomId,
+                name = "Group 1"
+            )
 
             val groupContentVersionToCreate = GroupContentVersion(
                 name = "Group name",

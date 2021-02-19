@@ -47,7 +47,11 @@ abstract class AbstractFunctionalTest {
      */
     protected fun createDefaultDeviceGroup(testBuilder: ApiTestBuilder, exhibition: Exhibition): ExhibitionDeviceGroup {
         val room = createDefaultRoom(testBuilder, exhibition)
-        return testBuilder.admin().exhibitionDeviceGroups().create(exhibition = exhibition, room = room)
+        return testBuilder.admin().exhibitionDeviceGroups().create(
+            exhibition = exhibition,
+            room = room,
+            name = "Group 1"
+        )
     }
 
     /**

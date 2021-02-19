@@ -476,7 +476,13 @@ class ExhibitionDeviceGroupController {
     return targets.find { it.id == targetId }
   }
 
-
+  /**
+   * Returns unique name for device group
+   *
+   * @param desiredName desired name
+   * @param room room of device group
+   * @return unique name for device group
+   */
   private fun getUniqueName(
     desiredName: String,
     room: ExhibitionRoom
