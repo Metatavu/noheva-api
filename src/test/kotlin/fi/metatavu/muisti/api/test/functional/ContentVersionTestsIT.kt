@@ -1,8 +1,8 @@
 package fi.metatavu.muisti.api.test.functional
 
 import fi.metatavu.muisti.api.client.models.ContentVersion
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import fi.metatavu.muisti.api.client.models.ContentVersionActiveCondition
+import org.junit.Assert.*
 import org.junit.Test
 import java.util.*
 
@@ -33,14 +33,27 @@ class ContentVersionTestsIT: AbstractFunctionalTest() {
             val exhibitionId = it.admin().exhibitions().create().id!!
             val floorId = it.admin().exhibitionFloors().create(exhibitionId).id!!
             val roomId = it.admin().exhibitionRooms().create(exhibitionId, floorId).id!!
-            val createdContentVersion = it.admin().contentVersions().create(exhibitionId, ContentVersion(name = "created name", language = "FI", rooms = arrayOf<UUID>(roomId)))
+            val createdContentVersion = it.admin().contentVersions().create(
+                exhibitionId = exhibitionId,
+                payload = ContentVersion(
+                    name = "created name",
+                    language = "FI",
+                    rooms = arrayOf(roomId)
+                )
+            )
+
             assertNotNull(createdContentVersion)
+            assertNull(createdContentVersion.activeCondition)
 
             val contentVersionToUpdate = ContentVersion(
                 id = createdContentVersion.id!!,
                 name = "Updated name",
                 language = "EN",
-                rooms = createdContentVersion.rooms
+                rooms = createdContentVersion.rooms,
+                activeCondition = ContentVersionActiveCondition(
+                    userVariable = "user variable",
+                    equals = "value"
+                )
             )
             val updatedContentVersion = it.admin().contentVersions().updateContentVersion(exhibitionId, contentVersionToUpdate)
 
@@ -48,6 +61,8 @@ class ContentVersionTestsIT: AbstractFunctionalTest() {
             assertEquals(createdContentVersion.id!!, updatedContentVersion?.id!!)
             assertEquals(updatedContentVersion.language, "EN")
             assertEquals(updatedContentVersion.name, "Updated name")
+            assertEquals("user variable", updatedContentVersion.activeCondition?.userVariable)
+            assertEquals("value", updatedContentVersion.activeCondition?.equals)
         }
     }
 

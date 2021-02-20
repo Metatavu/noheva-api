@@ -1,5 +1,6 @@
-package fi.metatavu.muisti.exhibitions
+package fi.metatavu.muisti.contents
 
+import fi.metatavu.muisti.api.spec.model.ContentVersionActiveCondition
 import fi.metatavu.muisti.persistence.dao.ContentVersionDAO
 import fi.metatavu.muisti.persistence.dao.ContentVersionRoomDAO
 import fi.metatavu.muisti.persistence.model.*
@@ -26,11 +27,27 @@ class ContentVersionController {
      *
      * @param name content version name
      * @param language language code
+     * @param activeCondition active condition
      * @param creatorId creating user id
      * @return created exhibition content version
      */
-    fun createContentVersion(exhibition: Exhibition, name: String, language: String, creatorId: UUID): ContentVersion {
-        return contentVersionDAO.create(UUID.randomUUID(), exhibition, name, language, creatorId, creatorId)
+    fun createContentVersion(
+        exhibition: Exhibition,
+        name: String,
+        language: String,
+        activeCondition: ContentVersionActiveCondition?,
+        creatorId: UUID
+    ): ContentVersion {
+        return contentVersionDAO.create(
+            id = UUID.randomUUID(),
+            exhibition = exhibition,
+            name = name,
+            language = language,
+            activeConditionEquals = activeCondition?.equals,
+            activeConditionUserVariable = activeCondition?.userVariable,
+            creatorId = creatorId,
+            lastModifierId = creatorId
+        )
     }
 
     /**
@@ -63,11 +80,11 @@ class ContentVersionController {
             exhibition = sourceContentVersion.exhibition ?: throw CopyException("Source content version exhibition not found"),
             name = name,
             language = language,
+            activeConditionUserVariable = sourceContentVersion.activeConditionUserVariable,
+            activeConditionEquals = sourceContentVersion.activeConditionEquals,
             creatorId = creatorId,
             lastModifierId = creatorId
         )
-
-
 
         setContentVersionRooms(
             contentVersion = result,
@@ -163,12 +180,21 @@ class ContentVersionController {
      * @param contentVersion content version to be updated
      * @param name group name
      * @param language language code
+     * @param activeCondition active condition
      * @param modifierId modifying user id
      * @return updated ContentVersion
      */
-    fun updateContentVersion(contentVersion: ContentVersion, name: String, language: String, modifierId: UUID): ContentVersion {
+    fun updateContentVersion(
+        contentVersion: ContentVersion,
+        name: String,
+        language: String,
+        activeCondition: ContentVersionActiveCondition?,
+        modifierId: UUID
+    ): ContentVersion {
         var result = contentVersionDAO.updateName(contentVersion, name, modifierId)
         result = contentVersionDAO.updateLanguage(result, language, modifierId)
+        result = contentVersionDAO.updateActiveConditionUserVariable(result, activeCondition?.userVariable, modifierId)
+        result = contentVersionDAO.updateActiveConditionEquals(result, activeCondition?.equals, modifierId)
         return result
     }
 

@@ -2,8 +2,8 @@ package fi.metatavu.muisti.devices
 
 import fi.metatavu.muisti.api.spec.model.DeviceGroupVisitorSessionStartStrategy
 import fi.metatavu.muisti.contents.ExhibitionPageController
-import fi.metatavu.muisti.exhibitions.ContentVersionController
-import fi.metatavu.muisti.exhibitions.GroupContentVersionController
+import fi.metatavu.muisti.contents.ContentVersionController
+import fi.metatavu.muisti.contents.GroupContentVersionController
 import fi.metatavu.muisti.persistence.dao.ExhibitionDeviceGroupDAO
 import fi.metatavu.muisti.persistence.model.*
 import fi.metatavu.muisti.utils.CopyException

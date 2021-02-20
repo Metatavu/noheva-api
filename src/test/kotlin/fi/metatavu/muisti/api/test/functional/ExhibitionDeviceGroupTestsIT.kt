@@ -406,6 +406,10 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                     it.admin().contentVersions().create(exhibitionId, ContentVersion(
                         name = "$i at $language",
                         language = language,
+                        activeCondition = ContentVersionActiveCondition(
+                            userVariable = "var $i",
+                            equals = "val $i"
+                        ),
                         rooms = arrayOf(roomId))
                     )
                 }
@@ -477,6 +481,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             assertEquals(sampleSourceContentVersion?.language, sampleTargetContentVersion?.language)
             assertArrayEquals(sampleSourceContentVersion?.rooms, sampleTargetContentVersion?.rooms)
             assertEquals(sampleSourceContentVersion?.exhibitionId, sampleTargetContentVersion?.exhibitionId)
+            assertJsonsEqual(sampleSourceContentVersion?.activeCondition, sampleTargetContentVersion?.activeCondition)
 
             cleanupCopiedResources(
                 apiTestBuilder = it,

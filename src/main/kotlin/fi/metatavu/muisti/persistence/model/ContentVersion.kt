@@ -28,6 +28,10 @@ class ContentVersion {
     @Column(nullable = false)
     var language: String? = null
 
+    var activeConditionUserVariable: String? = null
+
+    var activeConditionEquals: String? = null
+
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null
 

@@ -3,7 +3,9 @@ package fi.metatavu.muisti.api
 import fi.metatavu.muisti.api.spec.ExhibitionsApi
 import fi.metatavu.muisti.api.spec.model.*
 import fi.metatavu.muisti.api.translate.*
+import fi.metatavu.muisti.contents.ContentVersionController
 import fi.metatavu.muisti.contents.ExhibitionPageController
+import fi.metatavu.muisti.contents.GroupContentVersionController
 import fi.metatavu.muisti.contents.PageLayoutController
 import fi.metatavu.muisti.devices.DeviceModelController
 import fi.metatavu.muisti.devices.ExhibitionDeviceController
@@ -1195,7 +1197,14 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             }
         }
 
-        val contentVersion = contentVersionController.createContentVersion(exhibition, name, language, userId)
+        val contentVersion = contentVersionController.createContentVersion(
+            exhibition = exhibition,
+            name = name,
+            language = language,
+            activeCondition = payload.activeCondition,
+            creatorId = userId
+        )
+
         contentVersionController.setContentVersionRooms(contentVersion, exhibitionRooms)
         return createOk(contentVersionTranslator.translate(contentVersion))
     }
@@ -1249,7 +1258,14 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             }
         }
 
-        val result = contentVersionController.updateContentVersion(contentVersion, name, language, userId)
+        val result = contentVersionController.updateContentVersion(
+            contentVersion = contentVersion,
+            name = name,
+            language = language,
+            activeCondition = payload.activeCondition,
+            modifierId =  userId
+        )
+        
         contentVersionController.setContentVersionRooms(result, exhibitionRooms)
         return createOk(contentVersionTranslator.translate(result))
     }
