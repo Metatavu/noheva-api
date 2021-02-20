@@ -19,7 +19,7 @@ class ContentVersionTranslator: AbstractTranslator<ContentVersion, fi.metatavu.m
     override fun translate(entity: ContentVersion): fi.metatavu.muisti.api.spec.model.ContentVersion {
         val result: fi.metatavu.muisti.api.spec.model.ContentVersion = fi.metatavu.muisti.api.spec.model.ContentVersion()
 
-        val roomIds = contentVersionRoomDAO.listRoomsByContentVersion(entity).stream()
+        val roomIds = contentVersionRoomDAO.listRoomsByContentVersion(entity)
             .map { it.exhibitionRoom?.id!! }
             .toList()
 
