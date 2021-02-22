@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.exhibitions
+package fi.metatavu.muisti.contents
 
 import fi.metatavu.muisti.api.spec.model.GroupContentVersionStatus
 import fi.metatavu.muisti.persistence.dao.GroupContentVersionDAO
