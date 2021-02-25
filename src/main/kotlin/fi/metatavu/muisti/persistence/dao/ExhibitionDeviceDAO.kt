@@ -78,6 +78,25 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
     }
 
     /**
+     * Lists devices by idle page
+     *
+     * @param idlePage idlePage
+     * @return List of devices
+     */
+    fun listByIdlePage(idlePage: ExhibitionPage): List<ExhibitionDevice> {
+        val entityManager = getEntityManager()
+        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteria: CriteriaQuery<ExhibitionDevice> = criteriaBuilder.createQuery(ExhibitionDevice::class.java)
+        val root: Root<ExhibitionDevice> = criteria.from(ExhibitionDevice::class.java)
+
+        criteria.select(root)
+        criteria.where(criteriaBuilder.equal(root.get(ExhibitionDevice_.idlePage), idlePage))
+
+        val query: TypedQuery<ExhibitionDevice> = entityManager.createQuery<ExhibitionDevice>(criteria)
+        return query.resultList
+    }
+
+    /**
      * Updates exhibition device model
      *
      * @param exhibitionDevice exhibition device to be updated

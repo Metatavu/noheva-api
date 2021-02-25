@@ -47,7 +47,11 @@ abstract class AbstractFunctionalTest {
      */
     protected fun createDefaultDeviceGroup(testBuilder: ApiTestBuilder, exhibition: Exhibition): ExhibitionDeviceGroup {
         val room = createDefaultRoom(testBuilder, exhibition)
-        return testBuilder.admin().exhibitionDeviceGroups().create(exhibition = exhibition, room = room)
+        return testBuilder.admin().exhibitionDeviceGroups().create(
+            exhibition = exhibition,
+            room = room,
+            name = "Group 1"
+        )
     }
 
     /**
@@ -55,31 +59,12 @@ abstract class AbstractFunctionalTest {
      *
      * @param testBuilder test builder instance
      * @param exhibition exhibition
+     * @param deviceGroup device group
      * @return created device
      */
-    protected fun createDefaultDevice(testBuilder: ApiTestBuilder, exhibition: Exhibition): ExhibitionDevice {
-        val group = createDefaultDeviceGroup(testBuilder, exhibition)
+    protected fun createDefaultDevice(testBuilder: ApiTestBuilder, exhibition: Exhibition, deviceGroup: ExhibitionDeviceGroup): ExhibitionDevice {
         val model = testBuilder.admin().deviceModels().create()
-        return testBuilder.admin().exhibitionDevices().create(exhibition = exhibition, model = model, group = group)
-    }
-
-    /**
-     * Creates a default page and all required resources into given exhibition
-     *
-     * @param testBuilder test builder instance
-     * @param exhibition exhibition
-     * @return created page
-     */
-    protected fun createDefaultPage(testBuilder: ApiTestBuilder, exhibition: Exhibition): ExhibitionPage {
-        val layout = testBuilder.admin().pageLayouts().create(testBuilder.admin().deviceModels().create())
-        val contentVersion = testBuilder.admin().contentVersions().create(exhibition)
-        val device = createDefaultDevice(testBuilder, exhibition)
-        return testBuilder.admin().exhibitionPages().create(
-                exhibition = exhibition,
-                layout = layout,
-                contentVersion = contentVersion,
-                device = device
-        )
+        return testBuilder.admin().exhibitionDevices().create(exhibition = exhibition, model = model, group = deviceGroup)
     }
 
     /**

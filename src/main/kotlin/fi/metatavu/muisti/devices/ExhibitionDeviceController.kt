@@ -4,6 +4,8 @@ import fi.metatavu.muisti.api.spec.model.Point
 import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.persistence.dao.ExhibitionDeviceDAO
 import fi.metatavu.muisti.persistence.model.*
+import fi.metatavu.muisti.utils.CopyException
+import fi.metatavu.muisti.utils.IdMapper
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -46,6 +48,39 @@ class ExhibitionDeviceController {
     }
 
     /**
+     * Creates a copy of a device
+     *
+     * @param sourceDevice source device
+     * @param deviceGroup target device for the copied device
+     * @param idlePage target idle page for the copied device
+     * @param idMapper id mapper
+     * @param creatorId id of user that created the copy
+     */
+    fun copyDevice(
+        sourceDevice: ExhibitionDevice,
+        deviceGroup: ExhibitionDeviceGroup,
+        idlePage: ExhibitionPage?,
+        idMapper: IdMapper,
+        creatorId: UUID
+    ): ExhibitionDevice {
+        val id = idMapper.getNewId(sourceDevice.id) ?: throw CopyException("Target device id not found")
+
+        return exhibitionDeviceDAO.create(
+            id = id,
+            exhibition = sourceDevice.exhibition ?: throw CopyException("Source device exhibition not found"),
+            exhibitionDeviceGroup = deviceGroup,
+            deviceModel = sourceDevice.deviceModel ?: throw CopyException("Source device model not found"),
+            name = sourceDevice.name ?: throw CopyException("Source device name not found"),
+            locationX = sourceDevice.locationX,
+            locationY = sourceDevice.locationY,
+            screenOrientation = sourceDevice.screenOrientation ?: throw CopyException("Source device screen orientation not found"),
+            idlePage = idlePage,
+            creatorId = creatorId,
+            lastModifierId = creatorId
+        )
+    }
+
+    /**
      * Finds an exhibition device by id
      *
      * @param id exhibition device id
@@ -62,6 +97,16 @@ class ExhibitionDeviceController {
      */
     fun listExhibitionDevices(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup?): List<ExhibitionDevice> {
         return exhibitionDeviceDAO.list(exhibition, exhibitionDeviceGroup)
+    }
+
+    /**
+     * Lists devices by idle page
+     *
+     * @param idlePage device idle page
+     * @return List of devices
+     */
+    fun listDevicesByIdlePage(idlePage: ExhibitionPage): List<ExhibitionDevice> {
+        return exhibitionDeviceDAO.listByIdlePage(idlePage = idlePage)
     }
 
     /**
@@ -86,6 +131,18 @@ class ExhibitionDeviceController {
         result = exhibitionDeviceDAO.updateScreenOrientation(result, screenOrientation, modifierId)
         result = exhibitionDeviceDAO.updateIdlePage(result, idlePage, modifierId)
         return result
+    }
+
+    /**
+     * Updates device's idle page
+     *
+     * @param device device
+     * @param idlePage idle page
+     * @param modifierId modifying user id
+     * @return updated page
+     */
+    fun updateDeviceIdlePage(device: ExhibitionDevice, idlePage: ExhibitionPage?, modifierId: UUID): ExhibitionDevice {
+        return exhibitionDeviceDAO.updateIdlePage(device, idlePage, modifierId)
     }
 
     /**
