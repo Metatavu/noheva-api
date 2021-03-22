@@ -94,21 +94,26 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val model = it.admin().deviceModels().create()
             val nonExistingExhibitionId = UUID.randomUUID()
 
-            it.admin().exhibitionDevices().assertListFail(404, nonExistingExhibitionId, null)
-            assertEquals(0, it.admin().exhibitionDevices().listExhibitionDevices(exhibitionId, null).size)
+            it.admin().exhibitionDevices().assertListFail(404, nonExistingExhibitionId, null, null)
+            assertEquals(0, it.admin().exhibitionDevices().listExhibitionDevices(exhibitionId, null, null).size)
 
             val createdExhibitionDevice = it.admin().exhibitionDevices().create(exhibitionId, group1.id!!, model.id!!)
             val createdExhibitionDeviceId = createdExhibitionDevice.id!!
 
-            it.admin().exhibitionDevices().assertCount(1, exhibitionId, null)
-            it.admin().exhibitionDevices().assertCount(1, exhibitionId, group1.id!!)
-            it.admin().exhibitionDevices().assertCount(0, exhibitionId, group2.id!!)
+            it.admin().exhibitionDevices().assertCount(1, exhibitionId, null, null)
+            it.admin().exhibitionDevices().assertCount(1, exhibitionId, group1.id!!, null)
+            it.admin().exhibitionDevices().assertCount(0, exhibitionId, group2.id!!, null)
 
-            val exhibitionDevices = it.admin().exhibitionDevices().listExhibitionDevices(exhibitionId, null)
+            val exhibitionDevices = it.admin().exhibitionDevices().listExhibitionDevices(exhibitionId, null, null)
             assertEquals(1, exhibitionDevices.size)
             assertEquals(createdExhibitionDeviceId, exhibitionDevices[0].id)
+
+            val listFilteredByDeviceModel = it.admin().exhibitionDevices().listExhibitionDevices(exhibitionId, null, model.id!!)
+            assertEquals(1, listFilteredByDeviceModel.size)
+
             it.admin().exhibitionDevices().delete(exhibitionId, createdExhibitionDeviceId)
-            assertEquals(0, it.admin().exhibitionDevices().listExhibitionDevices(exhibitionId, null).size)
+            assertEquals(0, it.admin().exhibitionDevices().listExhibitionDevices(exhibitionId, null, null).size)
+
         }
     }
 

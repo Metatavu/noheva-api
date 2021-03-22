@@ -34,7 +34,19 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
      * @param lastModifierId last modifier's id
      * @return created exhibitionDevice
      */
-    fun create(id: UUID, exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, name: String, locationX: Double?, locationY: Double?, screenOrientation: ScreenOrientation, idlePage: ExhibitionPage?, creatorId: UUID, lastModifierId: UUID): ExhibitionDevice {
+    fun create(
+        id: UUID,
+        exhibition: Exhibition,
+        exhibitionDeviceGroup: ExhibitionDeviceGroup,
+        deviceModel: DeviceModel,
+        name: String,
+        locationX: Double?,
+        locationY: Double?,
+        screenOrientation: ScreenOrientation,
+        idlePage: ExhibitionPage?,
+        creatorId: UUID,
+        lastModifierId: UUID
+    ): ExhibitionDevice {
         val exhibitionDevice = ExhibitionDevice()
         exhibitionDevice.id = id
         exhibitionDevice.name = name
@@ -55,9 +67,10 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
      *
      * @param exhibition exhibition
      * @param exhibitionDeviceGroup filter by exhibition device group. Ignored if null is passed
+     * @param deviceModel filter by device model. Ignored if null is passed
      * @return List of devices
      */
-    fun list(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup?): List<ExhibitionDevice> {
+    fun list(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup?, deviceModel: DeviceModel?): List<ExhibitionDevice> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionDevice> = criteriaBuilder.createQuery(ExhibitionDevice::class.java)
@@ -68,6 +81,10 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
 
         if (exhibitionDeviceGroup != null) {
             restrictions.add(criteriaBuilder.equal(root.get(ExhibitionDevice_.exhibitionDeviceGroup), exhibitionDeviceGroup))
+        }
+
+        if (deviceModel != null) {
+            restrictions.add(criteriaBuilder.equal(root.get(ExhibitionDevice_.deviceModel), deviceModel))
         }
 
         criteria.select(root)

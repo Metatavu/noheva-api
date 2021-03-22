@@ -14,10 +14,7 @@ import javax.inject.Inject
  * Controller for exhibition page layouts
  */
 @ApplicationScoped
-class PageLayoutController() {
-
-    @Inject
-    private lateinit var exhibitionPageController: ExhibitionPageController
+class PageLayoutController {
 
     @Inject
     private lateinit var pageLayoutDAO: PageLayoutDAO
@@ -84,9 +81,6 @@ class PageLayoutController() {
      * @param pageLayout exhibition page layout to be deleted
      */
     fun deletePageLayout(pageLayout: PageLayout) {
-        exhibitionPageController.listExhibitionLayoutPages(pageLayout)
-            .forEach(exhibitionPageController::deleteExhibitionPage)
-
         return pageLayoutDAO.delete(pageLayout)
     }
 

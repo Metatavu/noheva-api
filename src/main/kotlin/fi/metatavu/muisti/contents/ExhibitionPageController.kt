@@ -127,11 +127,17 @@ class ExhibitionPageController {
      *
      * @param exhibition exhibition
      * @param exhibitionDevice filter by exhibition device. Ignored if null is passed
-     * @param exhibitionContentVersion filter by exhibition content version. Ignored if null is passed
+     * @param contentVersion filter by exhibition content version. Ignored if null is passed
+     * @param pageLayout filter by page layout. Ignored if null is passed
      * @return List of exhibition pages
      */
-    fun listExhibitionPages(exhibition: Exhibition, exhibitionDevice: ExhibitionDevice?, exhibitionContentVersion: ContentVersion?): List<ExhibitionPage> {
-        return exhibitionPageDAO.list(exhibition, exhibitionDevice, exhibitionContentVersion)
+    fun listExhibitionPages(exhibition: Exhibition, exhibitionDevice: ExhibitionDevice?, contentVersion: ContentVersion?, pageLayout: PageLayout?): List<ExhibitionPage> {
+        return exhibitionPageDAO.list(
+            exhibition = exhibition,
+            exhibitionDevice = exhibitionDevice,
+            contentVersion = contentVersion,
+            pageLayout = pageLayout
+        )
     }
 
     /**

@@ -217,7 +217,8 @@ class ExhibitionDeviceGroupController {
 
     val sourceDevices = deviceController.listExhibitionDevices(
       exhibition = exhibition,
-      exhibitionDeviceGroup = sourceDeviceGroup
+      exhibitionDeviceGroup = sourceDeviceGroup,
+      deviceModel = null
     )
 
     val sourceAntennas = antennaController.listRfidAntennas(
