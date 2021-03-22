@@ -678,7 +678,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         return createOk(exhibitionDeviceTranslator.translate(exhibitionDevice))
     }
 
-    override fun listExhibitionDevices(exhibitionId: UUID?, exhibitionDeviceGroupId: UUID?): Response {
+    override fun listExhibitionDevices(exhibitionId: UUID?, exhibitionDeviceGroupId: UUID?, deviceModelId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
@@ -688,7 +688,12 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             exhibitionDeviceGroup = exhibitionDeviceGroupController.findDeviceGroupById(exhibitionDeviceGroupId)
         }
 
-        val exhibitionDevices = exhibitionDeviceController.listExhibitionDevices(exhibition, exhibitionDeviceGroup)
+        var deviceModel: fi.metatavu.muisti.persistence.model.DeviceModel? = null
+        if (deviceModelId != null) {
+            deviceModel = deviceModelController.findDeviceModelById(deviceModelId)
+        }
+
+        val exhibitionDevices = exhibitionDeviceController.listExhibitionDevices(exhibition, exhibitionDeviceGroup, deviceModel)
 
         return createOk(exhibitionDevices.map (exhibitionDeviceTranslator::translate))
     }
@@ -740,7 +745,8 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         val devicePages = exhibitionPageController.listExhibitionPages(
             exhibition = exhibition,
             exhibitionDevice = exhibitionDevice,
-            exhibitionContentVersion = null
+            contentVersion = null,
+            pageLayout = null
         )
 
         if (devicePages.isNotEmpty()) {
@@ -1093,7 +1099,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         return createOk(exhibitionPageTranslator.translate(exhibitionPage))
     }
 
-    override fun listExhibitionPages(exhibitionId: UUID?, contentVersionId: UUID?, exhibitionDeviceId: UUID?): Response {
+    override fun listExhibitionPages(exhibitionId: UUID?, contentVersionId: UUID?, exhibitionDeviceId: UUID?, pageLayoutId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
 
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
@@ -1108,7 +1114,19 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             contentVersion ?: return createBadRequest("Content version $contentVersionId not found")
         }
 
-        val exhibitionPages = exhibitionPageController.listExhibitionPages(exhibition, exhibitionDevice, contentVersion)
+        var pageLayout: fi.metatavu.muisti.persistence.model.PageLayout? = null
+        if (pageLayoutId != null) {
+            pageLayout = pageLayoutController.findPageLayoutById(pageLayoutId)
+            pageLayout ?: return createBadRequest("Page layout with ID $pageLayoutId not found")
+        }
+
+        val exhibitionPages = exhibitionPageController.listExhibitionPages(
+            exhibition = exhibition,
+            exhibitionDevice = exhibitionDevice,
+            contentVersion = contentVersion,
+            pageLayout = pageLayout
+
+        )
         return createOk(exhibitionPages.map (exhibitionPageTranslator::translate))
     }
 

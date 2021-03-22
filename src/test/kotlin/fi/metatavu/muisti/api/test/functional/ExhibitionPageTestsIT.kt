@@ -142,16 +142,16 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                 )
             )
 
-            it.admin().exhibitionPages().assertListFail(404, nonExistingExhibitionId, deviceId, null)
-            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, null).size)
+            it.admin().exhibitionPages().assertListFail(404, nonExistingExhibitionId, deviceId, null, null)
+            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, null, null).size)
 
             val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId, contentVersionId)
             val createdExhibitionPageId = createdExhibitionPage.id!!
-            val exhibitionPage = it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, null)
+            val exhibitionPage = it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, null, null)
             assertEquals(1, exhibitionPage.size)
             assertEquals(createdExhibitionPageId, exhibitionPage[0].id)
             it.admin().exhibitionPages().delete(exhibitionId, createdExhibitionPageId)
-            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, null).size)
+            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, null, null).size)
         }
     }
 
@@ -182,9 +182,9 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val contentVersion2 = it.admin().contentVersions().create(exhibitionId)
             val contentVersion2Id = contentVersion2.id!!
 
-            it.admin().exhibitionPages().assertListFail(400, exhibitionId, deviceId, UUID.randomUUID())
-            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion1Id).size)
-            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion2Id).size)
+            it.admin().exhibitionPages().assertListFail(400, exhibitionId, deviceId, UUID.randomUUID(), null)
+            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion1Id, null).size)
+            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion2Id, null).size)
 
             listOf(contentVersion1Id, contentVersion2Id).forEach { contentVersionId ->
                 it.admin().groupContentVersions().create(
@@ -201,8 +201,10 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val page1 = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId, contentVersion1Id)
             val page2 = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId, contentVersion2Id)
 
-            val pages1 = it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion1Id)
-            val pages2 = it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion2Id)
+            val pages1 = it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion1Id, null)
+            val pages2 = it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion2Id, null)
+
+            val pagesFilteredByLayout = it.admin().exhibitionPages().listExhibitionPages(exhibitionId, null, null, layoutId)
 
             assertEquals(1, pages1.size)
             assertEquals(pages1[0].id, page1.id)
@@ -210,10 +212,12 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             assertEquals(1, pages2.size)
             assertEquals(pages2[0].id, page2.id)
 
+            assertEquals(2, pagesFilteredByLayout.size)
+
             it.admin().exhibitionPages().delete(exhibitionId, page1.id!!)
 
-            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion1Id).size)
-            assertEquals(1, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion2Id).size)
+            assertEquals(0, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion1Id, null).size)
+            assertEquals(1, it.admin().exhibitionPages().listExhibitionPages(exhibitionId, deviceId, contentVersion2Id, null).size)
         }
     }
 
