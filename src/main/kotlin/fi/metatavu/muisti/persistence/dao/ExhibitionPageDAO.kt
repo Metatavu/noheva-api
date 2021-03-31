@@ -57,9 +57,10 @@ class ExhibitionPageDAO : AbstractDAO<ExhibitionPage>() {
      * @param exhibition exhibition
      * @param exhibitionDevice filter by exhibition device. Ignored if null is passed
      * @param contentVersion filter by content version. Ignored if null is passed
+     * @param pageLayout filter by page layout. Ignored if null is passed
      * @return List of exhibition pages
      */
-    fun list(exhibition: Exhibition, exhibitionDevice : ExhibitionDevice?, contentVersion: ContentVersion?): List<ExhibitionPage> {
+    fun list(exhibition: Exhibition, exhibitionDevice : ExhibitionDevice?, contentVersion: ContentVersion?, pageLayout: PageLayout?): List<ExhibitionPage> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionPage> = criteriaBuilder.createQuery(ExhibitionPage::class.java)
@@ -74,6 +75,10 @@ class ExhibitionPageDAO : AbstractDAO<ExhibitionPage>() {
 
         if (contentVersion != null) {
             restrictions.add(criteriaBuilder.equal(root.get(ExhibitionPage_.contentVersion), contentVersion))
+        }
+
+        if (pageLayout != null) {
+            restrictions.add(criteriaBuilder.equal(root.get(ExhibitionPage_.layout), pageLayout))
         }
 
         criteria.select(root)

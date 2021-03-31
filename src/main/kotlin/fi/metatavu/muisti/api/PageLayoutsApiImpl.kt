@@ -4,6 +4,7 @@ import fi.metatavu.muisti.api.spec.PageLayoutsApi
 import fi.metatavu.muisti.api.spec.model.PageLayout
 import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.api.translate.PageLayoutTranslator
+import fi.metatavu.muisti.contents.ExhibitionPageController
 import fi.metatavu.muisti.contents.PageLayoutController
 import fi.metatavu.muisti.devices.DeviceModelController
 import fi.metatavu.muisti.persistence.model.DeviceModel
@@ -30,6 +31,9 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
 
     @Inject
     private lateinit var pageLayoutTranslator: PageLayoutTranslator
+
+    @Inject
+    private lateinit var exhibitionPageController: ExhibitionPageController
 
     /* Page layouts */
 
@@ -92,8 +96,13 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
         loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
         val pageLayout = pageLayoutController.findPageLayoutById(pageLayoutId) ?: return createNotFound("Layout $pageLayoutId not found")
 
-        pageLayoutController.deletePageLayout(pageLayout)
+        val exhibitionPages = exhibitionPageController.listExhibitionLayoutPages(pageLayout)
+        if (exhibitionPages.isNotEmpty()) {
+            val exhibitionPageIds = exhibitionPages.map { it.id }.joinToString()
+            return createBadRequest("Cannot delete page layout $pageLayout because it's used in pages $exhibitionPageIds")
+        }
 
+        pageLayoutController.deletePageLayout(pageLayout)
         return createNoContent()
     }
 

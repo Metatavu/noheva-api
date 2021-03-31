@@ -276,7 +276,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             val targetDevices = it.admin().exhibitionDevices().listExhibitionDevices(
                 exhibitionId = exhibitionId,
-                exhibitionGroupId = targetDeviceGroupId
+                exhibitionGroupId = targetDeviceGroupId,
+                deviceModelId = null
             )
 
             assertEquals(3, targetDevices.size)
@@ -590,7 +591,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             val targetDevices = it.admin().exhibitionDevices().listExhibitionDevices(
                 exhibitionId = exhibitionId,
-                exhibitionGroupId = targetDeviceGroupId
+                exhibitionGroupId = targetDeviceGroupId,
+                deviceModelId = null
             )
 
             assertEquals(sourceDevices.size, targetDevices.size)
@@ -602,7 +604,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                     expected = 4,
                     exhibitionId = exhibitionId,
                     exhibitionDeviceId = targetDevice.id!!,
-                    contentVersionId = null
+                    contentVersionId = null,
+                    pageLayoutId = null
                 )
 
                 targetContentVersions.forEach { targetContentVersion ->
@@ -611,7 +614,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                     val sourceContentVersionPages = it.admin().exhibitionPages().listExhibitionPages(
                         exhibitionId = exhibitionId,
                         exhibitionDeviceId = sourceDevice?.id!!,
-                        contentVersionId = sourceContentVersion?.id!!
+                        contentVersionId = sourceContentVersion?.id!!,
+                        pageLayoutId = null
                     )
 
                     assertEquals(2, sourceContentVersionPages.size)
@@ -619,7 +623,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                     val targetContentVersionPages = it.admin().exhibitionPages().listExhibitionPages(
                         exhibitionId = exhibitionId,
                         exhibitionDeviceId = targetDevice.id!!,
-                        contentVersionId = targetContentVersion.id!!
+                        contentVersionId = targetContentVersion.id!!,
+                        pageLayoutId = null
                     )
 
                     assertEquals(sourceContentVersionPages.size, targetContentVersionPages.size)
@@ -725,7 +730,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             val targetDevices = it.admin().exhibitionDevices().listExhibitionDevices(
                 exhibitionId = exhibitionId,
-                exhibitionGroupId = targetDeviceGroupId
+                exhibitionGroupId = targetDeviceGroupId,
+                deviceModelId = null
             )
 
             assertEquals(1, targetDevices.size)
@@ -843,7 +849,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             val targetDevices = it.admin().exhibitionDevices().listExhibitionDevices(
                 exhibitionId = exhibitionId,
-                exhibitionGroupId = targetDeviceGroupId
+                exhibitionGroupId = targetDeviceGroupId,
+                deviceModelId = null
             )
 
             assertEquals(1, targetDevices.size)
@@ -853,7 +860,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             val targetPages = it.admin().exhibitionPages().listExhibitionPages(
                 exhibitionId = exhibitionId,
                 exhibitionDeviceId = targetDeviceId,
-                contentVersionId = null
+                contentVersionId = null,
+                pageLayoutId = null
             )
 
             assertEquals(2, targetPages.size)
@@ -892,7 +900,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
     private fun cleanupCopiedResources(apiTestBuilder: ApiTestBuilder, exhibitionId: UUID, targetDeviceGroupId: UUID) {
         val targetDevices = apiTestBuilder.admin().exhibitionDevices().listExhibitionDevices(
             exhibitionId = exhibitionId,
-            exhibitionGroupId = targetDeviceGroupId
+            exhibitionGroupId = targetDeviceGroupId,
+            deviceModelId = null
         )
 
         targetDevices
@@ -921,7 +930,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             apiTestBuilder.admin().exhibitionPages().listExhibitionPages(
                 exhibitionId = exhibitionId,
                 contentVersionId = null,
-                exhibitionDeviceId = targetDevice.id!!
+                exhibitionDeviceId = targetDevice.id!!,
+                pageLayoutId = null
             ).forEach { page ->
                 apiTestBuilder.admin().exhibitionPages().delete(exhibitionId = exhibitionId, exhibitionPage = page)
             }

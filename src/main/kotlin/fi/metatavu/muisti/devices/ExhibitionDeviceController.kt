@@ -93,10 +93,21 @@ class ExhibitionDeviceController {
     /**
      * Lists device s in an exhibitions
      *
+     * @param exhibition exhibition
+     * @param exhibitionDeviceGroup filter by exhibition device group
+     * @param deviceModel filter by device model
      * @returns all devices in an exhibition
      */
-    fun listExhibitionDevices(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup?): List<ExhibitionDevice> {
-        return exhibitionDeviceDAO.list(exhibition, exhibitionDeviceGroup)
+    fun listExhibitionDevices(
+        exhibition: Exhibition,
+        exhibitionDeviceGroup: ExhibitionDeviceGroup?,
+        deviceModel: DeviceModel?
+    ): List<ExhibitionDevice> {
+        return exhibitionDeviceDAO.list(
+            exhibition = exhibition,
+            exhibitionDeviceGroup = exhibitionDeviceGroup,
+            deviceModel = deviceModel
+        )
     }
 
     /**
@@ -122,7 +133,16 @@ class ExhibitionDeviceController {
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateExhibitionDevice(exhibitionDevice: ExhibitionDevice, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, name: String, location: Point?, screenOrientation: ScreenOrientation, idlePage: ExhibitionPage?, modifierId: UUID): ExhibitionDevice {
+    fun updateExhibitionDevice(
+        exhibitionDevice: ExhibitionDevice,
+        exhibitionDeviceGroup: ExhibitionDeviceGroup,
+        deviceModel: DeviceModel,
+        name: String,
+        location: Point?,
+        screenOrientation: ScreenOrientation,
+        idlePage: ExhibitionPage?,
+        modifierId: UUID
+    ): ExhibitionDevice {
         var result = exhibitionDeviceDAO.updateName(exhibitionDevice, name, modifierId)
         result = exhibitionDeviceDAO.updateExhibitionDeviceGroup(result, exhibitionDeviceGroup, modifierId)
         result = exhibitionDeviceDAO.updateExhibitionDeviceModel(result, deviceModel, modifierId)
