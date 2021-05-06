@@ -872,4 +872,12 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="deviceimageloadstrategy" author="antti.leppa">
+        <addColumn tableName="exhibitiondevice">
+            <column name="imageLoadStrategy" type="varchar(191)" defaultValue="MEMORY">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.devices
 
+import fi.metatavu.muisti.api.spec.model.DeviceImageLoadStrategy
 import fi.metatavu.muisti.api.spec.model.Point
 import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.persistence.dao.ExhibitionDeviceDAO
@@ -28,11 +29,22 @@ class ExhibitionDeviceController {
      * @param name device name
      * @param location location
      * @param screenOrientation screen orientation
+     * @param imageLoadStrategy image load strategy
      * @param idlePage idle page
      * @param creatorId creating user id
      * @return created exhibition device 
      */
-    fun createExhibitionDevice(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup, deviceModel: DeviceModel, name: String, location: Point?, screenOrientation: ScreenOrientation, idlePage: ExhibitionPage?, creatorId: UUID): ExhibitionDevice {
+    fun createExhibitionDevice(
+        exhibition: Exhibition,
+        exhibitionDeviceGroup: ExhibitionDeviceGroup,
+        deviceModel: DeviceModel,
+        name: String,
+        location: Point?,
+        screenOrientation: ScreenOrientation,
+        imageLoadStrategy: DeviceImageLoadStrategy,
+        idlePage: ExhibitionPage?,
+        creatorId: UUID
+    ): ExhibitionDevice {
         return exhibitionDeviceDAO.create(id = UUID.randomUUID(),
             exhibition = exhibition,
             exhibitionDeviceGroup = exhibitionDeviceGroup,
@@ -41,6 +53,7 @@ class ExhibitionDeviceController {
             locationX = location?.x,
             locationY = location?.y,
             screenOrientation = screenOrientation,
+            imageLoadStrategy = imageLoadStrategy,
             idlePage = idlePage,
             creatorId = creatorId,
             lastModifierId = creatorId
@@ -74,6 +87,7 @@ class ExhibitionDeviceController {
             locationX = sourceDevice.locationX,
             locationY = sourceDevice.locationY,
             screenOrientation = sourceDevice.screenOrientation ?: throw CopyException("Source device screen orientation not found"),
+            imageLoadStrategy = sourceDevice.imageLoadStrategy ?: throw CopyException("Source device image load strategy not found"),
             idlePage = idlePage,
             creatorId = creatorId,
             lastModifierId = creatorId
@@ -129,6 +143,7 @@ class ExhibitionDeviceController {
      * @param name device name
      * @param location location
      * @param screenOrientation screen orientation
+     * @param imageLoadStrategy image load strategy
      * @param idlePage idle page
      * @param modifierId modifying user id
      * @return updated exhibition
@@ -140,6 +155,7 @@ class ExhibitionDeviceController {
         name: String,
         location: Point?,
         screenOrientation: ScreenOrientation,
+        imageLoadStrategy: DeviceImageLoadStrategy,
         idlePage: ExhibitionPage?,
         modifierId: UUID
     ): ExhibitionDevice {
@@ -149,6 +165,7 @@ class ExhibitionDeviceController {
         result = exhibitionDeviceDAO.updateLocationX(result, location?.x, modifierId)
         result = exhibitionDeviceDAO.updateLocationY(result, location?.y, modifierId)
         result = exhibitionDeviceDAO.updateScreenOrientation(result, screenOrientation, modifierId)
+        result = exhibitionDeviceDAO.updateImageLoadStrategy(result, imageLoadStrategy, modifierId)
         result = exhibitionDeviceDAO.updateIdlePage(result, idlePage, modifierId)
         return result
     }

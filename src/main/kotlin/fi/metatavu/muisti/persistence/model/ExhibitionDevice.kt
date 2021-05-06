@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.model
 
+import fi.metatavu.muisti.api.spec.model.DeviceImageLoadStrategy
 import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import java.time.OffsetDateTime
 import java.util.*
@@ -37,6 +38,10 @@ class ExhibitionDevice {
     @Enumerated (EnumType.STRING)
     @Column(nullable = false)
     var screenOrientation: ScreenOrientation? = null
+
+    @Enumerated (EnumType.STRING)
+    @Column(nullable = false)
+    var imageLoadStrategy: DeviceImageLoadStrategy? = null
 
     @ManyToOne
     var idlePage: ExhibitionPage? = null

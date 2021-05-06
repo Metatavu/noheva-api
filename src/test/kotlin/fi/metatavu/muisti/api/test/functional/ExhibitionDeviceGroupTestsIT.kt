@@ -251,6 +251,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                     modelId = deviceModelId,
                     groupId = sourceGroupId,
                     screenOrientation = ScreenOrientation.landscape,
+                    imageLoadStrategy = DeviceImageLoadStrategy.mEMORY,
                     location = Point(55.0, 33.0)
                 ))
             }
@@ -296,6 +297,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             assertEquals(sampleSourceDevice?.modelId, sampleTargetDevice?.modelId)
             assertEquals(sampleSourceDevice?.name, sampleTargetDevice?.name)
             assertEquals(sampleSourceDevice?.screenOrientation, sampleTargetDevice?.screenOrientation)
+            assertEquals(sampleSourceDevice?.imageLoadStrategy, sampleTargetDevice?.imageLoadStrategy)
             assertEquals(sampleSourceDevice?.exhibitionId, sampleTargetDevice?.exhibitionId)
             assertEquals(sampleSourceDevice?.location?.x, sampleTargetDevice?.location?.x)
             assertEquals(sampleSourceDevice?.location?.y, sampleTargetDevice?.location?.y)
@@ -518,7 +520,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                     modelId = deviceModelId,
                     groupId = sourceGroupId,
                     screenOrientation = ScreenOrientation.landscape,
-                    location = Point(55.0, 33.0)
+                    location = Point(55.0, 33.0),
+                    imageLoadStrategy = DeviceImageLoadStrategy.mEMORY
                 ))
             }
 
@@ -682,6 +685,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                 modelId = deviceModelId,
                 groupId = sourceGroupId,
                 screenOrientation = ScreenOrientation.landscape,
+                imageLoadStrategy = DeviceImageLoadStrategy.mEMORY,
                 location = Point(55.0, 33.0)
             ))
 
@@ -777,6 +781,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                 modelId = deviceModelId,
                 groupId = sourceGroupId,
                 screenOrientation = ScreenOrientation.landscape,
+                imageLoadStrategy = DeviceImageLoadStrategy.mEMORY,
                 location = Point(55.0, 33.0)
             ))
 
