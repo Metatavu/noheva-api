@@ -26,6 +26,7 @@ class ExhibitionDeviceTranslator: AbstractTranslator<fi.metatavu.muisti.persiste
         result.modifiedAt = entity.modifiedAt
         result.location = location
         result.screenOrientation = entity.screenOrientation
+        result.imageLoadStrategy = entity.imageLoadStrategy
         result.idlePageId = entity.idlePage?.id
 
         return result

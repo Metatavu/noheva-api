@@ -654,6 +654,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             name = payload.name,
             location = location,
             screenOrientation = screenOrientation,
+            imageLoadStrategy = payload.imageLoadStrategy,
             idlePage = idlePage,
             creatorId = userId
         )
@@ -725,6 +726,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             name = payload.name,
             location = location,
             screenOrientation = screenOrientation,
+            imageLoadStrategy = payload.imageLoadStrategy,
             idlePage = idlePage,
             modifierId = userId
         )

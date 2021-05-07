@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.dao
 
+import fi.metatavu.muisti.api.spec.model.DeviceImageLoadStrategy
 import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.persistence.model.*
 import java.util.*
@@ -29,6 +30,7 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
      * @param locationX location x
      * @param locationY location y
      * @param screenOrientation screen orientation
+     * @param imageLoadStrategy image load strategy
      * @param idlePage idle page
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
@@ -43,6 +45,7 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
         locationX: Double?,
         locationY: Double?,
         screenOrientation: ScreenOrientation,
+        imageLoadStrategy: DeviceImageLoadStrategy,
         idlePage: ExhibitionPage?,
         creatorId: UUID,
         lastModifierId: UUID
@@ -56,6 +59,7 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
         exhibitionDevice.locationX = locationX
         exhibitionDevice.locationY = locationY
         exhibitionDevice.screenOrientation = screenOrientation
+        exhibitionDevice.imageLoadStrategy = imageLoadStrategy
         exhibitionDevice.idlePage = idlePage
         exhibitionDevice.creatorId = creatorId
         exhibitionDevice.lastModifierId = lastModifierId
@@ -180,6 +184,20 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
     fun updateScreenOrientation(exhibitionDevice: ExhibitionDevice, screenOrientation: ScreenOrientation, lastModifierId: UUID): ExhibitionDevice {
         exhibitionDevice.lastModifierId = lastModifierId
         exhibitionDevice.screenOrientation = screenOrientation
+        return persist(exhibitionDevice)
+    }
+
+    /**
+     * Updates image load strategy
+     *
+     * @param exhibitionDevice exhibition device to be updated
+     * @param imageLoadStrategy image load strategy
+     * @param lastModifierId last modifier's id
+     * @return updated exhibitionDevice
+     */
+    fun updateImageLoadStrategy(exhibitionDevice: ExhibitionDevice, imageLoadStrategy: DeviceImageLoadStrategy, lastModifierId: UUID): ExhibitionDevice {
+        exhibitionDevice.lastModifierId = lastModifierId
+        exhibitionDevice.imageLoadStrategy = imageLoadStrategy
         return persist(exhibitionDevice)
     }
 
