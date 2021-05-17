@@ -270,7 +270,7 @@ class KeycloakController {
         }
 
     /**
-     * Resolves a valid access token from Keycloak
+     * Resolves a admin access token from Keycloak
      *
      * @return access token
      */
