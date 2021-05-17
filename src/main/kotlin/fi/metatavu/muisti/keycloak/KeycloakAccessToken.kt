@@ -1,19 +1,43 @@
 package fi.metatavu.muisti.keycloak
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
+/**
+ * Jackson data class for Keycloak access tokens
+ *
+ * @property accessToken access token field value
+ * @property expiresIn expires in field value
+ * @property refreshExpiresIn refresh expires in field value
+ * @property refreshToken refresh token field value
+ * @property tokenType token type field value
+ * @property notBeforePolicy not before policy field value
+ * @property sessionState session state field value
+ * @property scope scope field value
+ */
 data class KeycloakAccessToken (
 
-    val access_token: String,
+    @JsonProperty("access_token")
+    val accessToken: String,
 
-    val expires_in: Long,
+    @JsonProperty("expires_in")
+    val expiresIn: Long,
 
-    val refresh_expires_in: Long,
+    @JsonProperty("refresh_expires_in")
+    val refreshExpiresIn: Long,
 
-    val refresh_token: String,
+    @JsonProperty("refresh_token")
+    val refreshToken: String,
 
-    val token_type: String,
+    @JsonProperty("token_type")
+    val tokenType: String,
 
-    val session_state: String,
+    @JsonProperty("not-before-policy")
+    val notBeforePolicy: Long,
 
+    @JsonProperty("session_state")
+    val sessionState: String,
+
+    @JsonProperty("scope")
     val scope: String
 
 )
