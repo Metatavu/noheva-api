@@ -54,12 +54,12 @@ class KeycloakController {
      */
     fun findUserByEmail(email: String): UserRepresentation? {
         val users = searchUsers(
-                username = null,
-                firstName =  null,
-                lastName = null,
-                email = email,
-                firstResult = 0,
-                maxResults = 1
+            username = null,
+            firstName =  null,
+            lastName = null,
+            email = email,
+            firstResult = 0,
+            maxResults = 1
         )
 
         return users.firstOrNull()
@@ -141,12 +141,12 @@ class KeycloakController {
     private fun searchUsers(username: String?, firstName: String?, lastName: String?, email: String?, firstResult: Int?, maxResults: Int?): List<UserRepresentation> {
         try {
             return keycloakClient.realm(realm).users().search(
-                    username,
-                    firstName,
-                    lastName,
-                    email,
-                    firstResult,
-                    maxResults
+                username,
+                firstName,
+                lastName,
+                email,
+                firstResult,
+                maxResults
             )
         } catch (e: javax.ws.rs.WebApplicationException) {
             if (logger.isErrorEnabled) {
@@ -242,15 +242,15 @@ class KeycloakController {
     private val keycloakClient: Keycloak
         get() {
             return KeycloakBuilder.builder()
-                    .serverUrl(serverUrl)
-                    .realm(realm)
-                    .clientId(adminResource)
-                    .clientSecret(adminSecret)
-                    .grantType(OAuth2Constants.PASSWORD)
-                    .username(adminUser)
-                    .password(adminPassword)
-                    .authorization("Bearer $adminAccessToken")
-                    .build()
+                .serverUrl(serverUrl)
+                .realm(realm)
+                .clientId(adminResource)
+                .clientSecret(adminSecret)
+                .grantType(OAuth2Constants.PASSWORD)
+                .username(adminUser)
+                .password(adminPassword)
+                .authorization("Bearer $adminAccessToken")
+                .build()
         }
 
     /**
@@ -258,6 +258,10 @@ class KeycloakController {
      */
     private val adminAccessToken: String?
         get() {
+            if (keycloakToken != null) {
+                return keycloakToken
+            }
+
             val uri = "$serverUrl/realms/$realm/protocol/openid-connect/token"
             try {
                 HttpClients.createDefault().use { client ->
@@ -328,13 +332,20 @@ class KeycloakController {
      * Returns Keycloak realm
      */
     private val realm: String
-         get() = System.getenv("KEYCLOAK_REALM")
+        get() = System.getenv("KEYCLOAK_REALM")
 
     /**
      * Returns Keycloak server URL
      */
     private val serverUrl: String
         get() = System.getenv("KEYCLOAK_URL")
+
+
+    /**
+     * Returns Keycloak token
+     */
+    private val keycloakToken: String?
+        get() = System.getenv("KEYCLOAK_TOKEN")
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private class IdExtract {
