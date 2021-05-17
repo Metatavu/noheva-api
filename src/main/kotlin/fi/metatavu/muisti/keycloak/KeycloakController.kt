@@ -1,8 +1,9 @@
 package fi.metatavu.muisti.keycloak
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.http.NameValuePair
@@ -17,6 +18,7 @@ import org.keycloak.representations.idm.UserRepresentation
 import org.slf4j.Logger
 import java.io.IOException
 import java.io.InputStream
+import java.time.OffsetDateTime
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -34,6 +36,12 @@ class KeycloakController {
 
     @Inject
     private lateinit var logger: Logger
+
+    private val expireSlack = 60L
+
+    private var accessToken: KeycloakAccessToken? = null
+
+    private var accessTokenExpires: OffsetDateTime? = null
 
     /**
      * Finds a Keycloak user by user id
@@ -258,50 +266,80 @@ class KeycloakController {
      */
     private val adminAccessToken: String?
         get() {
-            if (keycloakToken != null) {
-                return keycloakToken
-            }
-
-            val uri = "$serverUrl/realms/$realm/protocol/openid-connect/token"
-            try {
-                HttpClients.createDefault().use { client ->
-                    val httpPost = HttpPost(uri)
-                    val params: MutableList<NameValuePair> = ArrayList()
-                    params.add(BasicNameValuePair("client_id", adminResource))
-                    params.add(BasicNameValuePair("grant_type", "password"))
-                    params.add(BasicNameValuePair("username", adminUser))
-                    params.add(BasicNameValuePair("password", adminPassword))
-                    params.add(BasicNameValuePair("client_secret", adminSecret))
-                    httpPost.entity = UrlEncodedFormEntity(params)
-                    client.execute(httpPost).use { response ->
-                        if (response.statusLine.statusCode != 200) {
-                            logger.error("Failed obtain access token: {}", IOUtils.toString(response.entity.content, "UTF-8"))
-                            return null
-                        }
-
-                        response.entity.content.use { inputStream ->
-                            val responseMap: Map<String, Any> = readJsonMap(inputStream)
-                            return responseMap["access_token"] as String?
-                        }
-                    }
-                }
-            } catch (e: IOException) {
-                logger.debug("Failed to retrieve access token", e)
-            }
-            return null
+            return getAccessToken()?.accessToken
         }
 
     /**
-     * Reads JSON src into Map
+     * Resolves a admin access token from Keycloak
      *
-     * @param src input
-     * @return map
-     * @throws IOException throws IOException when there is error when reading the input
+     * @return access token
      */
-    @Throws(IOException::class)
-    private fun readJsonMap(src: InputStream): Map<String, Any> {
-        val objectMapper = ObjectMapper()
-        return objectMapper.readValue(src, object : TypeReference<Map<String?, Any?>?>() {})
+    private fun getAccessToken(): KeycloakAccessToken? {
+        try {
+            val now = OffsetDateTime.now()
+            val expires = accessTokenExpires?.minusSeconds(expireSlack)
+
+            if ((accessToken == null) || expires == null || expires.isBefore(now)) {
+                accessToken = obtainAccessToken()
+                if (accessToken == null) {
+                    logger.error("Could not obtain access token")
+                    return null
+                }
+
+                val expiresIn = accessToken?.expiresIn
+                if (expiresIn == null) {
+                    logger.error("Could not resolve access token expires in")
+                    return null
+                }
+
+                accessTokenExpires = OffsetDateTime.now().plusSeconds(expiresIn)
+            }
+
+            return accessToken
+        } catch (e: Exception) {
+            logger.error("Failed to retrieve access token", e)
+        }
+
+        return null
+    }
+
+
+    /**
+     * Obtains fresh admin access token from Keycloak
+     */
+    private fun obtainAccessToken(): KeycloakAccessToken? {
+        logger.info("Obtaining new admin access token...")
+
+        val uri = "$serverUrl/realms/$realm/protocol/openid-connect/token"
+        try {
+            HttpClients.createDefault().use { client ->
+                val httpPost = HttpPost(uri)
+                val params: MutableList<NameValuePair> = ArrayList()
+                params.add(BasicNameValuePair("client_id", adminResource))
+                params.add(BasicNameValuePair("grant_type", "password"))
+                params.add(BasicNameValuePair("username", adminUser))
+                params.add(BasicNameValuePair("password", adminPassword))
+                params.add(BasicNameValuePair("client_secret", adminSecret))
+                httpPost.entity = UrlEncodedFormEntity(params)
+                client.execute(httpPost).use { response ->
+                    if (response.statusLine.statusCode != 200) {
+                        logger.error("Failed obtain access token: {}", IOUtils.toString(response.entity.content, "UTF-8"))
+                        return null
+                    }
+
+                    response.entity.content.use { inputStream ->
+                        val objectMapper = ObjectMapper()
+                        objectMapper.registerModule(JavaTimeModule())
+                        objectMapper.registerModule(KotlinModule())
+                        return objectMapper.readValue(inputStream, KeycloakAccessToken::class.java)
+                    }
+                }
+            }
+        } catch (e: IOException) {
+            logger.debug("Failed to retrieve access token", e)
+        }
+
+        return null
     }
 
     /**
@@ -339,13 +377,6 @@ class KeycloakController {
      */
     private val serverUrl: String
         get() = System.getenv("KEYCLOAK_URL")
-
-
-    /**
-     * Returns Keycloak token
-     */
-    private val keycloakToken: String?
-        get() = System.getenv("KEYCLOAK_TOKEN")
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private class IdExtract {
