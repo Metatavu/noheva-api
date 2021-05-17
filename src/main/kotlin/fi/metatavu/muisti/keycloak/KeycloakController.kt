@@ -308,6 +308,8 @@ class KeycloakController {
      * Obtains fresh admin access token from Keycloak
      */
     private fun obtainAccessToken(): KeycloakAccessToken? {
+        logger.info("Obtaining new admin access token...")
+
         val uri = "$serverUrl/realms/$realm/protocol/openid-connect/token"
         try {
             HttpClients.createDefault().use { client ->
