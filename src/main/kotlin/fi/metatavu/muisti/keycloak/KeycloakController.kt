@@ -17,6 +17,7 @@ import org.keycloak.representations.idm.UserRepresentation
 import org.slf4j.Logger
 import java.io.IOException
 import java.io.InputStream
+import java.time.OffsetDateTime
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -34,6 +35,72 @@ class KeycloakController {
 
     @Inject
     private lateinit var logger: Logger
+
+    private val expireSlack = 60L
+
+    private var accessToken: KeycloakAccessToken? = null
+
+    private var accessTokenExpires: OffsetDateTime? = null
+
+    /**
+     * Resolves a valid access token from Keycloak
+     *
+     * @return access token
+     */
+    fun getAccessToken(): KeycloakAccessToken? {
+        try {
+            val now = OffsetDateTime.now()
+            val expires = accessTokenExpires?.minusSeconds(expireSlack)
+
+            if ((accessToken == null) || expires == null || expires.isBefore(now)) {
+                accessToken = obtainAccessToken()
+                val expiresIn = accessToken?.expires_in ?: return null
+                accessTokenExpires = OffsetDateTime.now().plusSeconds(expiresIn)
+            }
+
+            return accessToken
+        } catch (e: Exception) {
+            logger.error("Failed to retrieve access token", e)
+        }
+
+        return null
+    }
+
+    private fun obtainAccessToken(): KeycloakAccessToken? {
+        val uri = "$serverUrl/realms/$realm/protocol/openid-connect/token"
+        try {
+            HttpClients.createDefault().use { client ->
+                val httpPost = HttpPost(uri)
+                val params: MutableList<NameValuePair> = ArrayList()
+                params.add(BasicNameValuePair("client_id", adminResource))
+                params.add(BasicNameValuePair("grant_type", "password"))
+                params.add(BasicNameValuePair("username", adminUser))
+                params.add(BasicNameValuePair("password", adminPassword))
+                params.add(BasicNameValuePair("client_secret", adminSecret))
+                httpPost.entity = UrlEncodedFormEntity(params)
+
+                client.execute(httpPost).use { response ->
+                    if (response.statusLine.statusCode != 200) {
+                        logger.error("Failed obtain access token: {}", IOUtils.toString(response.entity.content, "UTF-8"))
+                        return null
+                    }
+
+                    val objectMapper = ObjectMapper()
+
+                    return objectMapper.readValue(response.entity.content, KeycloakAccessToken::class.java)
+                }
+            }
+        } catch (e: IOException) {
+            logger.debug("Failed to retrieve access token", e)
+        }
+
+        return null
+    }
+
+/**
+    private fun obtainAccessToken(): KeycloakAccessToken? {
+
+    }**/
 
     /**
      * Finds a Keycloak user by user id
@@ -249,42 +316,8 @@ class KeycloakController {
                     .grantType(OAuth2Constants.PASSWORD)
                     .username(adminUser)
                     .password(adminPassword)
-                    .authorization("Bearer $adminAccessToken")
+                    .authorization("Bearer ${getAccessToken()?.access_token}")
                     .build()
-        }
-
-    /**
-     * Returns API admin access token
-     */
-    private val adminAccessToken: String?
-        get() {
-            val uri = "$serverUrl/realms/$realm/protocol/openid-connect/token"
-            try {
-                HttpClients.createDefault().use { client ->
-                    val httpPost = HttpPost(uri)
-                    val params: MutableList<NameValuePair> = ArrayList()
-                    params.add(BasicNameValuePair("client_id", adminResource))
-                    params.add(BasicNameValuePair("grant_type", "password"))
-                    params.add(BasicNameValuePair("username", adminUser))
-                    params.add(BasicNameValuePair("password", adminPassword))
-                    params.add(BasicNameValuePair("client_secret", adminSecret))
-                    httpPost.entity = UrlEncodedFormEntity(params)
-                    client.execute(httpPost).use { response ->
-                        if (response.statusLine.statusCode != 200) {
-                            logger.error("Failed obtain access token: {}", IOUtils.toString(response.entity.content, "UTF-8"))
-                            return null
-                        }
-
-                        response.entity.content.use { inputStream ->
-                            val responseMap: Map<String, Any> = readJsonMap(inputStream)
-                            return responseMap["access_token"] as String?
-                        }
-                    }
-                }
-            } catch (e: IOException) {
-                logger.debug("Failed to retrieve access token", e)
-            }
-            return null
         }
 
     /**
