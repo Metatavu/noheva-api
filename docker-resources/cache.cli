@@ -1,0 +1,3 @@
+embed-server --server-config=standalone-full-ha.xml
+/subsystem=infinispan/cache-container=muisti:add()
+/subsystem=infinispan/cache-container=muisti/local-cache=user:add()

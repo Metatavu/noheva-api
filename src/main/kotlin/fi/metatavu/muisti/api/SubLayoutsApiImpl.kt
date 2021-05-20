@@ -2,15 +2,12 @@ package fi.metatavu.muisti.api
 
 import fi.metatavu.muisti.api.spec.SubLayoutsApi
 import fi.metatavu.muisti.api.spec.model.SubLayout
-import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import fi.metatavu.muisti.api.translate.SubLayoutTranslator
 import fi.metatavu.muisti.contents.SubLayoutController
-import fi.metatavu.muisti.devices.DeviceModelController
-import fi.metatavu.muisti.persistence.model.DeviceModel
 import java.util.*
-import javax.ejb.Stateful
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
 /**
@@ -19,7 +16,7 @@ import javax.ws.rs.core.Response
  * @author Jari Nykänen
  */
 @RequestScoped
-@Stateful
+@Transactional
 class SubLayoutsApiImpl: SubLayoutsApi, AbstractApi() {
 
     @Inject

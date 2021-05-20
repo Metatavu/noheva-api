@@ -23,9 +23,9 @@ import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import java.util.*
 import java.util.stream.Collectors
-import javax.ejb.Stateful
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
 /**
@@ -35,7 +35,7 @@ import javax.ws.rs.core.Response
  * @author Jari Nykänen
  */
 @RequestScoped
-@Stateful
+@Transactional
 @Suppress("unused")
 class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
 
