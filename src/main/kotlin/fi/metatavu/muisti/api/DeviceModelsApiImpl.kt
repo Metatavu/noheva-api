@@ -6,9 +6,9 @@ import fi.metatavu.muisti.api.translate.DeviceModelTranslator
 import fi.metatavu.muisti.contents.PageLayoutController
 import fi.metatavu.muisti.devices.DeviceModelController
 import java.util.*
-import javax.ejb.Stateful
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
 /**
@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response
  * @author Antti Leppä
  */
 @RequestScoped
-@Stateful
+@Transactional
 @Suppress("unused")
 class DeviceModelsApiImpl: DeviceModelsApi, AbstractApi() {
 
