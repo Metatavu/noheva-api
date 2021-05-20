@@ -3,9 +3,9 @@ package fi.metatavu.muisti.api
 import fi.metatavu.muisti.api.spec.StoredFilesApi
 import fi.metatavu.muisti.api.spec.model.StoredFile
 import fi.metatavu.muisti.files.FileController
-import javax.ejb.Stateful
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
 /**
@@ -14,7 +14,7 @@ import javax.ws.rs.core.Response
  * @author Antti Leppä
  */
 @RequestScoped
-@Stateful
+@Transactional
 class StoredFilesApiImpl: StoredFilesApi, AbstractApi() {
 
     @Inject

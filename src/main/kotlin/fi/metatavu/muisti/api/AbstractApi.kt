@@ -14,6 +14,7 @@ import java.time.OffsetDateTime
 import java.util.*
 import java.util.function.Function
 import java.util.stream.Collectors
+import javax.enterprise.context.RequestScoped
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.core.Response
 
@@ -22,6 +23,7 @@ import javax.ws.rs.core.Response
  *
  * @author Antti Leppä
  */
+@RequestScoped
 abstract class AbstractApi {
 
     /**

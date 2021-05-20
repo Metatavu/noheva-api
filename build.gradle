@@ -75,6 +75,7 @@ dependencies {
   compileOnly "org.slf4j:slf4j-simple:$slf4j_version"
   compileOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
   compileOnly "org.apache.commons:commons-lang3"
+  compileOnly "org.infinispan:infinispan-core"
 
   implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
@@ -179,7 +180,7 @@ sonarqube {
 }
 
 allOpen {
-  annotations "javax.persistence.Entity", "javax.enterprise.context.RequestScoped", "javax.enterprise.context.Dependent", "javax.enterprise.context.ApplicationScoped"
+  annotations "javax.persistence.Entity", "javax.enterprise.context.RequestScoped", "javax.enterprise.context.Dependent", "javax.enterprise.context.ApplicationScoped", "javax.transaction.Transactional"
 }
 
 test {

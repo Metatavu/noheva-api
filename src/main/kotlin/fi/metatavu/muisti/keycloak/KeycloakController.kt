@@ -14,9 +14,12 @@ import java.io.InputStream
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import javax.annotation.Resource
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 import javax.ws.rs.core.Response
+import org.infinispan.Cache
+import java.util.concurrent.TimeUnit
 
 /**
  * Controller for Keycloak related operations
@@ -29,6 +32,9 @@ class KeycloakController {
     @Inject
     private lateinit var logger: Logger
 
+    @Resource(lookup = "java:jboss/infinispan/cache/muisti/user")
+    private lateinit var userCache: Cache<UUID, UserRepresentation>
+
     /**
      * Finds a Keycloak user by user id
      *
@@ -37,7 +43,16 @@ class KeycloakController {
      */
     fun findUserById(id: UUID?): UserRepresentation? {
         id ?: return null
-        return keycloakClient.realm(realm).users().get(id.toString()).toRepresentation()
+
+        val cached = userCache[id]
+        if (cached != null) {
+            return cached
+        }
+
+        val user = keycloakClient.realm(realm).users().get(id.toString()).toRepresentation() ?: return null
+        userCache.put(id, user, 60, TimeUnit.SECONDS)
+
+        return user
     }
 
     /**
@@ -119,6 +134,8 @@ class KeycloakController {
         userRepresentation.singleAttribute(USER_ATTRIBUTE_BIRTH_YEAR, birthYear?.toString())
 
         userResource.update(userRepresentation)
+
+        userCache.remove(UUID.fromString(userRepresentation.id))
 
         return userRepresentation
     }

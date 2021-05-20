@@ -1,15 +1,8 @@
 package fi.metatavu.muisti.api
 
 import fi.metatavu.muisti.api.spec.SystemApi
-
-import java.util.UUID
-import java.util.stream.Collectors
-import javax.ejb.Stateful
 import javax.enterprise.context.RequestScoped
-import javax.inject.Inject
-import javax.validation.Valid
-import javax.ws.rs.Consumes
-import javax.ws.rs.Produces
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
 
@@ -19,7 +12,7 @@ import javax.ws.rs.core.Response
  * @author Antti Leppä
  */
 @RequestScoped
-@Stateful
+@Transactional
 open class SystemApiImpl(): SystemApi {
 
     override fun ping(): Response? {
