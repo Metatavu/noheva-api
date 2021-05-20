@@ -20,6 +20,7 @@ import javax.inject.Inject
 import javax.ws.rs.core.Response
 import org.infinispan.Cache
 import java.util.concurrent.TimeUnit
+import javax.annotation.PostConstruct
 
 /**
  * Controller for Keycloak related operations
@@ -34,6 +35,17 @@ class KeycloakController {
 
     @Resource(lookup = "java:jboss/infinispan/cache/muisti/user")
     private lateinit var userCache: Cache<UUID, UserRepresentation>
+
+    private var cacheSeconds: Long = 60
+
+    /**
+     * Post construct method
+     */
+    @PostConstruct
+    fun init() {
+        val cacheSecondsEnv = System.getenv("USER_CACHE_MAX_SECONDS")
+        cacheSeconds = cacheSecondsEnv?.toLong() ?: 60
+    }
 
     /**
      * Finds a Keycloak user by user id
@@ -50,7 +62,7 @@ class KeycloakController {
         }
 
         val user = keycloakClient.realm(realm).users().get(id.toString()).toRepresentation() ?: return null
-        userCache.put(id, user, 60, TimeUnit.SECONDS)
+        userCache.put(id, user, cacheSeconds, TimeUnit.SECONDS)
 
         return user
     }
