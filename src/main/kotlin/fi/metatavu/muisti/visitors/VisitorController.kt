@@ -3,7 +3,9 @@ package fi.metatavu.muisti.visitors
 import fi.metatavu.muisti.persistence.dao.VisitorDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.Visitor
+import fi.metatavu.muisti.settings.SettingsController
 import org.keycloak.representations.idm.UserRepresentation
+import java.time.OffsetDateTime
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -13,6 +15,9 @@ import javax.inject.Inject
  */
 @ApplicationScoped
 class VisitorController {
+
+    @Inject
+    private lateinit var settingsController: SettingsController
 
     @Inject
     private lateinit var visitorDAO: VisitorDAO
@@ -66,10 +71,16 @@ class VisitorController {
      * @return list of visitors in exhibition
      */
     fun listVisitors(exhibition: Exhibition, tagId: String?, userId: UUID?): List<Visitor> {
+        var createdAfter: OffsetDateTime? = null
+        if (tagId.isNullOrEmpty() && userId == null) {
+            createdAfter = settingsController.getVisitorSessionValidAfter()
+        }
+
         return visitorDAO.list(
             exhibition = exhibition,
             tagId = tagId,
-            userId = userId
+            userId = userId,
+            createdAfter = createdAfter
         )
     }
 
