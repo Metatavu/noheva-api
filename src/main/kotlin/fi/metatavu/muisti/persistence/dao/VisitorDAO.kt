@@ -3,6 +3,7 @@ package fi.metatavu.muisti.persistence.dao
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.Visitor
 import fi.metatavu.muisti.persistence.model.Visitor_
+import java.time.OffsetDateTime
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
@@ -73,7 +74,7 @@ class VisitorDAO : AbstractDAO<Visitor>() {
      * @param userId filter results by user id
      * @return List of visitors
      */
-    fun list(exhibition: Exhibition?, tagId: String?, userId: UUID?): List<Visitor> {
+    fun list(exhibition: Exhibition?, tagId: String?, userId: UUID?, createdAfter: OffsetDateTime?): List<Visitor> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<Visitor> = criteriaBuilder.createQuery(Visitor::class.java)
@@ -87,6 +88,10 @@ class VisitorDAO : AbstractDAO<Visitor>() {
 
         if (userId != null) {
             restrictions.add(criteriaBuilder.equal(root.get(Visitor_.userId), userId))
+        }
+
+        if (createdAfter != null) {
+            restrictions.add(criteriaBuilder.greaterThan(root.get(Visitor_.createdAt), createdAfter))
         }
 
         criteria.select(root)
