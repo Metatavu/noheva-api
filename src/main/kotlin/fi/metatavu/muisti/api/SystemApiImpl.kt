@@ -1,6 +1,7 @@
 package fi.metatavu.muisti.api
 
 import fi.metatavu.muisti.api.spec.SystemApi
+import fi.metatavu.muisti.api.spec.model.SystemMemory
 import org.apache.commons.io.FileUtils
 import javax.enterprise.context.RequestScoped
 import javax.transaction.Transactional
@@ -23,16 +24,13 @@ open class SystemApiImpl(): SystemApi {
         return Response.ok("pong").build()
     }
 
-    @GET
-    @Path("/memory")
-    @Produces("application/json")
-    fun memory(): Response? {
+    override fun memory(): Response? {
         val runtime = Runtime.getRuntime();
 
-        val result = mutableMapOf<String, String>()
-        result.put("freeMemory", FileUtils.byteCountToDisplaySize(runtime.freeMemory()))
-        result.put("availableProcessors", runtime.availableProcessors().toString())
-        result.put("maxMemory", FileUtils.byteCountToDisplaySize(runtime.maxMemory()))
+        val result = SystemMemory()
+        result.availableProcessors = runtime.availableProcessors().toString()
+        result.freeMemory = FileUtils.byteCountToDisplaySize(runtime.freeMemory())
+        result.maxMemory = FileUtils.byteCountToDisplaySize(runtime.maxMemory())
 
         return Response.ok(result).build()
     }
