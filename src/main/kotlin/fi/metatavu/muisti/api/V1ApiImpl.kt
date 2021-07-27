@@ -223,7 +223,7 @@ class V1ApiImpl: V1Api, AbstractApi() {
         payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
 
         var userRepresentation = keycloakController.findUserByEmail(payload.email)
         if (userRepresentation == null) {
