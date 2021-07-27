@@ -203,7 +203,7 @@ class V1ApiImpl: V1Api, AbstractApi() {
             return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
-        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
 
         val contentVersions = contentVersionController.listContentVersions(exhibition = exhibition, exhibitionRoom = null)
