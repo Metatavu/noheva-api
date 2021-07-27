@@ -27,16 +27,26 @@ class VisitorSessionDAO : AbstractDAO<VisitorSession>() {
      * @param exhibition exhibition
      * @param state state
      * @param language language
+     * @param expiresAt expires at
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created visitorSession
      */
-    fun create(id: UUID, exhibition: Exhibition, state: VisitorSessionState, language: String, creatorId: UUID, lastModifierId: UUID): VisitorSession {
+    fun create(
+        id: UUID,
+        exhibition: Exhibition,
+        state: VisitorSessionState,
+        language: String,
+        expiresAt: OffsetDateTime,
+        creatorId: UUID,
+        lastModifierId: UUID
+    ): VisitorSession {
         val visitorSession = VisitorSession()
         visitorSession.exhibition = exhibition
         visitorSession.id = id
         visitorSession.state = state
         visitorSession.language = language
+        visitorSession.expiresAt = expiresAt
         visitorSession.creatorId = creatorId
         visitorSession.lastModifierId = lastModifierId
         return persist(visitorSession)
@@ -46,10 +56,15 @@ class VisitorSessionDAO : AbstractDAO<VisitorSession>() {
      * Lists visitor sessions
      *
      * @param exhibition exhibition
-     * @param createdAfter created after specified time
+     * @param modifiedAfter modified after specified time
+     * @param expiresAfter expires after specified time
      * @return List of visitor sessions
      */
-    fun list(exhibition: Exhibition, createdAfter: OffsetDateTime): List<VisitorSession> {
+    fun list(
+        exhibition: Exhibition,
+        modifiedAfter: OffsetDateTime?,
+        expiresAfter: OffsetDateTime
+    ): List<VisitorSession> {
         val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<VisitorSession> = criteriaBuilder.createQuery(VisitorSession::class.java)
@@ -57,7 +72,11 @@ class VisitorSessionDAO : AbstractDAO<VisitorSession>() {
 
         val restrictions = ArrayList<Predicate>()
         restrictions.add(criteriaBuilder.equal(root.get(VisitorSession_.exhibition), exhibition))
-        restrictions.add(criteriaBuilder.greaterThan(root.get(VisitorSession_.createdAt), createdAfter))
+        restrictions.add(criteriaBuilder.greaterThan(root.get(VisitorSession_.expiresAt), expiresAfter))
+
+        if (modifiedAfter != null) {
+            restrictions.add(criteriaBuilder.greaterThan(root.get(VisitorSession_.modifiedAt), modifiedAfter))
+        }
 
         criteria.select(root)
         criteria.where(*restrictions.toTypedArray())

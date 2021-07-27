@@ -484,7 +484,7 @@ class V1ApiImpl: V1Api, AbstractApi() {
         val visitorSessions = visitorSessionController.listVisitorSessions(
             exhibition = exhibition,
             tagId = tagId,
-            modifiedSince = null
+            modifiedAfter = null
         )
 
         return createOk(visitorSessions.map (visitorSessionTranslator::translate))

@@ -880,4 +880,12 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="visitorsessionexpires" author="antti.leppa">
+        <addColumn tableName="visitorsession">
+            <column name="expiresat" type="datetime(6)"/>
+        </addColumn>
+        <sql>UPDATE visitorsession SET expiresat = ADDTIME(createdAt, "6:00:0.000000")</sql>
+        <addNotNullConstraint columnDataType="datetime(6)" tableName="visitorsession" columnName="expiresat"/>
+    </changeSet>
+
 </databaseChangeLog>
