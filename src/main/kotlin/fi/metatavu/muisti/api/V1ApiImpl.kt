@@ -272,7 +272,7 @@ class V1ApiImpl: V1Api, AbstractApi() {
     override fun listVisitors(exhibitionId: UUID?, tagId: String?, email: String?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         var userId: UUID? = null
 
         if (email != null) {
