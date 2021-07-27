@@ -191,7 +191,7 @@ class V1ApiImpl: V1Api, AbstractApi() {
             return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
-        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val updatedExhibition = exhibitionController.updateExhibition(exhibition, payload.name, userId)
 
