@@ -94,23 +94,6 @@ class V2ApiImpl: V2Api, AbstractApi() {
         return createOk(visitorSessionV2Translator.translate(visitorSession))
     }
 
-    override fun deleteVisitorSessionV2(
-        exhibitionId: UUID?,
-        visitorSessionId: UUID?
-    ): Response {
-        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
-        visitorSessionId ?: return createNotFound(VISITOR_SESSION_NOT_FOUND)
-        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
-        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val visitorSession = visitorSessionController.findVisitorSessionById(id = visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
-
-        visitorSessionController.deleteVisitorSession(visitorSession)
-
-        realtimeNotificationController.notifyExhibitionVisitorSessionDelete(exhibitionId,  visitorSessionId)
-
-        return createNoContent()
-    }
-
     override fun findVisitorSessionV2(
         exhibitionId: UUID?,
         visitorSessionId: UUID?
@@ -190,6 +173,23 @@ class V2ApiImpl: V2Api, AbstractApi() {
         realtimeNotificationController.notifyExhibitionVisitorSessionUpdate(exhibitionId,  visitorSessionId, variablesChanged, usersChanged)
 
         return createOk(visitorSessionV2Translator.translate(result))
+    }
+
+    override fun deleteVisitorSessionV2(
+        exhibitionId: UUID?,
+        visitorSessionId: UUID?
+    ): Response {
+        exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        visitorSessionId ?: return createNotFound(VISITOR_SESSION_NOT_FOUND)
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
+        val visitorSession = visitorSessionController.findVisitorSessionById(id = visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
+
+        visitorSessionController.deleteVisitorSession(visitorSession)
+
+        realtimeNotificationController.notifyExhibitionVisitorSessionDelete(exhibitionId,  visitorSessionId)
+
+        return createNoContent()
     }
 
 }
