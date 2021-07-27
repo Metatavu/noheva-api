@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 /**
- * Test class for testing visitor sessions API
+ * Test class for testing visitor sessions API V2
  *
  * @author Antti Leppä
  */
