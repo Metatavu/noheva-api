@@ -17,6 +17,9 @@ class VisitorSession {
     var id: UUID? = null
 
     @Column(nullable = false)
+    var expiresAt: OffsetDateTime? = null
+
+    @Column(nullable = false)
     var createdAt: OffsetDateTime? = null
 
     @Column(nullable = false)

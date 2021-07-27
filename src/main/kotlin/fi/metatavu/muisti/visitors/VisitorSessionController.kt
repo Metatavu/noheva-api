@@ -13,6 +13,7 @@ import fi.metatavu.muisti.settings.SettingsController
 import org.apache.commons.lang3.BooleanUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.math.NumberUtils
+import java.time.OffsetDateTime
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -53,12 +54,20 @@ class VisitorSessionController {
      * @param creatorId creator id
      * @return created visitor session
      */
-    fun createVisitorSession(exhibition: Exhibition, state: VisitorSessionState, language: String, creatorId: UUID): VisitorSession {
+    fun createVisitorSession(
+        exhibition: Exhibition,
+        state: VisitorSessionState,
+        language: String,
+        creatorId: UUID
+    ): VisitorSession {
+        val expiresAt = OffsetDateTime.now().plus(settingsController.getVisitorSessionTimeout())
+
         return visitorSessionDAO.create(
             id = UUID.randomUUID(),
             exhibition = exhibition,
             state = state,
             language = language,
+            expiresAt = expiresAt,
             creatorId = creatorId,
             lastModifierId = creatorId
         )
@@ -78,10 +87,15 @@ class VisitorSessionController {
      * Lists visitor sessions. Method only lists visitor sessions that are still valid (not deprecated)
      *
      * @param exhibition filter by exhibition
+     * @param modifiedAfter filter visitor sessions modified after specified time
      * @param tagId filter by tagId
      * @return list of visitor sessions
      */
-    fun listVisitorSessions(exhibition: Exhibition, tagId: String?): List<VisitorSession> {
+    fun listVisitorSessions(
+        exhibition: Exhibition,
+        modifiedAfter: OffsetDateTime?,
+        tagId: String?
+    ): List<VisitorSession> {
         var visitor: Visitor? = null
 
         if (tagId != null) {
@@ -93,9 +107,11 @@ class VisitorSessionController {
             return visitorSessionVisitorDAO.listSessionsByVisitor(visitor = visitor)
         }
 
-        val createdAfter = settingsController.getVisitorSessionValidAfter()
-
-        return visitorSessionDAO.list(exhibition = exhibition, createdAfter = createdAfter)
+        return visitorSessionDAO.list(
+            exhibition = exhibition,
+            modifiedAfter = modifiedAfter,
+            expiresAfter = OffsetDateTime.now()
+        )
     }
 
     /**
