@@ -154,7 +154,7 @@ class V1ApiImpl: V1Api, AbstractApi() {
             return createBadRequest("Missing exhibition name")
         }
 
-        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
 
         val exhibition = exhibitionController.createExhibition(payload.name, userId)
 
