@@ -85,7 +85,7 @@ class V2ApiImpl: V2Api, AbstractApi() {
         visitorSessionController.setVisitorSessionVisitors(visitorSession, visitors)
         visitorSessionController.setVisitorSessionVariables(visitorSession, payload.variables)
         visitorSessionController.setVisitorSessionVisitedDeviceGroups(visitorSession, payload.visitedDeviceGroups, visitedDeviceGroupList)
-        realtimeNotificationController.notifyExhibitionVisitorSessionCreate(exhibitionId,  visitorSession.id!!)
+        realtimeNotificationController.notifyExhibitionVisitorSessionCreate(exhibitionId, visitorSession.id!!)
 
         return createOk(visitorSessionV2Translator.translate(visitorSession))
     }
