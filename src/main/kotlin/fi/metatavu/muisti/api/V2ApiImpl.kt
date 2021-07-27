@@ -53,7 +53,7 @@ class V2ApiImpl: V2Api, AbstractApi() {
         payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
 
         for (variable in payload.variables) {
             if (!visitorSessionController.isValidVisitorSessionVariable(exhibition = exhibition, visitorSessionVariable = variable)) {
@@ -96,7 +96,7 @@ class V2ApiImpl: V2Api, AbstractApi() {
     ): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         visitorSessionId ?: return createNotFound(VISITOR_SESSION_NOT_FOUND)
-        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val visitorSession = visitorSessionController.findVisitorSessionById(id = visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
 
@@ -110,7 +110,7 @@ class V2ApiImpl: V2Api, AbstractApi() {
     ): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         val modifiedAfter = if (modifiedAfterStr != null) OffsetDateTime.parse(modifiedAfterStr) else null
 
         val visitorSessions = visitorSessionController.listVisitorSessions(
@@ -130,7 +130,7 @@ class V2ApiImpl: V2Api, AbstractApi() {
         payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         visitorSessionId ?: return createNotFound(VISITOR_SESSION_NOT_FOUND)
-        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
 
         for (variable in payload.variables) {
@@ -177,7 +177,7 @@ class V2ApiImpl: V2Api, AbstractApi() {
     ): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         visitorSessionId ?: return createNotFound(VISITOR_SESSION_NOT_FOUND)
-        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val visitorSession = visitorSessionController.findVisitorSessionById(id = visitorSessionId) ?: return createNotFound("Visitor session $visitorSessionId not found")
 
