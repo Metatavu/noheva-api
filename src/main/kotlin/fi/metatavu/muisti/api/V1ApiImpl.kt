@@ -263,7 +263,7 @@ class V1ApiImpl: V1Api, AbstractApi() {
     override fun findVisitor(exhibitionId: UUID?, visitorId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         visitorId ?: return createNotFound(VISITOR_NOT_FOUND)
-        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val visitor = visitorController.findVisitorById(visitorId) ?: return createNotFound("Visitor session $visitorId not found")
         return createOk(visitorTranslator.translate(visitor))
