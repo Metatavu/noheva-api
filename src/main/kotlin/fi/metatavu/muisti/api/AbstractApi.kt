@@ -99,6 +99,16 @@ abstract class AbstractApi {
      */
     protected val loggerUserId: UUID?
         get() {
+            return loggedUserId
+        }
+
+    /**
+     * Returns logged user id
+     *
+     * @return logged user id
+     */
+    protected val loggedUserId: UUID?
+        get() {
             val httpServletRequest = httpServletRequest
             val remoteUser = httpServletRequest.remoteUser ?: return null
             return UUID.fromString(remoteUser)
