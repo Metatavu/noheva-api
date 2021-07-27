@@ -6,6 +6,6 @@ import javax.ws.rs.core.Application
 /**
  * JAX-RS Activator class
  */
-@ApplicationPath("/v1")
+@ApplicationPath("/")
 open class JaxRsActivator : Application() {
 }
