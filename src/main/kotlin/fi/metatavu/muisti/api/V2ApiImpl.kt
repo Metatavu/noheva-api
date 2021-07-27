@@ -8,7 +8,6 @@ import fi.metatavu.muisti.exhibitions.ExhibitionController
 import fi.metatavu.muisti.realtime.RealtimeNotificationController
 import fi.metatavu.muisti.visitors.VisitorController
 import fi.metatavu.muisti.visitors.VisitorSessionController
-import org.slf4j.Logger
 import java.time.OffsetDateTime
 import java.util.*
 import javax.enterprise.context.RequestScoped
@@ -26,9 +25,6 @@ import javax.ws.rs.core.Response
 @Transactional
 @Suppress("unused")
 class V2ApiImpl: V2Api, AbstractApi() {
-
-    @Inject
-    private lateinit var logger: Logger
 
     @Inject
     private lateinit var exhibitionController: ExhibitionController
