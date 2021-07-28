@@ -137,9 +137,10 @@ static boolean doHead(url) {
 }
 
 static void waitUrl(url) {
-  println "Waiting for ${url} ..."
+  println "Waiting for ${url}"
   while (!doHead(url)) {
     sleep(1000)
+    print "."
   }
   println "${url} is up!"
 }

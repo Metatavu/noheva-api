@@ -1,17 +1,15 @@
 package fi.metatavu.muisti.api
 
-import fi.metatavu.muisti.api.spec.ExhibitionsApi
+import fi.metatavu.muisti.api.spec.V1Api
 import fi.metatavu.muisti.api.spec.model.*
 import fi.metatavu.muisti.api.translate.*
-import fi.metatavu.muisti.contents.ContentVersionController
-import fi.metatavu.muisti.contents.ExhibitionPageController
-import fi.metatavu.muisti.contents.GroupContentVersionController
-import fi.metatavu.muisti.contents.PageLayoutController
+import fi.metatavu.muisti.contents.*
 import fi.metatavu.muisti.devices.DeviceModelController
 import fi.metatavu.muisti.devices.ExhibitionDeviceController
 import fi.metatavu.muisti.devices.ExhibitionDeviceGroupController
 import fi.metatavu.muisti.devices.RfidAntennaController
 import fi.metatavu.muisti.exhibitions.*
+import fi.metatavu.muisti.files.FileController
 import fi.metatavu.muisti.keycloak.KeycloakController
 import fi.metatavu.muisti.realtime.RealtimeNotificationController
 import fi.metatavu.muisti.settings.SettingsController
@@ -19,6 +17,7 @@ import fi.metatavu.muisti.utils.CopyException
 import fi.metatavu.muisti.visitors.VisitorController
 import fi.metatavu.muisti.visitors.VisitorSessionController
 import fi.metatavu.muisti.visitors.VisitorVariableController
+import org.apache.commons.io.FileUtils
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import java.util.*
@@ -29,7 +28,7 @@ import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
 /**
- * Exhibitions API REST endpoints
+ * V1 API REST endpoints
  *
  * @author Antti Leppä
  * @author Jari Nykänen
@@ -37,7 +36,7 @@ import javax.ws.rs.core.Response
 @RequestScoped
 @Transactional
 @Suppress("unused")
-class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
+class V1ApiImpl: V1Api, AbstractApi() {
 
     @Inject
     private lateinit var logger: Logger
@@ -129,6 +128,21 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
     @Inject
     private lateinit var keycloakController: KeycloakController
 
+    @Inject
+    private lateinit var deviceModelTranslator: DeviceModelTranslator
+
+    @Inject
+    private lateinit var pageLayoutTranslator: PageLayoutTranslator
+
+    @Inject
+    private lateinit var fileController: FileController
+
+    @Inject
+    private lateinit var subLayoutController: SubLayoutController
+
+    @Inject
+    private lateinit var subLayoutTranslator: SubLayoutTranslator
+
     /* Exhibitions */
 
     override fun createExhibition(payload: Exhibition?): Response? {
@@ -140,7 +154,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             return createBadRequest("Missing exhibition name")
         }
 
-        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
 
         val exhibition = exhibitionController.createExhibition(payload.name, userId)
 
@@ -177,7 +191,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
-        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val updatedExhibition = exhibitionController.updateExhibition(exhibition, payload.name, userId)
 
@@ -189,7 +203,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
             return createNotFound(EXHIBITION_NOT_FOUND)
         }
 
-        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
 
         val contentVersions = contentVersionController.listContentVersions(exhibition = exhibition, exhibitionRoom = null)
@@ -209,7 +223,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
 
         var userRepresentation = keycloakController.findUserByEmail(payload.email)
         if (userRepresentation == null) {
@@ -249,7 +263,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
     override fun findVisitor(exhibitionId: UUID?, visitorId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         visitorId ?: return createNotFound(VISITOR_NOT_FOUND)
-        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val visitor = visitorController.findVisitorById(visitorId) ?: return createNotFound("Visitor session $visitorId not found")
         return createOk(visitorTranslator.translate(visitor))
@@ -258,7 +272,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
     override fun listVisitors(exhibitionId: UUID?, tagId: String?, email: String?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         var userId: UUID? = null
 
         if (email != null) {
@@ -280,7 +294,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         visitorId ?: return createNotFound(VISITOR_NOT_FOUND)
 
-        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val visitor = visitorController.findVisitorById(visitorId) ?: return createNotFound("Visitor $visitorId not found")
 
@@ -309,7 +323,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
     override fun deleteVisitor(exhibitionId: UUID?, visitorId: UUID?): Response {
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         visitorId ?: return createNotFound(VISITOR_NOT_FOUND)
-        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
         val visitor = visitorController.findVisitorById(visitorId) ?: return createNotFound("Visitor $visitorId not found")
         visitorController.deleteVisitor(visitor)
@@ -339,7 +353,7 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         payload ?: return createBadRequest(MISSING_REQUEST_BODY)
         exhibitionId ?: return createNotFound(EXHIBITION_NOT_FOUND)
         val exhibition = exhibitionController.findExhibitionById(exhibitionId) ?: return createNotFound("Exhibition $exhibitionId not found")
-        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
 
         val visitorVariable = visitorVariableController.createVisitorVariable(
                 exhibition = exhibition,
@@ -469,7 +483,8 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
 
         val visitorSessions = visitorSessionController.listVisitorSessions(
             exhibition = exhibition,
-            tagId = tagId
+            tagId = tagId,
+            modifiedAfter = null
         )
 
         return createOk(visitorSessions.map (visitorSessionTranslator::translate))
@@ -1472,6 +1487,234 @@ class ExhibitionsApiImpl: ExhibitionsApi, AbstractApi() {
         exhibitionFloorController.deleteExhibitionFloor(exhibitionFloor)
 
         return createNoContent()
+    }
+
+    /* Device models */
+
+    override fun createDeviceModel(payload: DeviceModel?): Response {
+        payload ?: return createBadRequest("Missing request body")
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val manufacturer = payload.manufacturer
+        val model = payload.model
+        val dimensions = payload.dimensions
+        val displayMetrics = payload.displayMetrics
+        val capabilityTouch = payload.capabilities.touch
+        val screenOrientation = payload.screenOrientation
+        val deviceModel = deviceModelController.createDeviceModel(manufacturer, model, dimensions, displayMetrics, capabilityTouch, screenOrientation, userId)
+        return createOk(deviceModelTranslator.translate(deviceModel))
+    }
+
+    override fun findDeviceModel(deviceModelId: UUID?): Response {
+        deviceModelId ?: return createNotFound(DEVICE_MODEL_NOT_FOUND)
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
+        return createOk(deviceModelTranslator.translate(deviceModel))
+    }
+
+    override fun listDeviceModels(): Response {
+        val deviceModels = deviceModelController.listDeviceModels()
+
+        return createOk(deviceModels.map (deviceModelTranslator::translate))
+    }
+
+    override fun updateDeviceModel(deviceModelId: UUID?, payload: DeviceModel?): Response {
+        payload ?: return createBadRequest("Missing request body")
+        deviceModelId ?: return createNotFound(DEVICE_MODEL_NOT_FOUND)
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val manufacturer = payload.manufacturer
+        val model = payload.model
+        val dimensions = payload.dimensions
+
+        val displayMetrics = payload.displayMetrics
+        val capabilityTouch = payload.capabilities.touch
+        val screenOrientation = payload.screenOrientation
+
+        val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
+        val result = deviceModelController.updateDeviceModel(deviceModel, manufacturer, model, dimensions, displayMetrics, capabilityTouch, screenOrientation, userId)
+
+        return createOk(deviceModelTranslator.translate(result))
+    }
+
+    override fun deleteDeviceModel(deviceModelId: UUID?): Response {
+        deviceModelId ?: return createNotFound(DEVICE_MODEL_NOT_FOUND)
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createNotFound("Device model $deviceModelId not found")
+
+        val layouts = pageLayoutController.listPageLayouts(deviceModel = deviceModel, screenOrientation = null)
+
+        if (layouts.isNotEmpty()) {
+            val layoutIds = layouts.map { it.id }.joinToString()
+            return createBadRequest("Device model $deviceModelId cannot be deleted because layouts $layoutIds are using it")
+        }
+
+        deviceModelController.deleteDeviceModel(deviceModel)
+        return createNoContent()
+    }
+
+    /* Files */
+
+    override fun findStoredFile(storedFileId: String?): Response {
+        storedFileId ?: return createNotFound(STORED_FILE_NOT_FOUND)
+        val storedFile = fileController.findStoredFile(storedFileId) ?: return createNotFound("Stored file $storedFileId not found")
+        return createOk(storedFile)
+    }
+
+    override fun listStoredFiles(path: String?): Response {
+        if (path.isNullOrBlank()) {
+            return createBadRequest("Path is required")
+        }
+
+        return createOk(fileController.listStoredFiles(path))
+    }
+
+    override fun updateStoredFile(storedFileId: String?, storedFile: StoredFile?): Response {
+        storedFile ?: return createBadRequest("Payload is required")
+        storedFileId ?: return createNotFound(STORED_FILE_NOT_FOUND)
+        fileController.findStoredFile(storedFileId) ?: return createNotFound("Stored file $storedFileId not found")
+        return createOk(fileController.updateStoredFile(storedFile))
+    }
+
+    override fun deleteStoredFile(storedFileId: String?): Response {
+        storedFileId ?: return createNotFound(STORED_FILE_NOT_FOUND)
+        val storedFile = fileController.findStoredFile(storedFileId) ?: return createNotFound(STORED_FILE_NOT_FOUND)
+        fileController.deleteStoredFile(storedFile.id)
+        return createNoContent()
+    }
+
+    /* Page layouts */
+
+    override fun createPageLayout(payload: PageLayout?): Response {
+        payload ?: return createBadRequest("Missing request body")
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val name = payload.name
+        val data = payload.data
+        val thumbnailUrl = payload.thumbnailUrl
+        val deviceModelId = payload.modelId
+        val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createBadRequest("Device model $deviceModelId could not be found")
+        val screenOrientation = payload.screenOrientation
+
+        val pageLayout = pageLayoutController.createPageLayout(name, data, thumbnailUrl, deviceModel, screenOrientation, userId)
+
+        return createOk(pageLayoutTranslator.translate(pageLayout))
+    }
+
+    override fun findPageLayout(pageLayoutId: UUID?): Response {
+        pageLayoutId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val pageLayout = pageLayoutController.findPageLayoutById(pageLayoutId) ?: return createNotFound("Layout $pageLayoutId not found")
+        return createOk(pageLayoutTranslator.translate(pageLayout))
+    }
+
+    override fun listPageLayouts(deviceModelId: UUID?, screenOrientation: String?): Response? {
+        var deviceModel: fi.metatavu.muisti.persistence.model.DeviceModel? = null
+        var parsedScreenOrientation: ScreenOrientation? = null
+        if (deviceModelId !== null) {
+            deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createBadRequest("Device model with id $deviceModelId was not found")
+        }
+        if (screenOrientation !== null) {
+            parsedScreenOrientation = convertStringToScreenOrientation(screenOrientation) ?: return createBadRequest("Screen orientation $screenOrientation could not be converted")
+        }
+
+        val result = pageLayoutController.listPageLayouts(deviceModel, parsedScreenOrientation)
+        return createOk(result.map (pageLayoutTranslator::translate))
+    }
+
+    override fun updatePageLayout(pageLayoutId: UUID?, payload: PageLayout?): Response {
+        payload ?: return createBadRequest("Missing request body")
+        pageLayoutId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val name = payload.name
+        val data = payload.data
+        val thumbnailUrl = payload.thumbnailUrl
+        val deviceModelId = payload.modelId
+        val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createBadRequest("Device model $deviceModelId could not be found")
+        val screenOrientation = payload.screenOrientation
+
+        val pageLayout = pageLayoutController.findPageLayoutById(pageLayoutId) ?: return createNotFound("Layout $pageLayoutId not found")
+        val result = pageLayoutController.updatePageLayout(pageLayout, name, data, thumbnailUrl, deviceModel, screenOrientation, userId)
+
+        return createOk(pageLayoutTranslator.translate(result))
+    }
+
+    override fun deletePageLayout(pageLayoutId: UUID?): Response {
+        pageLayoutId ?: return createNotFound(EXHIBITION_NOT_FOUND)
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val pageLayout = pageLayoutController.findPageLayoutById(pageLayoutId) ?: return createNotFound("Layout $pageLayoutId not found")
+
+        val exhibitionPages = exhibitionPageController.listExhibitionLayoutPages(pageLayout)
+        if (exhibitionPages.isNotEmpty()) {
+            val exhibitionPageIds = exhibitionPages.map { it.id }.joinToString()
+            return createBadRequest("Cannot delete page layout $pageLayout because it's used in pages $exhibitionPageIds")
+        }
+
+        pageLayoutController.deletePageLayout(pageLayout)
+        return createNoContent()
+    }
+
+    /* Sub layouts */
+
+    override fun createSubLayout(payload: SubLayout?): Response {
+        payload ?: return createBadRequest("Missing request body")
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val name = payload.name
+        val data = payload.data
+
+        val subLayout = subLayoutController.createSubLayout(name, data, userId)
+        return createOk(subLayoutTranslator.translate(subLayout))
+    }
+
+    override fun findSubLayout(subLayoutId: UUID?): Response {
+        subLayoutId ?: return createBadRequest("Missing sub layout id!")
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val subLayout = subLayoutController.findSubLayoutById(subLayoutId) ?: return createNotFound("Sub layout $subLayoutId not found")
+        return createOk(subLayoutTranslator.translate(subLayout))
+    }
+
+    override fun listSubLayouts(): Response? {
+        val result = subLayoutController.listSubLayouts()
+        return createOk(result.map (subLayoutTranslator::translate))
+    }
+
+    override fun updateSubLayout(subLayoutId: UUID?, payload: SubLayout?): Response {
+        payload ?: return createBadRequest("Missing request body")
+        subLayoutId ?: return createBadRequest("Missing sub layout id!")
+
+        val userId = loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val name = payload.name
+        val data = payload.data
+
+        val subLayout = subLayoutController.findSubLayoutById(subLayoutId) ?: return createNotFound("Sub layout $subLayoutId not found")
+        val result = subLayoutController.updateSubLayout(subLayout, name, data, userId)
+
+        return createOk(subLayoutTranslator.translate(result))
+    }
+
+    override fun deleteSubLayout(subLayoutId: UUID?): Response {
+        subLayoutId ?: return createBadRequest("Missing sub layout id!")
+        loggerUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val subLayout = subLayoutController.findSubLayoutById(subLayoutId) ?: return createNotFound("Layout $subLayoutId not found")
+
+        subLayoutController.deleteSubLayout(subLayout)
+
+        return createNoContent()
+    }
+
+    /* System */
+
+    override fun ping(): Response? {
+        return Response.ok("pong").build()
+    }
+
+    override fun memory(): Response? {
+        val runtime = Runtime.getRuntime()
+
+        val result = SystemMemory()
+        result.availableProcessors = runtime.availableProcessors().toString()
+        result.freeMemory = FileUtils.byteCountToDisplaySize(runtime.freeMemory())
+        result.maxMemory = FileUtils.byteCountToDisplaySize(runtime.maxMemory())
+
+        return Response.ok(result).build()
     }
 
 }

@@ -13,7 +13,7 @@ class ApiTestSettings() : Settings {
      * Returns API service base path
      */
     override val apiBasePath: String
-        get() = "http://localhost:1234/v1"
+        get() = "http://localhost:1234"
 
     /**
      * Returns API service base path
