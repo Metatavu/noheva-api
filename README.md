@@ -10,7 +10,7 @@ Muisti exhibition API service.
 
 Muisti API acts as a backbone for all Muisti exhibition services. It also stores data that can is not available else where on the system
 
-TODO: more info
+TODO: more info.
 
 
 
