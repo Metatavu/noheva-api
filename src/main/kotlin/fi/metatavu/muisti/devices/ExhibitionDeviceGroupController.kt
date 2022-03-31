@@ -49,6 +49,7 @@ class ExhibitionDeviceGroupController {
    * @param allowVisitorSessionCreation whether the group allows new visitor session creation
    * @param visitorSessionEndTimeout visitor session end timeout in milliseconds
    * @param visitorSessionStartStrategy visitor session start strategy
+   * @param indexPageTimeout index page timeout in milliseconds
    * @param creatorId creating user id
    * @return created exhibition device group
    */
@@ -59,6 +60,7 @@ class ExhibitionDeviceGroupController {
     allowVisitorSessionCreation: Boolean,
     visitorSessionEndTimeout: Long,
     visitorSessionStartStrategy: DeviceGroupVisitorSessionStartStrategy,
+    indexPageTimeout: Long?,
     creatorId: UUID
   ): ExhibitionDeviceGroup {
     return exhibitionDeviceGroupDAO.create(
@@ -69,6 +71,7 @@ class ExhibitionDeviceGroupController {
       allowVisitorSessionCreation = allowVisitorSessionCreation,
       visitorSessionEndTimeout = visitorSessionEndTimeout,
       visitorSessionStartStrategy = visitorSessionStartStrategy,
+      indexPageTimeout = indexPageTimeout,
       creatorId = creatorId,
       lastModifierId = creatorId
     )
@@ -127,6 +130,7 @@ class ExhibitionDeviceGroupController {
     allowVisitorSessionCreation: Boolean,
     visitorSessionEndTimeout: Long,
     visitorSessionStartStrategy: DeviceGroupVisitorSessionStartStrategy,
+    indexPageTimeout: Long?,
     room: ExhibitionRoom,
     modifierId: UUID
   ): ExhibitionDeviceGroup {
@@ -135,6 +139,7 @@ class ExhibitionDeviceGroupController {
     result = exhibitionDeviceGroupDAO.updateAllowVisitorSessionCreation(result, allowVisitorSessionCreation, modifierId)
     result = exhibitionDeviceGroupDAO.updateVisitorSessionEndTimeout(result, visitorSessionEndTimeout, modifierId)
     result = exhibitionDeviceGroupDAO.updateVisitorSessionStartStrategy(result, visitorSessionStartStrategy, modifierId)
+    result = exhibitionDeviceGroupDAO.updateIndexPageTimeout(result, indexPageTimeout, modifierId)
     return result
   }
 
@@ -171,6 +176,7 @@ class ExhibitionDeviceGroupController {
       allowVisitorSessionCreation = sourceDeviceGroup.allowVisitorSessionCreation ?: throw CopyException("Source device group allowVisitorSessionCreation not found"),
       visitorSessionEndTimeout = sourceDeviceGroup.visitorSessionEndTimeout ?: throw CopyException("Source device group visitorSessionEndTimeout not found"),
       visitorSessionStartStrategy = sourceDeviceGroup.visitorSessionStartStrategy ?: throw CopyException("Source device group visitorSessionStartStrategy not found"),
+      indexPageTimeout = sourceDeviceGroup.indexPageTimeout,
       creatorId = creatorId,
       lastModifierId = creatorId
     )

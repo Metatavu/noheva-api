@@ -32,7 +32,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                     roomId = roomId,
                     allowVisitorSessionCreation = false,
                     visitorSessionEndTimeout = 5000,
-                    visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.othersblock
+                    visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.othersblock,
+                    indexPageTimeout = 2000
                 )
             )
 
@@ -48,6 +49,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             assertNotNull(createdExhibitionDeviceGroup)
             it.admin().exhibitions().assertCreateFail(400, "")
             assertEquals(5000, createdExhibitionDeviceGroup.visitorSessionEndTimeout)
+            assertEquals(2000L, createdExhibitionDeviceGroup.indexPageTimeout)
         }
     }
 
@@ -157,14 +159,16 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
         assertEquals(false, createdExhibitionDeviceGroup.allowVisitorSessionCreation)
         assertEquals(5000, createdExhibitionDeviceGroup.visitorSessionEndTimeout)
         assertEquals(DeviceGroupVisitorSessionStartStrategy.othersblock, createdExhibitionDeviceGroup.visitorSessionStartStrategy)
+        assertNull(createdExhibitionDeviceGroup.indexPageTimeout)
 
         val updatedExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().updateExhibitionDeviceGroup(exhibitionId, ExhibitionDeviceGroup(
-          name = "updated name",
-          roomId = roomId,
-          id = createdExhibitionDeviceGroupId,
-          allowVisitorSessionCreation = true,
-          visitorSessionEndTimeout = 6000,
-          visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.endothers
+            name = "updated name",
+            roomId = roomId,
+            id = createdExhibitionDeviceGroupId,
+            allowVisitorSessionCreation = true,
+            visitorSessionEndTimeout = 6000,
+            indexPageTimeout = 4000,
+            visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.endothers
         ))
 
         assertJsonsEqual(listOf(MqttDeviceGroupUpdate(exhibitionId = exhibitionId, id = createdExhibitionDeviceGroup.id!!)), mqttSubscription.getMessages(1))
@@ -176,6 +180,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
         assertEquals(true, updatedExhibitionDeviceGroup.allowVisitorSessionCreation)
         assertEquals(6000, updatedExhibitionDeviceGroup.visitorSessionEndTimeout)
         assertEquals(DeviceGroupVisitorSessionStartStrategy.endothers, updatedExhibitionDeviceGroup.visitorSessionStartStrategy)
+        assertEquals(4000L, updatedExhibitionDeviceGroup.indexPageTimeout)
 
         it.admin().exhibitionDeviceGroups().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDeviceGroup(
           name = "name",
@@ -893,6 +898,82 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             )
         }
 
+    }
+
+    @Test
+    fun testCopyDeviceGroupWithoutIndexPageTimeout() {
+        ApiTestBuilder().use {
+            val exhibition = it.admin().exhibitions().create()
+            val exhibitionId = exhibition.id!!
+            val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
+            val floorId = floor.id!!
+            val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
+            val roomId = room.id!!
+
+            val sourceGroup = it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibition.id!!,
+                sourceDeviceGroupId = null,
+                payload = ExhibitionDeviceGroup(
+                    name = "name",
+                    roomId = roomId,
+                    allowVisitorSessionCreation = false,
+                    visitorSessionEndTimeout = 5000,
+                    visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.othersblock,
+                    indexPageTimeout = null
+                )
+            )
+
+            val targetDeviceGroup = it.admin().exhibitionDeviceGroups().copy(
+                exhibitionId = exhibitionId,
+                sourceDeviceGroupId = sourceGroup.id!!
+            )
+
+            assertEquals(sourceGroup.indexPageTimeout, targetDeviceGroup.indexPageTimeout)
+
+            cleanupCopiedResources(
+                apiTestBuilder = it,
+                exhibitionId = exhibitionId,
+                targetDeviceGroupId = targetDeviceGroup.id!!
+            )
+        }
+    }
+
+    @Test
+    fun testCopyDeviceGroupWithIndexPageTimeout() {
+        ApiTestBuilder().use {
+            val exhibition = it.admin().exhibitions().create()
+            val exhibitionId = exhibition.id!!
+            val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
+            val floorId = floor.id!!
+            val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
+            val roomId = room.id!!
+
+            val sourceGroup = it.admin().exhibitionDeviceGroups().create(
+                exhibitionId = exhibition.id!!,
+                sourceDeviceGroupId = null,
+                payload = ExhibitionDeviceGroup(
+                    name = "name",
+                    roomId = roomId,
+                    allowVisitorSessionCreation = false,
+                    visitorSessionEndTimeout = 5000,
+                    visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.othersblock,
+                    indexPageTimeout = 3000
+                )
+            )
+
+            val targetDeviceGroup = it.admin().exhibitionDeviceGroups().copy(
+                exhibitionId = exhibitionId,
+                sourceDeviceGroupId = sourceGroup.id!!
+            )
+
+            assertEquals(sourceGroup.indexPageTimeout, targetDeviceGroup.indexPageTimeout)
+
+            cleanupCopiedResources(
+                apiTestBuilder = it,
+                exhibitionId = exhibitionId,
+                targetDeviceGroupId = targetDeviceGroup.id!!
+            )
+        }
     }
 
     /**

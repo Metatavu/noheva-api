@@ -970,6 +970,7 @@ class V1ApiImpl: V1Api, AbstractApi() {
                 room = room,
                 visitorSessionEndTimeout = payload.visitorSessionEndTimeout,
                 visitorSessionStartStrategy = payload.visitorSessionStartStrategy,
+                indexPageTimeout = payload.indexPageTimeout,
                 creatorId = userId
             )
         }
@@ -1016,7 +1017,6 @@ class V1ApiImpl: V1Api, AbstractApi() {
         val room = exhibitionRoomController.findExhibitionRoomById(payload.roomId)  ?: return createNotFound("Exhibition room ${payload.roomId} not found")
         val visitorSessionEndTimeout = payload.visitorSessionEndTimeout
         val visitorSessionStartStrategy = payload.visitorSessionStartStrategy
-
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.findDeviceGroupById(deviceGroupId) ?: return createNotFound("Room $deviceGroupId not found")
         val result = exhibitionDeviceGroupController.updateExhibitionDeviceGroup(
             exhibitionDeviceGroup = exhibitionDeviceGroup,
@@ -1025,6 +1025,7 @@ class V1ApiImpl: V1Api, AbstractApi() {
             allowVisitorSessionCreation = payload.allowVisitorSessionCreation,
             visitorSessionEndTimeout = visitorSessionEndTimeout,
             visitorSessionStartStrategy = visitorSessionStartStrategy,
+            indexPageTimeout = payload.indexPageTimeout,
             modifierId = userId
         )
 

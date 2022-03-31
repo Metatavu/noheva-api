@@ -888,4 +888,10 @@
         <addNotNullConstraint columnDataType="datetime(6)" tableName="visitorsession" columnName="expiresat"/>
     </changeSet>
 
+    <changeSet id="devicegroupindexpagetimeout" author="antti.leppa">
+        <addColumn tableName="exhibitiondevicegroup">
+            <column name="indexPageTimeout" type="BIGINT"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
