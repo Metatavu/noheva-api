@@ -17,6 +17,7 @@ class ExhibitionDeviceGroupTranslator: AbstractTranslator<fi.metatavu.muisti.per
         result.allowVisitorSessionCreation = entity.allowVisitorSessionCreation
         result.visitorSessionEndTimeout = entity.visitorSessionEndTimeout
         result.visitorSessionStartStrategy = entity.visitorSessionStartStrategy
+        result.indexPageTimeout = entity.indexPageTimeout
         result.creatorId = entity.creatorId
         result.lastModifierId = entity.lastModifierId
         result.createdAt = entity.createdAt
