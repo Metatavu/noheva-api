@@ -33,6 +33,9 @@ class ExhibitionDeviceGroup {
     @Column(nullable = false)
     var visitorSessionEndTimeout: Long? = null
 
+    @Column
+    var indexPageTimeout: Long? = null
+
     @Enumerated (EnumType.STRING)
     @Column(nullable = false)
     var visitorSessionStartStrategy: DeviceGroupVisitorSessionStartStrategy? = null

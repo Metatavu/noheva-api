@@ -42,6 +42,7 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
     allowVisitorSessionCreation: Boolean,
     visitorSessionEndTimeout: Long,
     visitorSessionStartStrategy: DeviceGroupVisitorSessionStartStrategy,
+    indexPageTimeout: Long?,
     creatorId: UUID,
     lastModifierId: UUID
   ): ExhibitionDeviceGroup {
@@ -53,6 +54,7 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
     exhibitionDeviceGroup.allowVisitorSessionCreation = allowVisitorSessionCreation
     exhibitionDeviceGroup.visitorSessionEndTimeout = visitorSessionEndTimeout
     exhibitionDeviceGroup.visitorSessionStartStrategy = visitorSessionStartStrategy
+    exhibitionDeviceGroup.indexPageTimeout = indexPageTimeout
     exhibitionDeviceGroup.creatorId = creatorId
     exhibitionDeviceGroup.lastModifierId = lastModifierId
     return persist(exhibitionDeviceGroup)
@@ -159,6 +161,20 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
   fun updateVisitorSessionEndTimeout(exhibitionDeviceGroup: ExhibitionDeviceGroup, visitorSessionEndTimeout: Long, lastModifierId: UUID): ExhibitionDeviceGroup {
     exhibitionDeviceGroup.lastModifierId = lastModifierId
     exhibitionDeviceGroup.visitorSessionEndTimeout = visitorSessionEndTimeout
+    return persist(exhibitionDeviceGroup)
+  }
+
+  /**
+   * Updates visitor session index page timeout
+   *
+   * @param exhibitionDeviceGroup exhibition device group to be updated
+   * @param indexPageTimeout visitor session index page timeout in milliseconds
+   * @param lastModifierId last modifier's id
+   * @return updated exhibitionDeviceGroup
+   */
+  fun updateIndexPageTimeout(exhibitionDeviceGroup: ExhibitionDeviceGroup, indexPageTimeout: Long?, lastModifierId: UUID): ExhibitionDeviceGroup {
+    exhibitionDeviceGroup.lastModifierId = lastModifierId
+    exhibitionDeviceGroup.indexPageTimeout = indexPageTimeout
     return persist(exhibitionDeviceGroup)
   }
 
