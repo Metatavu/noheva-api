@@ -19,7 +19,6 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             val deviceModel = it.admin().deviceModels().create()
             val createdPageLayout = it.admin().pageLayouts().create(deviceModel)
             assertNotNull(createdPageLayout)
-            it.admin().exhibitions().assertCreateFail(400, "")
         }
    }
 

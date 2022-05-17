@@ -22,7 +22,6 @@ class ExhibitionFloorTestsIT: AbstractFunctionalTest() {
             val exhibition = it.admin().exhibitions().create()
             val createdExhibitionFloor = it.admin().exhibitionFloors().create(exhibition.id!!, ExhibitionFloor(name = "name"))
             assertNotNull(createdExhibitionFloor)
-            it.admin().exhibitions().assertCreateFail(400, "")
         }
    }
 

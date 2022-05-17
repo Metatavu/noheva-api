@@ -50,8 +50,6 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             assertEquals(ScreenOrientation.portrait, createdDeviceModel.screenOrientation)
             assertEquals("manu", createdDeviceModel.manufacturer)
             assertEquals("model", createdDeviceModel.model)
-
-            it.admin().exhibitions().assertCreateFail(400, "")
         }
    }
 

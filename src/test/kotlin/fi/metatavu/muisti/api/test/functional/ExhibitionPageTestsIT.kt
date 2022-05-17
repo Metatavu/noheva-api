@@ -52,7 +52,6 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
             val createdExhibitionPage = it.admin().exhibitionPages().create(exhibitionId, layoutId, deviceId, contentVersionId)
             assertNotNull(createdExhibitionPage)
-            it.admin().exhibitions().assertCreateFail(400, "")
             assertJsonsEqual(listOf(MqttExhibitionPageCreate(exhibitionId = exhibitionId, id = createdExhibitionPage.id)), createdPageSubscription.getMessages(1))
         }
    }
