@@ -72,16 +72,17 @@ class ContentVersionController {
         val id = idMapper.getNewId(sourceContentVersion.id) ?: throw CopyException("Target content version id not found")
         val sourceName = sourceContentVersion.name ?: throw CopyException("Source content version name not found")
         val language = sourceContentVersion.language ?: throw CopyException("Source content language name not found")
+        val sameExhibition = targetExhibition.id == sourceContentVersion.exhibition?.id
 
         val sourceRooms = contentVersionRoomDAO.listRoomsByContentVersion(sourceContentVersion)
             .mapNotNull { contentVersionRoom -> contentVersionRoom.exhibitionRoom }
 
-        val targetRooms = sourceRooms.map { sourceRoom ->
+        val targetRooms = if (sameExhibition) sourceRooms else sourceRooms.map { sourceRoom ->
             val targetRoomId = idMapper.getNewId(sourceRoom.id) ?: throw CopyException("Target room id not found")
             roomController.findExhibitionRoomById(targetRoomId) ?: throw CopyException("Target room not found")
         }
 
-        val name = if (targetExhibition.id != sourceContentVersion.exhibition?.id) sourceName else getUniqueName(
+        val name = if (!sameExhibition) sourceName else getUniqueName(
             desiredName = sourceName,
             language = language,
             rooms = sourceRooms

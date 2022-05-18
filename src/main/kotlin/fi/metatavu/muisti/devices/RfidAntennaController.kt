@@ -82,8 +82,14 @@ class RfidAntennaController {
     val id = idMapper.getNewId(sourceAntenna.id) ?: throw CopyException("Target antenna id not found")
     val targetExhibition = targetDeviceGroup.exhibition ?: throw CopyException("Target exhibition not found")
     val sourceRoom = sourceAntenna.room ?: throw CopyException("Source room not found")
-    val targetRoomId = idMapper.getNewId(sourceRoom.id) ?: throw CopyException("Target room id not found")
-    val targetRoom = roomController.findExhibitionRoomById(targetRoomId) ?: throw CopyException("Target room not found")
+    val sameExhibition = targetExhibition.id == sourceAntenna.exhibition?.id
+
+    val targetRoom = if (sameExhibition) {
+      sourceRoom
+    } else {
+       val targetRoomId = idMapper.getNewId(sourceRoom.id) ?: throw CopyException("Target room id not found")
+       roomController.findExhibitionRoomById(targetRoomId)
+    } ?: throw CopyException("Target room not found")
 
     return rfidAntennaDAO.create(
       id = id,

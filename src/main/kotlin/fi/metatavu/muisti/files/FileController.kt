@@ -4,6 +4,7 @@ import fi.metatavu.muisti.api.spec.model.StoredFile
 import fi.metatavu.muisti.files.storage.FileStorageException
 import fi.metatavu.muisti.files.storage.FileStorageProvider
 import org.apache.commons.lang3.StringUtils
+import org.slf4j.Logger
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 import javax.ejb.AccessTimeout
@@ -24,6 +25,9 @@ import javax.inject.Inject
 class FileController {
 
     @Inject
+    private lateinit var logger: Logger
+
+    @Inject
     @Any
     private lateinit var fileStorageProviders: Instance<FileStorageProvider>
 
@@ -31,23 +35,24 @@ class FileController {
 
     /**
      * Bean post construct method
-     *
-     * @throws FileStorageException thrown on file storage configuration issues
      */
     @PostConstruct
-    @Throws(FileStorageException::class)
     fun init() {
-        val fileStorageProviderId = System.getenv("FILE_STORAGE_PROVIDER")
-        if (StringUtils.isEmpty(fileStorageProviderId)) {
-            throw FileStorageException("FILE_STORAGE_PROVIDER is not defined")
+        try {
+            val fileStorageProviderId = System.getenv("FILE_STORAGE_PROVIDER")
+            if (StringUtils.isEmpty(fileStorageProviderId)) {
+                throw FileStorageException("FILE_STORAGE_PROVIDER is not defined")
+            }
+
+            fileStorageProvider = fileStorageProviders.stream()
+                .filter { fileStorageProvider: FileStorageProvider -> fileStorageProviderId == fileStorageProvider.id }
+                .findFirst()
+                .orElseThrow<FileStorageException> { FileStorageException("Invalid file storage provider configured") }
+
+            fileStorageProvider.init()
+        } catch (e: FileStorageException) {
+            logger.error("Failed to initialize file storage provider", e)
         }
-
-        fileStorageProvider = fileStorageProviders.stream()
-            .filter { fileStorageProvider: FileStorageProvider -> fileStorageProviderId == fileStorageProvider.id }
-            .findFirst()
-            .orElseThrow<FileStorageException> { FileStorageException("Invalid file storage provider configured") }
-
-        fileStorageProvider.init()
     }
 
     /**
