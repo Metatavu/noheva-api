@@ -5,6 +5,8 @@ import fi.metatavu.muisti.api.spec.model.VisitorVariableType
 import fi.metatavu.muisti.persistence.dao.*
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.VisitorVariable
+import fi.metatavu.muisti.utils.CopyException
+import fi.metatavu.muisti.utils.IdMapper
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -37,6 +39,35 @@ class VisitorVariableController {
             type = type,
             editableFromUI = editableFromUI,
             enum = getEnumAsString(enum),
+            creatorId = creatorId,
+            lastModifierId = creatorId
+        )
+    }
+
+    /**
+     * Copies visitor variable
+     *
+     * @param idMapper id mapper
+     * @param sourceVisitorVariable source visitor variable
+     * @param targetExhibition target exhibition
+     * @param creatorId creator id
+     * @return copied visitor variable
+     */
+    fun copyVisitorVariable(
+        idMapper: IdMapper,
+        sourceVisitorVariable: VisitorVariable,
+        targetExhibition: Exhibition,
+        creatorId: UUID
+    ): VisitorVariable {
+        val id = idMapper.getNewId(sourceVisitorVariable.id) ?: throw CopyException("Target visitor variable id not found")
+
+        return visitorVariableDAO.create(
+            id = id,
+            exhibition = targetExhibition,
+            name = sourceVisitorVariable.name ?: throw CopyException("Source visitor variable name not found"),
+            type = sourceVisitorVariable.type ?: throw CopyException("Source visitor variable type not found"),
+            editableFromUI = sourceVisitorVariable.editableFromUI ?: throw CopyException("Source visitor variable editableFromUI not found"),
+            enum = sourceVisitorVariable.enum ?: throw CopyException("Source visitor variable enum not found"),
             creatorId = creatorId,
             lastModifierId = creatorId
         )
