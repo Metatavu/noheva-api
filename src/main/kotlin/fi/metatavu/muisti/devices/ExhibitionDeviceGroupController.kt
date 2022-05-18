@@ -242,8 +242,13 @@ class ExhibitionDeviceGroupController {
       deviceGroup = sourceDeviceGroup
     )
 
-    val sourceContentVersions = sourceGroupContentVersions
+    val contentVersionsFromGroupContentVersions = sourceGroupContentVersions
       .mapNotNull(GroupContentVersion::contentVersion)
+
+    val contentVersionsFromPages = sourcePages
+      .mapNotNull(ExhibitionPage::contentVersion)
+
+    val sourceContentVersions = (contentVersionsFromGroupContentVersions + contentVersionsFromPages)
       .distinctBy(ContentVersion::id)
 
     // Assign ids for target resources
