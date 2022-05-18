@@ -1,16 +1,13 @@
 package fi.metatavu.muisti.exhibitions
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.vividsolutions.jts.geom.Coordinate
-import com.vividsolutions.jts.geom.CoordinateSequence
-import com.vividsolutions.jts.geom.GeometryFactory
 import com.vividsolutions.jts.geom.Point
 import fi.metatavu.muisti.api.spec.model.Bounds
-import fi.metatavu.muisti.api.spec.model.Coordinates
 import fi.metatavu.muisti.geometry.getGeometryPoint
 import fi.metatavu.muisti.persistence.dao.ExhibitionFloorDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor
+import fi.metatavu.muisti.utils.CopyException
+import fi.metatavu.muisti.utils.IdMapper
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -44,6 +41,35 @@ class ExhibitionFloorController() {
       }
 
       return exhibitionFloorDAO.create(UUID.randomUUID(), exhibition, name, floorPlanUrl, neBoundPoint, swBoundPoint, creatorId, creatorId)
+    }
+
+    /**
+     * Copies floor
+     *
+     * @param idMapper id mapper
+     * @param sourceFloor source floor
+     * @param targetExhibition target exhibition
+     * @param creatorId creator id
+     * @return copied floor
+     */
+    fun copyExhibitionFloor(
+        idMapper: IdMapper,
+        sourceFloor: ExhibitionFloor,
+        targetExhibition: Exhibition,
+        creatorId: UUID
+    ): ExhibitionFloor {
+        val id = idMapper.getNewId(sourceFloor.id) ?: throw CopyException("Target floor id not found")
+
+        return exhibitionFloorDAO.create(
+            id = id,
+            exhibition = targetExhibition,
+            name = sourceFloor.name ?: throw CopyException("Target floor name not found"),
+            floorPlanUrl = sourceFloor.floorPlanUrl,
+            neBoundPoint = sourceFloor.neBoundPoint,
+            swBoundPoint = sourceFloor.swBoundPoint,
+            creatorId = creatorId,
+            lastModifierId = creatorId
+        )
     }
 
     /**
