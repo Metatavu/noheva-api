@@ -67,7 +67,7 @@ class VisitorVariableController {
             name = sourceVisitorVariable.name ?: throw CopyException("Source visitor variable name not found"),
             type = sourceVisitorVariable.type ?: throw CopyException("Source visitor variable type not found"),
             editableFromUI = sourceVisitorVariable.editableFromUI ?: throw CopyException("Source visitor variable editableFromUI not found"),
-            enum = sourceVisitorVariable.enum ?: throw CopyException("Source visitor variable enum not found"),
+            enum = sourceVisitorVariable.enum,
             creatorId = creatorId,
             lastModifierId = creatorId
         )
