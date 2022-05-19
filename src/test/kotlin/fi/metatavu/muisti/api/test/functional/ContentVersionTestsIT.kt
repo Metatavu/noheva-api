@@ -23,7 +23,6 @@ class ContentVersionTestsIT: AbstractFunctionalTest() {
             val contentVersionToCreate = ContentVersion(name = "created name", language = "FI", rooms = arrayOf<UUID>(roomId))
             val createdContentVersion = it.admin().contentVersions().create(exhibitionId, contentVersionToCreate)
             assertNotNull(createdContentVersion)
-            it.admin().exhibitions().assertCreateFail(400, "")
         }
     }
 

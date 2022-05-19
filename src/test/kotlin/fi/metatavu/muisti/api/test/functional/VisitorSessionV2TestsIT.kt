@@ -54,7 +54,6 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
             ))
 
             assertNotNull(createdVisitorSession)
-            it.admin().exhibitions().assertCreateFail(400, "")
 
             assertEquals(createdVisitorSession.state, VisitorSessionState.cOMPLETE)
 

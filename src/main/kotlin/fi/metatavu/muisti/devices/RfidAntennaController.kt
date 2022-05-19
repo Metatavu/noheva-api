@@ -1,6 +1,7 @@
 package fi.metatavu.muisti.devices
 
 import fi.metatavu.muisti.api.spec.model.Point
+import fi.metatavu.muisti.exhibitions.ExhibitionRoomController
 import fi.metatavu.muisti.persistence.dao.RfidAntennaDAO
 import fi.metatavu.muisti.persistence.model.*
 import fi.metatavu.muisti.utils.CopyException
@@ -17,6 +18,9 @@ class RfidAntennaController {
 
   @Inject
   private lateinit var rfidAntennaDAO: RfidAntennaDAO
+
+  @Inject
+  private lateinit var roomController: ExhibitionRoomController
 
   /**
    * Creates new RFID antenna
@@ -65,23 +69,33 @@ class RfidAntennaController {
    * Creates a copy of an antenna
    *
    * @param sourceAntenna source device
-   * @param deviceGroup target device for the copied device
+   * @param targetDeviceGroup target device for the copied device
    * @param idMapper id mapper
    * @param creatorId id of user that created the copy
    */
   fun copyAntenna(
     sourceAntenna: RfidAntenna,
-    deviceGroup: ExhibitionDeviceGroup,
+    targetDeviceGroup: ExhibitionDeviceGroup,
     idMapper: IdMapper,
     creatorId: UUID
   ): RfidAntenna {
     val id = idMapper.getNewId(sourceAntenna.id) ?: throw CopyException("Target antenna id not found")
+    val targetExhibition = targetDeviceGroup.exhibition ?: throw CopyException("Target exhibition not found")
+    val sourceRoom = sourceAntenna.room ?: throw CopyException("Source room not found")
+    val sameExhibition = targetExhibition.id == sourceAntenna.exhibition?.id
+
+    val targetRoom = if (sameExhibition) {
+      sourceRoom
+    } else {
+       val targetRoomId = idMapper.getNewId(sourceRoom.id) ?: throw CopyException("Target room id not found")
+       roomController.findExhibitionRoomById(targetRoomId)
+    } ?: throw CopyException("Target room not found")
 
     return rfidAntennaDAO.create(
       id = id,
-      exhibition = sourceAntenna.exhibition ?: throw CopyException("Source antenna exhibition not found"),
-      deviceGroup = deviceGroup,
-      room = sourceAntenna.room ?: throw CopyException("Source antenna room not found"),
+      exhibition = targetExhibition,
+      deviceGroup = targetDeviceGroup,
+      room = targetRoom,
       name = sourceAntenna.name ?: throw CopyException("Source antenna name not found"),
       readerId = sourceAntenna.readerId ?: throw CopyException("Source antenna readerId not found"),
       antennaNumber = sourceAntenna.antennaNumber ?: throw CopyException("Source antenna antennaNumber not found"),

@@ -111,6 +111,10 @@ abstract class AbstractFunctionalTest {
      */
     @Throws(IOException::class, JSONException::class)
     fun assertJsonsEqual(expected: Any?, actual: Any?) {
+        if (expected == null && actual == null) {
+            return
+        }
+
         val compareResult: JSONCompareResult? = jsonCompare(expected, actual)
         Assert.assertTrue(compareResult?.message, compareResult?.passed()?: false)
     }

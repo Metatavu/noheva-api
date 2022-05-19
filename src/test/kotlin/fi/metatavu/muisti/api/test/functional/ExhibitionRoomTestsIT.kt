@@ -26,7 +26,6 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             ))
 
             assertNotNull(createdExhibitionRoom)
-            it.admin().exhibitions().assertCreateFail(400, "")
         }
    }
 

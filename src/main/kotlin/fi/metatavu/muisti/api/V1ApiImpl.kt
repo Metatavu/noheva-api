@@ -14,6 +14,7 @@ import fi.metatavu.muisti.keycloak.KeycloakController
 import fi.metatavu.muisti.realtime.RealtimeNotificationController
 import fi.metatavu.muisti.settings.SettingsController
 import fi.metatavu.muisti.utils.CopyException
+import fi.metatavu.muisti.utils.IdMapper
 import fi.metatavu.muisti.visitors.VisitorController
 import fi.metatavu.muisti.visitors.VisitorSessionController
 import fi.metatavu.muisti.visitors.VisitorVariableController
@@ -145,18 +146,34 @@ class V1ApiImpl: V1Api, AbstractApi() {
 
     /* Exhibitions */
 
-    override fun createExhibition(payload: Exhibition?): Response? {
-        if (payload == null) {
-            return createBadRequest(MISSING_REQUEST_BODY)
-        }
-
-        if (StringUtils.isBlank(payload.name)) {
-            return createBadRequest("Missing exhibition name")
-        }
-
+    override fun createExhibition(sourceExhibitionId: UUID?, payload: Exhibition?): Response {
         val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
 
-        val exhibition = exhibitionController.createExhibition(payload.name, userId)
+        val exhibition = if (sourceExhibitionId != null) {
+            val sourceExhibition = exhibitionController.findExhibitionById(sourceExhibitionId) ?:
+                return createNotFound("Source exhibition $sourceExhibitionId not found")
+
+            val idMapper = IdMapper()
+
+            exhibitionController.copyExhibition(
+                idMapper = idMapper,
+                sourceExhibition = sourceExhibition,
+                creatorId = userId
+            )
+        } else {
+            if (payload == null) {
+                return createBadRequest(MISSING_REQUEST_BODY)
+            }
+
+            if (StringUtils.isBlank(payload.name)) {
+                return createBadRequest("Missing exhibition name")
+            }
+
+            exhibitionController.createExhibition(
+                name = payload.name,
+                creatorId = userId
+            )
+        }
 
         return createOk(exhibitionTranslator.translate(exhibition))
     }
@@ -951,8 +968,12 @@ class V1ApiImpl: V1Api, AbstractApi() {
             val sourceDeviceGroup = exhibitionDeviceGroupController.findDeviceGroupById(id = sourceDeviceGroupId) ?: return createBadRequest("Source device group $sourceDeviceGroupId not found")
 
             try {
+                val idMapper = IdMapper()
+
                 exhibitionDeviceGroupController.copyDeviceGroup(
+                    idMapper = idMapper,
                     sourceDeviceGroup = sourceDeviceGroup,
+                    targetRoom = sourceDeviceGroup.room ?: return createBadRequest("Source device group $sourceDeviceGroupId has no room"),
                     creatorId = userId
                 )
             } catch (e: CopyException) {
@@ -1143,8 +1164,8 @@ class V1ApiImpl: V1Api, AbstractApi() {
             exhibitionDevice = exhibitionDevice,
             contentVersion = contentVersion,
             pageLayout = pageLayout
-
         )
+
         return createOk(exhibitionPages.map (exhibitionPageTranslator::translate))
     }
 

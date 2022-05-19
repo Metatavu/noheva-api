@@ -6,6 +6,8 @@ import fi.metatavu.muisti.persistence.dao.ExhibitionRoomDAO
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor
 import fi.metatavu.muisti.persistence.model.ExhibitionRoom
+import fi.metatavu.muisti.utils.CopyException
+import fi.metatavu.muisti.utils.IdMapper
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -32,6 +34,36 @@ class ExhibitionRoomController() {
      */
     fun createExhibitionRoom(exhibition: Exhibition, floor: ExhibitionFloor, name: String, color: String?, geoShape: Polygon?, creatorId: UUID): ExhibitionRoom {
         return exhibitionRoomDAO.create(id = UUID.randomUUID(), exhibition = exhibition, floor = floor, name = name, color = color, geoShape = getPolygon(geoShape), creatorId = creatorId, lastModifierId = creatorId)
+    }
+
+    /**
+     * Copies a room
+     *
+     * @param idMapper id mapper
+     * @param sourceRoom source room
+     * @param targetFloor target floor
+     * @param creatorId creating user id
+     * @return copied room
+     */
+    fun copyRoom(
+        idMapper: IdMapper,
+        sourceRoom: ExhibitionRoom,
+        targetFloor: ExhibitionFloor,
+        creatorId: UUID
+    ): ExhibitionRoom {
+        val id = idMapper.getNewId(sourceRoom.id) ?: throw CopyException("Target room id not found")
+        val targetExhibition = targetFloor.exhibition ?: throw CopyException("Target exhibition not found")
+
+        return exhibitionRoomDAO.create(
+            id = id,
+            exhibition = targetExhibition,
+            floor = targetFloor,
+            name = sourceRoom.name ?: throw CopyException("Target room name not found"),
+            color = sourceRoom.color,
+            geoShape = sourceRoom.geoShape,
+            creatorId = creatorId,
+            lastModifierId = creatorId
+        )
     }
 
     /**

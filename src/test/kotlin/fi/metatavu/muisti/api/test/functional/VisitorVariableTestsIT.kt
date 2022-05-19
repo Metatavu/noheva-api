@@ -28,8 +28,6 @@ class VariableVariableTestsIT: AbstractFunctionalTest() {
             assertEquals("bool", createdVisitorVariable.name)
             assertEquals(VisitorVariableType.boolean, createdVisitorVariable.type)
             assertEquals(true, createdVisitorVariable.editableFromUI)
-
-            it.admin().exhibitions().assertCreateFail(400, "")
         }
    }
 

@@ -41,7 +41,7 @@ class GroupContentVersionController {
      *
      * @param sourceGroupContentVersion source group content version
      * @param targetContentVersion target content version for copied group content version
-     * @param deviceGroup target device group for copied group content version
+     * @param targetDeviceGroup target device group for copied group content version
      * @param idMapper id mapper
      * @param creatorId id of user that created the copy
      * @return a copy of a group content version
@@ -49,19 +49,24 @@ class GroupContentVersionController {
     fun copyGroupContentVersion(
         sourceGroupContentVersion: GroupContentVersion,
         targetContentVersion: ContentVersion,
-        deviceGroup: ExhibitionDeviceGroup,
+        targetDeviceGroup: ExhibitionDeviceGroup,
         idMapper: IdMapper,
         creatorId: UUID
     ): GroupContentVersion {
         val id = idMapper.getNewId(sourceGroupContentVersion.id) ?: throw CopyException("Target group content version id not found")
+        val targetExhibition = targetDeviceGroup.exhibition ?: throw CopyException("Target exhibition not found")
+
+        if (targetContentVersion.exhibition?.id != targetExhibition.id) {
+            throw CopyException("Target content version and target exhibition do not match")
+        }
 
         return groupContentVersionDAO.create(
             id = id,
-            exhibition = sourceGroupContentVersion.exhibition ?: throw CopyException("Source group content version exhibition not found"),
+            exhibition = targetExhibition,
             name = sourceGroupContentVersion.name ?: throw CopyException("Source group content version name not found"),
             status = sourceGroupContentVersion.status ?: throw CopyException("Source group content status not found"),
             contentVersion = targetContentVersion,
-            deviceGroup = deviceGroup,
+            deviceGroup = targetDeviceGroup,
             creatorId = creatorId,
             lastModifierId = creatorId
         )
