@@ -285,9 +285,7 @@ class ExhibitionController {
      * @param desiredName desired name
      * @return unique name for exhibition
      */
-    private fun getUniqueName(
-        desiredName: String
-    ): String {
+    private fun getUniqueName(desiredName: String): String {
         var result = desiredName
         var index = 1
 
