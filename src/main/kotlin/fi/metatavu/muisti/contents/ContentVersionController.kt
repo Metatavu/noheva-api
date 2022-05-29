@@ -1,6 +1,7 @@
 package fi.metatavu.muisti.contents
 
 import fi.metatavu.muisti.api.spec.model.ContentVersionActiveCondition
+import fi.metatavu.muisti.exhibitions.ExhibitionRoomController
 import fi.metatavu.muisti.persistence.dao.ContentVersionDAO
 import fi.metatavu.muisti.persistence.dao.ContentVersionRoomDAO
 import fi.metatavu.muisti.persistence.model.*
@@ -21,6 +22,9 @@ class ContentVersionController {
 
     @Inject
     private lateinit var contentVersionRoomDAO: ContentVersionRoomDAO
+
+    @Inject
+    private lateinit var roomController: ExhibitionRoomController
 
     /**
      * Creates new content version
@@ -54,30 +58,39 @@ class ContentVersionController {
      * Creates a copy of a content version
      *
      * @param sourceContentVersion source content version
+     * @param targetExhibition target exhibition
      * @param idMapper id mapper
      * @param creatorId id of user that created the copy
      * @return a copy of a content version
      */
     fun copyContentVersion(
         sourceContentVersion: ContentVersion,
+        targetExhibition: Exhibition,
         idMapper: IdMapper,
         creatorId: UUID
     ): ContentVersion {
         val id = idMapper.getNewId(sourceContentVersion.id) ?: throw CopyException("Target content version id not found")
         val sourceName = sourceContentVersion.name ?: throw CopyException("Source content version name not found")
         val language = sourceContentVersion.language ?: throw CopyException("Source content language name not found")
-        val rooms = contentVersionRoomDAO.listRoomsByContentVersion(sourceContentVersion)
+        val sameExhibition = targetExhibition.id == sourceContentVersion.exhibition?.id
+
+        val sourceRooms = contentVersionRoomDAO.listRoomsByContentVersion(sourceContentVersion)
             .mapNotNull { contentVersionRoom -> contentVersionRoom.exhibitionRoom }
 
-        val name = getUniqueName(
+        val targetRooms = if (sameExhibition) sourceRooms else sourceRooms.map { sourceRoom ->
+            val targetRoomId = idMapper.getNewId(sourceRoom.id) ?: throw CopyException("Target room id not found")
+            roomController.findExhibitionRoomById(targetRoomId) ?: throw CopyException("Target room not found")
+        }
+
+        val name = if (!sameExhibition) sourceName else getUniqueName(
             desiredName = sourceName,
             language = language,
-            rooms = rooms
+            rooms = sourceRooms
         )
 
         val result = contentVersionDAO.create(
             id = id,
-            exhibition = sourceContentVersion.exhibition ?: throw CopyException("Source content version exhibition not found"),
+            exhibition = targetExhibition,
             name = name,
             language = language,
             activeConditionUserVariable = sourceContentVersion.activeConditionUserVariable,
@@ -88,7 +101,7 @@ class ContentVersionController {
 
         setContentVersionRooms(
             contentVersion = result,
-            rooms = rooms
+            rooms = targetRooms
         )
 
         return result

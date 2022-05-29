@@ -36,7 +36,6 @@ class GroupContentVersionTestsIT: AbstractFunctionalTest() {
 
         val createdGroupContentVersion = it.admin().groupContentVersions().create(exhibitionId, groupContentVersionToCreate)
         assertNotNull(createdGroupContentVersion)
-        it.admin().exhibitions().assertCreateFail(400, "")
       }
   }
 

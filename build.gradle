@@ -13,7 +13,7 @@ buildscript {
   ext.jts_core_version = "1.14.0"
 
   repositories {
-    jcenter()
+    mavenCentral()
     maven {
       url "https://plugins.gradle.org/m2/"
     }
@@ -43,7 +43,7 @@ sourceCompatibility = 11
 targetCompatibility = 11
 
 repositories {
-  jcenter()
+  mavenCentral()
 }
 
 configurations {

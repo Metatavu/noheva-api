@@ -2,7 +2,7 @@ buildscript {
     ext.wildfly_version = '18.0.1.Final'
 
     repositories {
-        jcenter()
+        mavenCentral()
     }
 }
 
@@ -13,7 +13,7 @@ plugins {
 apply plugin: 'java'
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {

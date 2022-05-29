@@ -76,31 +76,37 @@ class ExhibitionPageController {
      * Method remaps page navigate actions according to ids specified by the id mapper
      *
      * @param sourcePage source page
-     * @param device target device for the copied page
-     * @param contentVersion target content version for the copied page
+     * @param targetDevice target device for the copied page
+     * @param targetContentVersion target content version for the copied page
      * @param idMapper id mapper
      * @param creatorId id of user that created the copy
      * @return copied page
      */
     fun copyPage(
         sourcePage: ExhibitionPage,
-        device: ExhibitionDevice,
-        contentVersion: ContentVersion,
+        targetDevice: ExhibitionDevice,
+        targetContentVersion: ContentVersion,
         idMapper: IdMapper,
         creatorId: UUID
     ): ExhibitionPage {
         val id = idMapper.getNewId(sourcePage.id) ?: throw CopyException("Target page id not found")
+
         val eventTriggers = remapEventTriggers(
             eventTriggers = parseEventTriggers(eventTriggers = sourcePage.eventTriggers),
             idMapper = idMapper
         )
 
+        val targetExhibition = targetDevice.exhibition ?: throw CopyException("Target exhibition not found")
+        if (targetContentVersion.exhibition?.id != targetExhibition.id) {
+            throw CopyException("Target exhibition does not match source exhibition")
+        }
+
         return exhibitionPageDAO.create(
             id = id,
-            exhibition = sourcePage.exhibition ?: throw CopyException("Source page exhibition not found"),
-            device = device,
+            exhibition = targetExhibition,
+            device = targetDevice,
             layout = sourcePage.layout ?: throw CopyException("Source page layout not found"),
-            contentVersion = contentVersion,
+            contentVersion = targetContentVersion,
             name = sourcePage.name ?: throw CopyException("Source page name not found"),
             orderNumber = sourcePage.orderNumber ?: throw CopyException("Source page orderNumber not found"),
             resources = sourcePage.resources ?: throw CopyException("Source page resources not found"),

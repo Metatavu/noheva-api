@@ -47,7 +47,6 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             )
 
             assertNotNull(createdExhibitionDeviceGroup)
-            it.admin().exhibitions().assertCreateFail(400, "")
             assertEquals(5000, createdExhibitionDeviceGroup.visitorSessionEndTimeout)
             assertEquals(2000L, createdExhibitionDeviceGroup.indexPageTimeout)
         }
@@ -195,7 +194,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
     @Test
     fun testDeleteExhibitionDeviceGroup() {
         ApiTestBuilder().use {
-            val mqttSubscription= it.mqtt().subscribe(MqttDeviceGroupDelete::class.java,"devicegroups/delete")
+            val mqttSubscription = it.mqtt().subscribe(MqttDeviceGroupDelete::class.java,"devicegroups/delete")
 
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!

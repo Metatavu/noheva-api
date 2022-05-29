@@ -1,8 +1,11 @@
 package fi.metatavu.muisti.persistence.dao
 
 import fi.metatavu.muisti.persistence.model.Exhibition
+import fi.metatavu.muisti.persistence.model.Exhibition_
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
+import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.Root
 
 /**
  * DAO class for Exhibition
@@ -10,7 +13,7 @@ import javax.enterprise.context.ApplicationScoped
  * @author Antti Leppä
  */
 @ApplicationScoped
-open class ExhibitionDAO() : AbstractDAO<Exhibition>() {
+class ExhibitionDAO : AbstractDAO<Exhibition>() {
 
     /**
      * Creates new Exhibition
@@ -21,7 +24,7 @@ open class ExhibitionDAO() : AbstractDAO<Exhibition>() {
      * @param lastModifierId last modifier's id
      * @return created exhibition
      */
-    open fun create(id: UUID, name: String, creatorId: UUID, lastModifierId: UUID): Exhibition {
+    fun create(id: UUID, name: String, creatorId: UUID, lastModifierId: UUID): Exhibition {
         val exhibition = Exhibition()
         exhibition.name = name
         exhibition.id = id
@@ -31,13 +34,29 @@ open class ExhibitionDAO() : AbstractDAO<Exhibition>() {
     }
 
     /**
+     * Finds an exhibition by name
+     *
+     * @param name name
+     * @return found exhibition or null if not found
+     */
+    fun findByName(name: String): Exhibition? {
+        val entityManager = getEntityManager()
+        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteria: CriteriaQuery<Exhibition> = criteriaBuilder.createQuery(Exhibition::class.java)
+        val root: Root<Exhibition> = criteria.from(Exhibition::class.java)
+        criteria.select(root)
+        criteria.where(criteriaBuilder.equal(root.get(Exhibition_.name), name))
+        return getSingleResult(entityManager.createQuery<Exhibition>(criteria))
+    }
+
+    /**
      * Updates name
      *
      * @param name name
      * @param lastModifierId last modifier's id
      * @return updated exhibition
      */
-    open fun updateName(exhibition: Exhibition, name: String, lastModifierId: UUID): Exhibition {
+    fun updateName(exhibition: Exhibition, name: String, lastModifierId: UUID): Exhibition {
         exhibition.lastModifierId = lastModifierId
         exhibition.name = name
         return persist(exhibition)

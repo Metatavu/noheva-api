@@ -64,24 +64,25 @@ class ExhibitionDeviceController {
      * Creates a copy of a device
      *
      * @param sourceDevice source device
-     * @param deviceGroup target device for the copied device
+     * @param targetDeviceGroup target device for the copied device
      * @param idlePage target idle page for the copied device
      * @param idMapper id mapper
      * @param creatorId id of user that created the copy
      */
     fun copyDevice(
         sourceDevice: ExhibitionDevice,
-        deviceGroup: ExhibitionDeviceGroup,
+        targetDeviceGroup: ExhibitionDeviceGroup,
         idlePage: ExhibitionPage?,
         idMapper: IdMapper,
         creatorId: UUID
     ): ExhibitionDevice {
         val id = idMapper.getNewId(sourceDevice.id) ?: throw CopyException("Target device id not found")
+        val targetExhibition = targetDeviceGroup.exhibition ?: throw CopyException("Target exhibition not found")
 
         return exhibitionDeviceDAO.create(
             id = id,
-            exhibition = sourceDevice.exhibition ?: throw CopyException("Source device exhibition not found"),
-            exhibitionDeviceGroup = deviceGroup,
+            exhibition = targetExhibition,
+            exhibitionDeviceGroup = targetDeviceGroup,
             deviceModel = sourceDevice.deviceModel ?: throw CopyException("Source device model not found"),
             name = sourceDevice.name ?: throw CopyException("Source device name not found"),
             locationX = sourceDevice.locationX,
