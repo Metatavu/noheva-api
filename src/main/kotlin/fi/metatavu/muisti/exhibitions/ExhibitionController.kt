@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.exhibitions
 
+import fi.metatavu.muisti.contents.ContentVersionController
 import fi.metatavu.muisti.devices.ExhibitionDeviceGroupController
 import fi.metatavu.muisti.persistence.dao.ExhibitionDAO
 import fi.metatavu.muisti.persistence.model.*
@@ -31,6 +32,9 @@ class ExhibitionController {
 
     @Inject
     private lateinit var deviceGroupController: ExhibitionDeviceGroupController
+
+    @Inject
+    private lateinit var contentVersionController: ContentVersionController
 
     @Inject
     private lateinit var exhibitionDAO: ExhibitionDAO
@@ -89,9 +93,15 @@ class ExhibitionController {
             room = null
         )
 
+        val sourceContentVersions = contentVersionController.listContentVersions(
+            exhibition = sourceExhibition,
+            exhibitionRoom = null
+        )
+
         sourceVisitorVariables.map(VisitorVariable::id).map(idMapper::assignId)
         sourceFloors.map(ExhibitionFloor::id).map(idMapper::assignId)
         sourceRooms.map(ExhibitionRoom::id).map(idMapper::assignId)
+        sourceContentVersions.map(ContentVersion::id).map(idMapper::assignId)
 
         copyVisitorVariables(
             idMapper = idMapper,
@@ -113,6 +123,13 @@ class ExhibitionController {
             creatorId = creatorId
         )
 
+        copyContentVersions(
+            idMapper = idMapper,
+            sourceContentVersions = sourceContentVersions,
+            targetExhibition = result,
+            creatorId = creatorId
+        )
+
         copyDeviceGroups(
             idMapper = idMapper,
             sourceDeviceGroups = sourceDeviceGroups,
@@ -120,6 +137,35 @@ class ExhibitionController {
         )
 
         return result
+    }
+
+    /**
+     * Copy content versions
+     *
+     * @param idMapper id mapper
+     * @param sourceContentVersions source content versions
+     * @param targetExhibition target exhibition
+     * @param creatorId creating user id
+     * @return copied content versions
+     */
+    private fun copyContentVersions(
+        idMapper: IdMapper,
+        sourceContentVersions: List<ContentVersion>,
+        targetExhibition: Exhibition,
+        creatorId: UUID
+    ) {
+        sourceContentVersions.map { sourceContentVersion ->
+            val targetContentVersion = contentVersionController.copyContentVersion(
+                sourceContentVersion = sourceContentVersion,
+                targetExhibition = targetExhibition,
+                idMapper = idMapper,
+                creatorId = creatorId
+            )
+
+            logger.debug("Copied content version {} -> {}", sourceContentVersion.id, targetContentVersion.id)
+
+            targetContentVersion
+        }
     }
 
     /**
