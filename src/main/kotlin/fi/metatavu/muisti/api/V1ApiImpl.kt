@@ -970,6 +970,13 @@ class V1ApiImpl: V1Api, AbstractApi() {
             try {
                 val idMapper = IdMapper()
 
+                exhibitionDeviceGroupController.copyDependingContentVersions(
+                    idMapper = idMapper,
+                    sourceDeviceGroup = sourceDeviceGroup,
+                    targetExhibition = exhibition,
+                    creatorId = userId
+                )
+
                 exhibitionDeviceGroupController.copyDeviceGroup(
                     idMapper = idMapper,
                     sourceDeviceGroup = sourceDeviceGroup,
