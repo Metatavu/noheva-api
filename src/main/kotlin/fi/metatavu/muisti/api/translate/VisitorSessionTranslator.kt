@@ -1,5 +1,8 @@
 package fi.metatavu.muisti.api.translate
 
+import fi.metatavu.muisti.api.spec.model.VisitorSession
+import fi.metatavu.muisti.api.spec.model.VisitorSessionVariable
+import fi.metatavu.muisti.api.spec.model.VisitorSessionVisitedDeviceGroup
 import fi.metatavu.muisti.persistence.dao.VisitorSessionVariableDAO
 import fi.metatavu.muisti.persistence.dao.VisitorSessionVisitedDeviceGroupDAO
 import fi.metatavu.muisti.persistence.dao.VisitorSessionVisitorDAO
@@ -11,20 +14,21 @@ import kotlin.streams.toList
  * Translator for translating JPA visitor session entities into REST resources
  */
 @ApplicationScoped
-class VisitorSessionTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.VisitorSession, fi.metatavu.muisti.api.spec.model.VisitorSession>() {
+class VisitorSessionTranslator :
+    AbstractTranslator<fi.metatavu.muisti.persistence.model.VisitorSession, VisitorSession>() {
 
     @Inject
-    private lateinit var visitorSessionVariableDAO: VisitorSessionVariableDAO
+    lateinit var visitorSessionVariableDAO: VisitorSessionVariableDAO
 
     @Inject
-    private lateinit var visitorSessionVisitorDAO: VisitorSessionVisitorDAO
+    lateinit var visitorSessionVisitorDAO: VisitorSessionVisitorDAO
 
     @Inject
-    private lateinit var visitorSessionVisitedDeviceGroupDAO: VisitorSessionVisitedDeviceGroupDAO
+    lateinit var visitorSessionVisitedDeviceGroupDAO: VisitorSessionVisitedDeviceGroupDAO
 
-    override fun translate(entity: fi.metatavu.muisti.persistence.model.VisitorSession): fi.metatavu.muisti.api.spec.model.VisitorSession {
+    override fun translate(entity: fi.metatavu.muisti.persistence.model.VisitorSession): VisitorSession {
         val variables = visitorSessionVariableDAO.listByVisitorSession(entity).stream()
-            .map ( this::translateVariable )
+            .map(this::translateVariable)
             .toList()
 
         val visitorIds = visitorSessionVisitorDAO.listByVisitorSession(entity).stream()
@@ -32,22 +36,22 @@ class VisitorSessionTranslator: AbstractTranslator<fi.metatavu.muisti.persistenc
             .toList()
 
         val visitedDeviceGroups = visitorSessionVisitedDeviceGroupDAO.listByVisitorSession(entity).stream()
-            .map( this::translateVisitedDeviceGroup )
+            .map(this::translateVisitedDeviceGroup)
             .toList()
 
-        val result: fi.metatavu.muisti.api.spec.model.VisitorSession = fi.metatavu.muisti.api.spec.model.VisitorSession()
-        result.id = entity.id
-        result.exhibitionId = entity.exhibition?.id
-        result.state = entity.state
-        result.language = entity.language
-        result.visitorIds = visitorIds
-        result.visitedDeviceGroups = visitedDeviceGroups
-        result.variables = variables
-        result.creatorId = entity.creatorId
-        result.lastModifierId = entity.lastModifierId
-        result.createdAt = entity.createdAt
-        result.modifiedAt = entity.modifiedAt
-        return result
+        return VisitorSession(
+            id = entity.id,
+            exhibitionId = entity.exhibition?.id,
+            state = entity.state!!,
+            language = entity.language!!,
+            visitorIds = visitorIds,
+            visitedDeviceGroups = visitedDeviceGroups,
+            variables = variables,
+            creatorId = entity.creatorId,
+            lastModifierId = entity.lastModifierId,
+            createdAt = entity.createdAt,
+            modifiedAt = entity.modifiedAt
+        )
     }
 
     /**
@@ -56,11 +60,10 @@ class VisitorSessionTranslator: AbstractTranslator<fi.metatavu.muisti.persistenc
      * @param entity JPA entity
      * @return REST resource
      */
-    private fun translateVariable(entity: fi.metatavu.muisti.persistence.model.VisitorSessionVariable): fi.metatavu.muisti.api.spec.model.VisitorSessionVariable {
-        val result = fi.metatavu.muisti.api.spec.model.VisitorSessionVariable()
-        result.value = entity.value
-        result.name = entity.name
-        return result
+    private fun translateVariable(entity: fi.metatavu.muisti.persistence.model.VisitorSessionVariable): VisitorSessionVariable {
+        return VisitorSessionVariable(
+            value = entity.value, name = entity.name!!
+        )
     }
 
     /**
@@ -69,12 +72,10 @@ class VisitorSessionTranslator: AbstractTranslator<fi.metatavu.muisti.persistenc
      * @param entity JPA entity
      * @return REST resource
      */
-    private fun translateVisitedDeviceGroup(entity: fi.metatavu.muisti.persistence.model.VisitorSessionVisitedDeviceGroup): fi.metatavu.muisti.api.spec.model.VisitorSessionVisitedDeviceGroup {
-        val result = fi.metatavu.muisti.api.spec.model.VisitorSessionVisitedDeviceGroup()
-        result.deviceGroupId = entity.deviceGroup?.id
-        result.enteredAt = entity.enteredAt
-        result.exitedAt = entity.exitedAt
-        return result
+    private fun translateVisitedDeviceGroup(entity: fi.metatavu.muisti.persistence.model.VisitorSessionVisitedDeviceGroup): VisitorSessionVisitedDeviceGroup {
+        return VisitorSessionVisitedDeviceGroup(
+            deviceGroupId = entity.deviceGroup!!.id!!, enteredAt = entity.enteredAt, exitedAt = entity.exitedAt
+        )
     }
 
 }

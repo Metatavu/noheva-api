@@ -27,22 +27,22 @@ import javax.ws.rs.core.Response
 class V2ApiImpl: V2Api, AbstractApi() {
 
     @Inject
-    private lateinit var exhibitionController: ExhibitionController
+    lateinit var exhibitionController: ExhibitionController
 
     @Inject
-    private lateinit var visitorController: VisitorController
+    lateinit var visitorController: VisitorController
 
     @Inject
-    private lateinit var visitorSessionController: VisitorSessionController
+    lateinit var visitorSessionController: VisitorSessionController
 
     @Inject
-    private lateinit var exhibitionDeviceGroupController: ExhibitionDeviceGroupController
+    lateinit var exhibitionDeviceGroupController: ExhibitionDeviceGroupController
 
     @Inject
-    private lateinit var realtimeNotificationController: RealtimeNotificationController
+    lateinit var realtimeNotificationController: RealtimeNotificationController
 
     @Inject
-    private lateinit var visitorSessionV2Translator: VisitorSessionV2Translator
+    lateinit var visitorSessionV2Translator: VisitorSessionV2Translator
 
     /* Visitor Sessions */
 

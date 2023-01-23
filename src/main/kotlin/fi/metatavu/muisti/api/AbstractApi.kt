@@ -4,19 +4,16 @@ import fi.metatavu.muisti.api.spec.model.Error
 import fi.metatavu.muisti.api.spec.model.ScreenOrientation
 import org.apache.commons.lang3.EnumUtils
 import org.apache.commons.lang3.StringUtils
-import org.jboss.resteasy.spi.ResteasyProviderFactory
-import org.keycloak.KeycloakPrincipal
-import org.keycloak.KeycloakSecurityContext
-import org.keycloak.authorization.client.AuthzClient
-import org.keycloak.authorization.client.ClientAuthorizationContext
-import org.keycloak.representations.AccessToken
+import org.eclipse.microprofile.jwt.JsonWebToken
 import java.time.OffsetDateTime
 import java.util.*
 import java.util.function.Function
 import java.util.stream.Collectors
 import javax.enterprise.context.RequestScoped
-import javax.servlet.http.HttpServletRequest
+import javax.inject.Inject
+import javax.ws.rs.core.Context
 import javax.ws.rs.core.Response
+import javax.ws.rs.core.SecurityContext
 
 /**
  * Abstract base class for all API services
@@ -25,6 +22,12 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 abstract class AbstractApi {
+
+    @Inject
+    lateinit var jsonWebToken: JsonWebToken
+
+    @Context
+    private lateinit var securityContext: SecurityContext
 
     /**
      * Returns list parameter as <E> translated by given translate function.
@@ -39,11 +42,11 @@ abstract class AbstractApi {
         }
         val merged: MutableList<String> = ArrayList()
         parameter.stream()
-                .filter { css: String? -> StringUtils.isNoneEmpty(css) }
-                .forEach { filter: String? -> merged.addAll(Arrays.asList(*StringUtils.split(filter, ','))) }
+            .filter { css: String? -> StringUtils.isNoneEmpty(css) }
+            .forEach { filter: String? -> merged.addAll(Arrays.asList(*StringUtils.split(filter, ','))) }
         return merged.stream()
-                .map { t: String -> translate.apply(t) }
-                .collect(Collectors.toList())
+            .map { t: String -> translate.apply(t) }
+            .collect(Collectors.toList())
     }
 
     /**
@@ -85,33 +88,17 @@ abstract class AbstractApi {
     }
 
     /**
-     * Return current HttpServletRequest
-     *
-     * @return current http servlet request
-     */
-    protected val httpServletRequest: HttpServletRequest
-        get() = ResteasyProviderFactory.getContextData(HttpServletRequest::class.java)
-
-    /**
-     * Returns logged user id
-     *
-     * @return logged user id
-     */
-    protected val loggerUserId: UUID?
-        get() {
-            return loggedUserId
-        }
-
-    /**
      * Returns logged user id
      *
      * @return logged user id
      */
     protected val loggedUserId: UUID?
         get() {
-            val httpServletRequest = httpServletRequest
-            val remoteUser = httpServletRequest.remoteUser ?: return null
-            return UUID.fromString(remoteUser)
+            if (jsonWebToken.subject != null) {
+                return UUID.fromString(jsonWebToken.subject)
+            }
+
+            return null
         }
 
     /**
@@ -122,9 +109,9 @@ abstract class AbstractApi {
      */
     protected fun createOk(entity: Any?): Response {
         return Response
-                .status(Response.Status.OK)
-                .entity(entity)
-                .build()
+            .status(Response.Status.OK)
+            .entity(entity)
+            .build()
     }
 
     /**
@@ -136,10 +123,10 @@ abstract class AbstractApi {
      */
     protected fun createOk(entity: Any?, totalHits: Long?): Response {
         return Response
-                .status(Response.Status.OK)
-                .entity(entity)
-                .header("Total-Results", totalHits)
-                .build()
+            .status(Response.Status.OK)
+            .entity(entity)
+            .header("Total-Results", totalHits)
+            .build()
     }
 
     /**
@@ -150,9 +137,9 @@ abstract class AbstractApi {
      */
     protected fun createAccepted(entity: Any?): Response {
         return Response
-                .status(Response.Status.ACCEPTED)
-                .entity(entity)
-                .build()
+            .status(Response.Status.ACCEPTED)
+            .entity(entity)
+            .build()
     }
 
     /**
@@ -162,8 +149,8 @@ abstract class AbstractApi {
      */
     protected fun createNoContent(): Response {
         return Response
-                .status(Response.Status.NO_CONTENT)
-                .build()
+            .status(Response.Status.NO_CONTENT)
+            .build()
     }
 
     /**
@@ -245,15 +232,15 @@ abstract class AbstractApi {
      * @return error response
      */
     private fun createError(status: Response.Status, message: String): Response {
-        val entity = Error()
-
-        entity.message = message
-        entity.code = status.statusCode
+        val entity = Error(
+            message = message,
+            code = status.statusCode
+        )
 
         return Response
-                .status(status)
-                .entity(entity)
-                .build()
+            .status(status)
+            .entity(entity)
+            .build()
     }
 
     /**
@@ -263,7 +250,7 @@ abstract class AbstractApi {
      * @return whether logged user has specified organization role or not
      */
     protected fun hasOrganizationRole(vararg roles: String?): Boolean {
-        val keycloakSecurityContext = keycloakSecurityContext ?: return false
+        /*val keycloakSecurityContext = keycloakSecurityContext ?: return false
         val token = keycloakSecurityContext.token ?: return false
         val realmAccess = token.realmAccess ?: return false
         for (i in 0 until roles.size) {
@@ -271,17 +258,10 @@ abstract class AbstractApi {
                 return true
             }
         }
-        return false
+        return false*/
+        //todo role checl
+        return true
     }
-
-    /**
-     * Return keycloak authorization client
-     */
-    protected val authzClient: AuthzClient?
-        get() {
-            val clientAuthorizationContext: ClientAuthorizationContext = authorizationContext ?: return null
-            return clientAuthorizationContext.getClient()
-        }
 
     /**
      * Parses date time from string
@@ -305,41 +285,10 @@ abstract class AbstractApi {
         return if (cdt == null) {
             emptySet()
         } else Arrays.stream(StringUtils.split(cdt, ','))
-                .map { name: String? -> UUID.fromString(name) }
-                .filter { obj: UUID? -> Objects.nonNull(obj) }
-                .collect(Collectors.toSet())
+            .map { name: String? -> UUID.fromString(name) }
+            .filter { obj: UUID? -> Objects.nonNull(obj) }
+            .collect(Collectors.toSet())
     }
-
-    /**
-     * Returns keycloak security context from request or null if not available
-     */
-    private val keycloakSecurityContext: KeycloakSecurityContext?
-        get() {
-            val request = httpServletRequest
-            val userPrincipal = request.userPrincipal
-            val kcPrincipal = userPrincipal as KeycloakPrincipal<*>
-            return kcPrincipal.keycloakSecurityContext
-        }
-
-    /**
-     * Return keycloak authorization client context or null if not available
-     */
-    private val authorizationContext: ClientAuthorizationContext?
-        get() {
-            val keycloakSecurityContext = keycloakSecurityContext ?: return null
-            return keycloakSecurityContext.authorizationContext as ClientAuthorizationContext
-        }
-
-    /**
-     * Returns access token
-     *
-     * @return access token
-     */
-    protected val accessToken: AccessToken?
-        get() {
-            val keycloakSecurityContext = keycloakSecurityContext ?: return null
-            return keycloakSecurityContext.token
-        }
 
     companion object {
         const val NOT_FOUND_MESSAGE = "Not found"

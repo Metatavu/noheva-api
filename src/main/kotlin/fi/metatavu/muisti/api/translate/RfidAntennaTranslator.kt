@@ -1,36 +1,38 @@
 package fi.metatavu.muisti.api.translate
 
 import fi.metatavu.muisti.api.spec.model.Point
+import fi.metatavu.muisti.api.spec.model.RfidAntenna
 import javax.enterprise.context.ApplicationScoped
 
 /**
  * Translator for translating JPA RFID antennas into REST resources
  */
 @ApplicationScoped
-class RfidAntennaTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.RfidAntenna, fi.metatavu.muisti.api.spec.model.RfidAntenna>() {
+class RfidAntennaTranslator :
+    AbstractTranslator<fi.metatavu.muisti.persistence.model.RfidAntenna, RfidAntenna>() {
 
-    override fun translate(entity: fi.metatavu.muisti.persistence.model.RfidAntenna): fi.metatavu.muisti.api.spec.model.RfidAntenna {
-        val location = Point()
-        location.x = entity.locationX
-        location.y = entity.locationY
+    override fun translate(entity: fi.metatavu.muisti.persistence.model.RfidAntenna): RfidAntenna {
+        val location = Point(
+            x = entity.locationX,
+            y = entity.locationY
+        )
 
-        val result: fi.metatavu.muisti.api.spec.model.RfidAntenna = fi.metatavu.muisti.api.spec.model.RfidAntenna()
-        result.id = entity.id
-        result.exhibitionId = entity.exhibition?.id
-        result.groupId = entity.deviceGroup?.id
-        result.roomId = entity.room?.id
-        result.readerId = entity.readerId
-        result.antennaNumber = entity.antennaNumber
-        result.name = entity.name
-        result.location = location
-        result.visitorSessionStartThreshold = entity.visitorSessionStartThreshold
-        result.visitorSessionEndThreshold = entity.visitorSessionEndThreshold
-        result.creatorId = entity.creatorId
-        result.lastModifierId = entity.lastModifierId
-        result.createdAt = entity.createdAt
-        result.modifiedAt = entity.modifiedAt
-
-        return result
+        return RfidAntenna(
+            id = entity.id,
+            exhibitionId = entity.exhibition?.id,
+            groupId = entity.deviceGroup?.id,
+            roomId = entity.room!!.id!!,
+            readerId = entity.readerId!!,
+            antennaNumber = entity.antennaNumber!!,
+            name = entity.name!!,
+            location = location,
+            visitorSessionStartThreshold = entity.visitorSessionStartThreshold!!,
+            visitorSessionEndThreshold = entity.visitorSessionEndThreshold!!,
+            creatorId = entity.creatorId,
+            lastModifierId = entity.lastModifierId,
+            createdAt = entity.createdAt,
+            modifiedAt = entity.modifiedAt
+        )
     }
 
 }

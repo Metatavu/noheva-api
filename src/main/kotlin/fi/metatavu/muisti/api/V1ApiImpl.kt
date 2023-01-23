@@ -40,109 +40,109 @@ import javax.ws.rs.core.Response
 class V1ApiImpl: V1Api, AbstractApi() {
 
     @Inject
-    private lateinit var logger: Logger
+    lateinit var logger: Logger
 
     @Inject
-    private lateinit var exhibitionController: ExhibitionController
+    lateinit var exhibitionController: ExhibitionController
 
     @Inject
-    private lateinit var exhibitionTranslator: ExhibitionTranslator
+    lateinit var exhibitionTranslator: ExhibitionTranslator
 
     @Inject
-    private lateinit var visitorSessionController: VisitorSessionController
+    lateinit var visitorSessionController: VisitorSessionController
 
     @Inject
-    private lateinit var settingsController: SettingsController
+    lateinit var settingsController: SettingsController
 
     @Inject
-    private lateinit var visitorSessionTranslator: VisitorSessionTranslator
+    lateinit var visitorSessionTranslator: VisitorSessionTranslator
 
     @Inject
-    private lateinit var visitorController: VisitorController
+    lateinit var visitorController: VisitorController
 
     @Inject
-    private lateinit var visitorTranslator: VisitorTranslator
+    lateinit var visitorTranslator: VisitorTranslator
 
     @Inject
-    private lateinit var exhibitionRoomController: ExhibitionRoomController
+    lateinit var exhibitionRoomController: ExhibitionRoomController
 
     @Inject
-    private lateinit var exhibitionRoomTranslator: ExhibitionRoomTranslator
+    lateinit var exhibitionRoomTranslator: ExhibitionRoomTranslator
     
     @Inject
-    private lateinit var exhibitionFloorController: ExhibitionFloorController
+    lateinit var exhibitionFloorController: ExhibitionFloorController
 
     @Inject
-    private lateinit var exhibitionFloorTranslator: ExhibitionFloorTranslator
+    lateinit var exhibitionFloorTranslator: ExhibitionFloorTranslator
 
     @Inject
-    private lateinit var exhibitionDeviceGroupController: ExhibitionDeviceGroupController
+    lateinit var exhibitionDeviceGroupController: ExhibitionDeviceGroupController
 
     @Inject
-    private lateinit var exhibitionDeviceGroupTranslator: ExhibitionDeviceGroupTranslator
+    lateinit var exhibitionDeviceGroupTranslator: ExhibitionDeviceGroupTranslator
 
     @Inject
-    private lateinit var contentVersionController: ContentVersionController
+    lateinit var contentVersionController: ContentVersionController
 
     @Inject
-    private lateinit var groupContentVersionController: GroupContentVersionController
+    lateinit var groupContentVersionController: GroupContentVersionController
 
     @Inject
-    private lateinit var contentVersionTranslator: ContentVersionTranslator
+    lateinit var contentVersionTranslator: ContentVersionTranslator
 
     @Inject
-    private lateinit var groupContentVersionTranslator: GroupContentVersionTranslator
+    lateinit var groupContentVersionTranslator: GroupContentVersionTranslator
 
     @Inject
-    private lateinit var rfidAntennaController: RfidAntennaController
+    lateinit var rfidAntennaController: RfidAntennaController
 
     @Inject
-    private lateinit var rfidAntennaTranslator: RfidAntennaTranslator
+    lateinit var rfidAntennaTranslator: RfidAntennaTranslator
 
     @Inject
-    private lateinit var exhibitionDeviceController: ExhibitionDeviceController
+    lateinit var exhibitionDeviceController: ExhibitionDeviceController
 
     @Inject
-    private lateinit var exhibitionDeviceTranslator: ExhibitionDeviceTranslator
+    lateinit var exhibitionDeviceTranslator: ExhibitionDeviceTranslator
 
     @Inject
-    private lateinit var pageLayoutController: PageLayoutController
+    lateinit var pageLayoutController: PageLayoutController
 
     @Inject
-    private lateinit var exhibitionPageController: ExhibitionPageController
+    lateinit var exhibitionPageController: ExhibitionPageController
 
     @Inject
-    private lateinit var exhibitionPageTranslator: ExhibitionPageTranslator
+    lateinit var exhibitionPageTranslator: ExhibitionPageTranslator
 
     @Inject
-    private lateinit var deviceModelController: DeviceModelController
+    lateinit var deviceModelController: DeviceModelController
 
     @Inject
-    private lateinit var visitorVariableController: VisitorVariableController
+    lateinit var visitorVariableController: VisitorVariableController
 
     @Inject
-    private lateinit var visitorVariableTranslator: VisitorVariableTranslator
+    lateinit var visitorVariableTranslator: VisitorVariableTranslator
 
     @Inject
-    private lateinit var realtimeNotificationController: RealtimeNotificationController
+    lateinit var realtimeNotificationController: RealtimeNotificationController
 
     @Inject
-    private lateinit var keycloakController: KeycloakController
+    lateinit var keycloakController: KeycloakController
 
     @Inject
-    private lateinit var deviceModelTranslator: DeviceModelTranslator
+    lateinit var deviceModelTranslator: DeviceModelTranslator
 
     @Inject
-    private lateinit var pageLayoutTranslator: PageLayoutTranslator
+    lateinit var pageLayoutTranslator: PageLayoutTranslator
 
     @Inject
-    private lateinit var fileController: FileController
+    lateinit var fileController: FileController
 
     @Inject
-    private lateinit var subLayoutController: SubLayoutController
+    lateinit var subLayoutController: SubLayoutController
 
     @Inject
-    private lateinit var subLayoutTranslator: SubLayoutTranslator
+    lateinit var subLayoutTranslator: SubLayoutTranslator
 
     /* Exhibitions */
 
