@@ -1,32 +1,64 @@
-package fi.metatavu.muisti.api;
+package fi.metatavu.muisti.api
 
 import fi.metatavu.muisti.api.spec.SubLayoutsApi
 import fi.metatavu.muisti.api.spec.model.SubLayout
+import fi.metatavu.muisti.api.translate.SubLayoutTranslator
+import fi.metatavu.muisti.contents.SubLayoutController
 import java.util.*
+import javax.enterprise.context.RequestScoped
+import javax.inject.Inject
 import javax.ws.rs.core.Response
 
+@RequestScoped
+class SubLayoutsApiImpl : SubLayoutsApi, AbstractApi() {
 
-class SubLayoutsApiImpl: SubLayoutsApi, AbstractApi() {
+    @Inject
+    lateinit var subLayoutController: SubLayoutController
+
+    @Inject
+    lateinit var subLayoutTranslator: SubLayoutTranslator
 
     /* V1 */
 
     override fun listSubLayouts(): Response {
-        TODO("Not yet implemented")
+        val result = subLayoutController.listSubLayouts()
+        return createOk(result.map(subLayoutTranslator::translate))
     }
 
     override fun createSubLayout(subLayout: SubLayout): Response {
-        TODO("Not yet implemented")
+        val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val name = subLayout.name
+        val data = subLayout.data
+
+        val created = subLayoutController.createSubLayout(name, data, userId)
+        return createOk(subLayoutTranslator.translate(created))
     }
 
     override fun findSubLayout(subLayoutId: UUID): Response {
-        TODO("Not yet implemented")
+        loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val subLayout = subLayoutController.findSubLayoutById(subLayoutId)
+            ?: return createNotFound("Sub layout $subLayoutId not found")
+        return createOk(subLayoutTranslator.translate(subLayout))
     }
 
     override fun updateSubLayout(subLayoutId: UUID, subLayout: SubLayout): Response {
-        TODO("Not yet implemented")
+        val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val name = subLayout.name
+        val data = subLayout.data
+
+        val subLayoutFound = subLayoutController.findSubLayoutById(subLayoutId)
+            ?: return createNotFound("Sub layout $subLayoutId not found")
+        val result = subLayoutController.updateSubLayout(subLayoutFound, name, data, userId)
+
+        return createOk(subLayoutTranslator.translate(result))
     }
 
     override fun deleteSubLayout(subLayoutId: UUID): Response {
-        TODO("Not yet implemented")
+        loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
+        val subLayout = subLayoutController.findSubLayoutById(subLayoutId) ?: return createNotFound("Layout $subLayoutId not found")
+
+        subLayoutController.deleteSubLayout(subLayout)
+
+        return createNoContent()
     }
 }

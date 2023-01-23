@@ -4,10 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
-import org.keycloak.OAuth2Constants
-import org.keycloak.admin.client.Keycloak
-import org.keycloak.admin.client.KeycloakBuilder
-import org.keycloak.representations.idm.UserRepresentation
 import org.slf4j.Logger
 import java.io.IOException
 import java.io.InputStream
@@ -19,6 +15,10 @@ import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 import javax.ws.rs.core.Response
 import org.infinispan.Cache
+import org.keycloak.OAuth2Constants
+import org.keycloak.admin.client.Keycloak
+import org.keycloak.admin.client.KeycloakBuilder
+import org.keycloak.representations.idm.UserRepresentation
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 

@@ -1,25 +1,41 @@
-package fi.metatavu.muisti.api;
+package fi.metatavu.muisti.api
 
 import fi.metatavu.muisti.api.spec.StoredFilesApi
 import fi.metatavu.muisti.api.spec.model.StoredFile
+import fi.metatavu.muisti.files.FileController
+import javax.enterprise.context.RequestScoped
+import javax.inject.Inject
 import javax.ws.rs.core.Response
 
-
+@RequestScoped
 class StoredFilesApiImpl : StoredFilesApi, AbstractApi() {
+
+    @Inject
+    lateinit var fileController: FileController
+
     override fun listStoredFiles(folder: String): Response {
-        TODO("Not yet implemented")
+        if (folder.isBlank()) {
+            return createBadRequest("Path is required")
+        }
+
+        return createOk(fileController.listStoredFiles(folder))
     }
 
     override fun findStoredFile(storedFileId: String): Response {
-        TODO("Not yet implemented")
+        val storedFile =
+            fileController.findStoredFile(storedFileId) ?: return createNotFound("Stored file $storedFileId not found")
+        return createOk(storedFile)
     }
 
     override fun updateStoredFile(storedFileId: String, storedFile: StoredFile): Response {
-        TODO("Not yet implemented")
+        fileController.findStoredFile(storedFileId) ?: return createNotFound("Stored file $storedFileId not found")
+        return createOk(fileController.updateStoredFile(storedFile))
     }
 
     override fun deleteStoredFile(storedFileId: String): Response {
-        TODO("Not yet implemented")
+        val storedFile = fileController.findStoredFile(storedFileId) ?: return createNotFound(STORED_FILE_NOT_FOUND)
+        fileController.deleteStoredFile(storedFile.id!!)
+        return createNoContent()
     }
 
 }

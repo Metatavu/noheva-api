@@ -5,7 +5,7 @@ plugins {
     kotlin("plugin.allopen") version "1.6.10"
     id("io.quarkus")
     id("org.openapi.generator") version "6.2.1"
-    id("org.jetbrains.kotlin.kapt") version "1.6.10"
+    //id("org.jetbrains.kotlin.kapt") version "1.6.10"
 
 }
 
@@ -28,15 +28,16 @@ val hibernate_spatial_version: String by project
 val awaitility_version: String by project
 
 dependencies {
-    kapt("org.hibernate:hibernate-jpamodelgen:5.4.11.Final")
+    //kapt("org.hibernate:hibernate-jpamodelgen:5.4.11.Final")
 
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
     implementation("io.quarkus:quarkus-hibernate-validator")
     implementation("io.quarkus:quarkus-kotlin")
     implementation("io.quarkus:quarkus-oidc")
+    implementation("io.quarkus:quarkus-keycloak-admin-client")
 
     implementation(platform ("com.amazonaws:aws-java-sdk-bom:$awssdk_version"))
-
+    implementation("commons-io:commons-io")
     implementation("org.apache.commons:commons-lang3")
     implementation("org.infinispan:infinispan-core")
 

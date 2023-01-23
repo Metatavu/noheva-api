@@ -1,15 +1,26 @@
-package fi.metatavu.muisti.api;
+package fi.metatavu.muisti.api
 
 import fi.metatavu.muisti.api.spec.SystemApi
+import fi.metatavu.muisti.api.spec.model.SystemMemory
+import org.apache.commons.io.FileUtils
+import javax.enterprise.context.RequestScoped
 import javax.ws.rs.core.Response
 
-
-class SystemApiImpl: SystemApi {
+@RequestScoped
+class SystemApiImpl : SystemApi {
     override fun memory(): Response {
-        TODO("Not yet implemented")
+        val runtime = Runtime.getRuntime()
+
+        val result = SystemMemory(
+            availableProcessors = runtime.availableProcessors().toString(),
+            freeMemory = FileUtils.byteCountToDisplaySize(runtime.freeMemory()),
+            maxMemory = FileUtils.byteCountToDisplaySize(runtime.maxMemory())
+        )
+
+        return Response.ok(result).build()
     }
 
     override fun ping(): Response {
-        TODO("Not yet implemented")
+        return Response.ok("pong").build()
     }
 }
