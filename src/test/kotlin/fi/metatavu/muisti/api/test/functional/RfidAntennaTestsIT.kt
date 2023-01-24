@@ -64,7 +64,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
           400,
           exhibitionId,
           RfidAntenna(
-            groupId = group.id!!,
+            groupId = group.id,
             roomId = roomId,
             name = "",
             antennaNumber = 5,
@@ -140,8 +140,8 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
             it.admin().rfidAntennas().assertCount(expected = 0, exhibitionId = exhibitionId, deviceGroupId = group2.id!!, roomId = null)
 
             it.admin().rfidAntennas().assertCount(expected = 1, exhibitionId = exhibitionId, deviceGroupId = null, roomId = roomId1)
-            it.admin().rfidAntennas().assertCount(expected = 1, exhibitionId = exhibitionId, deviceGroupId = group1.id!!, roomId = roomId1)
-            it.admin().rfidAntennas().assertCount(expected = 0, exhibitionId = exhibitionId, deviceGroupId = group2.id!!, roomId = roomId1)
+            it.admin().rfidAntennas().assertCount(expected = 1, exhibitionId = exhibitionId, deviceGroupId = group1.id, roomId = roomId1)
+            it.admin().rfidAntennas().assertCount(expected = 0, exhibitionId = exhibitionId, deviceGroupId = group2.id, roomId = roomId1)
 
             val rfidAntennas = it.admin().rfidAntennas().listRfidAntennas(exhibitionId = exhibitionId, deviceGroupId = null, roomId = null)
             assertEquals(1, rfidAntennas.size)
@@ -226,8 +226,8 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
 
         assertJsonsEqual(
           listOf(
-            MqttRfidAntennaUpdate(exhibitionId = exhibitionId, id = createdRfidAntenna.id!!, groupChanged = true),
-            MqttRfidAntennaUpdate(exhibitionId = exhibitionId, id = createdRfidAntenna.id!!, groupChanged = false)
+            MqttRfidAntennaUpdate(exhibitionId = exhibitionId, id = createdRfidAntenna.id, groupChanged = true),
+            MqttRfidAntennaUpdate(exhibitionId = exhibitionId, id = createdRfidAntenna.id, groupChanged = false)
           ),
           mqttSubscription.getMessages(2)
         )
@@ -246,7 +246,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
 
         it.admin().rfidAntennas().assertUpdateFail(400, exhibitionId, RfidAntenna(
           id = createdRfidAntennaId,
-          groupId = group2.id!!,
+          groupId = group2.id,
           roomId = UUID.randomUUID(),
           name = "update name",
           location = Point(-654.0, 765.0),
@@ -258,7 +258,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
 
         it.admin().rfidAntennas().assertUpdateFail(400, exhibitionId, RfidAntenna(
           id = createdRfidAntennaId,
-          groupId = group2.id!!,
+          groupId = group2.id,
           roomId = roomId2,
           name = "",
           location = Point(-654.0, 765.0),
@@ -270,7 +270,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
 
         it.admin().rfidAntennas().assertUpdateFail(400, exhibitionId, RfidAntenna(
           id = createdRfidAntennaId,
-          groupId = group2.id!!,
+          groupId = group2.id,
           roomId = roomId2,
           name = "update name",
           location = Point(-654.0, 765.0),
@@ -315,7 +315,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
             it.admin().rfidAntennas().assertDeleteFail(404, nonExistingExhibitionId, nonExistingSessionVariableId)
 
             it.admin().rfidAntennas().delete(exhibitionId, createdRfidAntenna)
-            assertJsonsEqual(listOf(MqttRfidAntennaDelete(exhibitionId = exhibitionId, id = createdRfidAntenna.id!!)), mqttSubscription.getMessages(1))
+            assertJsonsEqual(listOf(MqttRfidAntennaDelete(exhibitionId = exhibitionId, id = createdRfidAntenna.id)), mqttSubscription.getMessages(1))
 
             it.admin().rfidAntennas().assertDeleteFail(404, exhibitionId, createdRfidAntennaId)
         }

@@ -18,13 +18,13 @@ class FileTestsIT : AbstractFunctionalTest() {
     fun testUploadFile() {
         ApiTestBuilder().use { builder ->
             val folder = UUID.randomUUID().toString()
-            val storedFile = builder.admin().files().upload(folder, "test-image.jpg", "image/jpeg", filename = null)
+            val storedFile = builder.admin().files().upload(folder, "test-IMAGE.jpg", "IMAGE/jpeg", filename = null)
             assertNotNull(storedFile)
 
             val files = builder.admin().files().listStoredFiles(folder)
             assertEquals(1, files.size)
 
-            download(files[0].uri).use { stream -> assertEquals(getResourceMd5("test-image.jpg"), DigestUtils.md5Hex(stream))  }
+            download(files[0].uri).use { stream -> assertEquals(getResourceMd5("test-IMAGE.jpg"), DigestUtils.md5Hex(stream))  }
         }
     }
 
@@ -33,7 +33,7 @@ class FileTestsIT : AbstractFunctionalTest() {
     fun testFindFile() {
         ApiTestBuilder().use { builder ->
             val folder = UUID.randomUUID().toString()
-            val storedFile = builder.admin().files().upload(folder = folder, resourceName = "test-image.jpg", contentType = "image/jpeg", filename = null)
+            val storedFile = builder.admin().files().upload(folder = folder, resourceName = "test-IMAGE.jpg", contentType = "IMAGE/jpeg", filename = null)
             assertNotNull(storedFile)
             assertNotNull(storedFile.id)
 
@@ -49,19 +49,19 @@ class FileTestsIT : AbstractFunctionalTest() {
     fun testListFiles() {
         ApiTestBuilder().use { builder ->
             val folder = UUID.randomUUID().toString()
-            val storedFile1 = builder.admin().files().upload(folder, "test-image.jpg", "image/jpeg", filename = null)
+            val storedFile1 = builder.admin().files().upload(folder, "test-IMAGE.jpg", "IMAGE/jpeg", filename = null)
             assertNotNull(storedFile1)
 
-            val storedFile2 = builder.admin().files().upload(folder, "test-image-2.jpg", "image/jpeg", filename = null)
+            val storedFile2 = builder.admin().files().upload(folder, "test-IMAGE-2.jpg", "IMAGE/jpeg", filename = null)
             assertNotNull(storedFile2)
 
             val folderFiles = builder.admin().files().listStoredFiles(folder)
             assertEquals(2, folderFiles.size)
 
-            assertEquals("test-image.jpg", folderFiles.firstOrNull{ it.id == storedFile1.id }?.fileName)
-            assertEquals("image/jpeg", folderFiles.firstOrNull{ it.id == storedFile1.id }?.contentType)
-            assertEquals("test-image-2.jpg", folderFiles.firstOrNull{ it.id == storedFile2.id }?.fileName)
-            assertEquals("image/jpeg", folderFiles.firstOrNull{ it.id == storedFile2.id }?.contentType)
+            assertEquals("test-IMAGE.jpg", folderFiles.firstOrNull{ it.id == storedFile1.id }?.fileName)
+            assertEquals("IMAGE/jpeg", folderFiles.firstOrNull{ it.id == storedFile1.id }?.contentType)
+            assertEquals("test-IMAGE-2.jpg", folderFiles.firstOrNull{ it.id == storedFile2.id }?.fileName)
+            assertEquals("IMAGE/jpeg", folderFiles.firstOrNull{ it.id == storedFile2.id }?.contentType)
 
             val rootFiles = builder.admin().files().listStoredFiles("/")
 
@@ -76,8 +76,8 @@ class FileTestsIT : AbstractFunctionalTest() {
     fun testUpdateFile() {
         ApiTestBuilder().use { builder ->
             val folder = UUID.randomUUID().toString()
-            val createdFile= builder.admin().files().upload(folder, "test-image.jpg", "image/jpeg", filename = null)
-            assertEquals("test-image.jpg", createdFile.fileName)
+            val createdFile= builder.admin().files().upload(folder, "test-IMAGE.jpg", "IMAGE/jpeg", filename = null)
+            assertEquals("test-IMAGE.jpg", createdFile.fileName)
 
             val updatedFile = builder.admin().files().updateStoredFile(createdFile.copy(fileName = "changedfile.jpg"))
             assertEquals("changedfile.jpg", updatedFile.fileName)

@@ -46,7 +46,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                     name = "default",
                     contentVersionId = contentVersionId,
                     deviceGroupId = deviceGroupId,
-                    status = GroupContentVersionStatus.inprogress
+                    status = GroupContentVersionStatus.INPROGRESS
                 )
             )
 
@@ -90,7 +90,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                     name = "default",
                     contentVersionId = contentVersionId,
                     deviceGroupId = deviceGroupId,
-                    status = GroupContentVersionStatus.inprogress
+                    status = GroupContentVersionStatus.INPROGRESS
                 )
             )
 
@@ -137,7 +137,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                     name = "default",
                     contentVersionId = contentVersionId,
                     deviceGroupId = deviceGroupId,
-                    status = GroupContentVersionStatus.inprogress
+                    status = GroupContentVersionStatus.INPROGRESS
                 )
             )
 
@@ -192,7 +192,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                         name = "default",
                         contentVersionId = contentVersionId,
                         deviceGroupId = deviceGroupId,
-                        status = GroupContentVersionStatus.inprogress
+                        status = GroupContentVersionStatus.INPROGRESS
                     )
                 )
             }
@@ -260,7 +260,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                     name = "default",
                     contentVersionId = contentVersionId,
                     deviceGroupId = deviceGroupId,
-                    status = GroupContentVersionStatus.inprogress
+                    status = GroupContentVersionStatus.INPROGRESS
                 )
             )
 
@@ -269,16 +269,16 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val nonExistingExhibitionId = UUID.randomUUID()
             val createResource = ExhibitionPageResource(
                 id = "createresid",
-                data = "https://example.com/image.png",
-                type = ExhibitionPageResourceType.image
+                data = "https://example.com/IMAGE.png",
+                type = ExhibitionPageResourceType.IMAGE
             )
 
             val createEvent = ExhibitionPageEvent(
-                action = ExhibitionPageEventActionType.navigate,
+                action = ExhibitionPageEventActionType.NAVIGATE,
                 properties = arrayOf(
                     ExhibitionPageEventProperty(
                         name = "pageId",
-                        type = ExhibitionPageEventPropertyType.string,
+                        type = ExhibitionPageEventPropertyType.STRING,
                         value = navigatePageId.toString()
                     )
                 )
@@ -295,8 +295,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
             val fadeTransition = Transition(
                     duration = 300,
-                    animation = Animation.fade,
-                    timeInterpolation = AnimationTimeInterpolation.accelerate
+                    animation = Animation.FADE,
+                    timeInterpolation = AnimationTimeInterpolation.ACCELERATE
             )
 
             val createEnterTransitions : Array<ExhibitionPageTransition> = arrayOf(
@@ -307,8 +307,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
             val morphTransition = Transition (
                     duration = 300,
-                    animation = Animation.morph,
-                    timeInterpolation = AnimationTimeInterpolation.bounce
+                    animation = Animation.MORPH,
+                    timeInterpolation = AnimationTimeInterpolation.BOUNCE
             )
 
             val morphOptions = ExhibitionPageTransitionOptions(
@@ -354,16 +354,16 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
             val updateResource = ExhibitionPageResource(
                 id = "updateresid",
                 data = "https://example.com/updated.png",
-                type = ExhibitionPageResourceType.video,
-                mode = PageResourceMode.scripted
+                type = ExhibitionPageResourceType.VIDEO,
+                mode = PageResourceMode.SCRIPTED
             )
 
             val updateEvent = ExhibitionPageEvent(
-                action = ExhibitionPageEventActionType.hide,
+                action = ExhibitionPageEventActionType.HIDE,
                 properties = arrayOf(
                     ExhibitionPageEventProperty(
                         name = "background",
-                        type = ExhibitionPageEventPropertyType.color,
+                        type = ExhibitionPageEventPropertyType.COLOR,
                         value = "#fff"
                     )
                 )
@@ -383,8 +383,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
             val updatedFadeTransition = Transition(
                     duration = 600,
-                    animation = Animation.fade,
-                    timeInterpolation = AnimationTimeInterpolation.acceleratedecelerate
+                    animation = Animation.FADE,
+                    timeInterpolation = AnimationTimeInterpolation.ACCELERATEDECELERATE
             )
 
             val updateEnterTransitions: Array<ExhibitionPageTransition> = arrayOf(
@@ -395,8 +395,8 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
 
             val updatedMorphTransition = Transition (
                     duration = 600,
-                    animation = Animation.morph,
-                    timeInterpolation = AnimationTimeInterpolation.acceleratedecelerate
+                    animation = Animation.MORPH,
+                    timeInterpolation = AnimationTimeInterpolation.ACCELERATEDECELERATE
             )
 
             val updateExitTransitions: Array<ExhibitionPageTransition> = arrayOf(
@@ -475,7 +475,7 @@ class ExhibitionPageTestsIT: AbstractFunctionalTest() {
                     name = "default",
                     contentVersionId = contentVersionId,
                     deviceGroupId = deviceGroupId,
-                    status = GroupContentVersionStatus.inprogress
+                    status = GroupContentVersionStatus.INPROGRESS
                 )
             )
 

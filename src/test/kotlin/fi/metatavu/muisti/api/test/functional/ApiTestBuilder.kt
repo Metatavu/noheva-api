@@ -1,6 +1,6 @@
 package fi.metatavu.muisti.api.test.functional
 
-import fi.metatavu.muisti.api.test.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
 import fi.metatavu.muisti.api.test.functional.mqtt.TestMqttClient
 import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import fi.metatavu.muisti.api.test.functional.settings.MqttTestSettings

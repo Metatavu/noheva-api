@@ -44,12 +44,12 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
 
             val sourceVisitorVariable1 = it.admin().visitorVariables().create(
                 exhibitionId = sourceExhibitionId,
-                payload = VisitorVariable(name = "var1", type = VisitorVariableType.number, editableFromUI = false)
+                payload = VisitorVariable(name = "var1", type = VisitorVariableType.NUMBER, editableFromUI = false)
             )
 
             val sourceVisitorVariable2 = it.admin().visitorVariables().create(
                 exhibitionId = sourceExhibitionId,
-                payload = VisitorVariable(name = "var2", type = VisitorVariableType.text, editableFromUI = true)
+                payload = VisitorVariable(name = "var2", type = VisitorVariableType.TEXT, editableFromUI = true)
             )
 
             val copiedExhibition = it.admin().exhibitions().copy(sourceExhibitionId = sourceExhibitionId)
@@ -59,14 +59,14 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
             val copiedVisitorVariable1 = copiedVisitorVariables.first { visitorVariable -> visitorVariable.name == sourceVisitorVariable1.name }
             assertNotNull(copiedVisitorVariable1)
             assertEquals(sourceVisitorVariable1.name, copiedVisitorVariable1.name)
-            assertEquals(VisitorVariableType.number, copiedVisitorVariable1.type)
+            assertEquals(VisitorVariableType.NUMBER, copiedVisitorVariable1.type)
             assertFalse(copiedVisitorVariable1.editableFromUI)
             assertNotEquals(sourceVisitorVariable1.id, copiedVisitorVariable1.id)
 
             val copiedVisitorVariable2 = copiedVisitorVariables.first { visitorVariable -> visitorVariable.name == sourceVisitorVariable2.name }
             assertNotNull(copiedVisitorVariable2)
             assertEquals(sourceVisitorVariable2.name, copiedVisitorVariable2.name)
-            assertEquals(VisitorVariableType.text, copiedVisitorVariable2.type)
+            assertEquals(VisitorVariableType.TEXT, copiedVisitorVariable2.type)
             assertTrue(copiedVisitorVariable2.editableFromUI)
             assertNotEquals(sourceVisitorVariable2.id, copiedVisitorVariable2.id)
 
@@ -223,7 +223,7 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
                         roomId = sourceRooms[roomIndex].id!!,
                         allowVisitorSessionCreation = i == 1,
                         visitorSessionEndTimeout = 10L * i,
-                        visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.endothers
+                        visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.ENDOTHERS
                     )
                 )
             }
@@ -276,15 +276,15 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
 
     @Test
     fun testCopyExhibitionWithContents() {
-        ApiTestBuilder().use {
-            val sourceExhibition = it.admin().exhibitions().create(payload = Exhibition(name = "copy test"))
+        ApiTestBuilder().use { testBuilder ->
+            val sourceExhibition = testBuilder.admin().exhibitions().create(payload = Exhibition(name = "copy test"))
             val sourceExhibitionId = sourceExhibition.id!!
-            val sourceFloor =  it.admin().exhibitionFloors().create(
+            val sourceFloor =  testBuilder.admin().exhibitionFloors().create(
                 exhibitionId = sourceExhibitionId,
                 payload = ExhibitionFloor(name = "copy test floor")
             )
 
-            val sourceRoom = it.admin().exhibitionRooms().create(
+            val sourceRoom = testBuilder.admin().exhibitionRooms().create(
                 exhibitionId = sourceExhibitionId,
                 payload = ExhibitionRoom(
                     name = "copy test room",
@@ -292,7 +292,7 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
                 )
             )
 
-            val sourceGroup = it.admin().exhibitionDeviceGroups().create(
+            val sourceGroup = testBuilder.admin().exhibitionDeviceGroups().create(
                 exhibitionId = sourceExhibitionId,
                 sourceDeviceGroupId = null,
                 payload = ExhibitionDeviceGroup(
@@ -300,52 +300,52 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
                     roomId = sourceRoom.id!!,
                     allowVisitorSessionCreation = false,
                     visitorSessionEndTimeout = 10L,
-                    visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.endothers
+                    visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.ENDOTHERS
                 )
             )
 
-            val sourceContentVersion = it.admin().contentVersions().create(
+            val sourceContentVersion = testBuilder.admin().contentVersions().create(
                 exhibitionId = sourceExhibitionId,
                 payload = ContentVersion(
                     language = "FI",
                     name = "copy test content version",
-                    rooms = arrayOf(sourceRoom.id!!),
+                    rooms = arrayOf(sourceRoom.id),
                     activeCondition = ContentVersionActiveCondition(userVariable = "test-var", equals = "test-val")
                 )
             )
 
-            val sourceGroupContentVersion = it.admin().groupContentVersions().create(
+            val sourceGroupContentVersion = testBuilder.admin().groupContentVersions().create(
                 exhibitionId = sourceExhibitionId,
                 payload = GroupContentVersion(
                     contentVersionId = sourceContentVersion.id!!,
                     deviceGroupId = sourceGroup.id!!,
                     name = "copy test group content version",
-                    status = GroupContentVersionStatus.ready
+                    status = GroupContentVersionStatus.READY
                 )
             )
 
-            val model = it.admin().deviceModels().create()
+            val model = testBuilder.admin().deviceModels().create()
 
-            var sourceDevice = it.admin().exhibitionDevices().create(
-                exhibitionId = sourceExhibition.id!!,
+            var sourceDevice = testBuilder.admin().exhibitionDevices().create(
+                exhibitionId = sourceExhibition.id,
                 payload = ExhibitionDevice(
-                    groupId = sourceGroup.id!!,
+                    groupId = sourceGroup.id,
                     modelId = model.id!!,
                     name = "copy test device",
-                    screenOrientation = ScreenOrientation.portrait,
-                    imageLoadStrategy = DeviceImageLoadStrategy.mEMORY
+                    screenOrientation = ScreenOrientation.PORTRAIT,
+                    imageLoadStrategy = DeviceImageLoadStrategy.MEMORY
                 )
             )
 
-            val deviceModel = it.admin().deviceModels().create()
-            val defaultPageLayout = it.admin().pageLayouts().create(deviceModel)
-            val sourceLayout = it.admin().pageLayouts().create(defaultPageLayout)
+            val deviceModel = testBuilder.admin().deviceModels().create()
+            val defaultPageLayout = testBuilder.admin().pageLayouts().create(deviceModel)
+            val sourceLayout = testBuilder.admin().pageLayouts().create(defaultPageLayout)
 
-            val sourceDevicePage = it.admin().exhibitionPages().create(
+            val sourceDevicePage = testBuilder.admin().exhibitionPages().create(
                 exhibitionId = sourceExhibitionId,
                 payload = ExhibitionPage(
                     name = "copy device page",
-                    contentVersionId = sourceContentVersion.id!!,
+                    contentVersionId = sourceContentVersion.id,
                     deviceId = sourceDevice.id!!,
                     orderNumber = 0,
                     resources = arrayOf(),
@@ -356,7 +356,7 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
                 )
             )
 
-            val sourceIdlePage = it.admin().exhibitionPages().create(
+            val sourceIdlePage = testBuilder.admin().exhibitionPages().create(
                 exhibitionId = sourceExhibitionId,
                 payload = ExhibitionPage(
                     deviceId = sourceDevice.id!!,
@@ -364,25 +364,25 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
                     orderNumber = 0,
                     resources = arrayOf(),
                     eventTriggers = arrayOf(),
-                    contentVersionId = sourceContentVersion.id!!,
+                    contentVersionId = sourceContentVersion.id,
                     enterTransitions = arrayOf(),
                     exitTransitions = arrayOf(),
-                    layoutId = sourceLayout.id!!
+                    layoutId = sourceLayout.id
                 )
             )
 
-            sourceDevice = it.admin().exhibitionDevices().updateExhibitionDevice(
+            sourceDevice = testBuilder.admin().exhibitionDevices().updateExhibitionDevice(
                 exhibitionId = sourceExhibitionId,
                 payload = sourceDevice.copy(
                     idlePageId = sourceIdlePage.id!!
                 )
             )
 
-            val sourceAntenna = it.admin().rfidAntennas().create(
+            val sourceAntenna = testBuilder.admin().rfidAntennas().create(
                 exhibitionId = sourceExhibitionId,
                 payload = RfidAntenna(
-                    groupId = sourceGroup.id!!,
-                    roomId = sourceRoom.id!!,
+                    groupId = sourceGroup.id,
+                    roomId = sourceRoom.id,
                     name = "copy test antenna",
                     antennaNumber = 5,
                     readerId = "readid",
@@ -393,39 +393,39 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
             )
 
             // Copy exhibition
-            val copiedExhibition = it.admin().exhibitions().copy(sourceExhibitionId = sourceExhibitionId)
+            val copiedExhibition = testBuilder.admin().exhibitions().copy(sourceExhibitionId = sourceExhibitionId)
             val copiedExhibitionId = copiedExhibition.id!!
 
             // Gather copied data
-            val copiedContentVersions = it.admin().contentVersions().listContentVersions(exhibitionId = copiedExhibitionId, roomId = null)
+            val copiedContentVersions = testBuilder.admin().contentVersions().listContentVersions(exhibitionId = copiedExhibitionId, roomId = null)
             assertEquals(1, copiedContentVersions.size)
             val copiedContentVersion = copiedContentVersions.first()
 
-            val copiedGroupContentVersions = it.admin().groupContentVersions().listGroupContentVersions(exhibitionId = copiedExhibitionId, contentVersionId = null, deviceGroupId = null)
+            val copiedGroupContentVersions = testBuilder.admin().groupContentVersions().listGroupContentVersions(exhibitionId = copiedExhibitionId, contentVersionId = null, deviceGroupId = null)
             assertEquals(1, copiedGroupContentVersions.size)
             val copiedGroupContentVersion = copiedGroupContentVersions.first()
 
-            val copiedDevices = it.admin().exhibitionDevices().listExhibitionDevices(exhibitionId = copiedExhibitionId, exhibitionGroupId = null, deviceModelId = null)
+            val copiedDevices = testBuilder.admin().exhibitionDevices().listExhibitionDevices(exhibitionId = copiedExhibitionId, exhibitionGroupId = null, deviceModelId = null)
             assertEquals(1, copiedDevices.size)
             val copiedDevice = copiedDevices.first()
 
-            val copiedRooms = it.admin().exhibitionRooms().listExhibitionRooms(exhibitionId = copiedExhibitionId,floorId = null)
+            val copiedRooms = testBuilder.admin().exhibitionRooms().listExhibitionRooms(exhibitionId = copiedExhibitionId,floorId = null)
             assertEquals(1, copiedRooms.size)
             val copiedRoom = copiedRooms.first()
 
-            val copiedGroups = it.admin().exhibitionDeviceGroups().listExhibitionDeviceGroups(exhibitionId = copiedExhibitionId, roomId = null)
+            val copiedGroups = testBuilder.admin().exhibitionDeviceGroups().listExhibitionDeviceGroups(exhibitionId = copiedExhibitionId, roomId = null)
             assertEquals(1, copiedGroups.size)
             val copiedGroup = copiedGroups.first()
 
-            val copiedFloors = it.admin().exhibitionFloors().listExhibitionFloors(exhibitionId = copiedExhibitionId)
+            val copiedFloors = testBuilder.admin().exhibitionFloors().listExhibitionFloors(exhibitionId = copiedExhibitionId)
             assertEquals(1, copiedFloors.size)
             val copiedFloor = copiedFloors.first()
 
-            val copiedAntennas = it.admin().rfidAntennas().listRfidAntennas(exhibitionId = copiedExhibitionId, deviceGroupId = null, roomId = null)
+            val copiedAntennas = testBuilder.admin().rfidAntennas().listRfidAntennas(exhibitionId = copiedExhibitionId, deviceGroupId = null, roomId = null)
             assertEquals(1, copiedAntennas.size)
             val copiedAntenna = copiedAntennas.first()
 
-            val copiedPages = it.admin().exhibitionPages().listExhibitionPages(exhibitionId = copiedExhibitionId, exhibitionDeviceId = null, contentVersionId = null, pageLayoutId = null)
+            val copiedPages = testBuilder.admin().exhibitionPages().listExhibitionPages(exhibitionId = copiedExhibitionId, exhibitionDeviceId = null, contentVersionId = null, pageLayoutId = null)
             assertEquals(2, copiedPages.size)
             val copiedDevicePage = copiedPages.first { it.name == "copy device page" }
             val copiedIdlePage = copiedPages.first { it.name == "copy idle page" }
@@ -498,7 +498,7 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
             assertEquals(copiedGroup.id, copiedGroupContentVersion.deviceGroupId)
             assertEquals(copiedExhibitionId, copiedGroupContentVersion.exhibitionId)
 
-            it.admin().exhibitionDevices().updateExhibitionDevice(
+            testBuilder.admin().exhibitionDevices().updateExhibitionDevice(
                 exhibitionId = sourceExhibitionId,
                 payload = sourceDevice.copy(
                     idlePageId = null
@@ -506,7 +506,7 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
             )
 
             cleanCopiedExhibition(
-                apiTestBuilder = it,
+                apiTestBuilder = testBuilder,
                 copiedExhibition = copiedExhibition
             )
         }
@@ -680,7 +680,7 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
             .mapNotNull(ExhibitionFloor::id)
             .forEach { apiTestBuilder.admin().exhibitionFloors().delete(exhibitionId = copiedExhibitionId, exhibitionFloorId = it) }
 
-        apiTestBuilder.admin().exhibitions().delete(copiedExhibition.id!!)
+        apiTestBuilder.admin().exhibitions().delete(copiedExhibition.id)
     }
 
 }

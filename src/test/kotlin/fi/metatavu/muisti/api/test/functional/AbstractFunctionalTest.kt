@@ -95,7 +95,7 @@ abstract class AbstractFunctionalTest {
         val response: Response = OkHttpClient().newCall(request).execute()
         Assert.assertTrue(response.isSuccessful)
 
-        val body = response.body
+        val body = response.body()
         Assert.assertNotNull(body)
 
         return body?.byteStream()

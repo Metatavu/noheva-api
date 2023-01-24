@@ -20,7 +20,8 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             val exhibition = it.admin().exhibitions().create()
             val floor = it.admin().exhibitionFloors().create(exhibition.id!!)
             val floorId = floor.id!!
-            val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibition.id!!, ExhibitionRoom(
+            val createdExhibitionRoom = it.admin().exhibitionRooms().create(
+                exhibition.id, ExhibitionRoom(
                 name = "name",
                 floorId = floorId
             ))
@@ -36,7 +37,7 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingExhibitionRoomId = UUID.randomUUID()
-            val floor = it.admin().exhibitionFloors().create(exhibition.id!!)
+            val floor = it.admin().exhibitionFloors().create(exhibition.id)
             val floorId = floor.id!!
 
             val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
@@ -55,10 +56,10 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             val exhibition = it.admin().exhibitions().create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
-            val floor1 = it.admin().exhibitionFloors().create(exhibition.id!!)
+            val floor1 = it.admin().exhibitionFloors().create(exhibition.id)
             val floor1Id = floor1.id!!
 
-            val floor2 = it.admin().exhibitionFloors().create(exhibition.id!!)
+            val floor2 = it.admin().exhibitionFloors().create(exhibition.id)
             val floor2Id = floor2.id!!
 
             it.admin().exhibitionRooms().assertListFail(expectedStatus = 404, exhibitionId = nonExistingExhibitionId, floorId = null)
@@ -156,7 +157,7 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingSessionVariableId = UUID.randomUUID()
-            val floor = it.admin().exhibitionFloors().create(exhibition.id!!)
+            val floor = it.admin().exhibitionFloors().create(exhibition.id)
             val floorId = floor.id!!
             val createdExhibitionRoom = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
             val createdExhibitionRoomId = createdExhibitionRoom.id!!
@@ -164,7 +165,7 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             val contentVersionToCreate = ContentVersion(
                 name = "created name",
                 language = "FI",
-                rooms = arrayOf<UUID>(createdExhibitionRoomId)
+                rooms = arrayOf(createdExhibitionRoomId)
             )
             val createdContentVersion = it.admin().contentVersions().create(exhibitionId, contentVersionToCreate)
 

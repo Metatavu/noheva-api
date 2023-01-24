@@ -38,7 +38,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
             for (name in arrayOf("key1", "key2", "key3", "key4")) {
                 it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
                         name = name,
-                        type = VisitorVariableType.text,
+                        type = VisitorVariableType.TEXT,
                         editableFromUI = false
                 ))
             }
@@ -50,18 +50,18 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
                 variables = createVariables,
                 visitedDeviceGroups = arrayOf(),
                 language = "FI",
-                state = VisitorSessionState.cOMPLETE
+                state = VisitorSessionState.COMPLETE
             ))
 
             assertNotNull(createdVisitorSession)
 
-            assertEquals(createdVisitorSession.state, VisitorSessionState.cOMPLETE)
+            assertEquals(createdVisitorSession.state, VisitorSessionState.COMPLETE)
             assertEquals(createdVisitorSession.visitorIds.size, 2)
             assertEquals(createdVisitorSession.variables!!.size, 2)
             assertTrue(createdVisitorSession.visitorIds.contains(visitor1.id))
             assertTrue(createdVisitorSession.visitorIds.contains(visitor2.id))
-            assertEquals("val1", createdVisitorSession.variables!!.find { session -> session.name == "key1" }!!.value)
-            assertEquals("val2", createdVisitorSession.variables!!.find { session -> session.name == "key2" }!!.value)
+            assertEquals("val1", createdVisitorSession.variables.find { session -> session.name == "key1" }!!.value)
+            assertEquals("val2", createdVisitorSession.variables.find { session -> session.name == "key2" }!!.value)
 
             assertJsonsEqual(listOf(MqttExhibitionVisitorSessionCreate(exhibitionId = exhibitionId, id = createdVisitorSession.id!!)), mqttSubscription.getMessages(1))
         }
@@ -75,25 +75,25 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
             it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
                 name = "text",
-                type = VisitorVariableType.text,
+                type = VisitorVariableType.TEXT,
                 editableFromUI = false
             ))
 
             it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
                 name = "number",
-                type = VisitorVariableType.number,
+                type = VisitorVariableType.NUMBER,
                 editableFromUI = false
             ))
 
             it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
                 name = "boolean",
-                type = VisitorVariableType.boolean,
+                type = VisitorVariableType.BOOLEAN,
                 editableFromUI = false
             ))
 
             it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
                 name = "enum",
-                type = VisitorVariableType.enumerated,
+                type = VisitorVariableType.ENUMERATED,
                 enum = arrayOf("valid"),
                 editableFromUI = false
             ))
@@ -109,55 +109,55 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
                 variables = arrayOf(VisitorSessionVariable("key1", "val1")),
                 visitedDeviceGroups = arrayOf(),
                 language = "FI",
-                state = VisitorSessionState.cOMPLETE
+                state = VisitorSessionState.COMPLETE
             ))
 
             it.admin().visitorSessions().assertCreateFail(expectedStatus = 400, exhibitionId = exhibitionId, payload = VisitorSession(
-                visitorIds = arrayOf(visitor.id!!),
+                visitorIds = arrayOf(visitor.id),
                 variables = arrayOf(VisitorSessionVariable("number", "val1")),
                 visitedDeviceGroups = arrayOf(),
                 language = "FI",
-                state = VisitorSessionState.cOMPLETE
+                state = VisitorSessionState.COMPLETE
             ))
 
             it.admin().visitorSessions().assertCreateFail(expectedStatus = 400, exhibitionId = exhibitionId, payload = VisitorSession(
-                visitorIds = arrayOf(visitor.id!!),
+                visitorIds = arrayOf(visitor.id),
                 variables = arrayOf(VisitorSessionVariable("boolean", "val1")),
                 visitedDeviceGroups = arrayOf(),
                 language = "FI",
-                state = VisitorSessionState.cOMPLETE
+                state = VisitorSessionState.COMPLETE
             ))
 
             it.admin().visitorSessions().assertCreateFail(expectedStatus = 400, exhibitionId = exhibitionId, payload = VisitorSession(
-                visitorIds = arrayOf(visitor.id!!),
+                visitorIds = arrayOf(visitor.id),
                 variables = arrayOf(VisitorSessionVariable("enum", "val1")),
                 visitedDeviceGroups = arrayOf(),
                 language = "FI",
-                state = VisitorSessionState.cOMPLETE
+                state = VisitorSessionState.COMPLETE
             ))
 
             it.admin().visitorSessions().create(exhibitionId = exhibitionId, payload = VisitorSession(
-                    visitorIds = arrayOf(visitor.id!!),
+                    visitorIds = arrayOf(visitor.id),
                     variables = arrayOf(VisitorSessionVariable("number", "12")),
                     visitedDeviceGroups = arrayOf(),
                     language = "FI",
-                    state = VisitorSessionState.cOMPLETE
+                    state = VisitorSessionState.COMPLETE
             ))
 
             it.admin().visitorSessions().create(exhibitionId = exhibitionId, payload = VisitorSession(
-                    visitorIds = arrayOf(visitor.id!!),
+                    visitorIds = arrayOf(visitor.id),
                     variables = arrayOf(VisitorSessionVariable("boolean", "true")),
                     visitedDeviceGroups = arrayOf(),
                     language = "FI",
-                    state = VisitorSessionState.cOMPLETE
+                    state = VisitorSessionState.COMPLETE
             ))
 
             it.admin().visitorSessions().create(exhibitionId = exhibitionId, payload = VisitorSession(
-                    visitorIds = arrayOf(visitor.id!!),
+                    visitorIds = arrayOf(visitor.id),
                     variables = arrayOf(VisitorSessionVariable("enum", "valid")),
                     visitedDeviceGroups = arrayOf(),
                     language = "FI",
-                    state = VisitorSessionState.cOMPLETE
+                    state = VisitorSessionState.COMPLETE
             ))
 
         }
@@ -255,7 +255,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
             for (name in arrayOf("key1", "key2", "key3", "key4")) {
                 it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
                     name = name,
-                    type = VisitorVariableType.text,
+                    type = VisitorVariableType.TEXT,
                     editableFromUI = false
                 ))
             }
@@ -269,7 +269,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
             val createVisitorIds = arrayOf(visitor1.id!!, visitor2.id!!)
 
             val createdVisitorSession = it.admin().visitorSessions().create(exhibitionId, VisitorSession(
-                state = VisitorSessionState.pENDING,
+                state = VisitorSessionState.PENDING,
                 visitorIds = createVisitorIds,
                 variables = createVariables,
                 language = "FI",
@@ -298,9 +298,9 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
             assertEquals(createdVisitorSession.variables!!.size, 3)
             assertTrue(createdVisitorSession.visitorIds.contains(visitor1.id))
             assertTrue(createdVisitorSession.visitorIds.contains(visitor2.id))
-            assertEquals("val1", createdVisitorSession.variables!!.find { session -> session.name == "key1" }!!.value)
-            assertEquals("val2", createdVisitorSession.variables!!.find { session -> session.name == "key2" }!!.value)
-            assertEquals("val3", createdVisitorSession.variables!!.find { session -> session.name == "key3" }!!.value)
+            assertEquals("val1", createdVisitorSession.variables.find { session -> session.name == "key1" }!!.value)
+            assertEquals("val2", createdVisitorSession.variables.find { session -> session.name == "key2" }!!.value)
+            assertEquals("val3", createdVisitorSession.variables.find { session -> session.name == "key3" }!!.value)
 
             assertEquals(foundCreatedVisitorSession?.visitedDeviceGroups?.size, 2)
             assertNotNull(foundCreatedVisitorSession?.visitedDeviceGroups?.firstOrNull { item ->  item.deviceGroupId == deviceGroupId1 })
@@ -312,12 +312,12 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
                 VisitorSessionVariable("key2", "val2")
             )
 
-            val updateVisitorIds = arrayOf(visitor3.id!!, visitor2.id!!)
+            val updateVisitorIds = arrayOf(visitor3.id!!, visitor2.id)
             val visitedDeviceGroups = arrayOf<VisitorSessionVisitedDeviceGroup>()
 
             val updatedVisitorSession = it.admin().visitorSessions().updateVisitorSession(exhibitionId, VisitorSession(
                 id = createdVisitorSession.id,
-                state = VisitorSessionState.cOMPLETE,
+                state = VisitorSessionState.COMPLETE,
                 variables = updateVariables,
                 visitorIds = updateVisitorIds,
                 language = "EN",
@@ -344,9 +344,9 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
             assertEquals(updatedVisitorSession.variables!!.size, 3)
             assertTrue(updatedVisitorSession.visitorIds.contains(visitor3.id))
             assertTrue(updatedVisitorSession.visitorIds.contains(visitor2.id))
-            assertEquals("val4", updatedVisitorSession.variables!!.find { session -> session.name == "key4" }!!.value)
-            assertEquals("upd3", updatedVisitorSession.variables!!.find { session -> session.name == "key3" }!!.value)
-            assertEquals("val2", updatedVisitorSession.variables!!.find { session -> session.name == "key2" }!!.value)
+            assertEquals("val4", updatedVisitorSession.variables.find { session -> session.name == "key4" }!!.value)
+            assertEquals("upd3", updatedVisitorSession.variables.find { session -> session.name == "key3" }!!.value)
+            assertEquals("val2", updatedVisitorSession.variables.find { session -> session.name == "key2" }!!.value)
 
             assertEquals(updatedVisitorSession.visitedDeviceGroups?.size, 2)
             assertNotNull(updatedVisitorSession.visitedDeviceGroups?.firstOrNull { item ->  item.deviceGroupId == deviceGroupId3 })
@@ -354,14 +354,14 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
             it.admin().visitorSessions().assertUpdateFail(404, nonExistingExhibitionId, VisitorSession(
                 id = createdVisitorSession.id,
-                state = VisitorSessionState.cOMPLETE,
+                state = VisitorSessionState.COMPLETE,
                 variables = updateVariables,
                 visitorIds = updateVisitorIds,
                 language = "FI",
                 visitedDeviceGroups = visitedDeviceGroups
             ))
 
-            assertJsonsEqual(listOf(MqttExhibitionVisitorSessionUpdate(exhibitionId = exhibitionId, id = createdVisitorSession.id!!, visitorsChanged = true, variablesChanged = true)), mqttSubscription.getMessages(1))
+            assertJsonsEqual(listOf(MqttExhibitionVisitorSessionUpdate(exhibitionId = exhibitionId, id = createdVisitorSession.id, visitorsChanged = true, variablesChanged = true)), mqttSubscription.getMessages(1))
         }
     }
 
@@ -386,7 +386,7 @@ class VisitorSessionTestsIT: AbstractFunctionalTest() {
 
             it.admin().visitorSessions().assertDeleteFail(404, exhibitionId, createdVisitorSessionId)
 
-            assertJsonsEqual(listOf(MqttExhibitionVisitorSessionDelete(exhibitionId = exhibitionId, id = createdVisitorSession.id!!)), mqttSubscription.getMessages(1))
+            assertJsonsEqual(listOf(MqttExhibitionVisitorSessionDelete(exhibitionId = exhibitionId, id = createdVisitorSession.id)), mqttSubscription.getMessages(1))
         }
     }
 

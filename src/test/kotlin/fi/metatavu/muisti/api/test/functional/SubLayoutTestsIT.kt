@@ -36,9 +36,9 @@ class SubLayoutTestsIT: AbstractFunctionalTest() {
         ApiTestBuilder().use {
             assertEquals(0, it.admin().subLayouts().listSubLayouts().size)
 
-            val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.boolean))
-            val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.button, arrayOf(), arrayOf()))
-            val createdData = PageLayoutView("rootid", PageLayoutWidgetType.frameLayout, createdProperties, createdChildren)
+            val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.BOOLEAN))
+            val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.BUTTON, arrayOf(), arrayOf()))
+            val createdData = PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
 
             val defaultSubLayout = SubLayout(
                 name = "created name",
@@ -61,9 +61,9 @@ class SubLayoutTestsIT: AbstractFunctionalTest() {
     @Test
     fun testUpdateSubLayout() {
         ApiTestBuilder().use {
-            val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.boolean))
-            val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.button, arrayOf(), arrayOf()))
-            val createdData = PageLayoutView("rootid", PageLayoutWidgetType.frameLayout, createdProperties, createdChildren)
+            val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.BOOLEAN))
+            val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.BUTTON, arrayOf(), arrayOf()))
+            val createdData = PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
 
             val createdSubLayout = it.admin().subLayouts().create(SubLayout(
                 name = "created name",
@@ -75,19 +75,19 @@ class SubLayoutTestsIT: AbstractFunctionalTest() {
             val foundCreatedSubLayout = it.admin().subLayouts().findSubLayout(createdSubLayoutId)
             assertEquals(createdSubLayout.id, foundCreatedSubLayout?.id)
             assertEquals("created name", createdSubLayout.name)
-            assertEquals(PageLayoutWidgetType.frameLayout, createdSubLayout.data.widget)
+            assertEquals(PageLayoutWidgetType.FRAME_LAYOUT, createdSubLayout.data.widget)
             assertEquals(1, createdSubLayout.data.properties.size)
             assertEquals("name", createdSubLayout.data.properties[0].name)
             assertEquals("true", createdSubLayout.data.properties[0].value)
-            assertEquals(PageLayoutViewPropertyType.boolean, createdSubLayout.data.properties[0].type)
+            assertEquals(PageLayoutViewPropertyType.BOOLEAN, createdSubLayout.data.properties[0].type)
             assertEquals(1, createdSubLayout.data.children.size)
             assertEquals(createdChildren[0].id, createdSubLayout.data.children[0].id)
 
-            val updatedProperties = arrayOf(PageLayoutViewProperty("uname", "str", PageLayoutViewPropertyType.string))
+            val updatedProperties = arrayOf(PageLayoutViewProperty("uname", "str", PageLayoutViewPropertyType.STRING))
             val updatedChildren = arrayOf<PageLayoutView>()
             val updatedData = PageLayoutView(
                 id = "updatedid",
-                widget = PageLayoutWidgetType.mediaView,
+                widget = PageLayoutWidgetType.MEDIA_VIEW,
                 properties = updatedProperties,
                 children = updatedChildren
             )
@@ -102,11 +102,11 @@ class SubLayoutTestsIT: AbstractFunctionalTest() {
 
             assertEquals(updatedSubLayout!!.id, foundUpdatedSubLayout?.id)
             assertEquals("updated name", updatedSubLayout.name)
-            assertEquals(PageLayoutWidgetType.mediaView, updatedSubLayout.data.widget)
+            assertEquals(PageLayoutWidgetType.MEDIA_VIEW, updatedSubLayout.data.widget)
             assertEquals(1, updatedSubLayout.data.properties.size)
             assertEquals("uname", updatedSubLayout.data.properties[0].name)
             assertEquals("str", updatedSubLayout.data.properties[0].value)
-            assertEquals(PageLayoutViewPropertyType.string, updatedSubLayout.data.properties[0].type)
+            assertEquals(PageLayoutViewPropertyType.STRING, updatedSubLayout.data.properties[0].type)
             assertEquals(0, updatedSubLayout.data.children.size)
         }
     }

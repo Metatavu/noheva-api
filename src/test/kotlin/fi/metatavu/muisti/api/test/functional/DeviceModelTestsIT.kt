@@ -32,7 +32,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
                 dimensions = dimensions,
                 displayMetrics = displayMetrics,
                 capabilities = capabilities,
-                screenOrientation = ScreenOrientation.portrait
+                screenOrientation = ScreenOrientation.PORTRAIT
             ))
 
             assertNotNull(createdDeviceModel)
@@ -47,7 +47,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             assertEquals(515.154, createdDeviceModel.displayMetrics.xdpi)
             assertEquals(514.597, createdDeviceModel.displayMetrics.ydpi)
             assertEquals(false, createdDeviceModel.capabilities.touch)
-            assertEquals(ScreenOrientation.portrait, createdDeviceModel.screenOrientation)
+            assertEquals(ScreenOrientation.PORTRAIT, createdDeviceModel.screenOrientation)
             assertEquals("manu", createdDeviceModel.manufacturer)
             assertEquals("model", createdDeviceModel.model)
         }
@@ -95,7 +95,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
                 dimensions = createDimensions,
                 displayMetrics = createDisplayMetrics,
                 capabilities = createCapabilities,
-                screenOrientation = ScreenOrientation.portrait
+                screenOrientation = ScreenOrientation.PORTRAIT
             ))
 
             val createdDeviceModelId = createdDeviceModel.id!!
@@ -113,7 +113,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             assertEquals(3.5, createdDeviceModel.displayMetrics.density)
             assertEquals(515.154, createdDeviceModel.displayMetrics.xdpi)
             assertEquals(514.597, createdDeviceModel.displayMetrics.ydpi)
-            assertEquals(ScreenOrientation.portrait, createdDeviceModel.screenOrientation)
+            assertEquals(ScreenOrientation.PORTRAIT, createdDeviceModel.screenOrientation)
             assertEquals(false, createdDeviceModel.capabilities.touch)
             assertEquals("manu", createdDeviceModel.manufacturer)
             assertEquals("model", createdDeviceModel.model)
@@ -134,7 +134,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
                     dimensions = updateDimensions,
                     displayMetrics = updateDisplayMetrics,
                     capabilities = updateCapabilities,
-                    screenOrientation = ScreenOrientation.landscape,
+                    screenOrientation = ScreenOrientation.LANDSCAPE,
                     id = createdDeviceModelId
             ))
             val foundUpdatedDeviceModel = it.admin().deviceModels().findDeviceModel(createdDeviceModelId)
@@ -151,7 +151,7 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             assertEquals(215.154, updatedDeviceModel.displayMetrics.xdpi)
             assertEquals(214.597, updatedDeviceModel.displayMetrics.ydpi)
             assertEquals(true, updatedDeviceModel.capabilities.touch)
-            assertEquals(ScreenOrientation.landscape, updatedDeviceModel.screenOrientation)
+            assertEquals(ScreenOrientation.LANDSCAPE, updatedDeviceModel.screenOrientation)
             assertEquals("altmanu", updatedDeviceModel.manufacturer)
             assertEquals("altmodel", updatedDeviceModel.model)
         }
@@ -164,14 +164,14 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             val createdDeviceModel = it.admin().deviceModels().create()
             val createdDeviceModelId = createdDeviceModel.id!!
 
-            val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.boolean))
-            val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.button, arrayOf(), arrayOf()))
-            val createdData = PageLayoutView("rootid", PageLayoutWidgetType.frameLayout, createdProperties, createdChildren)
+            val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.BOOLEAN))
+            val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.BUTTON, arrayOf(), arrayOf()))
+            val createdData = PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
             val createdPageLayout = it.admin().pageLayouts().create(PageLayout(
                 name = "created name",
                 data = createdData,
                 thumbnailUrl = "http://example.com/thumbnail.png",
-                screenOrientation = ScreenOrientation.portrait,
+                screenOrientation = ScreenOrientation.PORTRAIT,
                 modelId = createdDeviceModelId
             ))
 

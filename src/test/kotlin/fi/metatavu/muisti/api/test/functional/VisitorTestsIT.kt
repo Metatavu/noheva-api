@@ -184,7 +184,7 @@ class VisitorTestsIT: AbstractFunctionalTest() {
             assertNotNull(it.admin().visitors().findVisitor(exhibitionId = exhibitionId, visitorId = createdVisitorId))
             it.admin().visitors().delete(exhibitionId = exhibitionId, visitorId = createdVisitorId)
             it.admin().visitors().assertFindFail(404, exhibitionId = exhibitionId, visitorId = createdVisitorId)
-            assertJsonsEqual(listOf(MqttVisitorDelete(exhibitionId = exhibitionId, id = createdVisitor.id!!)), mqttSubscription.getMessages(1))
+            assertJsonsEqual(listOf(MqttVisitorDelete(exhibitionId = exhibitionId, id = createdVisitor.id)), mqttSubscription.getMessages(1))
         }
     }
 

@@ -29,7 +29,7 @@ class GroupContentVersionTestsIT: AbstractFunctionalTest() {
 
         val groupContentVersionToCreate = GroupContentVersion(
             name = "Group name",
-            status = GroupContentVersionStatus.notstarted,
+            status = GroupContentVersionStatus.NOTSTARTED,
             deviceGroupId = createdDeviceGroupId,
             contentVersionId = createContentVersionId
         )
@@ -54,7 +54,7 @@ class GroupContentVersionTestsIT: AbstractFunctionalTest() {
 
       val groupContentVersionToCreate = GroupContentVersion(
         name = "Group name",
-        status = GroupContentVersionStatus.notstarted,
+        status = GroupContentVersionStatus.NOTSTARTED,
         deviceGroupId = createdDeviceGroupId,
         contentVersionId = createdContentVersionId
       )
@@ -65,18 +65,18 @@ class GroupContentVersionTestsIT: AbstractFunctionalTest() {
       val groupContentVersionToUpdate = GroupContentVersion(
         id = createdGroupContentVersion.id!!,
         name = "Updated name",
-        status = GroupContentVersionStatus.inprogress,
+        status = GroupContentVersionStatus.INPROGRESS,
         deviceGroupId = createdDeviceGroupId,
         contentVersionId = createdContentVersionId
       )
 
       val updatedGroupContentVersion = it.admin().groupContentVersions().updateGroupContentVersion(exhibitionId, groupContentVersionToUpdate)
       assertNotNull(updatedGroupContentVersion)
-      assertEquals(createdGroupContentVersion.id!!, updatedGroupContentVersion?.id!!)
+      assertEquals(createdGroupContentVersion.id, updatedGroupContentVersion?.id!!)
       assertEquals(createdGroupContentVersion.contentVersionId, updatedGroupContentVersion.contentVersionId)
       assertEquals(createdGroupContentVersion.deviceGroupId, updatedGroupContentVersion.deviceGroupId)
       assertNotEquals(createdGroupContentVersion.status, updatedGroupContentVersion.status)
-      assertEquals(GroupContentVersionStatus.inprogress, updatedGroupContentVersion.status)
+      assertEquals(GroupContentVersionStatus.INPROGRESS, updatedGroupContentVersion.status)
     }
   }
 
@@ -98,7 +98,7 @@ class GroupContentVersionTestsIT: AbstractFunctionalTest() {
 
       val groupContentVersionToCreate = GroupContentVersion(
         name = "Group name",
-        status = GroupContentVersionStatus.notstarted,
+        status = GroupContentVersionStatus.NOTSTARTED,
         deviceGroupId = createdDeviceGroupId,
         contentVersionId = createdContentVersionId
       )
@@ -134,14 +134,14 @@ class GroupContentVersionTestsIT: AbstractFunctionalTest() {
 
         val groupContentVersion1 = it.admin().groupContentVersions().create(exhibitionId, GroupContentVersion(
           name = "Group content 1",
-          status = GroupContentVersionStatus.notstarted,
+          status = GroupContentVersionStatus.NOTSTARTED,
           deviceGroupId = createdDeviceGroupId,
           contentVersionId = contentVersionId1
         ))
 
         val groupContentVersion2 = it.admin().groupContentVersions().create(exhibitionId, GroupContentVersion(
           name = "Group content 2",
-          status = GroupContentVersionStatus.notstarted,
+          status = GroupContentVersionStatus.NOTSTARTED,
           deviceGroupId = createdDeviceGroupId,
           contentVersionId = contentVersionId2
         ))
@@ -162,7 +162,7 @@ class GroupContentVersionTestsIT: AbstractFunctionalTest() {
         assertEquals(groupContentVersion2.id!!, groupContentVersions2[0].id)
         assertEquals(contentVersionId2, groupContentVersions2[0].contentVersionId)
 
-        it.admin().groupContentVersions().delete(exhibitionId, groupContentVersion1.id!!)
+        it.admin().groupContentVersions().delete(exhibitionId, groupContentVersion1.id)
         it.admin().groupContentVersions().assertCount(1, exhibitionId = exhibitionId, contentVersionId = null, deviceGroupId = null)
       }
   }
@@ -178,7 +178,7 @@ class GroupContentVersionTestsIT: AbstractFunctionalTest() {
 
       val groupContentVersionToCreate = GroupContentVersion(
         name = "Group content",
-        status = GroupContentVersionStatus.notstarted,
+        status = GroupContentVersionStatus.NOTSTARTED,
         deviceGroupId = deviceGroupId,
         contentVersionId = contentVersionId
       )

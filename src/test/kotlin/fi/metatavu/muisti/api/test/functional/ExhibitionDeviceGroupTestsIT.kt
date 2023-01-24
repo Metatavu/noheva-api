@@ -25,14 +25,14 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             val roomId = room.id!!
 
             val createdExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().create(
-                exhibitionId = exhibition.id!!,
+                exhibitionId = exhibition.id,
                 sourceDeviceGroupId = null,
                 payload = ExhibitionDeviceGroup(
                     name = "name",
                     roomId = roomId,
                     allowVisitorSessionCreation = false,
                     visitorSessionEndTimeout = 5000,
-                    visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.othersblock,
+                    visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.OTHERSBLOCK,
                     indexPageTimeout = 2000
                 )
             )
@@ -146,7 +146,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             roomId = roomId,
             allowVisitorSessionCreation = false,
             visitorSessionEndTimeout = 5000,
-            visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.othersblock
+            visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.OTHERSBLOCK
           )
         )
 
@@ -157,7 +157,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
         assertEquals("created name", createdExhibitionDeviceGroup.name)
         assertEquals(false, createdExhibitionDeviceGroup.allowVisitorSessionCreation)
         assertEquals(5000, createdExhibitionDeviceGroup.visitorSessionEndTimeout)
-        assertEquals(DeviceGroupVisitorSessionStartStrategy.othersblock, createdExhibitionDeviceGroup.visitorSessionStartStrategy)
+        assertEquals(DeviceGroupVisitorSessionStartStrategy.OTHERSBLOCK, createdExhibitionDeviceGroup.visitorSessionStartStrategy)
         assertNull(createdExhibitionDeviceGroup.indexPageTimeout)
 
         val updatedExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().updateExhibitionDeviceGroup(exhibitionId, ExhibitionDeviceGroup(
@@ -167,10 +167,10 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             allowVisitorSessionCreation = true,
             visitorSessionEndTimeout = 6000,
             indexPageTimeout = 4000,
-            visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.endothers
+            visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.ENDOTHERS
         ))
 
-        assertJsonsEqual(listOf(MqttDeviceGroupUpdate(exhibitionId = exhibitionId, id = createdExhibitionDeviceGroup.id!!)), mqttSubscription.getMessages(1))
+        assertJsonsEqual(listOf(MqttDeviceGroupUpdate(exhibitionId = exhibitionId, id = createdExhibitionDeviceGroup.id)), mqttSubscription.getMessages(1))
 
         val foundUpdatedExhibitionDeviceGroup = it.admin().exhibitionDeviceGroups().findExhibitionDeviceGroup(exhibitionId, createdExhibitionDeviceGroupId)
 
@@ -178,7 +178,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
         assertEquals("updated name", updatedExhibitionDeviceGroup.name)
         assertEquals(true, updatedExhibitionDeviceGroup.allowVisitorSessionCreation)
         assertEquals(6000, updatedExhibitionDeviceGroup.visitorSessionEndTimeout)
-        assertEquals(DeviceGroupVisitorSessionStartStrategy.endothers, updatedExhibitionDeviceGroup.visitorSessionStartStrategy)
+        assertEquals(DeviceGroupVisitorSessionStartStrategy.ENDOTHERS, updatedExhibitionDeviceGroup.visitorSessionStartStrategy)
         assertEquals(4000L, updatedExhibitionDeviceGroup.indexPageTimeout)
 
         it.admin().exhibitionDeviceGroups().assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDeviceGroup(
@@ -186,7 +186,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
           id = createdExhibitionDeviceGroupId,
           allowVisitorSessionCreation = false,
           visitorSessionEndTimeout = 5000,
-          visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.endothers
+          visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.ENDOTHERS
         ))
       }
     }
@@ -214,13 +214,13 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             val groupContentVersionToCreate = GroupContentVersion(
                 name = "Group name",
-                status = GroupContentVersionStatus.notstarted,
+                status = GroupContentVersionStatus.NOTSTARTED,
                 deviceGroupId = createdExhibitionDeviceGroup.id!!,
                 contentVersionId = createdContentVersion.id!!
             )
 
             val createdGroupContentVersion = it.admin().groupContentVersions().create(exhibitionId = exhibitionId, payload = groupContentVersionToCreate)
-            val createdExhibitionDeviceGroupId = createdExhibitionDeviceGroup.id!!
+            val createdExhibitionDeviceGroupId = createdExhibitionDeviceGroup.id
 
             assertNotNull(it.admin().exhibitionDeviceGroups().findExhibitionDeviceGroup(exhibitionId, createdExhibitionDeviceGroupId))
             it.admin().exhibitionDeviceGroups().assertDeleteFail(404, exhibitionId, nonExistingSessionVariableId)
@@ -231,7 +231,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             it.admin().groupContentVersions().delete(exhibitionId = exhibitionId, groupContentVersion = createdGroupContentVersion)
 
             it.admin().exhibitionDeviceGroups().delete(exhibitionId, createdExhibitionDeviceGroup)
-            assertJsonsEqual(listOf(MqttDeviceGroupDelete(exhibitionId = exhibitionId, id = createdExhibitionDeviceGroup.id!!)), mqttSubscription.getMessages(1))
+            assertJsonsEqual(listOf(MqttDeviceGroupDelete(exhibitionId = exhibitionId, id = createdExhibitionDeviceGroup.id)), mqttSubscription.getMessages(1))
 
             it.admin().exhibitionDeviceGroups().assertDeleteFail(404, exhibitionId, createdExhibitionDeviceGroupId)
         }
@@ -254,8 +254,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                     name = "Device $i",
                     modelId = deviceModelId,
                     groupId = sourceGroupId,
-                    screenOrientation = ScreenOrientation.landscape,
-                    imageLoadStrategy = DeviceImageLoadStrategy.mEMORY,
+                    screenOrientation = ScreenOrientation.LANDSCAPE,
+                    imageLoadStrategy = DeviceImageLoadStrategy.MEMORY,
                     location = Point(55.0, 33.0)
                 ))
             }
@@ -289,7 +289,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             val sourceDeviceIds = sourceDevices.mapNotNull(ExhibitionDevice::id)
             val targetDeviceIds = targetDevices.mapNotNull(ExhibitionDevice::id)
-            assertTrue(targetDeviceIds.intersect(sourceDeviceIds).isEmpty())
+            assertTrue(targetDeviceIds.intersect(sourceDeviceIds.toSet()).isEmpty())
 
             val sampleSourceDevice = sourceDevices.find { targetDevice -> targetDevice.name == "Device 1" }
             val sampleTargetDevice = targetDevices.find { targetDevice -> targetDevice.name == "Device 1" }
@@ -364,7 +364,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             val sourceAntennaIds = sourceAntennas.mapNotNull(RfidAntenna::id)
             val targetAntennaIds = targetAntennas.mapNotNull(RfidAntenna::id)
-            assertTrue(targetAntennaIds.intersect(sourceAntennaIds).isEmpty())
+            assertTrue(targetAntennaIds.intersect(sourceAntennaIds.toSet()).isEmpty())
 
             val sampleSourceAntenna = sourceAntennas.find { targetAntenna -> targetAntenna.name == "Antenna 1" }
             val sampleTargetAntenna = targetAntennas.find { targetDevice -> targetDevice.name == "Antenna 1" }
@@ -430,7 +430,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                         exhibitionId = exhibitionId,
                         payload = GroupContentVersion(
                             name = contentVersion.name,
-                            status = GroupContentVersionStatus.notstarted,
+                            status = GroupContentVersionStatus.NOTSTARTED,
                             deviceGroupId = sourceGroupId,
                             contentVersionId = contentVersion.id!!
                         )
@@ -461,7 +461,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             val sourceGroupContentVersionIds = sourceGroupContentVersions.mapNotNull(GroupContentVersion::id)
             val targetGroupContentVersionIds = targetGroupContentVersions.mapNotNull(GroupContentVersion::id)
-            assertTrue(targetGroupContentVersionIds.intersect(sourceGroupContentVersionIds).isEmpty())
+            assertTrue(targetGroupContentVersionIds.intersect(sourceGroupContentVersionIds.toSet()).isEmpty())
 
             val sampleSourceGroupContentVersion = sourceGroupContentVersions.find { groupContentVersion -> groupContentVersion.name == "1 at FI" }
             val sampleTargetGroupContentVersion = targetGroupContentVersions.find { groupContentVersion -> groupContentVersion.name == "1 at FI" }
@@ -523,9 +523,9 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                     name = "Device $i",
                     modelId = deviceModelId,
                     groupId = sourceGroupId,
-                    screenOrientation = ScreenOrientation.landscape,
+                    screenOrientation = ScreenOrientation.LANDSCAPE,
                     location = Point(55.0, 33.0),
-                    imageLoadStrategy = DeviceImageLoadStrategy.mEMORY
+                    imageLoadStrategy = DeviceImageLoadStrategy.MEMORY
                 ))
             }
 
@@ -538,7 +538,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                     exhibitionId = exhibitionId,
                     payload = GroupContentVersion(
                         name = contentVersion.name,
-                        status = GroupContentVersionStatus.notstarted,
+                        status = GroupContentVersionStatus.NOTSTARTED,
                         deviceGroupId = sourceGroupId,
                         contentVersionId = contentVersion.id!!
                     )
@@ -558,23 +558,23 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                                 orderNumber = orderNumber,
                                 resources = arrayOf(ExhibitionPageResource(
                                     id = "createresid",
-                                    data = "https://example.com/image.png",
-                                    type = ExhibitionPageResourceType.image
+                                    data = "https://example.com/IMAGE.png",
+                                    type = ExhibitionPageResourceType.IMAGE
                                 )),
                                 eventTriggers = arrayOf(),
                                 contentVersionId = contentVersion?.id!!,
                                 enterTransitions = arrayOf(ExhibitionPageTransition(
                                     transition = Transition(
                                         duration = 300,
-                                        animation = Animation.fade,
-                                        timeInterpolation = AnimationTimeInterpolation.accelerate
+                                        animation = Animation.FADE,
+                                        timeInterpolation = AnimationTimeInterpolation.ACCELERATE
                                     )
                                 )),
                                 exitTransitions = arrayOf(ExhibitionPageTransition(
                                     transition = Transition(
                                         duration = 500,
-                                        animation = Animation.morph,
-                                        timeInterpolation = AnimationTimeInterpolation.decelerate
+                                        animation = Animation.MORPH,
+                                        timeInterpolation = AnimationTimeInterpolation.DECELERATE
                                     )
                                 ))
                             )
@@ -629,7 +629,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
                     val targetContentVersionPages = it.admin().exhibitionPages().listExhibitionPages(
                         exhibitionId = exhibitionId,
-                        exhibitionDeviceId = targetDevice.id!!,
+                        exhibitionDeviceId = targetDevice.id,
                         contentVersionId = targetContentVersion.id!!,
                         pageLayoutId = null
                     )
@@ -645,7 +645,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
                         assertNotEquals(sourceContentVersionPage.id, targetContentVersionPage.id)
                         assertEquals(sourceContentVersionPage.name, targetContentVersionPage.name)
-                        assertEquals(targetDevice.id!!, targetContentVersionPage.deviceId)
+                        assertEquals(targetDevice.id, targetContentVersionPage.deviceId)
                         assertEquals(sourceContentVersionPage.layoutId, targetContentVersionPage.layoutId)
                         assertNotEquals(sourceContentVersionPage.contentVersionId, targetContentVersionPage.contentVersionId)
                         assertJsonsEqual(sourceContentVersionPage.resources, targetContentVersionPage.resources)
@@ -688,8 +688,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                 name = "Device",
                 modelId = deviceModelId,
                 groupId = sourceGroupId,
-                screenOrientation = ScreenOrientation.landscape,
-                imageLoadStrategy = DeviceImageLoadStrategy.mEMORY,
+                screenOrientation = ScreenOrientation.LANDSCAPE,
+                imageLoadStrategy = DeviceImageLoadStrategy.MEMORY,
                 location = Point(55.0, 33.0)
             ))
 
@@ -699,7 +699,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                 exhibitionId = exhibitionId,
                 payload = GroupContentVersion(
                     name = sourceContentVersion.name,
-                    status = GroupContentVersionStatus.notstarted,
+                    status = GroupContentVersionStatus.NOTSTARTED,
                     deviceGroupId = sourceGroupId,
                     contentVersionId = sourceContentVersion.id!!
                 )
@@ -714,7 +714,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                     orderNumber = 0,
                     resources = arrayOf(),
                     eventTriggers = arrayOf(),
-                    contentVersionId = sourceContentVersion.id!!,
+                    contentVersionId = sourceContentVersion.id,
                     enterTransitions = arrayOf(),
                     exitTransitions = arrayOf()
                 )
@@ -765,7 +765,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testCopyDeviceGroupWithNavigateAction() {
+    fun testCopyDeviceGroupWithNAVIGATEAction() {
         ApiTestBuilder().use {
             val exhibition = it.admin().exhibitions().create()
             val deviceModel = it.admin().deviceModels().create()
@@ -784,8 +784,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                 name = "Device",
                 modelId = deviceModelId,
                 groupId = sourceGroupId,
-                screenOrientation = ScreenOrientation.landscape,
-                imageLoadStrategy = DeviceImageLoadStrategy.mEMORY,
+                screenOrientation = ScreenOrientation.LANDSCAPE,
+                imageLoadStrategy = DeviceImageLoadStrategy.MEMORY,
                 location = Point(55.0, 33.0)
             ))
 
@@ -795,7 +795,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                 exhibitionId = exhibitionId,
                 payload = GroupContentVersion(
                     name = sourceContentVersion.name,
-                    status = GroupContentVersionStatus.notstarted,
+                    status = GroupContentVersionStatus.NOTSTARTED,
                     deviceGroupId = sourceGroupId,
                     contentVersionId = sourceContentVersion.id!!
                 )
@@ -810,7 +810,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                     orderNumber = 1,
                     resources = arrayOf(),
                     eventTriggers = arrayOf(),
-                    contentVersionId = sourceContentVersion.id!!,
+                    contentVersionId = sourceContentVersion.id,
                     enterTransitions = arrayOf(),
                     exitTransitions = arrayOf()
                 )
@@ -820,17 +820,17 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                 exhibitionId = exhibitionId,
                 payload = ExhibitionPage(
                     layoutId = pageLayoutId,
-                    deviceId = sourceDevice.id!!,
+                    deviceId = sourceDevice.id,
                     name = "from page",
                     orderNumber = 0,
                     resources = arrayOf(),
                     eventTriggers = arrayOf(ExhibitionPageEventTrigger(
                         events = arrayOf(ExhibitionPageEvent(
-                            action = ExhibitionPageEventActionType.navigate,
+                            action = ExhibitionPageEventActionType.NAVIGATE,
                             properties = arrayOf(
                                 ExhibitionPageEventProperty(
                                     name = "pageId",
-                                    type = ExhibitionPageEventPropertyType.string,
+                                    type = ExhibitionPageEventPropertyType.STRING,
                                     value = sourceToPage.id.toString()
                                 )
                             )
@@ -841,7 +841,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                         id = UUID.randomUUID(),
                         name = "Create View"
                     )),
-                    contentVersionId = sourceContentVersion.id!!,
+                    contentVersionId = sourceContentVersion.id,
                     enterTransitions = arrayOf(),
                     exitTransitions = arrayOf()
                 )
@@ -884,10 +884,10 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             assertEquals(1, targetPages[0].eventTriggers.size)
             assertEquals(1, targetPages[0].eventTriggers[0].events?.size)
-            assertEquals(ExhibitionPageEventActionType.navigate, targetPages[0].eventTriggers[0].events?.get(0)?.action)
+            assertEquals(ExhibitionPageEventActionType.NAVIGATE, targetPages[0].eventTriggers[0].events?.get(0)?.action)
             assertEquals(1, targetPages[0].eventTriggers[0].events?.get(0)?.properties?.size)
             assertEquals("pageId", targetPages[0].eventTriggers[0].events?.get(0)?.properties?.get(0)?.name)
-            assertEquals(ExhibitionPageEventPropertyType.string, targetPages[0].eventTriggers[0].events?.get(0)?.properties?.get(0)?.type)
+            assertEquals(ExhibitionPageEventPropertyType.STRING, targetPages[0].eventTriggers[0].events?.get(0)?.properties?.get(0)?.type)
             assertEquals(targetPages[1].id.toString(), targetPages[0].eventTriggers[0].events?.get(0)?.properties?.get(0)?.value)
 
             cleanupCopiedResources(
@@ -910,14 +910,14 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             val roomId = room.id!!
 
             val sourceGroup = it.admin().exhibitionDeviceGroups().create(
-                exhibitionId = exhibition.id!!,
+                exhibitionId = exhibition.id,
                 sourceDeviceGroupId = null,
                 payload = ExhibitionDeviceGroup(
                     name = "name",
                     roomId = roomId,
                     allowVisitorSessionCreation = false,
                     visitorSessionEndTimeout = 5000,
-                    visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.othersblock,
+                    visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.OTHERSBLOCK,
                     indexPageTimeout = null
                 )
             )
@@ -948,14 +948,14 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             val roomId = room.id!!
 
             val sourceGroup = it.admin().exhibitionDeviceGroups().create(
-                exhibitionId = exhibition.id!!,
+                exhibitionId = exhibition.id,
                 sourceDeviceGroupId = null,
                 payload = ExhibitionDeviceGroup(
                     name = "name",
                     roomId = roomId,
                     allowVisitorSessionCreation = false,
                     visitorSessionEndTimeout = 5000,
-                    visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.othersblock,
+                    visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.OTHERSBLOCK,
                     indexPageTimeout = 3000
                 )
             )

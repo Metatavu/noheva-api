@@ -58,7 +58,7 @@ dependencies {
     implementation("com.vividsolutions:jts-core:$jts_core_version")
     implementation("org.hibernate:hibernate-spatial:$hibernate_spatial_version")
 
-
+    testImplementation("com.squareup.okhttp3:okhttp:4.4.2")
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("com.squareup.moshi:moshi-kotlin:$moshiVersion")
     testImplementation("com.squareup.moshi:moshi-adapters:$moshiVersion")

@@ -20,7 +20,7 @@ class ContentVersionTestsIT: AbstractFunctionalTest() {
             val exhibitionId = it.admin().exhibitions().create().id!!
             val floorId = it.admin().exhibitionFloors().create(exhibitionId).id!!
             val roomId = it.admin().exhibitionRooms().create(exhibitionId, floorId).id!!
-            val contentVersionToCreate = ContentVersion(name = "created name", language = "FI", rooms = arrayOf<UUID>(roomId))
+            val contentVersionToCreate = ContentVersion(name = "created name", language = "FI", rooms = arrayOf(roomId))
             val createdContentVersion = it.admin().contentVersions().create(exhibitionId, contentVersionToCreate)
             assertNotNull(createdContentVersion)
         }
@@ -57,7 +57,7 @@ class ContentVersionTestsIT: AbstractFunctionalTest() {
             val updatedContentVersion = it.admin().contentVersions().updateContentVersion(exhibitionId, contentVersionToUpdate)
 
             assertNotNull(updatedContentVersion)
-            assertEquals(createdContentVersion.id!!, updatedContentVersion?.id!!)
+            assertEquals(createdContentVersion.id, updatedContentVersion?.id!!)
             assertEquals(updatedContentVersion.language, "EN")
             assertEquals(updatedContentVersion.name, "Updated name")
             assertEquals("user variable", updatedContentVersion.activeCondition?.userVariable)
@@ -100,8 +100,8 @@ class ContentVersionTestsIT: AbstractFunctionalTest() {
             it.admin().contentVersions().delete(exhibitionId, createdContentVersionId)
             assertEquals(0, it.admin().contentVersions().listContentVersions(exhibitionId, null).size)
 
-            it.admin().contentVersions().create(exhibitionId, ContentVersion(name = "created name", language = "FI", rooms = arrayOf<UUID>(roomId)))
-            it.admin().contentVersions().create(exhibitionId, ContentVersion(name = "another name", language = "FI", rooms = arrayOf<UUID>(roomId)))
+            it.admin().contentVersions().create(exhibitionId, ContentVersion(name = "created name", language = "FI", rooms = arrayOf(roomId)))
+            it.admin().contentVersions().create(exhibitionId, ContentVersion(name = "another name", language = "FI", rooms = arrayOf(roomId)))
             it.admin().contentVersions().create(exhibitionId)
 
             val contentVersionsWithoutRoomId = it.admin().contentVersions().listContentVersions(exhibitionId, null)
