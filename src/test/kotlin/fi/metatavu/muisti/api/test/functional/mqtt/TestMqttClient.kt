@@ -3,6 +3,7 @@ package fi.metatavu.muisti.api.test.functional.mqtt
 import fi.metatavu.muisti.api.test.functional.settings.MqttTestSettings
 import fi.metatavu.muisti.realtime.mqtt.MqttConnection
 import fi.metatavu.muisti.settings.MqttSettings
+import org.eclipse.microprofile.config.ConfigProvider
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttMessage
@@ -10,7 +11,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage
 /**
  * MQTT client for functional tests
  */
-class TestMqttClient(private val settings: MqttTestSettings): MqttCallback, AutoCloseable {
+class TestMqttClient(): MqttCallback, AutoCloseable {
 
     private val subscriptions = mutableMapOf<String, MutableList<TestMqttSubscription<*>>>()
 
@@ -19,8 +20,8 @@ class TestMqttClient(private val settings: MqttTestSettings): MqttCallback, Auto
      */
     init {
         MqttConnection.connect(MqttSettings(
-            serverUrl = settings.mqttServerUrl,
-            topic = settings.mqttTopic,
+            serverUrl = ConfigProvider.getConfig().getValue("mqtt.server.url", String::class.java),
+            topic = ConfigProvider.getConfig().getValue("mqtt.topic", String::class.java),
             username = null,
             password = null
         ))
@@ -35,7 +36,8 @@ class TestMqttClient(private val settings: MqttTestSettings): MqttCallback, Auto
      * @param subtopic subtopic to subscribe
      */
     fun <T> subscribe(targetClass: Class<T>, subtopic: String): TestMqttSubscription<T> {
-        val topic = "${settings.mqttTopic}/$subtopic"
+        val mqttTopic = ConfigProvider.getConfig().getValue("mqtt.topic", String::class.java)
+        val topic = "${mqttTopic}/$subtopic"
         var topicSubscriptions = subscriptions.get(topic)
         if (topicSubscriptions == null) {
             topicSubscriptions = mutableListOf()

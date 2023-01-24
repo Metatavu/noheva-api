@@ -34,9 +34,19 @@ dependencies {
 
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
     implementation("io.quarkus:quarkus-hibernate-validator")
+    implementation("io.quarkus:quarkus-hibernate-orm")
+    implementation("io.quarkus:quarkus-hibernate-validator")
+    implementation("io.quarkus:quarkus-liquibase")
+    implementation("io.quarkus:quarkus-jdbc-mysql")
+
     implementation("io.quarkus:quarkus-kotlin")
     implementation("io.quarkus:quarkus-oidc")
     implementation("io.quarkus:quarkus-keycloak-admin-client")
+    implementation("io.quarkus:quarkus-resteasy-reactive")
+    implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
+
+
+
 
     implementation(platform ("com.amazonaws:aws-java-sdk-bom:$awssdk_version"))
     implementation("commons-io:commons-io")
@@ -47,21 +57,21 @@ dependencies {
     implementation("com.amazonaws:aws-java-sdk-s3")
     implementation("io.quarkus:quarkus-liquibase")
     implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:$paho_version")
-    implementation("org.liquibase:liquibase-cdi:$liquibase_version")
-    //implementation("javax.servlet:javax.servlet-api:4.0.1")
     implementation("io.quarkus:quarkus-undertow")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
-
+    implementation("io.quarkus:quarkus-jdbc-mysql")
     /**
      * Spatial dependencies
      */
     implementation("com.vividsolutions:jts-core:$jts_core_version")
-    implementation("org.hibernate:hibernate-spatial:$hibernate_spatial_version")
+    //implementation("org.hibernate:hibernate-spatial:$hibernate_spatial_version")
 
+    testImplementation("org.testcontainers:testcontainers:1.17.6")
+    testImplementation("org.testcontainers:hivemq")
+    testImplementation("org.testcontainers:mysql")
+    testImplementation("com.github.dasniko:testcontainers-keycloak:2.4.0")
     testImplementation("com.squareup.okhttp3:okhttp:4.4.2")
     testImplementation("io.quarkus:quarkus-junit5")
-    testImplementation("com.squareup.moshi:moshi-kotlin:$moshiVersion")
-    testImplementation("com.squareup.moshi:moshi-adapters:$moshiVersion")
     testImplementation("org.hamcrest:hamcrest:2.2")
     testImplementation("fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrs_functional_test_builder_version")
     testImplementation("org.awaitility:awaitility:$awaitility_version")
@@ -76,10 +86,8 @@ java {
 allOpen {
     annotation("javax.ws.rs.Path")
     annotation("javax.enterprise.context.ApplicationScoped")
-    annotation("javax.enterprise.context.RequestScoped")
-    annotation("io.quarkus.test.junit.QuarkusTest")
     annotation("javax.persistence.Entity")
-    annotation("javax.persistence.MappedSuperclass")
+    annotation("io.quarkus.test.junit.QuarkusTest")
 }
 
 sourceSets["main"].java {
@@ -124,6 +132,7 @@ val generateApiClient = tasks.register("generateApiClient", GenerateTask::class)
     this.configOptions.put("dateLibrary", "string")
     this.configOptions.put("collectionType", "array")
     this.configOptions.put("enumPropertyNaming", "UPPERCASE")
+    this.configOptions.put("serializationLibrary", "jackson")
 }
 
 tasks.named("compileKotlin") {

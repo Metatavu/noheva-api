@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.api.test.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.VisitorSessionsApi
@@ -7,6 +7,7 @@ import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.VisitorSession
 import fi.metatavu.muisti.api.client.models.VisitorSessionState
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import java.util.*
@@ -34,7 +35,7 @@ class VisitorSessionTestBuilderResource(testBuilder: TestBuilder, val accessToke
      * @return created visitor session
      */
     fun create(exhibitionId: UUID, payload: VisitorSession): VisitorSession {
-        val result: VisitorSession = this.api.createVisitorSession(exhibitionId, payload)
+        val result: VisitorSession = api.createVisitorSession(exhibitionId, payload)
         addClosable(result)
         return result
     }
@@ -46,7 +47,7 @@ class VisitorSessionTestBuilderResource(testBuilder: TestBuilder, val accessToke
      * @param visitorSessionId visitor session id
      * @return visitor session
      */
-    fun findVisitorSession(exhibitionId: UUID, visitorSessionId: UUID): VisitorSession? {
+    fun findVisitorSession(exhibitionId: UUID, visitorSessionId: UUID): VisitorSession {
         return api.findVisitorSession(exhibitionId, visitorSessionId)
     }
 
@@ -68,7 +69,7 @@ class VisitorSessionTestBuilderResource(testBuilder: TestBuilder, val accessToke
      * @param body update body
      * @return updated visitor session
      */
-    fun updateVisitorSession(exhibitionId: UUID, body: VisitorSession): VisitorSession? {
+    fun updateVisitorSession(exhibitionId: UUID, body: VisitorSession): VisitorSession {
         return api.updateVisitorSession(exhibitionId, body.id!!, body)
     }
 
@@ -203,12 +204,12 @@ class VisitorSessionTestBuilderResource(testBuilder: TestBuilder, val accessToke
     }
 
     override fun clean(visitorSession: VisitorSession) {
-        this.api.deleteVisitorSession(visitorSession.exhibitionId!!, visitorSession.id!!)
+        api.deleteVisitorSession(visitorSession.exhibitionId!!, visitorSession.id!!)
     }
 
     override fun getApi(): VisitorSessionsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return VisitorSessionsApi(testBuilder.settings.apiBasePath)
+        return VisitorSessionsApi(ApiTestSettings.apiBasePath)
     }
 
 }

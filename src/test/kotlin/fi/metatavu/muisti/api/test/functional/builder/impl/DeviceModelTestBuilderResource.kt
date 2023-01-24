@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.api.test.builder.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.DeviceModelsApi
@@ -6,7 +6,7 @@ import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.*
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
-import fi.metatavu.muisti.api.test.builder.impl.ApiTestBuilderResource
+import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import java.util.*
@@ -14,7 +14,11 @@ import java.util.*
 /**
  * Test builder resource for handling deviceModels
  */
-class DeviceModelTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<DeviceModel, ApiClient?>(testBuilder, apiClient) {
+class DeviceModelTestBuilderResource(
+    testBuilder: TestBuilder,
+    val accessTokenProvider: AccessTokenProvider?,
+    apiClient: ApiClient
+) : ApiTestBuilderResource<DeviceModel, ApiClient?>(testBuilder, apiClient) {
 
     /**
      * Creates new device model with default values
@@ -22,14 +26,16 @@ class DeviceModelTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
      * @return created device model
      */
     fun create(): DeviceModel {
-        return create(DeviceModel(
-            manufacturer = "default manufacturer",
-            model = "default model",
-            dimensions = DeviceModelDimensions(),
-            displayMetrics = DeviceModelDisplayMetrics(),
-            capabilities = DeviceModelCapabilities(touch = true),
-            screenOrientation = ScreenOrientation.PORTRAIT
-        ))
+        return create(
+            DeviceModel(
+                manufacturer = "default manufacturer",
+                model = "default model",
+                dimensions = DeviceModelDimensions(),
+                displayMetrics = DeviceModelDisplayMetrics(),
+                capabilities = DeviceModelCapabilities(touch = true),
+                screenOrientation = ScreenOrientation.PORTRAIT
+            )
+        )
     }
 
     /**
@@ -39,7 +45,7 @@ class DeviceModelTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
      * @return created device model
      */
     fun create(payload: DeviceModel): DeviceModel {
-        val result: DeviceModel = this.getApi().createDeviceModel(payload)
+        val result: DeviceModel = this.api.createDeviceModel(payload)
         addClosable(result)
         return result
     }
@@ -50,7 +56,7 @@ class DeviceModelTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
      * @param deviceModelId device model id
      * @return device model
      */
-    fun findDeviceModel(deviceModelId: UUID): DeviceModel? {
+    fun findDeviceModel(deviceModelId: UUID): DeviceModel {
         return api.findDeviceModel(deviceModelId)
     }
 
@@ -69,7 +75,7 @@ class DeviceModelTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
      * @param body update body
      * @return updated device model
      */
-    fun updateDeviceModel(body: DeviceModel): DeviceModel? {
+    fun updateDeviceModel(body: DeviceModel): DeviceModel {
         return api.updateDeviceModel(body.id!!, body)
     }
 
@@ -194,12 +200,12 @@ class DeviceModelTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
     }
 
     override fun clean(deviceModel: DeviceModel) {
-        this.getApi().deleteDeviceModel(deviceModel.id!!)
+        this.api.deleteDeviceModel(deviceModel.id!!)
     }
 
     override fun getApi(): DeviceModelsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return DeviceModelsApi(testBuilder.settings.apiBasePath)
+        return DeviceModelsApi(ApiTestSettings.apiBasePath)
     }
 
 }

@@ -68,7 +68,7 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
    * @return found exhibition device group or null if not found
    */
   fun findByNameAndRoom(name: String, room: ExhibitionRoom?): ExhibitionDeviceGroup? {
-    val entityManager = getEntityManager()
+    
     val criteriaBuilder = entityManager.criteriaBuilder
     val criteria: CriteriaQuery<ExhibitionDeviceGroup> = criteriaBuilder.createQuery(ExhibitionDeviceGroup::class.java)
     val root: Root<ExhibitionDeviceGroup> = criteria.from(ExhibitionDeviceGroup::class.java)
@@ -90,7 +90,7 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
    * @return List exhibition device groups
    */
   fun list(exhibition: Exhibition, room: ExhibitionRoom?): List<ExhibitionDeviceGroup> {
-    val entityManager = getEntityManager()
+    
     val criteriaBuilder = entityManager.criteriaBuilder
     val criteria: CriteriaQuery<ExhibitionDeviceGroup> = criteriaBuilder.createQuery(ExhibitionDeviceGroup::class.java)
     val root: Root<ExhibitionDeviceGroup> = criteria.from(ExhibitionDeviceGroup::class.java)

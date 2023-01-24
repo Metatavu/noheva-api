@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.api.test.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.ExhibitionDeviceGroupsApi
@@ -9,6 +9,7 @@ import fi.metatavu.muisti.api.client.models.Exhibition
 import fi.metatavu.muisti.api.client.models.ExhibitionDeviceGroup
 import fi.metatavu.muisti.api.client.models.ExhibitionRoom
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import java.util.*
@@ -16,7 +17,11 @@ import java.util.*
 /**
  * Test builder resource for handling exhibitionDeviceGroups
  */
-class ExhibitionDeviceGroupTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<ExhibitionDeviceGroup, ApiClient?>(testBuilder, apiClient) {
+class ExhibitionDeviceGroupTestBuilderResource(
+    testBuilder: TestBuilder,
+    val accessTokenProvider: AccessTokenProvider?,
+    apiClient: ApiClient
+) : ApiTestBuilderResource<ExhibitionDeviceGroup, ApiClient?>(testBuilder, apiClient) {
 
     /**
      * Creates new exhibition device group with default values
@@ -76,7 +81,7 @@ class ExhibitionDeviceGroupTestBuilderResource(testBuilder: TestBuilder, val acc
      * @return created exhibition DeviceGroup
      */
     fun create(exhibitionId: UUID, sourceDeviceGroupId: UUID?, payload: ExhibitionDeviceGroup?): ExhibitionDeviceGroup {
-        val result: ExhibitionDeviceGroup = this.api.createExhibitionDeviceGroup(
+        val result: ExhibitionDeviceGroup = api.createExhibitionDeviceGroup(
             exhibitionId = exhibitionId,
             sourceDeviceGroupId = sourceDeviceGroupId,
             exhibitionDeviceGroup = payload
@@ -209,7 +214,12 @@ class ExhibitionDeviceGroupTestBuilderResource(testBuilder: TestBuilder, val acc
      * @param sourceDeviceGroupId source device group id
      * @param payload payload
      */
-    fun assertCreateFail(expectedStatus: Int, exhibitionId: UUID, sourceDeviceGroupId: UUID?, payload: ExhibitionDeviceGroup?) {
+    fun assertCreateFail(
+        expectedStatus: Int,
+        exhibitionId: UUID,
+        sourceDeviceGroupId: UUID?,
+        payload: ExhibitionDeviceGroup?
+    ) {
         try {
             create(
                 exhibitionId = exhibitionId,
@@ -255,12 +265,12 @@ class ExhibitionDeviceGroupTestBuilderResource(testBuilder: TestBuilder, val acc
     }
 
     override fun clean(exhibitionDeviceGroup: ExhibitionDeviceGroup) {
-        this.api.deleteExhibitionDeviceGroup(exhibitionDeviceGroup.exhibitionId!!, exhibitionDeviceGroup.id!!)
+        api.deleteExhibitionDeviceGroup(exhibitionDeviceGroup.exhibitionId!!, exhibitionDeviceGroup.id!!)
     }
 
     override fun getApi(): ExhibitionDeviceGroupsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return ExhibitionDeviceGroupsApi(testBuilder.settings.apiBasePath)
+        return ExhibitionDeviceGroupsApi(ApiTestSettings.apiBasePath)
     }
 
 }

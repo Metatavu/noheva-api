@@ -31,6 +31,7 @@ import javax.inject.Inject
  * @author Antti Leppä
  */
 @ApplicationScoped
+//todo add test container
 class S3FileStorageProvider : FileStorageProvider {
 
     @Inject
@@ -51,6 +52,7 @@ class S3FileStorageProvider : FileStorageProvider {
         region = System.getenv("S3_FILE_STORAGE_REGION")
         bucket = System.getenv("S3_FILE_STORAGE_BUCKET")
         prefix = System.getenv("S3_FILE_STORAGE_PREFIX")
+
         if (StringUtils.isBlank(region)) {
             throw FileStorageException("S3_FILE_STORAGE_REGION is not set")
         }
@@ -64,6 +66,7 @@ class S3FileStorageProvider : FileStorageProvider {
         if (!client.doesBucketExistV2(bucket)) {
             throw FileStorageException(String.format("bucket '%s' does not exist", bucket))
         }
+        println("connected to client ${client.region} $bucket")
     }
 
     @Throws(FileStorageException::class)

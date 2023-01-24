@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.api.test.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.ExhibitionFloorsApi
@@ -7,6 +7,7 @@ import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.Exhibition
 import fi.metatavu.muisti.api.client.models.ExhibitionFloor
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.slf4j.LoggerFactory
@@ -15,7 +16,11 @@ import java.util.*
 /**
  * Test builder resource for handling exhibitionFloors
  */
-class ExhibitionFloorTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<ExhibitionFloor, ApiClient?>(testBuilder, apiClient) {
+class ExhibitionFloorTestBuilderResource(
+    testBuilder: TestBuilder,
+    val accessTokenProvider: AccessTokenProvider?,
+    apiClient: ApiClient
+) : ApiTestBuilderResource<ExhibitionFloor, ApiClient?>(testBuilder, apiClient) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -47,7 +52,7 @@ class ExhibitionFloorTestBuilderResource(testBuilder: TestBuilder, val accessTok
      * @return created exhibition Floor
      */
     fun create(exhibitionId: UUID, payload: ExhibitionFloor): ExhibitionFloor {
-        val result: ExhibitionFloor = this.api.createExhibitionFloor(exhibitionId, payload)
+        val result: ExhibitionFloor = api.createExhibitionFloor(exhibitionId, payload)
         addClosable(result)
         return result
     }
@@ -59,7 +64,7 @@ class ExhibitionFloorTestBuilderResource(testBuilder: TestBuilder, val accessTok
      * @param exhibitionFloorId exhibition Floor id
      * @return exhibition Floor
      */
-    fun findExhibitionFloor(exhibitionId: UUID, exhibitionFloorId: UUID): ExhibitionFloor? {
+    fun findExhibitionFloor(exhibitionId: UUID, exhibitionFloorId: UUID): ExhibitionFloor {
         return api.findExhibitionFloor(exhibitionId, exhibitionFloorId)
     }
 
@@ -80,7 +85,7 @@ class ExhibitionFloorTestBuilderResource(testBuilder: TestBuilder, val accessTok
      * @param body update body
      * @return updated exhibition Floor
      */
-    fun updateExhibitionFloor(exhibitionId: UUID, body: ExhibitionFloor): ExhibitionFloor? {
+    fun updateExhibitionFloor(exhibitionId: UUID, body: ExhibitionFloor): ExhibitionFloor {
         return api.updateExhibitionFloor(exhibitionId, body.id!!, body)
     }
 
@@ -213,12 +218,12 @@ class ExhibitionFloorTestBuilderResource(testBuilder: TestBuilder, val accessTok
     }
 
     override fun clean(exhibitionFloor: ExhibitionFloor) {
-        this.getApi().deleteExhibitionFloor(exhibitionFloor.exhibitionId!!, exhibitionFloor.id!!)
+        this.api.deleteExhibitionFloor(exhibitionFloor.exhibitionId!!, exhibitionFloor.id!!)
     }
 
     override fun getApi(): ExhibitionFloorsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return ExhibitionFloorsApi(testBuilder.settings.apiBasePath)
+        return ExhibitionFloorsApi(ApiTestSettings.apiBasePath)
     }
 
 }

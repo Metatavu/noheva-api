@@ -11,6 +11,7 @@ import java.util.function.Function
 import java.util.stream.Collectors
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Context
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.SecurityContext
@@ -21,6 +22,7 @@ import javax.ws.rs.core.SecurityContext
  * @author Antti Leppä
  */
 @RequestScoped
+@Transactional
 abstract class AbstractApi {
 
     @Inject

@@ -1,9 +1,14 @@
 package fi.metatavu.muisti.api.test.functional
 
 import fi.metatavu.muisti.api.client.models.*
+import fi.metatavu.muisti.api.test.functional.resources.KeycloakResource
+import fi.metatavu.muisti.api.test.functional.resources.MqttResource
+import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
+import io.quarkus.test.common.QuarkusTestResource
+import io.quarkus.test.junit.QuarkusTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.util.*
 
 /**
@@ -11,36 +16,42 @@ import java.util.*
  *
  * @author Antti Leppä
  */
+@QuarkusTest
+@QuarkusTestResource.List(
+    QuarkusTestResource(MysqlResource::class),
+    QuarkusTestResource(KeycloakResource::class),
+    QuarkusTestResource(MqttResource::class)
+)
 class PageLayoutTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testCreatePageLayout() {
-        ApiTestBuilder().use {
-            val deviceModel = it.admin().deviceModels().create()
-            val createdPageLayout = it.admin().pageLayouts().create(deviceModel)
+        createTestBuilder().use {
+            val deviceModel = it.admin().deviceModels.create()
+            val createdPageLayout = it.admin().pageLayouts.create(deviceModel)
             assertNotNull(createdPageLayout)
         }
    }
 
     @Test
     fun testFindPageLayout() {
-        ApiTestBuilder().use {
+        createTestBuilder().use {
             val nonExistingPageLayoutId = UUID.randomUUID()
-            val deviceModel = it.admin().deviceModels().create()
-            val createdPageLayout = it.admin().pageLayouts().create(deviceModel)
+            val deviceModel = it.admin().deviceModels.create()
+            val createdPageLayout = it.admin().pageLayouts.create(deviceModel)
             val createdPageLayoutId = createdPageLayout.id!!
-            it.admin().pageLayouts().assertFindFail(404, nonExistingPageLayoutId)
-            assertNotNull(it.admin().pageLayouts().findPageLayout(createdPageLayoutId))
+            it.admin().pageLayouts.assertFindFail(404, nonExistingPageLayoutId)
+            assertNotNull(it.admin().pageLayouts.findPageLayout(createdPageLayoutId))
         }
     }
 
     @Test
     fun testListPageLayouts() {
-        ApiTestBuilder().use {
-            assertEquals(0, it.admin().pageLayouts().listPageLayouts().size)
+        createTestBuilder().use {
+            assertEquals(0, it.admin().pageLayouts.listPageLayouts().size)
 
-            val deviceModel = it.admin().deviceModels().create()
-            val secondDeviceModel = it.admin().deviceModels().create()
+            val deviceModel = it.admin().deviceModels.create()
+            val secondDeviceModel = it.admin().deviceModels.create()
 
             val createdModelId = deviceModel.id!!
             val anotherCreatedModelId = secondDeviceModel.id!!
@@ -57,10 +68,10 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
                     modelId = createdModelId
             )
 
-            it.admin().pageLayouts().create(defaultPageLayout)
-            it.admin().pageLayouts().create(defaultPageLayout)
-            it.admin().pageLayouts().create(defaultPageLayout)
-            it.admin().pageLayouts().create(PageLayout(
+            it.admin().pageLayouts.create(defaultPageLayout)
+            it.admin().pageLayouts.create(defaultPageLayout)
+            it.admin().pageLayouts.create(defaultPageLayout)
+            it.admin().pageLayouts.create(PageLayout(
                     name = "created name",
                     data = createdData,
                     thumbnailUrl = "http://example.com/thumbnail.png",
@@ -71,42 +82,42 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             val portrait = ScreenOrientation.PORTRAIT.toString()
             val landscape = ScreenOrientation.LANDSCAPE.toString()
 
-            val allPageLayouts = it.admin().pageLayouts().listPageLayouts()
+            val allPageLayouts = it.admin().pageLayouts.listPageLayouts()
             assertEquals(4, allPageLayouts.size)
 
-            val pageLayoutsByDeviceModelIdAndOrientation = it.admin().pageLayouts().listPageLayouts(createdModelId, portrait)
+            val pageLayoutsByDeviceModelIdAndOrientation = it.admin().pageLayouts.listPageLayouts(createdModelId, portrait)
             assertEquals(3, pageLayoutsByDeviceModelIdAndOrientation.size)
 
-            val pageLayoutsByDeviceModelIdAndOrientation2 = it.admin().pageLayouts().listPageLayouts(anotherCreatedModelId, landscape)
+            val pageLayoutsByDeviceModelIdAndOrientation2 = it.admin().pageLayouts.listPageLayouts(anotherCreatedModelId, landscape)
             assertEquals(1, pageLayoutsByDeviceModelIdAndOrientation2.size)
 
-            val pageLayoutsByDeviceModelIdAndIncorrectOrientation = it.admin().pageLayouts().listPageLayouts(createdModelId, landscape)
+            val pageLayoutsByDeviceModelIdAndIncorrectOrientation = it.admin().pageLayouts.listPageLayouts(createdModelId, landscape)
             assertEquals(0, pageLayoutsByDeviceModelIdAndIncorrectOrientation.size)
 
-            val pageLayoutsById = it.admin().pageLayouts().listPageLayouts(createdModelId, null)
+            val pageLayoutsById = it.admin().pageLayouts.listPageLayouts(createdModelId, null)
             assertEquals(3, pageLayoutsById.size)
 
-            val pageLayoutsByOrientationPORTRAIT = it.admin().pageLayouts().listPageLayouts(null, portrait)
+            val pageLayoutsByOrientationPORTRAIT = it.admin().pageLayouts.listPageLayouts(null, portrait)
             assertEquals(3, pageLayoutsByOrientationPORTRAIT.size)
 
-            val pageLayoutsByOrientationLandscape = it.admin().pageLayouts().listPageLayouts(null, landscape)
+            val pageLayoutsByOrientationLandscape = it.admin().pageLayouts.listPageLayouts(null, landscape)
             assertEquals(1, pageLayoutsByOrientationLandscape.size)
 
-            it.admin().pageLayouts().assertListFail(400, UUID.randomUUID(), portrait)
-            it.admin().pageLayouts().assertListFail(400, createdModelId, "thisShouldThrowError")
+            it.admin().pageLayouts.assertListFail(400, UUID.randomUUID(), portrait)
+            it.admin().pageLayouts.assertListFail(400, createdModelId, "thisShouldThrowError")
         }
     }
 
     @Test
     fun testUpdatePageLayout() {
-        ApiTestBuilder().use {
+        createTestBuilder().use {
             val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.BOOLEAN))
             val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.BUTTON, arrayOf(), arrayOf()))
             val createdData = PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
-            val createdDeviceModelId = it.admin().deviceModels().create().id!!
-            val updateDeviceModelId = it.admin().deviceModels().create().id!!
+            val createdDeviceModelId = it.admin().deviceModels.create().id!!
+            val updateDeviceModelId = it.admin().deviceModels.create().id!!
 
-            val createdPageLayout = it.admin().pageLayouts().create(PageLayout(
+            val createdPageLayout = it.admin().pageLayouts.create(PageLayout(
                 name = "created name",
                 data = createdData,
                 thumbnailUrl = "http://example.com/thumbnail.png",
@@ -116,7 +127,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
 
             val createdPageLayoutId = createdPageLayout.id!!
 
-            val foundCreatedPageLayout = it.admin().pageLayouts().findPageLayout(createdPageLayoutId)
+            val foundCreatedPageLayout = it.admin().pageLayouts.findPageLayout(createdPageLayoutId)
             assertEquals(createdPageLayout.id, foundCreatedPageLayout?.id)
             assertEquals("created name", createdPageLayout.name)
             assertEquals("http://example.com/thumbnail.png", createdPageLayout.thumbnailUrl)
@@ -139,7 +150,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
                 children = updatedChildren
             )
 
-            val updatedPageLayout = it.admin().pageLayouts().updatePageLayout(PageLayout(
+            val updatedPageLayout = it.admin().pageLayouts.updatePageLayout(PageLayout(
                 id = createdPageLayoutId,
                 name = "updated name",
                 data = updatedData,
@@ -148,7 +159,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
                 modelId = updateDeviceModelId
             ))
 
-            val foundUpdatedPageLayout = it.admin().pageLayouts().findPageLayout(createdPageLayoutId)
+            val foundUpdatedPageLayout = it.admin().pageLayouts.findPageLayout(createdPageLayoutId)
 
             assertEquals(updatedPageLayout!!.id, foundUpdatedPageLayout?.id)
             assertEquals("updated name", updatedPageLayout.name)
@@ -166,15 +177,15 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testDeletePageLayout() {
-        ApiTestBuilder().use {
+        createTestBuilder().use {
             val nonExistingPageLayoutId = UUID.randomUUID()
-            val deviceModel = it.admin().deviceModels().create()
-            val createdPageLayout = it.admin().pageLayouts().create(deviceModel)
+            val deviceModel = it.admin().deviceModels.create()
+            val createdPageLayout = it.admin().pageLayouts.create(deviceModel)
             val createdPageLayoutId = createdPageLayout.id!!
-            assertNotNull(it.admin().pageLayouts().findPageLayout(createdPageLayoutId))
-            it.admin().pageLayouts().assertDeleteFail(404, nonExistingPageLayoutId)
-            it.admin().pageLayouts().delete(createdPageLayout)
-            it.admin().pageLayouts().assertDeleteFail(404, createdPageLayoutId)
+            assertNotNull(it.admin().pageLayouts.findPageLayout(createdPageLayoutId))
+            it.admin().pageLayouts.assertDeleteFail(404, nonExistingPageLayoutId)
+            it.admin().pageLayouts.delete(createdPageLayout)
+            it.admin().pageLayouts.assertDeleteFail(404, createdPageLayoutId)
         }
     }
 

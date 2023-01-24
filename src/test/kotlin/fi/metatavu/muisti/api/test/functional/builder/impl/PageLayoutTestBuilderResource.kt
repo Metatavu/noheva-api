@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.api.test.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.PageLayoutsApi
@@ -6,6 +6,7 @@ import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.*
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import java.util.*
@@ -13,7 +14,11 @@ import java.util.*
 /**
  * Test builder resource for handling pageLayouts
  */
-class PageLayoutTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<PageLayout, ApiClient?>(testBuilder, apiClient) {
+class PageLayoutTestBuilderResource(
+    testBuilder: TestBuilder,
+    val accessTokenProvider: AccessTokenProvider?,
+    apiClient: ApiClient
+) : ApiTestBuilderResource<PageLayout, ApiClient?>(testBuilder, apiClient) {
 
     /**
      * Creates new exhibition page layout with default values
@@ -25,15 +30,18 @@ class PageLayoutTestBuilderResource(testBuilder: TestBuilder, val accessTokenPro
         val createdModelId = deviceModel.id!!
         val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.BOOLEAN))
         val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.BUTTON, arrayOf(), arrayOf()))
-        val createdData = PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
+        val createdData =
+            PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
 
-        return create(PageLayout(
-            name = "created name",
-            data = createdData,
-            thumbnailUrl = "http://example.com/thumbnail.png",
-            screenOrientation = ScreenOrientation.PORTRAIT,
-            modelId = createdModelId
-        ))
+        return create(
+            PageLayout(
+                name = "created name",
+                data = createdData,
+                thumbnailUrl = "http://example.com/thumbnail.png",
+                screenOrientation = ScreenOrientation.PORTRAIT,
+                modelId = createdModelId
+            )
+        )
     }
 
     /**
@@ -43,7 +51,7 @@ class PageLayoutTestBuilderResource(testBuilder: TestBuilder, val accessTokenPro
      * @return created exhibition page layout
      */
     fun create(payload: PageLayout): PageLayout {
-        val result: PageLayout = this.api.createPageLayout(payload)
+        val result: PageLayout = api.createPageLayout(payload)
         addClosable(result)
         return result
     }
@@ -54,7 +62,7 @@ class PageLayoutTestBuilderResource(testBuilder: TestBuilder, val accessTokenPro
      * @param pageLayoutId exhibition page layout
      * @return exhibition page layout
      */
-    fun findPageLayout(pageLayoutId: UUID): PageLayout? {
+    fun findPageLayout(pageLayoutId: UUID): PageLayout {
         return api.findPageLayout(pageLayoutId)
     }
 
@@ -83,7 +91,7 @@ class PageLayoutTestBuilderResource(testBuilder: TestBuilder, val accessTokenPro
      * @param body update body
      * @return updated exhibition page layout
      */
-    fun updatePageLayout(body: PageLayout): PageLayout? {
+    fun updatePageLayout(body: PageLayout): PageLayout {
         return api.updatePageLayout(body.id!!, body)
     }
 
@@ -207,12 +215,12 @@ class PageLayoutTestBuilderResource(testBuilder: TestBuilder, val accessTokenPro
     }
 
     override fun clean(pageLayout: PageLayout) {
-        this.api.deletePageLayout(pageLayout.id!!)
+        api.deletePageLayout(pageLayout.id!!)
     }
 
     override fun getApi(): PageLayoutsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return PageLayoutsApi(testBuilder.settings.apiBasePath)
+        return PageLayoutsApi(ApiTestSettings.apiBasePath)
     }
 
 }

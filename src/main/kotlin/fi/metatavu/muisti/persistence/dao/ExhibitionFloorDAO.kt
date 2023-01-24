@@ -52,7 +52,7 @@ class ExhibitionFloorDAO() : AbstractDAO<ExhibitionFloor>() {
      * @return List of ExhibitionFloors
      */
     fun listByExhibition(exhibition: Exhibition): List<ExhibitionFloor> {
-        val entityManager = getEntityManager()
+        
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionFloor> = criteriaBuilder.createQuery(ExhibitionFloor::class.java)
         val root: Root<ExhibitionFloor> = criteria.from(ExhibitionFloor::class.java)

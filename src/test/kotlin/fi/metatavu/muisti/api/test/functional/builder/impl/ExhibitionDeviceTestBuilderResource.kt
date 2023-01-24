@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.api.test.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.ExhibitionDevicesApi
@@ -6,6 +6,7 @@ import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.*
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import java.util.*
@@ -13,7 +14,11 @@ import java.util.*
 /**
  * Test builder resource for handling exhibitionDevices
  */
-class ExhibitionDeviceTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<ExhibitionDevice, ApiClient?>(testBuilder, apiClient) {
+class ExhibitionDeviceTestBuilderResource(
+    testBuilder: TestBuilder,
+    val accessTokenProvider: AccessTokenProvider?,
+    apiClient: ApiClient
+) : ApiTestBuilderResource<ExhibitionDevice, ApiClient?>(testBuilder, apiClient) {
 
     /**
      * Creates new exhibition device using default values
@@ -24,13 +29,15 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: TestBuilder, val accessTo
      * @return created exhibition device
      */
     fun create(exhibitionId: UUID, groupId: UUID, modelId: UUID): ExhibitionDevice {
-        val result: ExhibitionDevice = this.api.createExhibitionDevice(exhibitionId, ExhibitionDevice(
-            groupId = groupId,
-            modelId = modelId,
-            name = "Default",
-            screenOrientation = ScreenOrientation.PORTRAIT,
-            imageLoadStrategy = DeviceImageLoadStrategy.MEMORY
-        ))
+        val result: ExhibitionDevice = api.createExhibitionDevice(
+            exhibitionId, ExhibitionDevice(
+                groupId = groupId,
+                modelId = modelId,
+                name = "Default",
+                screenOrientation = ScreenOrientation.PORTRAIT,
+                imageLoadStrategy = DeviceImageLoadStrategy.MEMORY
+            )
+        )
 
         addClosable(result)
         return result
@@ -60,7 +67,7 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: TestBuilder, val accessTo
      * @return created exhibition Device
      */
     fun create(exhibitionId: UUID, payload: ExhibitionDevice): ExhibitionDevice {
-        val result: ExhibitionDevice = this.api.createExhibitionDevice(exhibitionId, payload)
+        val result: ExhibitionDevice = api.createExhibitionDevice(exhibitionId, payload)
         addClosable(result)
         return result
     }
@@ -84,7 +91,11 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: TestBuilder, val accessTo
      * @param deviceModelId device model ID
      * @return exhibition Devices
      */
-    fun listExhibitionDevices(exhibitionId: UUID, exhibitionGroupId: UUID?, deviceModelId: UUID?): Array<ExhibitionDevice> {
+    fun listExhibitionDevices(
+        exhibitionId: UUID,
+        exhibitionGroupId: UUID?,
+        deviceModelId: UUID?
+    ): Array<ExhibitionDevice> {
         return api.listExhibitionDevices(
             exhibitionId = exhibitionId,
             exhibitionGroupId = exhibitionGroupId,
@@ -140,10 +151,11 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: TestBuilder, val accessTo
      * @param deviceModelId device model id
      */
     fun assertCount(expected: Int, exhibitionId: UUID, exhibitionGroupId: UUID?, deviceModelId: UUID?) {
-        assertEquals(expected, api.listExhibitionDevices(
-            exhibitionId = exhibitionId,
-            exhibitionGroupId = exhibitionGroupId,
-            deviceModelId = deviceModelId
+        assertEquals(
+            expected, api.listExhibitionDevices(
+                exhibitionId = exhibitionId,
+                exhibitionGroupId = exhibitionGroupId,
+                deviceModelId = deviceModelId
             ).size
         )
     }
@@ -247,12 +259,12 @@ class ExhibitionDeviceTestBuilderResource(testBuilder: TestBuilder, val accessTo
     override fun clean(exhibitionDevice: ExhibitionDevice) {
         val exhibitionId = exhibitionDevice.exhibitionId!!
         val deviceId = exhibitionDevice.id!!
-        this.api.deleteExhibitionDevice(exhibitionId = exhibitionId, deviceId = deviceId)
+        api.deleteExhibitionDevice(exhibitionId = exhibitionId, deviceId = deviceId)
     }
 
     override fun getApi(): ExhibitionDevicesApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return ExhibitionDevicesApi(testBuilder.settings.apiBasePath)
+        return ExhibitionDevicesApi(ApiTestSettings.apiBasePath)
     }
 
 }

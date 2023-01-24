@@ -1,6 +1,9 @@
 package fi.metatavu.muisti.realtime.mqtt
 
+import fi.metatavu.muisti.settings.MqttSettings
 import fi.metatavu.muisti.settings.SettingsController
+import org.eclipse.microprofile.config.inject.ConfigProperty
+import java.util.*
 import javax.annotation.PostConstruct
 import javax.enterprise.context.ApplicationScoped
 import javax.enterprise.event.Event
@@ -17,15 +20,29 @@ import javax.inject.Inject
 class MqttController {
 
     @Inject
-    lateinit var settingsController: SettingsController
-
-    @Inject
     lateinit var messageEvent: Event<MqttMessage>
+
+    @ConfigProperty(name = "mqtt.topic")
+    private lateinit var mqttTopic: String
+
+    @ConfigProperty(name = "mqtt.server.url")
+    private lateinit var serverUrl: String
+
+    @ConfigProperty(name = "mqtt.username")
+    private lateinit var username: Optional<String>
+
+    @ConfigProperty(name = "mqtt.password")
+    private lateinit var password: Optional<String>
 
     @PostConstruct
     @Suppress("unused")
     fun postConstruct() {
-        MqttConnection.connect(settingsController.getMqttSettings())
+        MqttConnection.connect(MqttSettings(
+            serverUrl = serverUrl,
+            topic = mqttTopic,
+            username = if (username.isPresent) username.get() else null,
+            password = if (password.isPresent) password.get() else null,
+        ))
     }
 
     /**

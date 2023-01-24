@@ -1,16 +1,15 @@
-package fi.metatavu.muisti.api.test.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
-import com.squareup.moshi.Moshi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
-import fi.metatavu.muisti.api.client.models.Error
+import fi.metatavu.muisti.api.client.infrastructure.ServerException
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
 import org.junit.Assert
 
-/**
- * Abstract base class for API test resource builders
- */
-abstract class ApiTestBuilderResource<T, A>(protected val testBuilder: TestBuilder, private val apiClient: ApiClient) : fi.metatavu.jaxrs.test.functional.builder.AbstractApiTestBuilderResource<T, A, ApiClient>(testBuilder) {
+abstract class ApiTestBuilderResource<T, A>(
+    protected val testBuilder: TestBuilder,
+    private val apiClient: ApiClient
+) : fi.metatavu.jaxrs.test.functional.builder.AbstractAccessTokenApiTestBuilderResource<T, A, ApiClient>(testBuilder) {
 
     /**
      * Returns API client
@@ -28,19 +27,16 @@ abstract class ApiTestBuilderResource<T, A>(protected val testBuilder: TestBuild
      * @param e client exception
      */
     protected fun assertClientExceptionStatus(expectedStatus: Int, e: ClientException) {
-        Assert.assertEquals(expectedStatus, getClientExceptionError(e)?.code)
+        Assert.assertEquals(expectedStatus, e.statusCode)
     }
 
     /**
-     * Returns an error response from client exception
+     * Asserts that server exception has expected status code
      *
-     * @param e client exception
-     * @return an error response
+     * @param expectedStatus expected status code
+     * @param e server exception
      */
-    protected fun getClientExceptionError(e: ClientException): Error? {
-        val moshi: Moshi = Moshi.Builder().build()
-        val jsonAdapter = moshi.adapter(Error::class.java)
-        val message = e.message ?: return null
-        return jsonAdapter.fromJson(message)
+    protected fun assertServerExceptionStatus(expectedStatus: Int, e: ServerException) {
+        Assert.assertEquals(expectedStatus, e.statusCode)
     }
 }

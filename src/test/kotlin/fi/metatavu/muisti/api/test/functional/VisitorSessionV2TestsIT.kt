@@ -1,9 +1,15 @@
 package fi.metatavu.muisti.api.test.functional
 
 import fi.metatavu.muisti.api.client.models.*
+import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.resources.KeycloakResource
+import fi.metatavu.muisti.api.test.functional.resources.MqttResource
+import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
+import io.quarkus.test.common.QuarkusTestResource
+import io.quarkus.test.junit.QuarkusTest
 import org.awaitility.Awaitility
 import org.junit.Assert.*
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -14,29 +20,35 @@ import java.util.*
  *
  * @author Antti Leppä
  */
+@QuarkusTest
+@QuarkusTestResource.List(
+    QuarkusTestResource(MysqlResource::class),
+    QuarkusTestResource(KeycloakResource::class),
+    QuarkusTestResource(MqttResource::class)
+)
 class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testCreateVisitorSession() {
-        ApiTestBuilder().use {
+        createTestBuilder().use {
             val mqttSubscription = it.mqtt().subscribe(MqttExhibitionVisitorSessionCreate::class.java,"visitorsessions/create")
-            val exhibition = it.admin().exhibitions().create()
+            val exhibition = it.admin().exhibitions.create()
             val exhibitionId = exhibition.id!!
 
-            val visitor1 = it.admin().visitors().create(exhibitionId, Visitor(
+            val visitor1 = it.admin().visitors.create(exhibitionId, Visitor(
                 email = "visitor1@example.com",
                 tagId = "tag1",
                 language = "fi"
             ))
 
-            val visitor2 = it.admin().visitors().create(exhibitionId, Visitor(
+            val visitor2 = it.admin().visitors.create(exhibitionId, Visitor(
                 email = "visitor2@example.com",
                 tagId = "tag2",
                 language = "fi"
             ))
 
             for (name in arrayOf("key1", "key2", "key3", "key4")) {
-                it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
+                it.admin().visitorVariables.create(exhibitionId = exhibitionId, payload = VisitorVariable(
                         name = name,
                         type = VisitorVariableType.TEXT,
                         editableFromUI = false
@@ -45,7 +57,7 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
 
             val createVariables = arrayOf(VisitorSessionVariable("key1", "val1"), VisitorSessionVariable("key2", "val2"))
 
-            val createdVisitorSession = it.admin().visitorSessionsV2().create(exhibitionId, VisitorSessionV2(
+            val createdVisitorSession = it.admin().visitorSessionsV2.create(exhibitionId, VisitorSessionV2(
                 visitorIds = arrayOf(visitor1.id!!, visitor2.id!!),
                 variables = createVariables,
                 visitedDeviceGroups = arrayOf(),
@@ -79,42 +91,42 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testValidateVisitorSessionVariable() {
-        ApiTestBuilder().use {
-            val exhibition = it.admin().exhibitions().create()
+        createTestBuilder().use {
+            val exhibition = it.admin().exhibitions.create()
             val exhibitionId = exhibition.id!!
 
-            it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
+            it.admin().visitorVariables.create(exhibitionId = exhibitionId, payload = VisitorVariable(
                 name = "text",
                 type = VisitorVariableType.TEXT,
                 editableFromUI = false
             ))
 
-            it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
+            it.admin().visitorVariables.create(exhibitionId = exhibitionId, payload = VisitorVariable(
                 name = "number",
                 type = VisitorVariableType.NUMBER,
                 editableFromUI = false
             ))
 
-            it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
+            it.admin().visitorVariables.create(exhibitionId = exhibitionId, payload = VisitorVariable(
                 name = "boolean",
                 type = VisitorVariableType.BOOLEAN,
                 editableFromUI = false
             ))
 
-            it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
+            it.admin().visitorVariables.create(exhibitionId = exhibitionId, payload = VisitorVariable(
                 name = "enum",
                 type = VisitorVariableType.ENUMERATED,
                 enum = arrayOf("valid"),
                 editableFromUI = false
             ))
 
-            val visitor = it.admin().visitors().create(exhibitionId, Visitor(
+            val visitor = it.admin().visitors.create(exhibitionId, Visitor(
                 email = "visitor1@example.com",
                 tagId = "tag1",
                 language = "fi"
             ))
 
-            it.admin().visitorSessionsV2().assertCreateFail(expectedStatus = 400, exhibitionId = exhibitionId, payload = VisitorSessionV2(
+            it.admin().visitorSessionsV2.assertCreateFail(expectedStatus = 400, exhibitionId = exhibitionId, payload = VisitorSessionV2(
                 visitorIds = arrayOf(visitor.id!!),
                 variables = arrayOf(VisitorSessionVariable("key1", "val1")),
                 visitedDeviceGroups = arrayOf(),
@@ -122,7 +134,7 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
                 state = VisitorSessionState.COMPLETE
             ))
 
-            it.admin().visitorSessionsV2().assertCreateFail(expectedStatus = 400, exhibitionId = exhibitionId, payload = VisitorSessionV2(
+            it.admin().visitorSessionsV2.assertCreateFail(expectedStatus = 400, exhibitionId = exhibitionId, payload = VisitorSessionV2(
                 visitorIds = arrayOf(visitor.id),
                 variables = arrayOf(VisitorSessionVariable("number", "val1")),
                 visitedDeviceGroups = arrayOf(),
@@ -130,7 +142,7 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
                 state = VisitorSessionState.COMPLETE
             ))
 
-            it.admin().visitorSessionsV2().assertCreateFail(expectedStatus = 400, exhibitionId = exhibitionId, payload = VisitorSessionV2(
+            it.admin().visitorSessionsV2.assertCreateFail(expectedStatus = 400, exhibitionId = exhibitionId, payload = VisitorSessionV2(
                 visitorIds = arrayOf(visitor.id),
                 variables = arrayOf(VisitorSessionVariable("boolean", "val1")),
                 visitedDeviceGroups = arrayOf(),
@@ -138,7 +150,7 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
                 state = VisitorSessionState.COMPLETE
             ))
 
-            it.admin().visitorSessionsV2().assertCreateFail(expectedStatus = 400, exhibitionId = exhibitionId, payload = VisitorSessionV2(
+            it.admin().visitorSessionsV2.assertCreateFail(expectedStatus = 400, exhibitionId = exhibitionId, payload = VisitorSessionV2(
                 visitorIds = arrayOf(visitor.id),
                 variables = arrayOf(VisitorSessionVariable("enum", "val1")),
                 visitedDeviceGroups = arrayOf(),
@@ -146,7 +158,7 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
                 state = VisitorSessionState.COMPLETE
             ))
 
-            it.admin().visitorSessionsV2().create(exhibitionId = exhibitionId, payload = VisitorSessionV2(
+            it.admin().visitorSessionsV2.create(exhibitionId = exhibitionId, payload = VisitorSessionV2(
                     visitorIds = arrayOf(visitor.id),
                     variables = arrayOf(VisitorSessionVariable("number", "12")),
                     visitedDeviceGroups = arrayOf(),
@@ -154,7 +166,7 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
                     state = VisitorSessionState.COMPLETE
             ))
 
-            it.admin().visitorSessionsV2().create(exhibitionId = exhibitionId, payload = VisitorSessionV2(
+            it.admin().visitorSessionsV2.create(exhibitionId = exhibitionId, payload = VisitorSessionV2(
                     visitorIds = arrayOf(visitor.id),
                     variables = arrayOf(VisitorSessionVariable("boolean", "true")),
                     visitedDeviceGroups = arrayOf(),
@@ -162,7 +174,7 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
                     state = VisitorSessionState.COMPLETE
             ))
 
-            it.admin().visitorSessionsV2().create(exhibitionId = exhibitionId, payload = VisitorSessionV2(
+            it.admin().visitorSessionsV2.create(exhibitionId = exhibitionId, payload = VisitorSessionV2(
                     visitorIds = arrayOf(visitor.id),
                     variables = arrayOf(VisitorSessionVariable("enum", "valid")),
                     visitedDeviceGroups = arrayOf(),
@@ -175,44 +187,44 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testFindVisitorSession() {
-        ApiTestBuilder().use {
-            val exhibition = it.admin().exhibitions().create()
+        createTestBuilder().use {
+            val exhibition = it.admin().exhibitions.create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingVisitorSessionId = UUID.randomUUID()
-            val createdVisitorSession = it.admin().visitorSessionsV2().create(exhibitionId)
+            val createdVisitorSession = it.admin().visitorSessionsV2.create(exhibitionId)
             val createdVisitorSessionId = createdVisitorSession.id!!
 
-            it.admin().visitorSessionsV2().assertFindFail(404, exhibitionId, nonExistingVisitorSessionId)
-            it.admin().visitorSessionsV2().assertFindFail(404, nonExistingExhibitionId, nonExistingVisitorSessionId)
-            it.admin().visitorSessionsV2().assertFindFail(404, nonExistingExhibitionId, createdVisitorSessionId)
-            assertNotNull(it.admin().visitorSessionsV2().findVisitorSession(exhibitionId, createdVisitorSessionId))
+            it.admin().visitorSessionsV2.assertFindFail(404, exhibitionId, nonExistingVisitorSessionId)
+            it.admin().visitorSessionsV2.assertFindFail(404, nonExistingExhibitionId, nonExistingVisitorSessionId)
+            it.admin().visitorSessionsV2.assertFindFail(404, nonExistingExhibitionId, createdVisitorSessionId)
+            assertNotNull(it.admin().visitorSessionsV2.findVisitorSession(exhibitionId, createdVisitorSessionId))
         }
     }
 
     @Test
     fun testListVisitorSessions() {
-        ApiTestBuilder().use {
-            val exhibition = it.admin().exhibitions().create()
+        createTestBuilder().use {
+            val exhibition = it.admin().exhibitions.create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
 
-            it.admin().visitorSessionsV2().assertListFail(
+            it.admin().visitorSessionsV2.assertListFail(
                 expectedStatus = 404,
                 exhibitionId = nonExistingExhibitionId,
                 tagId = null,
                 modifiedAfter = null
             )
 
-            assertEquals(0, it.admin().visitorSessionsV2().listVisitorSessions(
+            assertEquals(0, it.admin().visitorSessionsV2.listVisitorSessions(
                 exhibitionId = exhibitionId,
                 tagId = null,
                 modifiedAfter = null
             ).size)
 
-            val createdVisitorSession = it.admin().visitorSessionsV2().create(exhibitionId)
+            val createdVisitorSession = it.admin().visitorSessionsV2.create(exhibitionId)
             val createdVisitorSessionId = createdVisitorSession.id!!
-            val visitorSessions = it.admin().visitorSessionsV2().listVisitorSessions(
+            val visitorSessions = it.admin().visitorSessionsV2.listVisitorSessions(
                 exhibitionId = exhibitionId,
                 tagId = null,
                 modifiedAfter = null
@@ -220,9 +232,9 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
 
             assertEquals(1, visitorSessions.size)
             assertEquals(createdVisitorSessionId, visitorSessions[0].id)
-            it.admin().visitorSessionsV2().delete(exhibitionId, createdVisitorSessionId)
+            it.admin().visitorSessionsV2.delete(exhibitionId, createdVisitorSessionId)
 
-            assertEquals(0, it.admin().visitorSessionsV2().listVisitorSessions(
+            assertEquals(0, it.admin().visitorSessionsV2.listVisitorSessions(
                 exhibitionId = exhibitionId,
                 tagId = null,
                 modifiedAfter = null
@@ -232,31 +244,31 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListVisitorSessionsModifiedAfter() {
-        ApiTestBuilder().use {
-            val exhibition = it.admin().exhibitions().create()
+        createTestBuilder().use {
+            val exhibition = it.admin().exhibitions.create()
             val exhibitionId = exhibition.id!!
 
-            val createdVisitorSession = it.admin().visitorSessionsV2().create(exhibitionId)
+            val createdVisitorSession = it.admin().visitorSessionsV2.create(exhibitionId)
 
-            it.admin().visitorSessionsV2().assertCount(1,
+            it.admin().visitorSessionsV2.assertCount(1,
                 exhibitionId = exhibitionId,
                 tagId = null,
                 modifiedAfter = null
             )
 
-            it.admin().visitorSessionsV2().assertCount(1,
+            it.admin().visitorSessionsV2.assertCount(1,
                 exhibitionId = exhibitionId,
                 tagId = null,
                 modifiedAfter = OffsetDateTime.now().minusSeconds(30).toString()
             )
 
-            it.admin().visitorSessionsV2().assertCount(0,
+            it.admin().visitorSessionsV2.assertCount(0,
                 exhibitionId = exhibitionId,
                 tagId = null,
                 modifiedAfter = OffsetDateTime.now().plusSeconds(30).toString()
             )
 
-            it.admin().visitorSessionsV2().assertCount(0,
+            it.admin().visitorSessionsV2.assertCount(0,
                 exhibitionId = exhibitionId,
                 tagId = null,
                 modifiedAfter = OffsetDateTime.parse(createdVisitorSession.modifiedAt).plusSeconds(30).toString()
@@ -266,12 +278,12 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListVisitorSessionTimeout() {
-        ApiTestBuilder().use {
-            val exhibition = it.admin().exhibitions().create()
+        createTestBuilder().use {
+            val exhibition = it.admin().exhibitions.create()
             val exhibitionId = exhibition.id!!
-            val createdVisitorSession = it.admin().visitorSessionsV2().create(exhibitionId)
+            val createdVisitorSession = it.admin().visitorSessionsV2.create(exhibitionId)
             val createdVisitorSessionId = createdVisitorSession.id!!
-            it.admin().visitorSessionsV2().assertCount(
+            it.admin().visitorSessionsV2.assertCount(
                 expected = 1,
                 exhibitionId = exhibitionId,
                 tagId = null,
@@ -280,7 +292,7 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
 
             waitForVisitorSessionNotFound(apiTestBuilder = it, exhibitionId = exhibitionId, visitorSessionId = createdVisitorSessionId)
 
-            it.admin().visitorSessionsV2().assertCount(
+            it.admin().visitorSessionsV2.assertCount(
                 expected = 0,
                 exhibitionId = exhibitionId,
                 tagId = null,
@@ -291,45 +303,45 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testUpdateVisitorSession() {
-        ApiTestBuilder().use {
+        createTestBuilder().use {
             val mqttSubscription = it.mqtt().subscribe(MqttExhibitionVisitorSessionUpdate::class.java,"visitorsessions/update")
 
-            val exhibition = it.admin().exhibitions().create()
+            val exhibition = it.admin().exhibitions.create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
 
-            val floor = it.admin().exhibitionFloors().create(exhibitionId = exhibitionId)
+            val floor = it.admin().exhibitionFloors.create(exhibitionId = exhibitionId)
             val floorId = floor.id!!
-            val room = it.admin().exhibitionRooms().create(exhibitionId = exhibitionId, floorId = floorId)
+            val room = it.admin().exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId = room.id!!
 
-            val deviceGroup1 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId, name = "Group 1")
+            val deviceGroup1 = it.admin().exhibitionDeviceGroups.create(exhibitionId = exhibitionId, roomId = roomId, name = "Group 1")
             val deviceGroupId1 = deviceGroup1.id!!
-            val deviceGroup2 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId, name = "Group 2")
+            val deviceGroup2 = it.admin().exhibitionDeviceGroups.create(exhibitionId = exhibitionId, roomId = roomId, name = "Group 2")
             val deviceGroupId2 = deviceGroup2.id!!
-            val deviceGroup3 = it.admin().exhibitionDeviceGroups().create(exhibitionId = exhibitionId, roomId = roomId, name = "Group 3")
+            val deviceGroup3 = it.admin().exhibitionDeviceGroups.create(exhibitionId = exhibitionId, roomId = roomId, name = "Group 3")
             val deviceGroupId3 = deviceGroup3.id!!
 
-            val visitor1 = it.admin().visitors().create(exhibitionId, Visitor(
+            val visitor1 = it.admin().visitors.create(exhibitionId, Visitor(
                 email = "visitor1@example.com",
                 tagId = "tag1",
                 language = "fi"
             ))
 
-            val visitor2 = it.admin().visitors().create(exhibitionId, Visitor(
+            val visitor2 = it.admin().visitors.create(exhibitionId, Visitor(
                 email = "visitor2@example.com",
                 tagId = "tag2",
                 language = "fi"
             ))
 
-            val visitor3 = it.admin().visitors().create(exhibitionId, Visitor(
+            val visitor3 = it.admin().visitors.create(exhibitionId, Visitor(
                 email = "visitor3@example.com",
                 tagId = "tag3",
                 language = "fi"
             ))
 
             for (name in arrayOf("key1", "key2", "key3", "key4")) {
-                it.admin().visitorVariables().create(exhibitionId = exhibitionId, payload = VisitorVariable(
+                it.admin().visitorVariables.create(exhibitionId = exhibitionId, payload = VisitorVariable(
                     name = name,
                     type = VisitorVariableType.TEXT,
                     editableFromUI = false
@@ -344,7 +356,7 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
 
             val createVisitorIds = arrayOf(visitor1.id!!, visitor2.id!!)
 
-            val createdVisitorSession = it.admin().visitorSessionsV2().create(exhibitionId, VisitorSessionV2(
+            val createdVisitorSession = it.admin().visitorSessionsV2.create(exhibitionId, VisitorSessionV2(
                 state = VisitorSessionState.PENDING,
                 visitorIds = createVisitorIds,
                 variables = createVariables,
@@ -364,13 +376,13 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
             ))
 
             val createdVisitorSessionId = createdVisitorSession.id!!
-            val foundCreatedVisitorSession = it.admin().visitorSessionsV2().findVisitorSession(exhibitionId, createdVisitorSessionId)
+            val foundCreatedVisitorSession = it.admin().visitorSessionsV2.findVisitorSession(exhibitionId, createdVisitorSessionId)
 
-            assertEquals(createdVisitorSession.id, foundCreatedVisitorSession?.id)
-            assertEquals(createdVisitorSession.state, foundCreatedVisitorSession?.state)
+            assertEquals(createdVisitorSession.id, foundCreatedVisitorSession.id)
+            assertEquals(createdVisitorSession.state, foundCreatedVisitorSession.state)
 
-            assertEquals("FI", foundCreatedVisitorSession?.language)
-            assertEquals(createdVisitorSession.language, foundCreatedVisitorSession?.language)
+            assertEquals("FI", foundCreatedVisitorSession.language)
+            assertEquals(createdVisitorSession.language, foundCreatedVisitorSession.language)
 
             assertEquals(createdVisitorSession.visitorIds.size, 2)
             assertTrue(createdVisitorSession.visitorIds.contains(visitor1.id))
@@ -385,9 +397,9 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
             assertTrue(createdVisitorSession.tags?.contains(visitor1.tagId) ?: false)
             assertTrue(createdVisitorSession.tags?.contains(visitor2.tagId) ?: false)
 
-            assertEquals(foundCreatedVisitorSession?.visitedDeviceGroups?.size, 2)
-            assertNotNull(foundCreatedVisitorSession?.visitedDeviceGroups?.firstOrNull { item ->  item.deviceGroupId == deviceGroupId1 })
-            assertNotNull(foundCreatedVisitorSession?.visitedDeviceGroups?.firstOrNull { item ->  item.deviceGroupId == deviceGroupId2 })
+            assertEquals(foundCreatedVisitorSession.visitedDeviceGroups?.size, 2)
+            assertNotNull(foundCreatedVisitorSession.visitedDeviceGroups?.firstOrNull { item ->  item.deviceGroupId == deviceGroupId1 })
+            assertNotNull(foundCreatedVisitorSession.visitedDeviceGroups?.firstOrNull { item ->  item.deviceGroupId == deviceGroupId2 })
 
             val updateVariables = arrayOf(
                 VisitorSessionVariable("key4", "val4"),
@@ -398,7 +410,7 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
             val updateVisitorIds = arrayOf(visitor3.id!!, visitor2.id)
             val visitedDeviceGroups = arrayOf<VisitorSessionVisitedDeviceGroup>()
 
-            val updatedVisitorSession = it.admin().visitorSessionsV2().updateVisitorSession(exhibitionId, VisitorSessionV2(
+            val updatedVisitorSession = it.admin().visitorSessionsV2.updateVisitorSession(exhibitionId, VisitorSessionV2(
                 id = createdVisitorSession.id,
                 state = VisitorSessionState.COMPLETE,
                 variables = updateVariables,
@@ -418,10 +430,10 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
                 )
             ))
 
-            val foundUpdatedVisitorSession = it.admin().visitorSessionsV2().findVisitorSession(exhibitionId, createdVisitorSessionId)
+            val foundUpdatedVisitorSession = it.admin().visitorSessionsV2.findVisitorSession(exhibitionId, createdVisitorSessionId)
 
-            assertEquals(updatedVisitorSession.id, foundUpdatedVisitorSession?.id)
-            assertEquals(updatedVisitorSession.state, foundUpdatedVisitorSession?.state)
+            assertEquals(updatedVisitorSession.id, foundUpdatedVisitorSession.id)
+            assertEquals(updatedVisitorSession.state, foundUpdatedVisitorSession.state)
             assertEquals(updatedVisitorSession.language, "EN")
 
             assertEquals(updatedVisitorSession.visitorIds.size, 2)
@@ -441,7 +453,7 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
             assertNotNull(updatedVisitorSession.visitedDeviceGroups?.firstOrNull { item ->  item.deviceGroupId == deviceGroupId3 })
             assertNotNull(updatedVisitorSession.visitedDeviceGroups?.firstOrNull { item ->  item.deviceGroupId == deviceGroupId2 })
 
-            it.admin().visitorSessionsV2().assertUpdateFail(404, nonExistingExhibitionId, VisitorSessionV2(
+            it.admin().visitorSessionsV2.assertUpdateFail(404, nonExistingExhibitionId, VisitorSessionV2(
                 id = createdVisitorSession.id,
                 state = VisitorSessionState.COMPLETE,
                 variables = updateVariables,
@@ -456,24 +468,24 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testDeleteVisitorSession() {
-        ApiTestBuilder().use {
+        createTestBuilder().use {
             val mqttSubscription = it.mqtt().subscribe(MqttExhibitionVisitorSessionDelete::class.java,"visitorsessions/delete")
 
-            val exhibition = it.admin().exhibitions().create()
+            val exhibition = it.admin().exhibitions.create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingSessionVariableId = UUID.randomUUID()
-            val createdVisitorSession = it.admin().visitorSessionsV2().create(exhibitionId)
+            val createdVisitorSession = it.admin().visitorSessionsV2.create(exhibitionId)
             val createdVisitorSessionId = createdVisitorSession.id!!
 
-            assertNotNull(it.admin().visitorSessionsV2().findVisitorSession(exhibitionId, createdVisitorSessionId))
-            it.admin().visitorSessionsV2().assertDeleteFail(404, exhibitionId, nonExistingSessionVariableId)
-            it.admin().visitorSessionsV2().assertDeleteFail(404, nonExistingExhibitionId, createdVisitorSessionId)
-            it.admin().visitorSessionsV2().assertDeleteFail(404, nonExistingExhibitionId, nonExistingSessionVariableId)
+            assertNotNull(it.admin().visitorSessionsV2.findVisitorSession(exhibitionId, createdVisitorSessionId))
+            it.admin().visitorSessionsV2.assertDeleteFail(404, exhibitionId, nonExistingSessionVariableId)
+            it.admin().visitorSessionsV2.assertDeleteFail(404, nonExistingExhibitionId, createdVisitorSessionId)
+            it.admin().visitorSessionsV2.assertDeleteFail(404, nonExistingExhibitionId, nonExistingSessionVariableId)
 
-            it.admin().visitorSessionsV2().delete(exhibitionId, createdVisitorSession)
+            it.admin().visitorSessionsV2.delete(exhibitionId, createdVisitorSession)
 
-            it.admin().visitorSessionsV2().assertDeleteFail(404, exhibitionId, createdVisitorSessionId)
+            it.admin().visitorSessionsV2.assertDeleteFail(404, exhibitionId, createdVisitorSessionId)
 
             assertJsonsEqual(listOf(MqttExhibitionVisitorSessionDelete(exhibitionId = exhibitionId, id = createdVisitorSession.id)), mqttSubscription.getMessages(1))
         }
@@ -486,7 +498,7 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
      * @param exhibitionId exhibition id
      * @param visitorSessionId visitor session id
      */
-    private fun waitForVisitorSessionNotFound(apiTestBuilder: ApiTestBuilder, exhibitionId: UUID, visitorSessionId: UUID) {
+    private fun waitForVisitorSessionNotFound(apiTestBuilder: TestBuilder, exhibitionId: UUID, visitorSessionId: UUID) {
         Awaitility
             .await().atMost(Duration.ofMinutes(5))
             .pollInterval(Duration.ofSeconds(10))
@@ -502,8 +514,8 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
      * @param exhibitionId exhibition id
      * @param visitorSessionId visitor session id
      */
-    private fun isVisitorSessionFound(apiTestBuilder: ApiTestBuilder, exhibitionId: UUID, visitorSessionId: UUID): Boolean {
-        return apiTestBuilder.admin().visitorSessionsV2()
+    private fun isVisitorSessionFound(apiTestBuilder: TestBuilder, exhibitionId: UUID, visitorSessionId: UUID): Boolean {
+        return apiTestBuilder.admin().visitorSessionsV2
             .listVisitorSessions(
                 exhibitionId = exhibitionId,
                 tagId = null,

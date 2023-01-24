@@ -52,7 +52,7 @@ class GroupContentVersionDAO() : AbstractDAO<GroupContentVersion>() {
      * @return List of group content versions
      */
     fun list(exhibition: Exhibition, contentVersion: ContentVersion?, deviceGroup: ExhibitionDeviceGroup?): List<GroupContentVersion> {
-        val entityManager = getEntityManager()
+        
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<GroupContentVersion> = criteriaBuilder.createQuery(GroupContentVersion::class.java)
         val root: Root<GroupContentVersion> = criteria.from(GroupContentVersion::class.java)

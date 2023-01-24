@@ -65,7 +65,7 @@ class VisitorSessionDAO : AbstractDAO<VisitorSession>() {
         modifiedAfter: OffsetDateTime?,
         expiresAfter: OffsetDateTime
     ): List<VisitorSession> {
-        val entityManager = getEntityManager()
+        
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<VisitorSession> = criteriaBuilder.createQuery(VisitorSession::class.java)
         val root: Root<VisitorSession> = criteria.from(VisitorSession::class.java)

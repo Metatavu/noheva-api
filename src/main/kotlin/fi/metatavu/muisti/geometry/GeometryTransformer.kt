@@ -37,16 +37,16 @@ fun getPolygon(polygon: Polygon?): com.vividsolutions.jts.geom.Polygon? {
 fun getGeoShape(polygon: com.vividsolutions.jts.geom.Polygon?): Polygon? {
     polygon ?: return null
 
-    val result = Polygon(
-        type = polygon.geometryType,
-        coordinates = mutableListOf(mutableListOf())
-    )
-    polygon.coordinates.forEachIndexed { index, coordinate ->
-        result.coordinates!![0].toMutableList().addAll(mutableListOf())
-        result.coordinates[0][index].toMutableList().add(coordinate.x)
-        result.coordinates[0][index].toMutableList().add(coordinate.y)
+    val coordinates: MutableList<MutableList<MutableList<Double>>> = mutableListOf(mutableListOf())
+    polygon.coordinates?.forEachIndexed { index, coordinate ->
+        coordinates[0].add(mutableListOf())
+        coordinates[0][index].add(coordinate.x)
+        coordinates[0][index].add(coordinate.y)
     }
-    return result
+    return Polygon(
+        type = polygon.geometryType,
+        coordinates = coordinates
+    )
 }
 
 /**

@@ -76,7 +76,7 @@ class RfidAntennaDAO : AbstractDAO<RfidAntenna>() {
    * @return List of RFID antennas
    */
   fun list(exhibition: Exhibition, deviceGroup: ExhibitionDeviceGroup?, room: ExhibitionRoom?): List<RfidAntenna> {
-    val entityManager = getEntityManager()
+    
     val criteriaBuilder = entityManager.criteriaBuilder
     val criteria: CriteriaQuery<RfidAntenna> = criteriaBuilder.createQuery(RfidAntenna::class.java)
     val root: Root<RfidAntenna> = criteria.from(RfidAntenna::class.java)

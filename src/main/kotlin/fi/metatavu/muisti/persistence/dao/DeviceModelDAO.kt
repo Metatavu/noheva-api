@@ -11,7 +11,7 @@ import javax.enterprise.context.ApplicationScoped
  * @author Antti Leppä
  */
 @ApplicationScoped
-class DeviceModelDAO() : AbstractDAO<DeviceModel>() {
+class DeviceModelDAO : AbstractDAO<DeviceModel>() {
 
     /**
      * Creates new DeviceModel

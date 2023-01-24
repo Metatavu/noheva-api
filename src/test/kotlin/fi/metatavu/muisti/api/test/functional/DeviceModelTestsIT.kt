@@ -1,9 +1,14 @@
 package fi.metatavu.muisti.api.test.functional
 
 import fi.metatavu.muisti.api.client.models.*
+import fi.metatavu.muisti.api.test.functional.resources.KeycloakResource
+import fi.metatavu.muisti.api.test.functional.resources.MqttResource
+import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
+import io.quarkus.test.common.QuarkusTestResource
+import io.quarkus.test.junit.QuarkusTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.util.*
 
 /**
@@ -11,11 +16,17 @@ import java.util.*
  *
  * @author Antti Leppä
  */
-class DeviceModelTestsIT: AbstractFunctionalTest() {
+@QuarkusTest
+@QuarkusTestResource.List(
+    QuarkusTestResource(MysqlResource::class),
+    QuarkusTestResource(KeycloakResource::class),
+    QuarkusTestResource(MqttResource::class)
+)
+class DeviceModelTestsIT : AbstractFunctionalTest() {
 
     @Test
     fun testCreateDeviceModel() {
-        ApiTestBuilder().use {
+        createTestBuilder().use {
             val dimensions = DeviceModelDimensions(8000.0, 6000.0, 1.0, 7900.0, 5900.0)
             val displayMetrics = DeviceModelDisplayMetrics(
                 heightPixels = 12288,
@@ -26,14 +37,16 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             )
 
             val capabilities = DeviceModelCapabilities(false)
-            val createdDeviceModel = it.admin().deviceModels().create(DeviceModel(
-                manufacturer = "manu",
-                model = "model",
-                dimensions = dimensions,
-                displayMetrics = displayMetrics,
-                capabilities = capabilities,
-                screenOrientation = ScreenOrientation.PORTRAIT
-            ))
+            val createdDeviceModel = it.admin().deviceModels.create(
+                DeviceModel(
+                    manufacturer = "manu",
+                    model = "model",
+                    dimensions = dimensions,
+                    displayMetrics = displayMetrics,
+                    capabilities = capabilities,
+                    screenOrientation = ScreenOrientation.PORTRAIT
+                )
+            )
 
             assertNotNull(createdDeviceModel)
             assertEquals(8000.0, createdDeviceModel.dimensions.deviceWidth)
@@ -51,34 +64,34 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             assertEquals("manu", createdDeviceModel.manufacturer)
             assertEquals("model", createdDeviceModel.model)
         }
-   }
+    }
 
     @Test
     fun testFindDeviceModel() {
-        ApiTestBuilder().use {
-            val createdDeviceModel = it.admin().deviceModels().create()
+        createTestBuilder().use {
+            val createdDeviceModel = it.admin().deviceModels.create()
             val createdDeviceModelId = createdDeviceModel.id!!
-            assertNotNull(it.admin().deviceModels().findDeviceModel(createdDeviceModelId))
+            assertNotNull(it.admin().deviceModels.findDeviceModel(createdDeviceModelId))
         }
     }
 
     @Test
     fun testListDeviceModels() {
-        ApiTestBuilder().use {
-            assertEquals(0, it.admin().deviceModels().listDeviceModels().size)
-            val createdDeviceModel = it.admin().deviceModels().create()
+        createTestBuilder().use {
+            assertEquals(0, it.admin().deviceModels.listDeviceModels().size)
+            val createdDeviceModel = it.admin().deviceModels.create()
             val createdDeviceModelId = createdDeviceModel.id!!
-            val deviceModels = it.admin().deviceModels().listDeviceModels()
+            val deviceModels = it.admin().deviceModels.listDeviceModels()
             assertEquals(1, deviceModels.size)
             assertEquals(createdDeviceModelId, deviceModels[0].id)
-            it.admin().deviceModels().delete(createdDeviceModelId)
-            assertEquals(0, it.admin().deviceModels().listDeviceModels().size)
+            it.admin().deviceModels.delete(createdDeviceModelId)
+            assertEquals(0, it.admin().deviceModels.listDeviceModels().size)
         }
     }
 
     @Test
     fun testUpdateDeviceModel() {
-        ApiTestBuilder().use {
+        createTestBuilder().use {
             val createDimensions = DeviceModelDimensions(8000.0, 6000.0, 1.0, 7900.0, 5900.0)
             val createDisplayMetrics = DeviceModelDisplayMetrics(
                 heightPixels = 12288,
@@ -89,19 +102,21 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
             )
 
             val createCapabilities = DeviceModelCapabilities(false)
-            val createdDeviceModel = it.admin().deviceModels().create(DeviceModel(
-                manufacturer = "manu",
-                model = "model",
-                dimensions = createDimensions,
-                displayMetrics = createDisplayMetrics,
-                capabilities = createCapabilities,
-                screenOrientation = ScreenOrientation.PORTRAIT
-            ))
+            val createdDeviceModel = it.admin().deviceModels.create(
+                DeviceModel(
+                    manufacturer = "manu",
+                    model = "model",
+                    dimensions = createDimensions,
+                    displayMetrics = createDisplayMetrics,
+                    capabilities = createCapabilities,
+                    screenOrientation = ScreenOrientation.PORTRAIT
+                )
+            )
 
             val createdDeviceModelId = createdDeviceModel.id!!
 
-            val foundCreatedDeviceModel = it.admin().deviceModels().findDeviceModel(createdDeviceModelId)
-            assertEquals(createdDeviceModel.id, foundCreatedDeviceModel?.id)
+            val foundCreatedDeviceModel = it.admin().deviceModels.findDeviceModel(createdDeviceModelId)
+            assertEquals(createdDeviceModel.id, foundCreatedDeviceModel.id)
             assertNotNull(createdDeviceModel)
             assertEquals(8000.0, createdDeviceModel.dimensions.deviceWidth)
             assertEquals(6000.0, createdDeviceModel.dimensions.deviceHeight)
@@ -120,26 +135,28 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
 
             val updateDimensions = DeviceModelDimensions(5000.0, 4000.0, 2.0, 4900.0, 3900.0)
             val updateDisplayMetrics = DeviceModelDisplayMetrics(
-                    heightPixels = 22288,
-                    widthPixels = 2192,
-                    density = 2.5,
-                    xdpi = 215.154,
-                    ydpi = 214.597
+                heightPixels = 22288,
+                widthPixels = 2192,
+                density = 2.5,
+                xdpi = 215.154,
+                ydpi = 214.597
             )
 
             val updateCapabilities = DeviceModelCapabilities(true)
-            val updatedDeviceModel = it.admin().deviceModels().updateDeviceModel(DeviceModel(
+            val updatedDeviceModel = it.admin().deviceModels.updateDeviceModel(
+                DeviceModel(
                     manufacturer = "altmanu",
-                    model= "altmodel",
+                    model = "altmodel",
                     dimensions = updateDimensions,
                     displayMetrics = updateDisplayMetrics,
                     capabilities = updateCapabilities,
                     screenOrientation = ScreenOrientation.LANDSCAPE,
                     id = createdDeviceModelId
-            ))
-            val foundUpdatedDeviceModel = it.admin().deviceModels().findDeviceModel(createdDeviceModelId)
+                )
+            )
+            val foundUpdatedDeviceModel = it.admin().deviceModels.findDeviceModel(createdDeviceModelId)
 
-            assertEquals(updatedDeviceModel!!.id, foundUpdatedDeviceModel?.id)
+            assertEquals(updatedDeviceModel.id, foundUpdatedDeviceModel.id)
             assertEquals(5000.0, updatedDeviceModel.dimensions.deviceWidth)
             assertEquals(4000.0, updatedDeviceModel.dimensions.deviceHeight)
             assertEquals(2.0, updatedDeviceModel.dimensions.deviceDepth)
@@ -159,31 +176,34 @@ class DeviceModelTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testDeleteDeviceModel() {
-        ApiTestBuilder().use {
+        createTestBuilder().use {
             val nonExistingSessionVariableId = UUID.randomUUID()
-            val createdDeviceModel = it.admin().deviceModels().create()
+            val createdDeviceModel = it.admin().deviceModels.create()
             val createdDeviceModelId = createdDeviceModel.id!!
 
             val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.BOOLEAN))
             val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.BUTTON, arrayOf(), arrayOf()))
-            val createdData = PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
-            val createdPageLayout = it.admin().pageLayouts().create(PageLayout(
-                name = "created name",
-                data = createdData,
-                thumbnailUrl = "http://example.com/thumbnail.png",
-                screenOrientation = ScreenOrientation.PORTRAIT,
-                modelId = createdDeviceModelId
-            ))
+            val createdData =
+                PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
+            val createdPageLayout = it.admin().pageLayouts.create(
+                PageLayout(
+                    name = "created name",
+                    data = createdData,
+                    thumbnailUrl = "http://example.com/thumbnail.png",
+                    screenOrientation = ScreenOrientation.PORTRAIT,
+                    modelId = createdDeviceModelId
+                )
+            )
 
-            assertNotNull(it.admin().deviceModels().findDeviceModel(createdDeviceModelId))
-            it.admin().deviceModels().assertDeleteFail(404, nonExistingSessionVariableId)
-            it.admin().deviceModels().assertDeleteFail(400, createdDeviceModelId)
+            assertNotNull(it.admin().deviceModels.findDeviceModel(createdDeviceModelId))
+            it.admin().deviceModels.assertDeleteFail(404, nonExistingSessionVariableId)
+            it.admin().deviceModels.assertDeleteFail(400, createdDeviceModelId)
 
-            it.admin().pageLayouts().delete(createdPageLayout.id!!)
+            it.admin().pageLayouts.delete(createdPageLayout.id!!)
 
-            it.admin().deviceModels().delete(createdDeviceModel)
+            it.admin().deviceModels.delete(createdDeviceModel)
 
-            it.admin().deviceModels().assertDeleteFail(404, createdDeviceModelId)
+            it.admin().deviceModels.assertDeleteFail(404, createdDeviceModelId)
         }
     }
 

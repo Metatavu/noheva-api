@@ -1,60 +1,30 @@
 package fi.metatavu.muisti.api.test.functional.settings
 
-import fi.metatavu.muisti.api.test.builder.Settings
-
 /**
  * Settings implementation for test builder
  *
  * @author Antti Leppä
  */
-class ApiTestSettings() : Settings {
+class ApiTestSettings() {
+    companion object {
 
-    /**
-     * Returns API service base path
-     */
-    override val apiBasePath: String
-        get() = "http://localhost:1234"
+        /**
+         * Returns API service base path
+         */
+        val apiBasePath: String
+            get() = "http://localhost:8081"
 
-    /**
-     * Returns API service base path
-     */
-    override val filesBasePath: String
-        get() = "http://localhost:1234/files"
+        /**
+         * Returns API service base path
+         */
+        val apiBasePathNoPort: String
+            get() = "http://localhost"
 
-    /**
-     * Returns Keycloak host
-     */
-    override val keycloakHost: String
-        get() = "http://test-keycloak:8080/auth"
+        /**
+         * Returns API service port
+         */
+        val apiBasePort: Int
+            get() = 8081
 
-    /**
-     * Returns Keycloak realm
-     */
-    override val keycloakRealm: String
-        get() = "muisti"
-
-    /**
-     * Returns Keycloak client id
-     */
-    override val keycloakClientId: String
-        get() = "test"
-
-    /**
-     * Returns Keycloak client secret
-     */
-    override val keycloakClientSecret: String?
-        get() = null
-
-    /**
-     * Returns Keycloak admin user
-     */
-    override val keycloakAdminUser: String
-        get() = "admin"
-
-    /**
-     * Returns Keycloak admin password
-     */
-    override val keycloakAdminPass: String
-        get() = "test"
-
+    }
 }

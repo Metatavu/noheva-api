@@ -49,7 +49,7 @@ class VisitorDAO : AbstractDAO<Visitor>() {
      * @return Found visitor or null if not found
      */
     fun findByExhibitionAndTagId(exhibition: Exhibition, tagId: String): Visitor? {
-        val entityManager = getEntityManager()
+        
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<Visitor> = criteriaBuilder.createQuery(Visitor::class.java)
         val root: Root<Visitor> = criteria.from(Visitor::class.java)
@@ -75,7 +75,7 @@ class VisitorDAO : AbstractDAO<Visitor>() {
      * @return List of visitors
      */
     fun list(exhibition: Exhibition?, tagId: String?, userId: UUID?, createdAfter: OffsetDateTime?): List<Visitor> {
-        val entityManager = getEntityManager()
+        
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<Visitor> = criteriaBuilder.createQuery(Visitor::class.java)
         val root: Root<Visitor> = criteria.from(Visitor::class.java)

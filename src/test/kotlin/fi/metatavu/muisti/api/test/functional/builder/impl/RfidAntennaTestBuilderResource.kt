@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.api.test.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.RfidAntennasApi
@@ -7,6 +7,7 @@ import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.Point
 import fi.metatavu.muisti.api.client.models.RfidAntenna
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import java.util.*
@@ -14,7 +15,11 @@ import java.util.*
 /**
  * Test builder resource for handling RFID antenna
  */
-class RfidAntennaTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<RfidAntenna, ApiClient?>(testBuilder, apiClient) {
+class RfidAntennaTestBuilderResource(
+    testBuilder: TestBuilder,
+    val accessTokenProvider: AccessTokenProvider?,
+    apiClient: ApiClient
+) : ApiTestBuilderResource<RfidAntenna, ApiClient?>(testBuilder, apiClient) {
 
     /**
      * Creates new RFID antenna using default values
@@ -24,15 +29,17 @@ class RfidAntennaTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
      * @return created RFID antenna
      */
     fun create(exhibitionId: UUID, roomId: UUID): RfidAntenna {
-        val result: RfidAntenna = this.api.createRfidAntenna(exhibitionId, RfidAntenna(
-            name = "Default",
-            roomId = roomId,
-            readerId = "readerid1234",
-            antennaNumber = 1,
-            location = Point(x = 1.0, y = 2.0),
-            visitorSessionStartThreshold = 80,
-            visitorSessionEndThreshold = 10
-        ))
+        val result: RfidAntenna = api.createRfidAntenna(
+            exhibitionId, RfidAntenna(
+                name = "Default",
+                roomId = roomId,
+                readerId = "readerid1234",
+                antennaNumber = 1,
+                location = Point(x = 1.0, y = 2.0),
+                visitorSessionStartThreshold = 80,
+                visitorSessionEndThreshold = 10
+            )
+        )
 
         addClosable(result)
         return result
@@ -46,7 +53,7 @@ class RfidAntennaTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
      * @return created RFID antenna
      */
     fun create(exhibitionId: UUID, payload: RfidAntenna): RfidAntenna {
-        val result: RfidAntenna = this.api.createRfidAntenna(exhibitionId, payload)
+        val result: RfidAntenna = api.createRfidAntenna(exhibitionId, payload)
         addClosable(result)
         return result
     }
@@ -58,7 +65,7 @@ class RfidAntennaTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
      * @param rfidAntennaId RFID antenna id
      * @return RFID antenna
      */
-    fun findRfidAntenna(exhibitionId: UUID, rfidAntennaId: UUID): RfidAntenna? {
+    fun findRfidAntenna(exhibitionId: UUID, rfidAntennaId: UUID): RfidAntenna {
         return api.findRfidAntenna(exhibitionId, rfidAntennaId)
     }
 
@@ -81,7 +88,7 @@ class RfidAntennaTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
      * @param payload update payload
      * @return updated RFID antenna
      */
-    fun updateRfidAntenna(exhibitionId: UUID, payload: RfidAntenna): RfidAntenna? {
+    fun updateRfidAntenna(exhibitionId: UUID, payload: RfidAntenna): RfidAntenna {
         return api.updateRfidAntenna(exhibitionId, payload.id!!, payload)
     }
 
@@ -122,7 +129,10 @@ class RfidAntennaTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
      * @param roomId room id
      */
     fun assertCount(expected: Int, exhibitionId: UUID, deviceGroupId: UUID?, roomId: UUID?) {
-        assertEquals(expected, api.listRfidAntennas(exhibitionId = exhibitionId, deviceGroupId = deviceGroupId, roomId = roomId).size)
+        assertEquals(
+            expected,
+            api.listRfidAntennas(exhibitionId = exhibitionId, deviceGroupId = deviceGroupId, roomId = roomId).size
+        )
     }
 
     /**
@@ -217,12 +227,12 @@ class RfidAntennaTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
     }
 
     override fun clean(rfidAntenna: RfidAntenna) {
-        this.getApi().deleteRfidAntenna(rfidAntenna.exhibitionId!!, rfidAntenna.id!!)
+        this.api.deleteRfidAntenna(rfidAntenna.exhibitionId!!, rfidAntenna.id!!)
     }
 
     override fun getApi(): RfidAntennasApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return RfidAntennasApi(testBuilder.settings.apiBasePath)
+        return RfidAntennasApi(ApiTestSettings.apiBasePath)
     }
 
 }

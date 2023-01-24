@@ -40,7 +40,7 @@ class ExhibitionDAO : AbstractDAO<Exhibition>() {
      * @return found exhibition or null if not found
      */
     fun findByName(name: String): Exhibition? {
-        val entityManager = getEntityManager()
+        
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<Exhibition> = criteriaBuilder.createQuery(Exhibition::class.java)
         val root: Root<Exhibition> = criteria.from(Exhibition::class.java)

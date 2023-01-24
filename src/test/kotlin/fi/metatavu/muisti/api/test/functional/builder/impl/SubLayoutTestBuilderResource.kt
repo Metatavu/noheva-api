@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.api.test.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.SubLayoutsApi
@@ -6,6 +6,7 @@ import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.*
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import java.util.*
@@ -15,7 +16,11 @@ import java.util.*
  *
  * @author Jari Nykänen
  */
-class SubLayoutTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<SubLayout, ApiClient?>(testBuilder, apiClient) {
+class SubLayoutTestBuilderResource(
+    testBuilder: TestBuilder,
+    val accessTokenProvider: AccessTokenProvider?,
+    apiClient: ApiClient
+) : ApiTestBuilderResource<SubLayout, ApiClient?>(testBuilder, apiClient) {
 
     /**
      * Creates new sub layout with default values
@@ -25,12 +30,15 @@ class SubLayoutTestBuilderResource(testBuilder: TestBuilder, val accessTokenProv
     fun create(): SubLayout {
         val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.BOOLEAN))
         val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.BUTTON, arrayOf(), arrayOf()))
-        val createdData = PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
+        val createdData =
+            PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
 
-        return create(SubLayout(
-            name = "created name",
-            data = createdData
-        ))
+        return create(
+            SubLayout(
+                name = "created name",
+                data = createdData
+            )
+        )
     }
 
     /**
@@ -40,7 +48,7 @@ class SubLayoutTestBuilderResource(testBuilder: TestBuilder, val accessTokenProv
      * @return created sub layout
      */
     fun create(payload: SubLayout): SubLayout {
-        val result: SubLayout = this.api.createSubLayout(payload)
+        val result: SubLayout = api.createSubLayout(payload)
         addClosable(result)
         return result
     }
@@ -51,10 +59,10 @@ class SubLayoutTestBuilderResource(testBuilder: TestBuilder, val accessTokenProv
      * @param subLayoutId sub layout
      * @return sub layout
      */
-    fun findSubLayout(subLayoutId: UUID): SubLayout? {
+    fun findSubLayout(subLayoutId: UUID): SubLayout {
         return api.findSubLayout(subLayoutId)
     }
-    
+
     /**
      * Lists sub layouts
      *
@@ -70,7 +78,7 @@ class SubLayoutTestBuilderResource(testBuilder: TestBuilder, val accessTokenProv
      * @param body update body
      * @return updated sub layout
      */
-    fun updateSubLayout(body: SubLayout): SubLayout? {
+    fun updateSubLayout(body: SubLayout): SubLayout {
         return api.updateSubLayout(body.id!!, body)
     }
 
@@ -199,7 +207,7 @@ class SubLayoutTestBuilderResource(testBuilder: TestBuilder, val accessTokenProv
      * @param subLayout sub layout
      */
     override fun clean(subLayout: SubLayout) {
-        this.api.deleteSubLayout(subLayout.id!!)
+        api.deleteSubLayout(subLayout.id!!)
     }
 
     /**
@@ -209,7 +217,7 @@ class SubLayoutTestBuilderResource(testBuilder: TestBuilder, val accessTokenProv
      */
     override fun getApi(): SubLayoutsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return SubLayoutsApi(testBuilder.settings.apiBasePath)
+        return SubLayoutsApi(ApiTestSettings.apiBasePath)
     }
 
 }

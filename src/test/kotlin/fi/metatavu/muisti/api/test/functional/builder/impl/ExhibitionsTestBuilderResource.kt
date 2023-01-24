@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.api.test.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.ExhibitionsApi
@@ -6,6 +6,7 @@ import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.Exhibition
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.slf4j.LoggerFactory
@@ -14,7 +15,11 @@ import java.util.*
 /**
  * Test builder resource for handling exhibitions
  */
-class ExhibitionsTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<Exhibition, ApiClient?>(testBuilder, apiClient) {
+class ExhibitionsTestBuilderResource(
+    testBuilder: TestBuilder,
+    val accessTokenProvider: AccessTokenProvider?,
+    apiClient: ApiClient
+) : ApiTestBuilderResource<Exhibition, ApiClient?>(testBuilder, apiClient) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -24,7 +29,7 @@ class ExhibitionsTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
      * @return created exhibition
      */
     fun create(): Exhibition {
-        return create(payload= Exhibition(name="default exhibition"))
+        return create(payload = Exhibition(name = "default exhibition"))
     }
 
     /**
@@ -34,7 +39,7 @@ class ExhibitionsTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
      * @return created exhibition
      */
     fun create(payload: Exhibition): Exhibition {
-        val result: Exhibition = this.getApi().createExhibition(exhibition = payload, sourceExhibitionId = null)
+        val result: Exhibition = api.createExhibition(exhibition = payload, sourceExhibitionId = null)
         addClosable(result)
         return result
     }
@@ -46,7 +51,7 @@ class ExhibitionsTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
      * @return copied exhibition
      */
     fun copy(sourceExhibitionId: UUID): Exhibition {
-        return this.getApi().createExhibition(exhibition = null, sourceExhibitionId = sourceExhibitionId)
+        return api.createExhibition(exhibition = null, sourceExhibitionId = sourceExhibitionId)
     }
 
     /**
@@ -73,7 +78,7 @@ class ExhibitionsTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
      *
      * @param body body payload
      */
-    fun updateExhibition(body: Exhibition): Exhibition? {
+    fun updateExhibition(body: Exhibition): Exhibition {
         return api.updateExhibition(body.id!!, body)
     }
 
@@ -181,12 +186,12 @@ class ExhibitionsTestBuilderResource(testBuilder: TestBuilder, val accessTokenPr
     }
 
     override fun clean(exhibition: Exhibition) {
-        this.getApi().deleteExhibition(exhibition.id!!)
+        this.api.deleteExhibition(exhibition.id!!)
     }
 
     override fun getApi(): ExhibitionsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return ExhibitionsApi(testBuilder.settings.apiBasePath)
+        return ExhibitionsApi(ApiTestSettings.apiBasePath)
     }
 
 }

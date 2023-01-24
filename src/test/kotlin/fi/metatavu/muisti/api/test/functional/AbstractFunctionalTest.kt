@@ -5,6 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import fi.metatavu.muisti.api.client.models.*
+import fi.metatavu.muisti.api.test.functional.builder.AbstractResourceTest
+import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.mqtt.TestMqttClient
+import fi.metatavu.muisti.api.test.functional.settings.MqttTestSettings
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -24,7 +28,7 @@ import java.io.InputStream
  *
  * @author Antti Leppä
  */
-abstract class AbstractFunctionalTest {
+abstract class AbstractFunctionalTest: AbstractResourceTest() {
 
     /**
      * Creates a default room and all required resources into given exhibition
@@ -33,9 +37,9 @@ abstract class AbstractFunctionalTest {
      * @param exhibition exhibition
      * @return created room
      */
-    protected fun createDefaultRoom(testBuilder: ApiTestBuilder, exhibition: Exhibition): ExhibitionRoom {
-        val floor = testBuilder.admin().exhibitionFloors().create(exhibition)
-        return testBuilder.admin().exhibitionRooms().create(exhibition = exhibition, floor = floor)
+    protected fun createDefaultRoom(testBuilder: TestBuilder, exhibition: Exhibition): ExhibitionRoom {
+        val floor = testBuilder.admin().exhibitionFloors.create(exhibition)
+        return testBuilder.admin().exhibitionRooms.create(exhibition = exhibition, floor = floor)
     }
 
     /**
@@ -45,9 +49,9 @@ abstract class AbstractFunctionalTest {
      * @param exhibition exhibition
      * @return created device group
      */
-    protected fun createDefaultDeviceGroup(testBuilder: ApiTestBuilder, exhibition: Exhibition): ExhibitionDeviceGroup {
+    protected fun createDefaultDeviceGroup(testBuilder: TestBuilder, exhibition: Exhibition): ExhibitionDeviceGroup {
         val room = createDefaultRoom(testBuilder, exhibition)
-        return testBuilder.admin().exhibitionDeviceGroups().create(
+        return testBuilder.admin().exhibitionDeviceGroups.create(
             exhibition = exhibition,
             room = room,
             name = "Group 1"
@@ -62,9 +66,9 @@ abstract class AbstractFunctionalTest {
      * @param deviceGroup device group
      * @return created device
      */
-    protected fun createDefaultDevice(testBuilder: ApiTestBuilder, exhibition: Exhibition, deviceGroup: ExhibitionDeviceGroup): ExhibitionDevice {
-        val model = testBuilder.admin().deviceModels().create()
-        return testBuilder.admin().exhibitionDevices().create(exhibition = exhibition, model = model, group = deviceGroup)
+    protected fun createDefaultDevice(testBuilder: TestBuilder, exhibition: Exhibition, deviceGroup: ExhibitionDeviceGroup): ExhibitionDevice {
+        val model = testBuilder.admin().deviceModels.create()
+        return testBuilder.admin().exhibitionDevices.create(exhibition = exhibition, model = model, group = deviceGroup)
     }
 
     /**

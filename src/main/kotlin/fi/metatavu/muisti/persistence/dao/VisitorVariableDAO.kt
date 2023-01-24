@@ -51,7 +51,7 @@ class VisitorVariableDAO() : AbstractDAO<VisitorVariable>() {
      * @return List of visitor variables
      */
     fun list(exhibition: Exhibition, name: String?): List<VisitorVariable> {
-        val entityManager = getEntityManager()
+        
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<VisitorVariable> = criteriaBuilder.createQuery(VisitorVariable::class.java)
         val root: Root<VisitorVariable> = criteria.from(VisitorVariable::class.java)

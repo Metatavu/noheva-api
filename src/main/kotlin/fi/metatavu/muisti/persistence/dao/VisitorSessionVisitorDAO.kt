@@ -41,7 +41,7 @@ class VisitorSessionVisitorDAO() : AbstractDAO<VisitorSessionVisitor>() {
      * @return List of visitor session visitors
      */
     fun listByVisitorSession(visitorSession: VisitorSession): List<VisitorSessionVisitor> {
-        val entityManager = getEntityManager()
+        
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<VisitorSessionVisitor> = criteriaBuilder.createQuery(VisitorSessionVisitor::class.java)
         val root: Root<VisitorSessionVisitor> = criteria.from(VisitorSessionVisitor::class.java)
@@ -58,7 +58,7 @@ class VisitorSessionVisitorDAO() : AbstractDAO<VisitorSessionVisitor>() {
      * @return List of visitor sessions
      */
     fun listSessionsByVisitor(visitor: Visitor): List<VisitorSession> {
-        val entityManager = getEntityManager()
+        
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<VisitorSession> = criteriaBuilder.createQuery(VisitorSession::class.java)
         val root: Root<VisitorSessionVisitor> = criteria.from(VisitorSessionVisitor::class.java)

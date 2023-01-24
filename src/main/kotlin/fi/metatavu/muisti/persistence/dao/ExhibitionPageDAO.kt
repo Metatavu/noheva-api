@@ -61,7 +61,7 @@ class ExhibitionPageDAO : AbstractDAO<ExhibitionPage>() {
      * @return List of exhibition pages
      */
     fun list(exhibition: Exhibition, exhibitionDevice : ExhibitionDevice?, contentVersion: ContentVersion?, pageLayout: PageLayout?): List<ExhibitionPage> {
-        val entityManager = getEntityManager()
+        
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionPage> = criteriaBuilder.createQuery(ExhibitionPage::class.java)
         val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)
@@ -94,7 +94,7 @@ class ExhibitionPageDAO : AbstractDAO<ExhibitionPage>() {
      * @return List of ExhibitionPages
      */
     fun listByLayout(layout: PageLayout): List<ExhibitionPage> {
-        val entityManager = getEntityManager()
+        
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionPage> = criteriaBuilder.createQuery(ExhibitionPage::class.java)
         val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)
@@ -111,7 +111,7 @@ class ExhibitionPageDAO : AbstractDAO<ExhibitionPage>() {
      * @return List of pages in device group
      */
     fun listByDeviceGroup(deviceGroup: ExhibitionDeviceGroup): List<ExhibitionPage> {
-        val entityManager = getEntityManager()
+        
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionPage> = criteriaBuilder.createQuery(ExhibitionPage::class.java)
         val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)

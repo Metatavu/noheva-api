@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.api.test.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.VisitorsApi
@@ -7,6 +7,7 @@ import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.Visitor
 import fi.metatavu.muisti.api.client.models.VisitorTag
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import java.util.*
@@ -14,7 +15,11 @@ import java.util.*
 /**
  * Test builder resource for handling visitors
  */
-class VisitorTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<Visitor, ApiClient?>(testBuilder, apiClient) {
+class VisitorTestBuilderResource(
+    testBuilder: TestBuilder,
+    val accessTokenProvider: AccessTokenProvider?,
+    apiClient: ApiClient
+) : ApiTestBuilderResource<Visitor, ApiClient?>(testBuilder, apiClient) {
 
     /**
      * Creates new visitor session with default values
@@ -23,11 +28,13 @@ class VisitorTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvid
      * @return created visitor session
      */
     fun create(exhibitionId: UUID): Visitor {
-        return create(exhibitionId, Visitor(
-            email = "fake@exmaple.com",
-            tagId = "faketag",
-            language = "fi"
-        ))
+        return create(
+            exhibitionId, Visitor(
+                email = "fake@exmaple.com",
+                tagId = "faketag",
+                language = "fi"
+            )
+        )
     }
 
     /**
@@ -38,7 +45,7 @@ class VisitorTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvid
      * @return created visitor session
      */
     fun create(exhibitionId: UUID, payload: Visitor): Visitor {
-        val result: Visitor = this.api.createVisitor(exhibitionId, payload)
+        val result: Visitor = api.createVisitor(exhibitionId, payload)
         addClosable(result)
         return result
     }
@@ -50,7 +57,7 @@ class VisitorTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvid
      * @param visitorId visitor session id
      * @return visitor session
      */
-    fun findVisitor(exhibitionId: UUID, visitorId: UUID): Visitor? {
+    fun findVisitor(exhibitionId: UUID, visitorId: UUID): Visitor {
         return api.findVisitor(exhibitionId, visitorId)
     }
 
@@ -130,11 +137,13 @@ class VisitorTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvid
      * @param email filter by email
      */
     fun assertCount(expected: Int, exhibitionId: UUID, tagId: String?, email: String?) {
-        assertEquals(expected, api.listVisitors(
-            exhibitionId = exhibitionId,
-            tagId = tagId,
-            email = email
-        ).size)
+        assertEquals(
+            expected, api.listVisitors(
+                exhibitionId = exhibitionId,
+                tagId = tagId,
+                email = email
+            ).size
+        )
     }
 
     /**
@@ -250,12 +259,12 @@ class VisitorTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvid
     }
 
     override fun clean(visitor: Visitor) {
-        this.api.deleteVisitor(visitor.exhibitionId!!, visitor.id!!)
+        api.deleteVisitor(visitor.exhibitionId!!, visitor.id!!)
     }
 
     override fun getApi(): VisitorsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return VisitorsApi(testBuilder.settings.apiBasePath)
+        return VisitorsApi(ApiTestSettings.apiBasePath)
     }
 
 }

@@ -75,7 +75,7 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
      * @return List of devices
      */
     fun list(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup?, deviceModel: DeviceModel?): List<ExhibitionDevice> {
-        val entityManager = getEntityManager()
+        
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionDevice> = criteriaBuilder.createQuery(ExhibitionDevice::class.java)
         val root: Root<ExhibitionDevice> = criteria.from(ExhibitionDevice::class.java)
@@ -105,7 +105,7 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
      * @return List of devices
      */
     fun listByIdlePage(idlePage: ExhibitionPage): List<ExhibitionDevice> {
-        val entityManager = getEntityManager()
+        
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionDevice> = criteriaBuilder.createQuery(ExhibitionDevice::class.java)
         val root: Root<ExhibitionDevice> = criteria.from(ExhibitionDevice::class.java)

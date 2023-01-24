@@ -19,8 +19,7 @@ import javax.inject.Singleton
  * @author Antti Leppä
  */
 @ApplicationScoped
-@Singleton
-//@AccessTimeout(value = 8, unit = TimeUnit.HOURS) todo access timeout?
+//@AccessTimeout(value = 8, unit = TimeUnit.HOURS) todo access timeout
 class FileController {
 
     @Inject

@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.api.test.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.VisitorVariablesApi
@@ -6,6 +6,7 @@ import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.VisitorVariable
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import java.util.*
@@ -13,7 +14,11 @@ import java.util.*
 /**
  * Test builder resource for handling visitorVariables
  */
-class VisitorVariableTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<VisitorVariable, ApiClient?>(testBuilder, apiClient) {
+class VisitorVariableTestBuilderResource(
+    testBuilder: TestBuilder,
+    val accessTokenProvider: AccessTokenProvider?,
+    apiClient: ApiClient
+) : ApiTestBuilderResource<VisitorVariable, ApiClient?>(testBuilder, apiClient) {
 
     /**
      * Creates new visitor variable
@@ -23,7 +28,7 @@ class VisitorVariableTestBuilderResource(testBuilder: TestBuilder, val accessTok
      * @return created visitor variable
      */
     fun create(exhibitionId: UUID, payload: VisitorVariable): VisitorVariable {
-        val result: VisitorVariable = this.api.createVisitorVariable(exhibitionId, payload)
+        val result: VisitorVariable = api.createVisitorVariable(exhibitionId, payload)
         addClosable(result)
         return result
     }
@@ -35,7 +40,7 @@ class VisitorVariableTestBuilderResource(testBuilder: TestBuilder, val accessTok
      * @param visitorVariableId visitor variable id
      * @return visitor variable
      */
-    fun findVisitorVariable(exhibitionId: UUID, visitorVariableId: UUID): VisitorVariable? {
+    fun findVisitorVariable(exhibitionId: UUID, visitorVariableId: UUID): VisitorVariable {
         return api.findVisitorVariable(exhibitionId, visitorVariableId)
     }
 
@@ -57,7 +62,7 @@ class VisitorVariableTestBuilderResource(testBuilder: TestBuilder, val accessTok
      * @param body update body
      * @return updated visitor variable
      */
-    fun updateVisitorVariable(exhibitionId: UUID, body: VisitorVariable): VisitorVariable? {
+    fun updateVisitorVariable(exhibitionId: UUID, body: VisitorVariable): VisitorVariable {
         return api.updateVisitorVariable(exhibitionId, body.id!!, body)
     }
 
@@ -192,12 +197,12 @@ class VisitorVariableTestBuilderResource(testBuilder: TestBuilder, val accessTok
     }
 
     override fun clean(visitorVariable: VisitorVariable) {
-        this.api.deleteVisitorVariable(visitorVariable.exhibitionId!!, visitorVariable.id!!)
+        api.deleteVisitorVariable(visitorVariable.exhibitionId!!, visitorVariable.id!!)
     }
 
     override fun getApi(): VisitorVariablesApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return VisitorVariablesApi(testBuilder.settings.apiBasePath)
+        return VisitorVariablesApi(ApiTestSettings.apiBasePath)
     }
 
 }

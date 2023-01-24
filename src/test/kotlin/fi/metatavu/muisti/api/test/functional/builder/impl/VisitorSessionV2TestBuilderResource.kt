@@ -1,12 +1,13 @@
-package fi.metatavu.muisti.api.test.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.VisitorSessionsApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
-import fi.metatavu.muisti.api.client.models.VisitorSessionV2
 import fi.metatavu.muisti.api.client.models.VisitorSessionState
+import fi.metatavu.muisti.api.client.models.VisitorSessionV2
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import java.util.*
@@ -14,7 +15,11 @@ import java.util.*
 /**
  * Test builder resource for handling visitorSessions
  */
-class VisitorSessionV2TestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<VisitorSessionV2, ApiClient?>(testBuilder, apiClient) {
+class VisitorSessionV2TestBuilderResource(
+    testBuilder: TestBuilder,
+    val accessTokenProvider: AccessTokenProvider?,
+    apiClient: ApiClient
+) : ApiTestBuilderResource<VisitorSessionV2, ApiClient?>(testBuilder, apiClient) {
 
     /**
      * Creates new visitor session with default values
@@ -23,12 +28,14 @@ class VisitorSessionV2TestBuilderResource(testBuilder: TestBuilder, val accessTo
      * @return created visitor session
      */
     fun create(exhibitionId: UUID): VisitorSessionV2 {
-        return create(exhibitionId, VisitorSessionV2(
-            state = VisitorSessionState.ACTIVE,
-            visitorIds = arrayOf(),
-            variables = arrayOf(),
-            language = "FI"
-        ))
+        return create(
+            exhibitionId, VisitorSessionV2(
+                state = VisitorSessionState.ACTIVE,
+                visitorIds = arrayOf(),
+                variables = arrayOf(),
+                language = "FI"
+            )
+        )
     }
 
     /**
@@ -39,7 +46,7 @@ class VisitorSessionV2TestBuilderResource(testBuilder: TestBuilder, val accessTo
      * @return created visitor session
      */
     fun create(exhibitionId: UUID, payload: VisitorSessionV2): VisitorSessionV2 {
-        val result: VisitorSessionV2 = this.api.createVisitorSessionV2(exhibitionId, payload)
+        val result: VisitorSessionV2 = api.createVisitorSessionV2(exhibitionId, payload)
         addClosable(result)
         return result
     }
@@ -51,7 +58,7 @@ class VisitorSessionV2TestBuilderResource(testBuilder: TestBuilder, val accessTo
      * @param visitorSessionId visitor session id
      * @return visitor session
      */
-    fun findVisitorSession(exhibitionId: UUID, visitorSessionId: UUID): VisitorSessionV2? {
+    fun findVisitorSession(exhibitionId: UUID, visitorSessionId: UUID): VisitorSessionV2 {
         return api.findVisitorSessionV2(exhibitionId, visitorSessionId)
     }
 
@@ -123,11 +130,13 @@ class VisitorSessionV2TestBuilderResource(testBuilder: TestBuilder, val accessTo
      * @param modifiedAfter modified after specified time
      */
     fun assertCount(expected: Int, exhibitionId: UUID, tagId: String?, modifiedAfter: String?) {
-        assertEquals(expected, api.listVisitorSessionsV2(
-            exhibitionId = exhibitionId,
-            tagId = tagId,
-            modifiedAfter = modifiedAfter
-        ).size)
+        assertEquals(
+            expected, api.listVisitorSessionsV2(
+                exhibitionId = exhibitionId,
+                tagId = tagId,
+                modifiedAfter = modifiedAfter
+            ).size
+        )
     }
 
     /**
@@ -232,12 +241,12 @@ class VisitorSessionV2TestBuilderResource(testBuilder: TestBuilder, val accessTo
     }
 
     override fun clean(visitorSession: VisitorSessionV2) {
-        this.api.deleteVisitorSessionV2(visitorSession.exhibitionId!!, visitorSession.id!!)
+        api.deleteVisitorSessionV2(visitorSession.exhibitionId!!, visitorSession.id!!)
     }
 
     override fun getApi(): VisitorSessionsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return VisitorSessionsApi(testBuilder.settings.apiBasePath)
+        return VisitorSessionsApi(ApiTestSettings.apiBasePath)
     }
 
 }

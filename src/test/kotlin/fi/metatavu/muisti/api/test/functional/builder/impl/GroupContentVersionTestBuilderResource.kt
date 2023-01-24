@@ -1,11 +1,12 @@
-package fi.metatavu.muisti.api.test.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.GroupContentVersionsApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
-import fi.metatavu.muisti.api.client.models.*
+import fi.metatavu.muisti.api.client.models.GroupContentVersion
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.slf4j.LoggerFactory
@@ -14,7 +15,11 @@ import java.util.*
 /**
  * Test builder resource for handling group content versions
  */
-class GroupContentVersionTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<GroupContentVersion, ApiClient?>(testBuilder, apiClient) {
+class GroupContentVersionTestBuilderResource(
+    testBuilder: TestBuilder,
+    val accessTokenProvider: AccessTokenProvider?,
+    apiClient: ApiClient
+) : ApiTestBuilderResource<GroupContentVersion, ApiClient?>(testBuilder, apiClient) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -26,7 +31,7 @@ class GroupContentVersionTestBuilderResource(testBuilder: TestBuilder, val acces
      * @return created GroupContentVersion
      */
     fun create(exhibitionId: UUID, payload: GroupContentVersion): GroupContentVersion {
-        val result: GroupContentVersion = this.api.createGroupContentVersion(exhibitionId, payload)
+        val result: GroupContentVersion = api.createGroupContentVersion(exhibitionId, payload)
         addClosable(result)
         return result
     }
@@ -38,7 +43,7 @@ class GroupContentVersionTestBuilderResource(testBuilder: TestBuilder, val acces
      * @param groupContentVersionId GroupContentVersion id
      * @return GroupContentVersion
      */
-    fun findGroupContentVersion(exhibitionId: UUID, groupContentVersionId: UUID): GroupContentVersion? {
+    fun findGroupContentVersion(exhibitionId: UUID, groupContentVersionId: UUID): GroupContentVersion {
         return api.findGroupContentVersion(exhibitionId, groupContentVersionId)
     }
 
@@ -48,8 +53,16 @@ class GroupContentVersionTestBuilderResource(testBuilder: TestBuilder, val acces
      * @param exhibitionId exhibition id
      * @return GroupContentVersions
      */
-    fun listGroupContentVersions(exhibitionId: UUID, contentVersionId: UUID?, deviceGroupId: UUID?): Array<GroupContentVersion> {
-        return api.listGroupContentVersions(exhibitionId = exhibitionId, contentVersionId = contentVersionId, deviceGroupId = deviceGroupId)
+    fun listGroupContentVersions(
+        exhibitionId: UUID,
+        contentVersionId: UUID?,
+        deviceGroupId: UUID?
+    ): Array<GroupContentVersion> {
+        return api.listGroupContentVersions(
+            exhibitionId = exhibitionId,
+            contentVersionId = contentVersionId,
+            deviceGroupId = deviceGroupId
+        )
     }
 
     /**
@@ -59,7 +72,7 @@ class GroupContentVersionTestBuilderResource(testBuilder: TestBuilder, val acces
      * @param body update body
      * @return updated GroupContentVersion
      */
-    fun updateGroupContentVersion(exhibitionId: UUID, body: GroupContentVersion): GroupContentVersion? {
+    fun updateGroupContentVersion(exhibitionId: UUID, body: GroupContentVersion): GroupContentVersion {
         return api.updateGroupContentVersion(exhibitionId, body.id!!, body)
     }
 
@@ -98,7 +111,14 @@ class GroupContentVersionTestBuilderResource(testBuilder: TestBuilder, val acces
      * @param exhibitionId exhibition id
      */
     fun assertCount(expected: Int, exhibitionId: UUID, contentVersionId: UUID?, deviceGroupId: UUID?) {
-        assertEquals(expected, api.listGroupContentVersions(exhibitionId = exhibitionId, contentVersionId = contentVersionId, deviceGroupId = deviceGroupId).size)
+        assertEquals(
+            expected,
+            api.listGroupContentVersions(
+                exhibitionId = exhibitionId,
+                contentVersionId = contentVersionId,
+                deviceGroupId = deviceGroupId
+            ).size
+        )
     }
 
     /**
@@ -136,7 +156,11 @@ class GroupContentVersionTestBuilderResource(testBuilder: TestBuilder, val acces
      */
     fun assertListFail(expectedStatus: Int, exhibitionId: UUID, contentVersionId: UUID?, deviceGroupId: UUID?) {
         try {
-            api.listGroupContentVersions(exhibitionId = exhibitionId, contentVersionId = contentVersionId, deviceGroupId = deviceGroupId)
+            api.listGroupContentVersions(
+                exhibitionId = exhibitionId,
+                contentVersionId = contentVersionId,
+                deviceGroupId = deviceGroupId
+            )
             fail(String.format("Expected list to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)
@@ -192,12 +216,12 @@ class GroupContentVersionTestBuilderResource(testBuilder: TestBuilder, val acces
     }
 
     override fun clean(groupContentVersion: GroupContentVersion) {
-        this.api.deleteGroupContentVersion(groupContentVersion.exhibitionId!!, groupContentVersion.id!!)
+        api.deleteGroupContentVersion(groupContentVersion.exhibitionId!!, groupContentVersion.id!!)
     }
 
     override fun getApi(): GroupContentVersionsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return GroupContentVersionsApi(testBuilder.settings.apiBasePath)
+        return GroupContentVersionsApi(ApiTestSettings.apiBasePath)
     }
 
 }

@@ -59,7 +59,6 @@ class ContentVersionDAO : AbstractDAO<ContentVersion>() {
      * @return found content version or null if not found
      */
     fun findByNameRoomAndLanguage(name: String, language: String, room: ExhibitionRoom): ContentVersion? {
-        val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ContentVersion> = criteriaBuilder.createQuery(ContentVersion::class.java)
         val root: Root<ContentVersionRoom> = criteria.from(ContentVersionRoom::class.java)
@@ -85,7 +84,6 @@ class ContentVersionDAO : AbstractDAO<ContentVersion>() {
      * @return List of ContentVersions
      */
     fun listByExhibition(exhibition: Exhibition): List<ContentVersion> {
-        val entityManager = getEntityManager()
         val criteriaBuilder = entityManager.criteriaBuilder
         val criteria: CriteriaQuery<ContentVersion> = criteriaBuilder.createQuery(ContentVersion::class.java)
         val root: Root<ContentVersion> = criteria.from(ContentVersion::class.java)

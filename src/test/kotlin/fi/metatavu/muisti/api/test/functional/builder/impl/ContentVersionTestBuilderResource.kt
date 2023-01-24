@@ -1,12 +1,13 @@
-package fi.metatavu.muisti.api.test.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.ContentVersionsApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
-import fi.metatavu.muisti.api.client.models.Exhibition
 import fi.metatavu.muisti.api.client.models.ContentVersion
+import fi.metatavu.muisti.api.client.models.Exhibition
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.slf4j.LoggerFactory
@@ -15,7 +16,11 @@ import java.util.*
 /**
  * Test builder resource for handling content versions
  */
-class ContentVersionTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<ContentVersion, ApiClient?>(testBuilder, apiClient) {
+class ContentVersionTestBuilderResource(
+    testBuilder: TestBuilder,
+    val accessTokenProvider: AccessTokenProvider?,
+    apiClient: ApiClient
+) : ApiTestBuilderResource<ContentVersion, ApiClient?>(testBuilder, apiClient) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -26,9 +31,12 @@ class ContentVersionTestBuilderResource(testBuilder: TestBuilder, val accessToke
      * @return created content version
      */
     fun create(exhibitionId: UUID): ContentVersion {
-        val floorId = testBuilder.admin().exhibitionFloors().create(exhibitionId).id!!
-        val roomId = testBuilder.admin().exhibitionRooms().create(exhibitionId, floorId).id!!
-        return create(exhibitionId, ContentVersion(name = "default contentVersion", language = "FI", rooms = arrayOf<UUID>(roomId)))
+        val floorId = testBuilder.admin().exhibitionFloors.create(exhibitionId).id!!
+        val roomId = testBuilder.admin().exhibitionRooms.create(exhibitionId, floorId).id!!
+        return create(
+            exhibitionId,
+            ContentVersion(name = "default contentVersion", language = "FI", rooms = arrayOf(roomId))
+        )
     }
 
     /**
@@ -49,7 +57,7 @@ class ContentVersionTestBuilderResource(testBuilder: TestBuilder, val accessToke
      * @return created ContentVersion
      */
     fun create(exhibitionId: UUID, payload: ContentVersion): ContentVersion {
-        val result: ContentVersion = this.api.createContentVersion(exhibitionId, payload)
+        val result: ContentVersion = api.createContentVersion(exhibitionId, payload)
         addClosable(result)
         return result
     }
@@ -61,7 +69,7 @@ class ContentVersionTestBuilderResource(testBuilder: TestBuilder, val accessToke
      * @param contentVersionId ContentVersion id
      * @return ContentVersion
      */
-    fun findContentVersion(exhibitionId: UUID, contentVersionId: UUID): ContentVersion? {
+    fun findContentVersion(exhibitionId: UUID, contentVersionId: UUID): ContentVersion {
         return api.findContentVersion(exhibitionId, contentVersionId)
     }
 
@@ -82,7 +90,7 @@ class ContentVersionTestBuilderResource(testBuilder: TestBuilder, val accessToke
      * @param body update body
      * @return updated ContentVersion
      */
-    fun updateContentVersion(exhibitionId: UUID, body: ContentVersion): ContentVersion? {
+    fun updateContentVersion(exhibitionId: UUID, body: ContentVersion): ContentVersion {
         return api.updateContentVersion(exhibitionId, body.id!!, body)
     }
 
@@ -110,7 +118,7 @@ class ContentVersionTestBuilderResource(testBuilder: TestBuilder, val accessToke
             }
 
             val closeableContentVersion: ContentVersion = closable
-            closeableContentVersion.id!!.equals(contentVersionId)
+            closeableContentVersion.id!! == contentVersionId
         }
     }
 
@@ -215,12 +223,12 @@ class ContentVersionTestBuilderResource(testBuilder: TestBuilder, val accessToke
     }
 
     override fun clean(contentVersion: ContentVersion) {
-        this.api.deleteContentVersion(contentVersion.exhibitionId!!, contentVersion.id!!)
+        api.deleteContentVersion(contentVersion.exhibitionId!!, contentVersion.id!!)
     }
 
     override fun getApi(): ContentVersionsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return ContentVersionsApi(testBuilder.settings.apiBasePath)
+        return ContentVersionsApi(ApiTestSettings.apiBasePath)
     }
 
 }

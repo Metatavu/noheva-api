@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.api.test.builder.impl
+package fi.metatavu.muisti.api.test.functional.builder.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.ExhibitionPagesApi
@@ -6,6 +6,7 @@ import fi.metatavu.muisti.api.client.infrastructure.ApiClient
 import fi.metatavu.muisti.api.client.infrastructure.ClientException
 import fi.metatavu.muisti.api.client.models.*
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
+import fi.metatavu.muisti.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import java.util.*
@@ -14,7 +15,11 @@ import java.util.*
 /**
  * Test builder resource for handling exhibitionPages
  */
-class ExhibitionPageTestBuilderResource(testBuilder: TestBuilder, val accessTokenProvider: AccessTokenProvider?, apiClient: ApiClient) : ApiTestBuilderResource<ExhibitionPage, ApiClient?>(testBuilder, apiClient) {
+class ExhibitionPageTestBuilderResource(
+    testBuilder: TestBuilder,
+    val accessTokenProvider: AccessTokenProvider?,
+    apiClient: ApiClient
+) : ApiTestBuilderResource<ExhibitionPage, ApiClient?>(testBuilder, apiClient) {
 
     /**
      * Creates new exhibition page with default values
@@ -25,17 +30,19 @@ class ExhibitionPageTestBuilderResource(testBuilder: TestBuilder, val accessToke
      * @return created exhibition page
      */
     fun create(exhibitionId: UUID, layoutId: UUID, deviceId: UUID, contentVersionId: UUID): ExhibitionPage {
-        return create(exhibitionId, ExhibitionPage(
-            layoutId = layoutId,
-            deviceId = deviceId,
-            contentVersionId = contentVersionId,
-            orderNumber = 0,
-            name = "default page",
-            enterTransitions = arrayOf(),
-            exitTransitions = arrayOf(),
-            resources = arrayOf(),
-            eventTriggers = arrayOf()
-        ))
+        return create(
+            exhibitionId, ExhibitionPage(
+                layoutId = layoutId,
+                deviceId = deviceId,
+                contentVersionId = contentVersionId,
+                orderNumber = 0,
+                name = "default page",
+                enterTransitions = arrayOf(),
+                exitTransitions = arrayOf(),
+                resources = arrayOf(),
+                eventTriggers = arrayOf()
+            )
+        )
     }
 
     /**
@@ -46,8 +53,18 @@ class ExhibitionPageTestBuilderResource(testBuilder: TestBuilder, val accessToke
      * @param contentVersion content version
      * @return created exhibition page
      */
-    fun create(exhibition: Exhibition, layout: PageLayout, device: ExhibitionDevice, contentVersion: ContentVersion): ExhibitionPage {
-        return create(exhibitionId = exhibition.id!!, layoutId = layout.id!!, deviceId = device.id!!, contentVersionId = contentVersion.id!!)
+    fun create(
+        exhibition: Exhibition,
+        layout: PageLayout,
+        device: ExhibitionDevice,
+        contentVersion: ContentVersion
+    ): ExhibitionPage {
+        return create(
+            exhibitionId = exhibition.id!!,
+            layoutId = layout.id!!,
+            deviceId = device.id!!,
+            contentVersionId = contentVersion.id!!
+        )
     }
 
     /**
@@ -58,7 +75,7 @@ class ExhibitionPageTestBuilderResource(testBuilder: TestBuilder, val accessToke
      * @return created exhibition page
      */
     fun create(exhibitionId: UUID, payload: ExhibitionPage): ExhibitionPage {
-        val result: ExhibitionPage = this.api.createExhibitionPage(exhibitionId, payload)
+        val result: ExhibitionPage = api.createExhibitionPage(exhibitionId, payload)
         addClosable(result)
         return result
     }
@@ -145,13 +162,21 @@ class ExhibitionPageTestBuilderResource(testBuilder: TestBuilder, val accessToke
      * @param contentVersionId exhibition content version id
      * @param pageLayoutId page layout id
      */
-    fun assertCount(expected: Int, exhibitionId: UUID, exhibitionDeviceId: UUID?, contentVersionId: UUID?, pageLayoutId: UUID?) {
-        assertEquals(expected, api.listExhibitionPages(
-            exhibitionId = exhibitionId,
-            exhibitionDeviceId = exhibitionDeviceId,
-            contentVersionId = contentVersionId,
-            pageLayoutId = pageLayoutId
-        ).size)
+    fun assertCount(
+        expected: Int,
+        exhibitionId: UUID,
+        exhibitionDeviceId: UUID?,
+        contentVersionId: UUID?,
+        pageLayoutId: UUID?
+    ) {
+        assertEquals(
+            expected, api.listExhibitionPages(
+                exhibitionId = exhibitionId,
+                exhibitionDeviceId = exhibitionDeviceId,
+                contentVersionId = contentVersionId,
+                pageLayoutId = pageLayoutId
+            ).size
+        )
     }
 
     /**
@@ -190,7 +215,13 @@ class ExhibitionPageTestBuilderResource(testBuilder: TestBuilder, val accessToke
      * @param contentVersionId exhibition content version id
      * @param pageLayoutId page layout id
      */
-    fun assertListFail(expectedStatus: Int, exhibitionId: UUID, exhibitionDeviceId: UUID?, contentVersionId: UUID?, pageLayoutId: UUID?) {
+    fun assertListFail(
+        expectedStatus: Int,
+        exhibitionId: UUID,
+        exhibitionDeviceId: UUID?,
+        contentVersionId: UUID?,
+        pageLayoutId: UUID?
+    ) {
         try {
             api.listExhibitionPages(
                 exhibitionId = exhibitionId,
@@ -253,12 +284,12 @@ class ExhibitionPageTestBuilderResource(testBuilder: TestBuilder, val accessToke
     }
 
     override fun clean(exhibitionPage: ExhibitionPage) {
-        this.api.deleteExhibitionPage(exhibitionPage.exhibitionId!!, exhibitionPage.id!!)
+        api.deleteExhibitionPage(exhibitionPage.exhibitionId!!, exhibitionPage.id!!)
     }
 
     override fun getApi(): ExhibitionPagesApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return ExhibitionPagesApi(testBuilder.settings.apiBasePath)
+        return ExhibitionPagesApi(ApiTestSettings.apiBasePath)
     }
 
 }
