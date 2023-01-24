@@ -25,25 +25,25 @@ import javax.inject.Inject
 class VisitorSessionController {
 
     @Inject
-    private lateinit var settingsController: SettingsController
+    lateinit var settingsController: SettingsController
 
     @Inject
-    private lateinit var visitorVariableController: VisitorVariableController
+    lateinit var visitorVariableController: VisitorVariableController
 
     @Inject
-    private lateinit var visitorDAO: VisitorDAO
+    lateinit var visitorDAO: VisitorDAO
 
     @Inject
-    private lateinit var visitorSessionDAO: VisitorSessionDAO
+    lateinit var visitorSessionDAO: VisitorSessionDAO
 
     @Inject
-    private lateinit var visitorSessionVariableDAO: VisitorSessionVariableDAO
+    lateinit var visitorSessionVariableDAO: VisitorSessionVariableDAO
 
     @Inject
-    private lateinit var visitorSessionVisitorDAO: VisitorSessionVisitorDAO
+    lateinit var visitorSessionVisitorDAO: VisitorSessionVisitorDAO
 
     @Inject
-    private lateinit var visitorSessionVisitedDeviceGroupDAO: VisitorSessionVisitedDeviceGroupDAO
+    lateinit var visitorSessionVisitedDeviceGroupDAO: VisitorSessionVisitedDeviceGroupDAO
 
     /**
      * Creates a new visitor session
@@ -197,12 +197,12 @@ class VisitorSessionController {
         for (variable in variables) {
             val existingSessionVariable = existingSessionVariables.find { it.name == variable.name }
             if (existingSessionVariable == null) {
-                visitorSessionVariableDAO.create(UUID.randomUUID(), visitorSession, variable.name, variable.value)
+                visitorSessionVariableDAO.create(UUID.randomUUID(), visitorSession, variable.name, variable.value!!)
                 changed = true
             } else {
                 if (!StringUtils.isBlank(variable.value)) {
                     if (variable.value != existingSessionVariable.value) {
-                        visitorSessionVariableDAO.updateValue(existingSessionVariable, variable.value)
+                        visitorSessionVariableDAO.updateValue(existingSessionVariable, variable.value!!)
                         changed = true
                     }
 
@@ -234,12 +234,12 @@ class VisitorSessionController {
                     id = UUID.randomUUID(),
                     visitorSession = visitorSession,
                     deviceGroup = visitedDeviceGroupList.first{ it.id == visitedDeviceGroup.deviceGroupId },
-                    enteredAt = visitedDeviceGroup.enteredAt,
-                    exitedAt = visitedDeviceGroup.exitedAt
+                    enteredAt = visitedDeviceGroup.enteredAt!!,
+                    exitedAt = visitedDeviceGroup.exitedAt!!
                 )
             } else {
-                visitorSessionVisitedDeviceGroupDAO.updateEnteredAt(existingSessionVisitedDeviceGroup, visitedDeviceGroup.enteredAt)
-                visitorSessionVisitedDeviceGroupDAO.updateExitedAt(existingSessionVisitedDeviceGroup, visitedDeviceGroup.exitedAt)
+                visitorSessionVisitedDeviceGroupDAO.updateEnteredAt(existingSessionVisitedDeviceGroup, visitedDeviceGroup.enteredAt!!)
+                visitorSessionVisitedDeviceGroupDAO.updateExitedAt(existingSessionVisitedDeviceGroup, visitedDeviceGroup.exitedAt!!)
                 existingSessionVisitedDeviceGroups.remove(existingSessionVisitedDeviceGroup)
             }
         }

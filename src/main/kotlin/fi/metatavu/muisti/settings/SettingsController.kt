@@ -13,7 +13,7 @@ import javax.inject.Inject
 class SettingsController {
 
     @Inject
-    private lateinit var logger: Logger
+    lateinit var logger: Logger
 
     /**
      * Returns MQTT server settings

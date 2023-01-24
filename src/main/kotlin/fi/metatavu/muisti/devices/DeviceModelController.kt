@@ -16,7 +16,7 @@ import javax.inject.Inject
 class DeviceModelController() {
 
     @Inject
-    private lateinit var deviceModelDAO: DeviceModelDAO
+    lateinit var deviceModelDAO: DeviceModelDAO
 
     /**
      * Creates new exhibition device model

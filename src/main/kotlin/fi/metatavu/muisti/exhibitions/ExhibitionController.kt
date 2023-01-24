@@ -19,25 +19,25 @@ import javax.inject.Inject
 class ExhibitionController {
 
     @Inject
-    private lateinit var logger: Logger
+    lateinit var logger: Logger
 
     @Inject
-    private lateinit var visitorVariableController: VisitorVariableController
+    lateinit var visitorVariableController: VisitorVariableController
 
     @Inject
-    private lateinit var floorController: ExhibitionFloorController
+    lateinit var floorController: ExhibitionFloorController
 
     @Inject
-    private lateinit var roomController: ExhibitionRoomController
+    lateinit var roomController: ExhibitionRoomController
 
     @Inject
-    private lateinit var deviceGroupController: ExhibitionDeviceGroupController
+    lateinit var deviceGroupController: ExhibitionDeviceGroupController
 
     @Inject
-    private lateinit var contentVersionController: ContentVersionController
+    lateinit var contentVersionController: ContentVersionController
 
     @Inject
-    private lateinit var exhibitionDAO: ExhibitionDAO
+    lateinit var exhibitionDAO: ExhibitionDAO
 
     /**
      * Creates new exhibition

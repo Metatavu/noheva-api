@@ -17,10 +17,10 @@ import javax.inject.Inject
 class VisitorController {
 
     @Inject
-    private lateinit var settingsController: SettingsController
+    lateinit var settingsController: SettingsController
 
     @Inject
-    private lateinit var visitorDAO: VisitorDAO
+    lateinit var visitorDAO: VisitorDAO
 
     /**
      * Creates new visitor

@@ -16,7 +16,7 @@ import javax.inject.Inject
 class RealtimeNotificationController {
 
     @Inject
-    private lateinit var mqttController: MqttController
+    lateinit var mqttController: MqttController
 
     /**
      * Notify subscribers about new page creation
@@ -25,9 +25,10 @@ class RealtimeNotificationController {
      * @param id page id
      */
     fun notifyExhibitionPageCreate(exhibitionId: UUID, id: UUID) {
-        val mqttMessage = MqttExhibitionPageCreate()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
+        val mqttMessage = MqttExhibitionPageCreate(
+            exhibitionId = exhibitionId,
+            id = id
+        )
         publishMqttTransactionSuccess("pages/create", mqttMessage)
     }
 
@@ -38,9 +39,10 @@ class RealtimeNotificationController {
      * @param id page id
      */
     fun notifyExhibitionPageUpdate(exhibitionId: UUID, id: UUID) {
-        val mqttMessage = MqttExhibitionPageUpdate()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
+        val mqttMessage = MqttExhibitionPageUpdate(
+            exhibitionId = exhibitionId,
+            id = id
+        )
         publishMqttTransactionSuccess("pages/update", mqttMessage)
     }
 
@@ -51,9 +53,10 @@ class RealtimeNotificationController {
      * @param id page id
      */
     fun notifyExhibitionPageDelete(exhibitionId: UUID, id: UUID) {
-        val mqttMessage = MqttExhibitionPageDelete()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
+        val mqttMessage = MqttExhibitionPageDelete(
+            exhibitionId = exhibitionId,
+            id = id
+        )
         publishMqttTransactionSuccess("pages/delete", mqttMessage)
     }
 
@@ -64,9 +67,10 @@ class RealtimeNotificationController {
      * @param id page id
      */
     fun notifyExhibitionVisitorSessionCreate(exhibitionId: UUID, id: UUID) {
-        val mqttMessage = MqttExhibitionVisitorSessionCreate()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
+        val mqttMessage = MqttExhibitionVisitorSessionCreate(
+            exhibitionId = exhibitionId,
+            id = id
+        )
         publishMqttTransactionSuccess("visitorsessions/create", mqttMessage)
     }
 
@@ -78,12 +82,18 @@ class RealtimeNotificationController {
      * @param variablesChanged variables changed
      * @param visitorsChanged visitors changed
      */
-    fun notifyExhibitionVisitorSessionUpdate(exhibitionId: UUID, id: UUID, variablesChanged: Boolean, visitorsChanged: Boolean) {
-        val mqttMessage = MqttExhibitionVisitorSessionUpdate()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
-        mqttMessage.variablesChanged = variablesChanged
-        mqttMessage.visitorsChanged = visitorsChanged
+    fun notifyExhibitionVisitorSessionUpdate(
+        exhibitionId: UUID,
+        id: UUID,
+        variablesChanged: Boolean,
+        visitorsChanged: Boolean
+    ) {
+        val mqttMessage = MqttExhibitionVisitorSessionUpdate(
+            exhibitionId = exhibitionId,
+            id = id,
+            variablesChanged = variablesChanged,
+            visitorsChanged = visitorsChanged
+        )
         publishMqttTransactionSuccess("visitorsessions/update", mqttMessage)
     }
 
@@ -94,9 +104,10 @@ class RealtimeNotificationController {
      * @param id page id
      */
     fun notifyExhibitionVisitorSessionDelete(exhibitionId: UUID, id: UUID) {
-        val mqttMessage = MqttExhibitionVisitorSessionDelete()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
+        val mqttMessage = MqttExhibitionVisitorSessionDelete(
+            exhibitionId = exhibitionId,
+            id = id
+        )
         publishMqttTransactionSuccess("visitorsessions/delete", mqttMessage)
     }
 
@@ -107,9 +118,10 @@ class RealtimeNotificationController {
      * @param id page id
      */
     fun notifyVisitorCreate(exhibitionId: UUID, id: UUID) {
-        val mqttMessage = MqttVisitorCreate()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
+        val mqttMessage = MqttVisitorCreate(
+            exhibitionId = exhibitionId,
+            id = id
+        )
         publishMqttTransactionSuccess("visitors/create", mqttMessage)
     }
 
@@ -120,9 +132,10 @@ class RealtimeNotificationController {
      * @param id page id
      */
     fun notifyVisitorUpdate(exhibitionId: UUID, id: UUID) {
-        val mqttMessage = MqttVisitorUpdate()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
+        val mqttMessage = MqttVisitorUpdate(
+            exhibitionId = exhibitionId,
+            id = id
+        )
         publishMqttTransactionSuccess("visitors/update", mqttMessage)
     }
 
@@ -133,12 +146,13 @@ class RealtimeNotificationController {
      * @param id page id
      */
     fun notifyVisitorDelete(exhibitionId: UUID, id: UUID) {
-        val mqttMessage = MqttVisitorDelete()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
+        val mqttMessage = MqttVisitorDelete(
+            exhibitionId = exhibitionId,
+            id = id
+        )
         publishMqttTransactionSuccess("visitors/delete", mqttMessage)
     }
-    
+
     /**
      * Notify subscribers about new device group creation
      *
@@ -146,9 +160,10 @@ class RealtimeNotificationController {
      * @param id device group id
      */
     fun notifyDeviceGroupCreate(exhibitionId: UUID, id: UUID) {
-        val mqttMessage = MqttDeviceGroupCreate()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
+        val mqttMessage = MqttDeviceGroupCreate(
+            exhibitionId = exhibitionId,
+            id = id
+        )
         publishMqttTransactionSuccess("devicegroups/create", mqttMessage)
     }
 
@@ -159,9 +174,10 @@ class RealtimeNotificationController {
      * @param id device group id
      */
     fun notifyDeviceGroupUpdate(exhibitionId: UUID, id: UUID) {
-        val mqttMessage = MqttDeviceGroupUpdate()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
+        val mqttMessage = MqttDeviceGroupUpdate(
+            exhibitionId = exhibitionId,
+            id = id
+        )
         publishMqttTransactionSuccess("devicegroups/update", mqttMessage)
     }
 
@@ -172,9 +188,10 @@ class RealtimeNotificationController {
      * @param id device group id
      */
     fun notifyDeviceGroupDelete(exhibitionId: UUID, id: UUID) {
-        val mqttMessage = MqttDeviceGroupDelete()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
+        val mqttMessage = MqttDeviceGroupDelete(
+            exhibitionId = exhibitionId,
+            id = id
+        )
         publishMqttTransactionSuccess("devicegroups/delete", mqttMessage)
     }
 
@@ -185,9 +202,10 @@ class RealtimeNotificationController {
      * @param id antenna id
      */
     fun notifyRfidAntennaCreate(exhibitionId: UUID, id: UUID) {
-        val mqttMessage = MqttRfidAntennaCreate()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
+        val mqttMessage = MqttRfidAntennaCreate(
+            exhibitionId = exhibitionId,
+            id = id
+        )
         publishMqttTransactionSuccess("rfidantennas/create", mqttMessage)
     }
 
@@ -199,10 +217,11 @@ class RealtimeNotificationController {
      * @param groupChanged whether antenna device group has changed
      */
     fun notifyRfidAntennaUpdate(exhibitionId: UUID, id: UUID, groupChanged: Boolean) {
-        val mqttMessage = MqttRfidAntennaUpdate()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
-        mqttMessage.groupChanged = groupChanged
+        val mqttMessage = MqttRfidAntennaUpdate(
+            exhibitionId = exhibitionId,
+            id = id,
+            groupChanged = groupChanged
+        )
         publishMqttTransactionSuccess("rfidantennas/update", mqttMessage)
     }
 
@@ -213,9 +232,10 @@ class RealtimeNotificationController {
      * @param id antenna id
      */
     fun notifyRfidAntennaDelete(exhibitionId: UUID, id: UUID) {
-        val mqttMessage = MqttRfidAntennaDelete()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
+        val mqttMessage = MqttRfidAntennaDelete(
+            exhibitionId = exhibitionId,
+            id = id
+        )
         publishMqttTransactionSuccess("rfidantennas/delete", mqttMessage)
     }
 
@@ -226,9 +246,10 @@ class RealtimeNotificationController {
      * @param id device id
      */
     fun notifyDeviceCreate(exhibitionId: UUID, id: UUID) {
-        val mqttMessage = MqttDeviceCreate()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
+        val mqttMessage = MqttDeviceCreate(
+            exhibitionId = exhibitionId,
+            id = id
+        )
         publishMqttTransactionSuccess("devices/create", mqttMessage)
     }
 
@@ -240,10 +261,11 @@ class RealtimeNotificationController {
      * @param groupChanged whether antenna device group has changed
      */
     fun notifyDeviceUpdate(exhibitionId: UUID, id: UUID, groupChanged: Boolean) {
-        val mqttMessage = MqttDeviceUpdate()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
-        mqttMessage.groupChanged = groupChanged
+        val mqttMessage = MqttDeviceUpdate(
+            exhibitionId = exhibitionId,
+            id = id,
+            groupChanged = groupChanged
+        )
         publishMqttTransactionSuccess("devices/update", mqttMessage)
     }
 
@@ -254,9 +276,10 @@ class RealtimeNotificationController {
      * @param id device id
      */
     fun notifyDeviceDelete(exhibitionId: UUID, id: UUID) {
-        val mqttMessage = MqttDeviceDelete()
-        mqttMessage.exhibitionId = exhibitionId
-        mqttMessage.id = id
+        val mqttMessage = MqttDeviceDelete(
+            exhibitionId = exhibitionId,
+            id = id
+        )
         publishMqttTransactionSuccess("devices/delete", mqttMessage)
     }
 
@@ -268,7 +291,13 @@ class RealtimeNotificationController {
      */
     private fun publishMqttTransactionSuccess(subtopic: String, message: Any) {
         val objectMapper = ObjectMapper()
-        mqttController.publish(MqttMessage(subtopic = subtopic, data = objectMapper.writeValueAsBytes(message), transactionPhase = TransactionPhase.AFTER_SUCCESS))
+        mqttController.publish(
+            MqttMessage(
+                subtopic = subtopic,
+                data = objectMapper.writeValueAsBytes(message),
+                transactionPhase = TransactionPhase.AFTER_SUCCESS
+            )
+        )
     }
 
 }

@@ -5,7 +5,7 @@ plugins {
     kotlin("plugin.allopen") version "1.6.10"
     id("io.quarkus")
     id("org.openapi.generator") version "6.2.1"
-    //id("org.jetbrains.kotlin.kapt") version "1.6.10"
+    id("org.jetbrains.kotlin.kapt") version "1.6.10"
 
 }
 
@@ -26,9 +26,11 @@ val paho_version: String by project
 val jts_core_version: String by project
 val hibernate_spatial_version: String by project
 val awaitility_version: String by project
+val liquibase_version: String by project
+val moshiVersion: String by project
 
 dependencies {
-    //kapt("org.hibernate:hibernate-jpamodelgen:5.4.11.Final")
+    kapt("org.hibernate:hibernate-jpamodelgen:5.4.11.Final")
 
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
     implementation("io.quarkus:quarkus-hibernate-validator")
@@ -45,6 +47,10 @@ dependencies {
     implementation("com.amazonaws:aws-java-sdk-s3")
     implementation("io.quarkus:quarkus-liquibase")
     implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:$paho_version")
+    implementation("org.liquibase:liquibase-cdi:$liquibase_version")
+    //implementation("javax.servlet:javax.servlet-api:4.0.1")
+    implementation("io.quarkus:quarkus-undertow")
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
 
     /**
      * Spatial dependencies
@@ -54,7 +60,8 @@ dependencies {
 
 
     testImplementation("io.quarkus:quarkus-junit5")
-
+    testImplementation("com.squareup.moshi:moshi-kotlin:$moshiVersion")
+    testImplementation("com.squareup.moshi:moshi-adapters:$moshiVersion")
     testImplementation("org.hamcrest:hamcrest:2.2")
     testImplementation("fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrs_functional_test_builder_version")
     testImplementation("org.awaitility:awaitility:$awaitility_version")

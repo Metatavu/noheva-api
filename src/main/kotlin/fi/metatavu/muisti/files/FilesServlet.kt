@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-
 /**
  * Servlet that handles file upload requests
  *
@@ -25,10 +24,10 @@ import javax.servlet.http.HttpServletResponse
 class FilesServlet : HttpServlet() {
 
     @Inject
-    private lateinit var logger: Logger
+    lateinit var logger: Logger
 
     @Inject
-    private lateinit var fileController: FileController
+    lateinit var fileController: FileController
 
     @Throws(ServletException::class, IOException::class)
     override fun doGet(req: HttpServletRequest, resp: HttpServletResponse) {

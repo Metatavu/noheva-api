@@ -19,7 +19,7 @@ import javax.persistence.TypedQuery
 abstract class AbstractDAO<T>() {
 
     @Inject
-    private lateinit var logger: Logger
+    lateinit var logger: Logger
 
     @PersistenceContext
     private lateinit var entityManager: EntityManager

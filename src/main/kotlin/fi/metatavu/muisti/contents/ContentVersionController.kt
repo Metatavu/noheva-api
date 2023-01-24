@@ -18,13 +18,13 @@ import javax.inject.Inject
 class ContentVersionController {
 
     @Inject
-    private lateinit var contentVersionDAO: ContentVersionDAO
+    lateinit var contentVersionDAO: ContentVersionDAO
 
     @Inject
-    private lateinit var contentVersionRoomDAO: ContentVersionRoomDAO
+    lateinit var contentVersionRoomDAO: ContentVersionRoomDAO
 
     @Inject
-    private lateinit var roomController: ExhibitionRoomController
+    lateinit var roomController: ExhibitionRoomController
 
     /**
      * Creates new content version

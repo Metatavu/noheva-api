@@ -17,7 +17,7 @@ import javax.inject.Inject
 class ImageScaler {
 
     @Inject
-    private lateinit var logger: Logger
+    lateinit var logger: Logger
 
     /**
      * Scales image to cover size x size. Accepts imageObserver

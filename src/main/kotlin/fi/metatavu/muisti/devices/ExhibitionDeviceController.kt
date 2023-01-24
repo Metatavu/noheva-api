@@ -18,7 +18,7 @@ import javax.inject.Inject
 class ExhibitionDeviceController {
 
     @Inject
-    private lateinit var exhibitionDeviceDAO: ExhibitionDeviceDAO
+    lateinit var exhibitionDeviceDAO: ExhibitionDeviceDAO
 
     /**
      * Creates new exhibition device 

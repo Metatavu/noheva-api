@@ -31,7 +31,7 @@ import javax.annotation.PostConstruct
 class KeycloakController {
 
     @Inject
-    private lateinit var logger: Logger
+    lateinit var logger: Logger
 
     @Resource(lookup = "java:jboss/infinispan/cache/muisti/user")
     private lateinit var userCache: Cache<UUID, UserRepresentation>

@@ -7,12 +7,11 @@ import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
-import javax.ejb.AccessTimeout
-import javax.ejb.Singleton
 import javax.enterprise.context.ApplicationScoped
 import javax.enterprise.inject.Any
 import javax.enterprise.inject.Instance
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Controller for file functions
@@ -21,15 +20,15 @@ import javax.inject.Inject
  */
 @ApplicationScoped
 @Singleton
-@AccessTimeout(value = 8, unit = TimeUnit.HOURS)
+//@AccessTimeout(value = 8, unit = TimeUnit.HOURS) todo access timeout?
 class FileController {
 
     @Inject
-    private lateinit var logger: Logger
+    lateinit var logger: Logger
 
     @Inject
     @Any
-    private lateinit var fileStorageProviders: Instance<FileStorageProvider>
+    lateinit var fileStorageProviders: Instance<FileStorageProvider>
 
     private lateinit var fileStorageProvider: FileStorageProvider
 

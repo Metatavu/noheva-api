@@ -17,10 +17,10 @@ import javax.inject.Inject
 class RfidAntennaController {
 
   @Inject
-  private lateinit var rfidAntennaDAO: RfidAntennaDAO
+  lateinit var rfidAntennaDAO: RfidAntennaDAO
 
   @Inject
-  private lateinit var roomController: ExhibitionRoomController
+  lateinit var roomController: ExhibitionRoomController
 
   /**
    * Creates new RFID antenna

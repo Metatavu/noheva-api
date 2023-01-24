@@ -21,7 +21,7 @@ import javax.inject.Inject
 class SubLayoutController {
 
     @Inject
-    private lateinit var subLayoutDAO: SubLayoutDAO
+    lateinit var subLayoutDAO: SubLayoutDAO
 
     /**
      * Creates new sub layout

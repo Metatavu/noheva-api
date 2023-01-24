@@ -20,7 +20,7 @@ class VisitorTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model
         return Visitor(
             id = entity.id,
             exhibitionId = entity.exhibition?.id,
-            email = userRepresentation?.email,
+            email = userRepresentation?.email ?: "",
             tagId = entity.tagId!!,
             userId = entity.userId,
             firstName = userRepresentation?.firstName,

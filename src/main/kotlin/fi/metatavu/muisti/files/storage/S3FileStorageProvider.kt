@@ -34,13 +34,13 @@ import javax.inject.Inject
 class S3FileStorageProvider : FileStorageProvider {
 
     @Inject
-    private lateinit var imageReader: ImageReader
+    lateinit var imageReader: ImageReader
 
     @Inject
-    private lateinit var imageWriter: ImageWriter
+    lateinit var imageWriter: ImageWriter
 
     @Inject
-    private lateinit var imageScaler: ImageScaler
+    lateinit var imageScaler: ImageScaler
 
     private var region: String? = null
     private var bucket: String? = null
@@ -79,7 +79,13 @@ class S3FileStorageProvider : FileStorageProvider {
         FileOutputStream(tempFile).use { fileOutputStream -> IOUtils.copy(data, fileOutputStream) }
         try {
             val thumbnailKey = uploadThumbnail(fileKey = fileKey, contentType = meta.contentType, tempFile = tempFile)
-            val objectMeta = uploadObject(key = fileKey, thumbnailKey = thumbnailKey, contentType = meta.contentType, filename = meta.fileName, tempFile = tempFile)
+            val objectMeta = uploadObject(
+                key = fileKey,
+                thumbnailKey = thumbnailKey,
+                contentType = meta.contentType,
+                filename = meta.fileName,
+                tempFile = tempFile
+            )
 
 
             return translateObject(fileKey = fileKey, objectMeta = objectMeta)
@@ -119,7 +125,7 @@ class S3FileStorageProvider : FileStorageProvider {
 
             val result = awsResult.commonPrefixes
                 .filter { !it.startsWith("__") }
-                .map (this::translateFolder)
+                .map(this::translateFolder)
 
             return result.plus(awsResult.objectSummaries
                 .filter { !it.key.startsWith("__") }
@@ -136,7 +142,7 @@ class S3FileStorageProvider : FileStorageProvider {
 
     override fun update(storedFile: StoredFile): StoredFile {
         try {
-            val key = getKey(storedFile.id)
+            val key = getKey(storedFile.id!!)
             val s3Object = client.getObject(bucket, key)
 
             val objectMeta = s3Object.objectMetadata.clone()
@@ -198,7 +204,11 @@ class S3FileStorageProvider : FileStorageProvider {
             try {
                 objectMeta.contentLength = thumbnailData.size.toLong()
                 thumbnailData.inputStream().use { thumbnailInputStream ->
-                    client.putObject(PutObjectRequest(bucket, key, thumbnailInputStream, objectMeta).withCannedAcl(CannedAccessControlList.PublicRead))
+                    client.putObject(
+                        PutObjectRequest(bucket, key, thumbnailInputStream, objectMeta).withCannedAcl(
+                            CannedAccessControlList.PublicRead
+                        )
+                    )
                 }
 
                 return key
@@ -220,7 +230,13 @@ class S3FileStorageProvider : FileStorageProvider {
      * @param tempFile object data in temp file
      * @return uploaded object
      */
-    private fun uploadObject(key: String, thumbnailKey: String?, contentType: String, filename: String, tempFile: File): ObjectMetadata {
+    private fun uploadObject(
+        key: String,
+        thumbnailKey: String?,
+        contentType: String,
+        filename: String,
+        tempFile: File
+    ): ObjectMetadata {
         val objectMeta = ObjectMetadata()
         objectMeta.contentType = contentType
         objectMeta.addUserMetadata(X_FILE_NAME, filename)
@@ -234,7 +250,11 @@ class S3FileStorageProvider : FileStorageProvider {
                 objectMeta.contentLength = tempFile.length()
 
                 FileInputStream(tempFile).use { fileInputStream ->
-                    client.putObject(PutObjectRequest(bucket, key, fileInputStream, objectMeta).withCannedAcl(CannedAccessControlList.PublicRead))
+                    client.putObject(
+                        PutObjectRequest(bucket, key, fileInputStream, objectMeta).withCannedAcl(
+                            CannedAccessControlList.PublicRead
+                        )
+                    )
                 }
 
                 return objectMeta
@@ -273,7 +293,7 @@ class S3FileStorageProvider : FileStorageProvider {
 
         val scaledImage = imageScaler.scaleToCover(originalImage = image, size = THUMBNAIL_SIZE, downScaleOnly = false)
         val croppedImage = scaledImage?.getSubimage(0, 0, THUMBNAIL_SIZE, THUMBNAIL_SIZE)
-        croppedImage?: return null
+        croppedImage ?: return null
 
         return imageWriter.writeBufferedImage(croppedImage, "jpg")
     }
@@ -306,20 +326,19 @@ class S3FileStorageProvider : FileStorageProvider {
      * @return stored file
      */
     private fun translateObject(fileKey: String, objectMeta: ObjectMetadata): StoredFile {
-        val result = StoredFile()
+
         val fileName = objectMeta.userMetadata[X_FILE_NAME] ?: fileKey
         val thumbnailKey = objectMeta.userMetadata[X_THUMBNAIL_KEY]
 
-        result.id = getStoredFileId(fileKey)
-        result.contentType = objectMeta.contentType
-        result.fileName = fileName
-        result.uri = "$prefix/$fileKey"
+        val thumbnailUri = if (thumbnailKey != null) "$prefix/$thumbnailKey" else null
 
-        if (thumbnailKey != null) {
-            result.thumbnailUri = "$prefix/$thumbnailKey"
-        }
-
-        return result
+        return StoredFile(
+            id = getStoredFileId(fileKey),
+            contentType = objectMeta.contentType,
+            fileName = fileName,
+            uri = "$prefix/$fileKey",
+            thumbnailUri = thumbnailUri
+        )
     }
 
     /**
@@ -329,12 +348,12 @@ class S3FileStorageProvider : FileStorageProvider {
      * @return stored file
      */
     private fun translateFolder(key: String): StoredFile {
-        val result = StoredFile()
-        result.id = getStoredFileId(key)
-        result.contentType = "inode/directory"
-        result.fileName = StringUtils.stripEnd(StringUtils.stripStart(key, "/"), "/")
-        result.uri = "$prefix/$key"
-        return result
+        return StoredFile(
+            id = getStoredFileId(key),
+            contentType = "inode/directory",
+            fileName = StringUtils.stripEnd(StringUtils.stripStart(key, "/"), "/"),
+            uri = "$prefix/$key"
+        )
     }
 
     companion object {
@@ -342,6 +361,6 @@ class S3FileStorageProvider : FileStorageProvider {
         const val X_THUMBNAIL_KEY = "x-thumbnail-key"
         const val THUMBNAIL_SIZE = 512
     }
-    
-    
+
+
 }

@@ -17,10 +17,10 @@ import javax.inject.Inject
 class MqttController {
 
     @Inject
-    private lateinit var settingsController: SettingsController
+    lateinit var settingsController: SettingsController
 
     @Inject
-    private lateinit var messageEvent: Event<MqttMessage>
+    lateinit var messageEvent: Event<MqttMessage>
 
     @PostConstruct
     @Suppress("unused")

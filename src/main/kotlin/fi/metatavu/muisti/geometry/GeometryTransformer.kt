@@ -15,17 +15,17 @@ import fi.metatavu.muisti.api.spec.model.Polygon
  */
 fun getPolygon(polygon: Polygon?): com.vividsolutions.jts.geom.Polygon? {
 
-  polygon ?: return null
+    polygon ?: return null
 
-  val geometryFactory = GeometryFactory()
-  val coordinates = mutableListOf<Coordinate>()
-  polygon.coordinates.forEach { shape ->
-    shape.forEach {coordinate ->
-      coordinates.add(Coordinate(coordinate[0], coordinate[1]))
+    val geometryFactory = GeometryFactory()
+    val coordinates = mutableListOf<Coordinate>()
+    polygon.coordinates?.forEach { shape ->
+        shape.forEach { coordinate ->
+            coordinates.add(Coordinate(coordinate[0], coordinate[1]))
+        }
     }
-  }
 
-  return geometryFactory.createPolygon(coordinates.toTypedArray())
+    return geometryFactory.createPolygon(coordinates.toTypedArray())
 }
 
 /**
@@ -35,17 +35,18 @@ fun getPolygon(polygon: Polygon?): com.vividsolutions.jts.geom.Polygon? {
  * @return null or GeoJSON with polygon data
  */
 fun getGeoShape(polygon: com.vividsolutions.jts.geom.Polygon?): Polygon? {
-  polygon ?: return null
+    polygon ?: return null
 
-  val result = Polygon()
-  result.type = polygon.geometryType
-  result.coordinates = mutableListOf(mutableListOf())
-  polygon.coordinates.forEachIndexed { index, coordinate ->
-    result.coordinates[0].add(mutableListOf<Double>())
-    result.coordinates[0][index].add(coordinate.x)
-    result.coordinates[0][index].add(coordinate.y)
-  }
-  return result
+    val result = Polygon(
+        type = polygon.geometryType,
+        coordinates = mutableListOf(mutableListOf())
+    )
+    polygon.coordinates.forEachIndexed { index, coordinate ->
+        result.coordinates!![0].toMutableList().addAll(mutableListOf())
+        result.coordinates[0][index].toMutableList().add(coordinate.x)
+        result.coordinates[0][index].toMutableList().add(coordinate.y)
+    }
+    return result
 }
 
 /**
@@ -56,10 +57,10 @@ fun getGeoShape(polygon: com.vividsolutions.jts.geom.Polygon?): Polygon? {
  */
 fun getGeometryPoint(coordinates: Coordinates?): Point? {
 
-  coordinates ?: return null
+    coordinates ?: return null
 
-  val geometryFactory = GeometryFactory()
-  return geometryFactory.createPoint(Coordinate(coordinates.latitude, coordinates.longitude))
+    val geometryFactory = GeometryFactory()
+    return geometryFactory.createPoint(Coordinate(coordinates.latitude, coordinates.longitude))
 }
 
 /**
@@ -71,17 +72,18 @@ fun getGeometryPoint(coordinates: Coordinates?): Point? {
  */
 fun getBounds(neBoundPoint: Point?, swBoundPoint: Point?): Bounds? {
 
-  neBoundPoint ?: return null
-  swBoundPoint ?: return null
+    neBoundPoint ?: return null
+    swBoundPoint ?: return null
 
-  val result = Bounds()
-  result.southWestCorner = Coordinates()
-  result.southWestCorner.latitude = swBoundPoint.x
-  result.southWestCorner.longitude = swBoundPoint.y
 
-  result.northEastCorner = Coordinates()
-  result.northEastCorner.latitude = neBoundPoint.x
-  result.northEastCorner.longitude = neBoundPoint.y
-
-  return result
+    return Bounds(
+        southWestCorner = Coordinates(
+            latitude = swBoundPoint.x,
+            longitude = swBoundPoint.y
+        ),
+        northEastCorner = Coordinates(
+            latitude = neBoundPoint.x,
+            longitude = neBoundPoint.y
+        )
+    )
 }
