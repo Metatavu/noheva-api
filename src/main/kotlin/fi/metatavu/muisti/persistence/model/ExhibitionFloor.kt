@@ -29,10 +29,10 @@ class ExhibitionFloor {
     @URL
     var floorPlanUrl: String? = null
 
-    @Column
+    @Column(columnDefinition = "geometry(Point,25832)")
     var neBoundPoint: Point? = null
 
-    @Column
+    @Column(columnDefinition = "geometry(Point,25832)")
     var swBoundPoint: Point? = null
 
     @Column(nullable = false)

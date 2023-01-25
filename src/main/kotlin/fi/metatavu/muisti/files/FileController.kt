@@ -4,6 +4,7 @@ import fi.metatavu.muisti.api.spec.model.StoredFile
 import fi.metatavu.muisti.files.storage.FileStorageException
 import fi.metatavu.muisti.files.storage.FileStorageProvider
 import org.apache.commons.lang3.StringUtils
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.slf4j.Logger
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
@@ -31,15 +32,17 @@ class FileController {
 
     private lateinit var fileStorageProvider: FileStorageProvider
 
+    @ConfigProperty(name = "file.storage.provider")
+    lateinit var fileStorageProviderId: String
+
     /**
      * Bean post construct method
      */
     @PostConstruct
     fun init() {
         try {
-            val fileStorageProviderId = System.getenv("FILE_STORAGE_PROVIDER")
             if (StringUtils.isEmpty(fileStorageProviderId)) {
-                throw FileStorageException("FILE_STORAGE_PROVIDER is not defined")
+                throw FileStorageException("file.storage.provider is not defined")
             }
 
             fileStorageProvider = fileStorageProviders.stream()

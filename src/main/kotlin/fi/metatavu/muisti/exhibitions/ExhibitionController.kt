@@ -47,6 +47,7 @@ class ExhibitionController {
      * @return created exhibition
      */
     fun createExhibition(name: String, creatorId: UUID): Exhibition {
+        println("creating exhibition $name \n $creatorId ")
         return exhibitionDAO.create(UUID.randomUUID(), name, creatorId, creatorId)
     }
 

@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.api.test.functional
 
+import fi.metatavu.muisti.api.test.functional.resources.AwsResource
 import fi.metatavu.muisti.api.test.functional.resources.KeycloakResource
 import fi.metatavu.muisti.api.test.functional.resources.MqttResource
 import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
@@ -20,7 +21,8 @@ import java.util.*
 @QuarkusTestResource.List(
     QuarkusTestResource(MysqlResource::class),
     QuarkusTestResource(KeycloakResource::class),
-    QuarkusTestResource(MqttResource::class)
+    QuarkusTestResource(MqttResource::class),
+    QuarkusTestResource(AwsResource::class)
 )
 class FileTestsIT : AbstractFunctionalTest() {
 

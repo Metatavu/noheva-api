@@ -1,8 +1,10 @@
 package fi.metatavu.muisti.api.test.functional.resources
 
+import fi.metatavu.muisti.api.test.functional.mqtt.TestMqttClient
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager
-import org.eclipse.microprofile.config.inject.ConfigProperty
-import org.jboss.logging.Logger
+import org.slf4j.event.Level
+import org.testcontainers.containers.BindMode
+import org.testcontainers.containers.GenericContainer
 import org.testcontainers.hivemq.HiveMQContainer
 import org.testcontainers.utility.DockerImageName
 
@@ -24,6 +26,6 @@ class MqttResource : QuarkusTestResourceLifecycleManager {
     }
 
     companion object {
-        var hivemqCe: HiveMQContainer = HiveMQContainer(DockerImageName.parse("hivemq/hivemq-ce").withTag("2021.3"))
+        var hivemqCe: HiveMQContainer = HiveMQContainer(DockerImageName.parse("hivemq/hivemq-ce")).withLogLevel(Level.DEBUG)
     }
 }

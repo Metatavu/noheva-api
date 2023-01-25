@@ -64,11 +64,12 @@ dependencies {
      * Spatial dependencies
      */
     implementation("com.vividsolutions:jts-core:$jts_core_version")
-    //implementation("org.hibernate:hibernate-spatial:$hibernate_spatial_version")
+    implementation("org.hibernate:hibernate-spatial:$hibernate_spatial_version")
 
     testImplementation("org.testcontainers:testcontainers:1.17.6")
     testImplementation("org.testcontainers:hivemq")
     testImplementation("org.testcontainers:mysql")
+    testImplementation("org.testcontainers:localstack")
     testImplementation("com.github.dasniko:testcontainers-keycloak:2.4.0")
     testImplementation("com.squareup.okhttp3:okhttp:4.4.2")
     testImplementation("io.quarkus:quarkus-junit5")

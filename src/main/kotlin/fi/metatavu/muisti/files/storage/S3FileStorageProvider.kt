@@ -1,6 +1,9 @@
 package fi.metatavu.muisti.files.storage
 
 import com.amazonaws.SdkClientException
+import com.amazonaws.auth.AWSStaticCredentialsProvider
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.services.s3.model.*
@@ -12,6 +15,7 @@ import fi.metatavu.muisti.media.ImageScaler
 import fi.metatavu.muisti.media.ImageWriter
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -43,30 +47,30 @@ class S3FileStorageProvider : FileStorageProvider {
     @Inject
     lateinit var imageScaler: ImageScaler
 
-    private var region: String? = null
-    private var bucket: String? = null
-    private var prefix: String? = null
+    @ConfigProperty(name = "s3.file.storage.region")
+    var region: String? = null
+
+    @ConfigProperty(name = "s3.file.storage.endpoint")
+    var endpoint: String? = null
+
+    @ConfigProperty(name = "s3.file.storage.bucket")
+    var bucket: String? = null
+
+    @ConfigProperty(name = "s3.file.storage.prefix")
+    var prefix: String? = null
+
+    @ConfigProperty(name = "s3.file.storage.keyid")
+    var keyId: String? = null
+
+    @ConfigProperty(name = "s3.file.storage.secret")
+    var secret: String? = null
 
     @Throws(FileStorageException::class)
     override fun init() {
-        region = System.getenv("S3_FILE_STORAGE_REGION")
-        bucket = System.getenv("S3_FILE_STORAGE_BUCKET")
-        prefix = System.getenv("S3_FILE_STORAGE_PREFIX")
-
-        if (StringUtils.isBlank(region)) {
-            throw FileStorageException("S3_FILE_STORAGE_REGION is not set")
-        }
-        if (StringUtils.isBlank(bucket)) {
-            throw FileStorageException("S3_FILE_STORAGE_BUCKET is not set")
-        }
-        if (StringUtils.isBlank(prefix)) {
-            throw FileStorageException("S3_FILE_STORAGE_PREFIX is not set")
-        }
         val client: AmazonS3 = client
         if (!client.doesBucketExistV2(bucket)) {
             throw FileStorageException(String.format("bucket '%s' does not exist", bucket))
         }
-        println("connected to client ${client.region} $bucket")
     }
 
     @Throws(FileStorageException::class)
@@ -158,6 +162,7 @@ class S3FileStorageProvider : FileStorageProvider {
 
             return translateObject(key, objectMeta)
         } catch (e: Exception) {
+            println(e.message)
             throw FileStorageException(e)
         }
     }
@@ -185,7 +190,20 @@ class S3FileStorageProvider : FileStorageProvider {
      *
      * @return initialized S3 client
      */
-    private val client: AmazonS3 get() = AmazonS3ClientBuilder.standard().withRegion(region).build()
+    private val client: AmazonS3 get() = AmazonS3ClientBuilder
+        .standard()
+        .withEndpointConfiguration(
+            AwsClientBuilder.EndpointConfiguration(
+                endpoint,
+                region
+            )
+        )
+        .withCredentials(
+            AWSStaticCredentialsProvider(
+                BasicAWSCredentials(keyId, secret)
+            )
+        )
+        .build()
 
     /**
      * Uploads a thumbnail into bucket

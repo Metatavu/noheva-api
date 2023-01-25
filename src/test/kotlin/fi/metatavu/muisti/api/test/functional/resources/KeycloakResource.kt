@@ -17,8 +17,11 @@ class KeycloakResource : QuarkusTestResourceLifecycleManager {
         config["muisti.keycloak.admin.host"] = keycloak.authServerUrl
         config["muisti.keycloak.admin.realm"] = realm
 
-        config["muisti.keycloak.admin.user"] = "admin"
-        config["muisti.keycloak.admin.password"] = "test"
+        config["muisti.keycloak.admin.clientId"] = "admin"
+        config["muisti.keycloak.admin.secret"] = "15114155-3693-4b80-85c5-f39cb4d02e5f"
+
+        config["muisti.keycloak.admin.user"] = "api"
+        config["muisti.keycloak.admin.password"] = "d0abd401-7781-46f0-8146-643f5f946256"
         return config
     }
 
@@ -27,11 +30,7 @@ class KeycloakResource : QuarkusTestResourceLifecycleManager {
     }
 
     companion object {
-        const val serverAdminUser = "admin"
-        const val serverAdminPass = "admin"
         val keycloak: KeycloakContainer = KeycloakContainer()
-            .withAdminUsername(serverAdminUser)
-            .withAdminPassword(serverAdminPass)
             .withRealmImportFile("kc.json")
     }
 }

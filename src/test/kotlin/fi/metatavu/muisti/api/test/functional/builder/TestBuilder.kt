@@ -68,6 +68,7 @@ class TestBuilder(private val config: Map<String, String>) : AbstractAccessToken
             //todo move getting the env vars to here?
         }
 
+        println("test mqtt cluient $mqtt")
         return mqtt!!
     }
 

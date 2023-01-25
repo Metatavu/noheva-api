@@ -17,7 +17,7 @@ import java.util.*
 
 /**
  * Test class for testing visitor sessions API
- *
+ * todo this fails
  * @author Antti Leppä
  */
 @QuarkusTest
@@ -261,6 +261,33 @@ class VisitorSessionTestsIT : AbstractFunctionalTest() {
         }
     }
 
+    /*
+    Firing event visitorsessions/create
+publish message
+Jan 25, 2023 4:45:54 PM io.quarkus.arc.impl.EventImpl$DeferredEventNotification run
+ERROR: Failure occurred while notifying a transational Observer [method=fi.metatavu.muisti.realtime.mqtt.MqttController#onMessageEvent(fi.metatavu.muisti.realtime.mqtt.MqttMessage)] for event of type fi.metatavu.muisti.realtime.mqtt.MqttMessage
+- please enable debug logging to see the full stack trace
+Firing event visitorsessions/delete
+publish message
+Jan 25, 2023 4:50:54 PM io.quarkus.arc.impl.EventImpl$DeferredEventNotification run
+ERROR: Failure occurred while notifying a transational Observer [method=fi.metatavu.muisti.realtime.mqtt.MqttController#onMessageEvent(fi.metatavu.muisti.realtime.mqtt.MqttMessage)] for event of type fi.metatavu.muisti.realtime.mqtt.MqttMessage
+- please enable debug logging to see the full stack trace
+
+Condition with lambda expression in fi.metatavu.muisti.api.test.functional.VisitorSessionTestsIT was not fulfilled within 5 minutes.
+org.awaitility.core.ConditionTimeoutException: Condition with lambda expression in fi.metatavu.muisti.api.test.functional.VisitorSessionTestsIT was not fulfilled within 5 minutes.
+	at org.awaitility.core.ConditionAwaiter.await(ConditionAwaiter.java:167)
+	at org.awaitility.core.CallableCondition.await(CallableCondition.java:78)
+	at org.awaitility.core.CallableCondition.await(CallableCondition.java:26)
+	at org.awaitility.core.ConditionFactory.until(ConditionFactory.java:985)
+	at org.awaitility.core.ConditionFactory.until(ConditionFactory.java:954)
+	at fi.metatavu.muisti.api.test.functional.VisitorSessionTestsIT.waitForVisitorSessionNotFound(VisitorSessionTestsIT.kt:506)
+	at fi.metatavu.muisti.api.test.functional.VisitorSessionTestsIT.testListVisitorSessionTimeout(VisitorSessionTestsIT.kt:272)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+     */
+    //todo this fails
     @Test
     fun testListVisitorSessionTimeout() {
         createTestBuilder().use {

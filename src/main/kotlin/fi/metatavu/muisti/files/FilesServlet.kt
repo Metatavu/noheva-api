@@ -2,6 +2,7 @@ package fi.metatavu.muisti.files
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.slf4j.Logger
 import java.io.IOException
 import javax.enterprise.context.RequestScoped
@@ -53,9 +54,7 @@ class FilesServlet : HttpServlet() {
                 resp.contentType = "application/json"
                 val servletOutputStream = resp.outputStream
                 try {
-                    val objectMapper = ObjectMapper()
-                    objectMapper.registerModule(KotlinModule())
-                    objectMapper.writeValue(servletOutputStream, storedFile)
+                    jacksonObjectMapper().writeValue(servletOutputStream, storedFile)
                 } finally {
                     servletOutputStream.flush()
                 }

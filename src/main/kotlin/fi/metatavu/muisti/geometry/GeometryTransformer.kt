@@ -37,7 +37,7 @@ fun getPolygon(polygon: Polygon?): com.vividsolutions.jts.geom.Polygon? {
 fun getGeoShape(polygon: com.vividsolutions.jts.geom.Polygon?): Polygon? {
     polygon ?: return null
 
-    val coordinates: MutableList<MutableList<MutableList<Double>>> = mutableListOf(mutableListOf())
+    val coordinates: MutableList<MutableList<MutableList<Double>>> = mutableListOf(mutableListOf(mutableListOf()))
     polygon.coordinates?.forEachIndexed { index, coordinate ->
         coordinates[0].add(mutableListOf())
         coordinates[0][index].add(coordinate.x)

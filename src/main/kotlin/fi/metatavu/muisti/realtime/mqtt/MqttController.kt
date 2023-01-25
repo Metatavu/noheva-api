@@ -38,6 +38,7 @@ class MqttController {
     @Suppress("unused")
     fun postConstruct() {
         MqttConnection.connect(MqttSettings(
+            publisherId = UUID.randomUUID().toString(),
             serverUrl = serverUrl,
             topic = mqttTopic,
             username = if (username.isPresent) username.get() else null,
@@ -51,6 +52,7 @@ class MqttController {
      * @param message message
      */
     fun publish(message: MqttMessage) {
+        println("Firing event ${message.subtopic}")
         messageEvent.fire(message)
     }
 
@@ -62,6 +64,7 @@ class MqttController {
     @Suppress("unused")
     fun onMessageEvent(@Observes(during = TransactionPhase.AFTER_SUCCESS) event: MqttMessage) {
         if (event.transactionPhase == TransactionPhase.AFTER_SUCCESS) {
+
             MqttConnection.publish(event)
         }
     }

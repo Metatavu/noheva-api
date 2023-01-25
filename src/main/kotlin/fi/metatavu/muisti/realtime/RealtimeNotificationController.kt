@@ -1,6 +1,6 @@
 package fi.metatavu.muisti.realtime
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.muisti.api.spec.model.*
 import fi.metatavu.muisti.realtime.mqtt.MqttController
 import fi.metatavu.muisti.realtime.mqtt.MqttMessage
@@ -290,11 +290,10 @@ class RealtimeNotificationController {
      * @param message message
      */
     private fun publishMqttTransactionSuccess(subtopic: String, message: Any) {
-        val objectMapper = ObjectMapper()
         mqttController.publish(
             MqttMessage(
                 subtopic = subtopic,
-                data = objectMapper.writeValueAsBytes(message),
+                data = jacksonObjectMapper().writeValueAsBytes(message),
                 transactionPhase = TransactionPhase.AFTER_SUCCESS
             )
         )

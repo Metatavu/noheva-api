@@ -10,8 +10,9 @@ package fi.metatavu.muisti.settings
  * @author Antti Leppä
  */
 data class MqttSettings (
+    var publisherId: String,
     var serverUrl: String,
     var topic: String,
     var username: String?,
-    var password: String?
+    var password: String?,
 )

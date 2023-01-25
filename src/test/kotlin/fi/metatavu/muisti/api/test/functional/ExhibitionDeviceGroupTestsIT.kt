@@ -7,6 +7,7 @@ import fi.metatavu.muisti.api.test.functional.resources.MqttResource
 import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
+import org.eclipse.paho.client.mqttv3.MqttClient
 import org.junit.Assert.*
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -25,9 +26,9 @@ import java.util.*
 class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
     @Test
-    fun testCreateExhibitionDeviceGroup() {
+    fun testCreateExhibitionDeviceGroup() { //todo fails with await
         createTestBuilder().use {
-            val mqttSubscription = it.mqtt().subscribe(MqttDeviceGroupCreate::class.java, "devicegroups/create") //todo mqtt?
+            val mqttSubscription = it.mqtt().subscribe(MqttDeviceGroupCreate::class.java, "devicegroups/create")
 
             val exhibition = it.admin().exhibitions.create()
             val exhibitionId = exhibition.id!!

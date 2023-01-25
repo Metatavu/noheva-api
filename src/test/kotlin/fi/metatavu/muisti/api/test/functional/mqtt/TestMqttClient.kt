@@ -7,11 +7,12 @@ import org.eclipse.microprofile.config.ConfigProvider
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttMessage
+import java.util.UUID
 
 /**
  * MQTT client for functional tests
  */
-class TestMqttClient(): MqttCallback, AutoCloseable {
+class TestMqttClient : MqttCallback, AutoCloseable {
 
     private val subscriptions = mutableMapOf<String, MutableList<TestMqttSubscription<*>>>()
 
@@ -20,6 +21,7 @@ class TestMqttClient(): MqttCallback, AutoCloseable {
      */
     init {
         MqttConnection.connect(MqttSettings(
+            publisherId = UUID.randomUUID().toString(),
             serverUrl = ConfigProvider.getConfig().getValue("mqtt.server.url", String::class.java),
             topic = ConfigProvider.getConfig().getValue("mqtt.topic", String::class.java),
             username = null,
@@ -47,10 +49,12 @@ class TestMqttClient(): MqttCallback, AutoCloseable {
         val subscription = TestMqttSubscription(targetClass)
         topicSubscriptions.add(subscription)
 
+        println("test cluient subscribed to $topic")
         return subscription
     }
 
     override fun messageArrived(topic: String?, message: MqttMessage?) {
+        println("Message callback on arrival $topic ${message?.payload}")
         message ?: return
 
         val messageBytes = message.payload
@@ -58,9 +62,11 @@ class TestMqttClient(): MqttCallback, AutoCloseable {
     }
 
     override fun connectionLost(cause: Throwable?) {
+        println("Connection lost")
     }
 
     override fun deliveryComplete(token: IMqttDeliveryToken?) {
+        println("deliveryComplete")
     }
 
     override fun close() {

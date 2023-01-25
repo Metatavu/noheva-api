@@ -5,6 +5,7 @@ import org.eclipse.paho.client.mqttv3.IMqttClient
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttClient
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import java.util.*
 
 /**
@@ -16,7 +17,7 @@ class MqttConnection {
 
     companion object {
 
-        private val PUBLISHER_ID = UUID.randomUUID().toString()
+        //private val PUBLISHER_ID = UUID.randomUUID().toString()
         private var CLIENT: IMqttClient? = null
         private var SETTINGS: MqttSettings? = null
 
@@ -30,8 +31,8 @@ class MqttConnection {
             try {
                 synchronized (this) {
                     val serverURI = "tcp://${settings.serverUrl}"
-                    val client = MqttClient(serverURI, PUBLISHER_ID)
-                    println("sever url $serverURI")
+                    //println("connecting client $PUBLISHER_ID")
+                    val client = MqttClient(serverURI, settings.publisherId, MemoryPersistence())   //todo replace with file
                     val options = MqttConnectOptions()
                     val username = settings.username
                     val password = settings.password
@@ -52,6 +53,7 @@ class MqttConnection {
                     client.subscribe(String.format("%s/#", settings.topic))
                     CLIENT = client
                     SETTINGS = settings
+                    println("connected ${(CLIENT as MqttClient).isConnected}")
                 }
             } catch (e: Exception) {
                 throw MqttException(e)
@@ -86,6 +88,8 @@ class MqttConnection {
          */
         @Throws(MqttException::class)
         fun publish(message: MqttMessage) {
+            println("publish message")
+            println("${(CLIENT as MqttClient).isConnected}")
             publish(message.subtopic, message.data, 1, false)
         }
 
@@ -103,6 +107,8 @@ class MqttConnection {
 
                 client.subscribe("${settings.topic}/#", 1)
                 client.setCallback(callback)
+                println("set callback for the test client for ${settings.topic}/#")
+                println("${(CLIENT as MqttClient).isConnected}")
             } catch (e: Exception) {
                 throw MqttException(e)
             }
@@ -129,6 +135,8 @@ class MqttConnection {
 
                 val topic = "${settings.topic}/$subtopic"
                 client.publish(topic, payload, qos, retained)
+                println("Published message to the topic $topic")
+                println("${(CLIENT as MqttClient).isConnected}")
             } catch (e: Exception) {
                 throw MqttException(e)
             }

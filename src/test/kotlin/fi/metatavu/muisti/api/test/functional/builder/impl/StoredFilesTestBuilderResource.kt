@@ -1,7 +1,11 @@
 package fi.metatavu.muisti.api.test.functional.builder.impl
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.muisti.api.client.apis.StoredFilesApi
 import fi.metatavu.muisti.api.client.infrastructure.ApiClient
@@ -53,9 +57,11 @@ class StoredFilesTestBuilderResource(
             val response: Response = OkHttpClient().newCall(request).execute()
 
             Assert.assertTrue(response.isSuccessful)
-            val objMapper = ObjectMapper()
-
-            val result = objMapper.readValue(response.body()?.source().toString(), object: TypeReference<StoredFile>() {})
+            val objMapper: ObjectMapper = jacksonObjectMapper()
+                .findAndRegisterModules()
+                .setSerializationInclusion(JsonInclude.Include.NON_ABSENT)
+                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            val result = objMapper.readValue(response.body()?.bytes(), object: TypeReference<StoredFile?>() {})
 
             Assert.assertNotNull(result)
             Assert.assertNotNull(result?.uri)
