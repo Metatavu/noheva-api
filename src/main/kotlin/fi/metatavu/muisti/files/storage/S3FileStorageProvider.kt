@@ -51,7 +51,7 @@ class S3FileStorageProvider : FileStorageProvider {
     var region: String? = null
 
     @ConfigProperty(name = "s3.file.storage.endpoint")
-    var endpoint: String? = null
+    var endpoint: Optional<String>? = null
 
     @ConfigProperty(name = "s3.file.storage.bucket")
     var bucket: String? = null
@@ -211,7 +211,7 @@ class S3FileStorageProvider : FileStorageProvider {
                 .standard()
                 .withEndpointConfiguration(
                     AwsClientBuilder.EndpointConfiguration(
-                        endpoint,
+                        endpoint?.get(),
                         region
                     )
                 )
