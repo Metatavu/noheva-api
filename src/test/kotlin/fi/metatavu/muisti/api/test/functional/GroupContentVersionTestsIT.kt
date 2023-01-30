@@ -6,7 +6,7 @@ import fi.metatavu.muisti.api.test.functional.resources.KeycloakResource
 import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.Assert.*
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -81,7 +81,7 @@ class GroupContentVersionTestsIT: AbstractFunctionalTest() {
 
       val updatedGroupContentVersion = it.admin().groupContentVersions.updateGroupContentVersion(exhibitionId, groupContentVersionToUpdate)
       assertNotNull(updatedGroupContentVersion)
-      assertEquals(createdGroupContentVersion.id, updatedGroupContentVersion?.id!!)
+      assertEquals(createdGroupContentVersion.id, updatedGroupContentVersion.id!!)
       assertEquals(createdGroupContentVersion.contentVersionId, updatedGroupContentVersion.contentVersionId)
       assertEquals(createdGroupContentVersion.deviceGroupId, updatedGroupContentVersion.deviceGroupId)
       assertNotEquals(createdGroupContentVersion.status, updatedGroupContentVersion.status)

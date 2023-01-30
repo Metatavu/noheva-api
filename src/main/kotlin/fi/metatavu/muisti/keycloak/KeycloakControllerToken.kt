@@ -1,8 +1,6 @@
 package fi.metatavu.muisti.keycloak
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.apache.commons.io.IOUtils
 import org.apache.http.NameValuePair
@@ -14,7 +12,6 @@ import org.eclipse.microprofile.config.ConfigProvider
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.time.OffsetDateTime
-import java.util.ArrayList
 
 /**
  * Class for maintaining the keycloak controller access token
@@ -71,7 +68,7 @@ class KeycloakControllerToken {
          * Obtains fresh admin access token from Keycloak
          */
         private fun obtainAccessToken(): KeycloakAccessToken? {
-            val serverUrl = ConfigProvider.getConfig().getValue("quarkus.oidc.auth-server-url", String::class.java)
+            val serverUrl = ConfigProvider.getConfig().getValue("muisti.keycloak.admin.host", String::class.java)
             val realm = ConfigProvider.getConfig().getValue("muisti.keycloak.admin.realm", String::class.java)
             val adminUser = ConfigProvider.getConfig().getValue("muisti.keycloak.admin.user", String::class.java)
             val adminPassword = ConfigProvider.getConfig().getValue("muisti.keycloak.admin.password", String::class.java)

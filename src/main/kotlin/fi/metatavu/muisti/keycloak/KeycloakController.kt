@@ -2,10 +2,12 @@ package fi.metatavu.muisti.keycloak
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.quarkus.cache.CacheInvalidate
+import io.quarkus.cache.CacheKey
+import io.quarkus.cache.CacheResult
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
 import org.eclipse.microprofile.config.inject.ConfigProperty
-import org.infinispan.Cache
 import org.keycloak.OAuth2Constants
 import org.keycloak.admin.client.Keycloak
 import org.keycloak.admin.client.KeycloakBuilder
@@ -14,11 +16,8 @@ import org.slf4j.Logger
 import java.io.IOException
 import java.io.InputStream
 import java.util.*
-import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import javax.annotation.PostConstruct
-import javax.annotation.Resource
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 import javax.ws.rs.core.Response
@@ -34,43 +33,17 @@ class KeycloakController {
     @Inject
     lateinit var logger: Logger
 
-    //todo cache
-    @Resource(lookup = "java:jboss/infinispan/cache/muisti/user")
-    private lateinit var userCache: Cache<UUID, UserRepresentation>
-
-    private var cacheSeconds: Long = 60
-
-    @ConfigProperty(name = "user.cache.max-seconds")
-    lateinit var cacheSecondsEnv: Optional<String>
-
-    /**
-     * Post construct method
-     */
-    @PostConstruct
-    fun init() {
-        cacheSeconds = if (cacheSecondsEnv.isPresent) {
-            cacheSecondsEnv.get().toLong()
-        } else 60
-    }
-
     /**
      * Finds a Keycloak user by user id
      *
-     * @param id user id
+     * @param userId user id
      * @return user or null if not found
      */
-    fun findUserById(id: UUID?): UserRepresentation? {
-        id ?: return null
+    @CacheResult(cacheName = "users-cache")
+    fun findUserById(@CacheKey userId: UUID?): UserRepresentation? {
+        userId ?: return null
 
-        val cached = userCache[id]
-        if (cached != null) {
-            return cached
-        }
-
-        val user = keycloakClient.realm(realm).users().get(id.toString()).toRepresentation() ?: return null
-        userCache.put(id, user, cacheSeconds, TimeUnit.SECONDS)
-
-        return user
+        return keycloakClient.realm(realm).users().get(userId.toString()).toRepresentation() ?: return null
     }
 
     /**
@@ -149,7 +122,9 @@ class KeycloakController {
      * @param birthYear user's birth year
      * @return updated user representation
      */
+    @CacheInvalidate(cacheName = "users-cache")
     fun updateUser(
+        @CacheKey userId: UUID,
         userRepresentation: UserRepresentation,
         language: String,
         firstName: String?,
@@ -167,8 +142,6 @@ class KeycloakController {
         userRepresentation.singleAttribute(USER_ATTRIBUTE_BIRTH_YEAR, birthYear?.toString())
 
         userResource.update(userRepresentation)
-
-        userCache.remove(UUID.fromString(userRepresentation.id))
 
         return userRepresentation
     }
@@ -350,7 +323,7 @@ class KeycloakController {
     /**
      * Returns Keycloak server URL
      */
-    @ConfigProperty(name = "quarkus.oidc.auth-server-url")
+    @ConfigProperty(name = "muisti.keycloak.admin.host")
     lateinit var serverUrl: String
 
     @JsonIgnoreProperties(ignoreUnknown = true)

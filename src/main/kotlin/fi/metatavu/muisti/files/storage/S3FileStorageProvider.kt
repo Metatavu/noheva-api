@@ -13,6 +13,7 @@ import fi.metatavu.muisti.files.InputFile
 import fi.metatavu.muisti.media.ImageReader
 import fi.metatavu.muisti.media.ImageScaler
 import fi.metatavu.muisti.media.ImageWriter
+import io.quarkus.runtime.configuration.ProfileManager
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -35,7 +36,6 @@ import javax.inject.Inject
  * @author Antti Leppä
  */
 @ApplicationScoped
-//todo add test container
 class S3FileStorageProvider : FileStorageProvider {
 
     @Inject
@@ -64,6 +64,15 @@ class S3FileStorageProvider : FileStorageProvider {
 
     @ConfigProperty(name = "s3.file.storage.secret")
     var secret: String? = null
+
+    /**
+     * Returns whether system is running in test mode
+     *
+     * @return whether system is running in test mode
+     */
+    fun isInTestMode(): Boolean {
+        return StringUtils.equals("test", ProfileManager.getActiveProfile())
+    }
 
     @Throws(FileStorageException::class)
     override fun init() {
@@ -152,9 +161,15 @@ class S3FileStorageProvider : FileStorageProvider {
             val key = getKey(storedFile.id!!)
             val s3Object = client.getObject(bucket, key)
 
+            /*
+            todo: localstack does not support old request with cloned metadata
             val objectMeta = s3Object.objectMetadata.clone()
             objectMeta.addUserMetadata(X_FILE_NAME, storedFile.fileName)
-
+             */
+            val objectMeta = ObjectMetadata()
+            objectMeta.userMetadata = s3Object.objectMetadata.userMetadata
+            objectMeta.addUserMetadata(X_FILE_NAME, storedFile.fileName)
+            objectMeta.contentType = s3Object.objectMetadata.contentType
             val request = CopyObjectRequest(this.bucket, key, this.bucket, key)
                 .withNewObjectMetadata(objectMeta)
 
@@ -162,7 +177,6 @@ class S3FileStorageProvider : FileStorageProvider {
 
             return translateObject(key, objectMeta)
         } catch (e: Exception) {
-            println(e.message)
             throw FileStorageException(e)
         }
     }
@@ -186,24 +200,36 @@ class S3FileStorageProvider : FileStorageProvider {
         get() = "S3"
 
     /**
-     * Returns initialized S3 client
+     * Returns initialized S3 client based on the profile (localstack test container requires additional
+     * endpoint configuration)
      *
      * @return initialized S3 client
      */
-    private val client: AmazonS3 get() = AmazonS3ClientBuilder
-        .standard()
-        .withEndpointConfiguration(
-            AwsClientBuilder.EndpointConfiguration(
-                endpoint,
-                region
-            )
-        )
-        .withCredentials(
-            AWSStaticCredentialsProvider(
-                BasicAWSCredentials(keyId, secret)
-            )
-        )
-        .build()
+    private val client: AmazonS3
+        get() = if (isInTestMode())
+            AmazonS3ClientBuilder
+                .standard()
+                .withEndpointConfiguration(
+                    AwsClientBuilder.EndpointConfiguration(
+                        endpoint,
+                        region
+                    )
+                )
+                .withCredentials(
+                    AWSStaticCredentialsProvider(
+                        BasicAWSCredentials(keyId, secret)
+                    )
+                )
+                .build()
+        else
+            AmazonS3ClientBuilder
+                .standard()
+                .withRegion(region)
+                .withCredentials(
+                    AWSStaticCredentialsProvider(
+                        BasicAWSCredentials(keyId, secret)
+                    )
+                ).build()
 
     /**
      * Uploads a thumbnail into bucket

@@ -1,4 +1,4 @@
-package fi.metatavu.muisti.api;
+package fi.metatavu.muisti.api
 
 import fi.metatavu.muisti.api.spec.VisitorsApi
 import fi.metatavu.muisti.api.spec.model.Visitor
@@ -72,6 +72,7 @@ class VisitorsApiImpl : VisitorsApi, AbstractApi() {
             )
         } else {
             userRepresentation = keycloakController.updateUser(
+                userId = UUID.fromString(userRepresentation.id),
                 userRepresentation = userRepresentation,
                 birthYear = visitor.birthYear,
                 firstName = visitor.firstName,
@@ -131,6 +132,7 @@ class VisitorsApiImpl : VisitorsApi, AbstractApi() {
             ?: return createInternalServerError("Failed to find visitor user")
 
         keycloakController.updateUser(
+            userId = UUID.fromString(userRepresentation.id),
             userRepresentation = userRepresentation,
             birthYear = visitor.birthYear,
             firstName = visitor.firstName,

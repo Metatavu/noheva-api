@@ -7,8 +7,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import fi.metatavu.muisti.api.client.models.*
 import fi.metatavu.muisti.api.test.functional.builder.AbstractResourceTest
 import fi.metatavu.muisti.api.test.functional.builder.TestBuilder
-import fi.metatavu.muisti.api.test.functional.mqtt.TestMqttClient
-import fi.metatavu.muisti.api.test.functional.settings.MqttTestSettings
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -19,7 +17,6 @@ import org.skyscreamer.jsonassert.JSONCompare
 import org.skyscreamer.jsonassert.JSONCompareMode
 import org.skyscreamer.jsonassert.JSONCompareResult
 import org.skyscreamer.jsonassert.comparator.CustomComparator
-
 import java.io.IOException
 import java.io.InputStream
 
@@ -96,7 +93,8 @@ abstract class AbstractFunctionalTest: AbstractResourceTest() {
             .get()
             .build()
 
-        val response: Response = OkHttpClient().newCall(request).execute()
+        val client = OkHttpClient.Builder().hostnameVerifier { _, _ -> true }.build()
+        val response: Response = client.newCall(request).execute()
         Assert.assertTrue(response.isSuccessful)
 
         val body = response.body()

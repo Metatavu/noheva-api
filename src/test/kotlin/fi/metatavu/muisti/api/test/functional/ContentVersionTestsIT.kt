@@ -9,6 +9,9 @@ import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.Assert.*
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -34,7 +37,7 @@ class ContentVersionTestsIT: AbstractFunctionalTest() {
             val roomId = it.admin().exhibitionRooms.create(exhibitionId, floorId).id!!
             val contentVersionToCreate = ContentVersion(name = "created name", language = "FI", rooms = arrayOf(roomId))
             val createdContentVersion = it.admin().contentVersions.create(exhibitionId, contentVersionToCreate)
-            Assertions.assertNotNull(createdContentVersion)
+            assertNotNull(createdContentVersion)
         }
     }
 
@@ -54,7 +57,7 @@ class ContentVersionTestsIT: AbstractFunctionalTest() {
             )
 
             assertNotNull(createdContentVersion)
-            assertNull(createdContentVersion.activeCondition)
+            Assertions.assertNull(createdContentVersion.activeCondition)
 
             val contentVersionToUpdate = ContentVersion(
                 id = createdContentVersion.id!!,

@@ -8,7 +8,9 @@ import fi.metatavu.muisti.api.test.functional.resources.MqttResource
 import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.Assert.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -113,7 +115,7 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             val createdExhibitionRoomId = createdExhibitionRoom.id!!
 
             val foundCreatedExhibitionRoom = it.admin().exhibitionRooms.findExhibitionRoom(exhibitionId, createdExhibitionRoomId)
-            assertEquals(createdExhibitionRoom.id, foundCreatedExhibitionRoom?.id)
+            assertEquals(createdExhibitionRoom.id, foundCreatedExhibitionRoom.id)
             assertEquals("created name", createdExhibitionRoom.name)
             assertEquals("#00ff00", createdExhibitionRoom.color)
 
@@ -136,11 +138,11 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
 
             val foundUpdatedExhibitionRoom = it.admin().exhibitionRooms.findExhibitionRoom(exhibitionId, createdExhibitionRoomId)
 
-            assertEquals(updatedExhibitionRoom!!.id, foundUpdatedExhibitionRoom?.id)
-            assertEquals("updated name", foundUpdatedExhibitionRoom?.name)
-            assertEquals("#ff0000", foundUpdatedExhibitionRoom?.color)
+            assertEquals(updatedExhibitionRoom.id, foundUpdatedExhibitionRoom.id)
+            assertEquals("updated name", foundUpdatedExhibitionRoom.name)
+            assertEquals("#ff0000", foundUpdatedExhibitionRoom.color)
 
-            val firstShape = foundUpdatedExhibitionRoom?.geoShape?.coordinates?.get(0)
+            val firstShape = foundUpdatedExhibitionRoom.geoShape?.coordinates?.get(0)
             val firstPoint = firstShape?.get(0)
             val secondPoint = firstShape?.get(1)
             val thirdPoint = firstShape?.get(2)
@@ -151,7 +153,7 @@ class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
             assertArrayEquals(point3, thirdPoint)
             assertArrayEquals(point4, fourthPoint)
             assertArrayEquals(point5, fifthPoint)
-            assertEquals(testPolygon.type, foundUpdatedExhibitionRoom?.geoShape?.type)
+            assertEquals(testPolygon.type, foundUpdatedExhibitionRoom.geoShape?.type)
 
             it.admin().exhibitionRooms.assertUpdateFail(404, nonExistingExhibitionId, ExhibitionRoom(
                 name = "name",

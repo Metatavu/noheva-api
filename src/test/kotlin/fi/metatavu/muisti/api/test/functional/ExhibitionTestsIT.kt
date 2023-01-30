@@ -7,7 +7,12 @@ import fi.metatavu.muisti.api.test.functional.resources.MqttResource
 import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.Assert.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertArrayEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -570,8 +575,8 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
             )
 
             val updatedExhibition = it.admin().exhibitions.updateExhibition(updateBody)
-            assertEquals(updateBody.id, updatedExhibition?.id)
-            assertEquals(updateBody.name, updatedExhibition?.name)
+            assertEquals(updateBody.id, updatedExhibition.id)
+            assertEquals(updateBody.name, updatedExhibition.name)
 
             val foundUpdatedExhibition = it.admin().exhibitions.findExhibition(createdExhibitionId)
             assertEquals(updateBody.id, foundUpdatedExhibition?.id)

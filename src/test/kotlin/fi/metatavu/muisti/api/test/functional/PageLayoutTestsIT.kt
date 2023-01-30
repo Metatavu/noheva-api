@@ -6,8 +6,8 @@ import fi.metatavu.muisti.api.test.functional.resources.MqttResource
 import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -128,7 +128,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             val createdPageLayoutId = createdPageLayout.id!!
 
             val foundCreatedPageLayout = it.admin().pageLayouts.findPageLayout(createdPageLayoutId)
-            assertEquals(createdPageLayout.id, foundCreatedPageLayout?.id)
+            assertEquals(createdPageLayout.id, foundCreatedPageLayout.id)
             assertEquals("created name", createdPageLayout.name)
             assertEquals("http://example.com/thumbnail.png", createdPageLayout.thumbnailUrl)
             assertEquals(createdDeviceModelId, createdPageLayout.modelId)
@@ -161,7 +161,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
 
             val foundUpdatedPageLayout = it.admin().pageLayouts.findPageLayout(createdPageLayoutId)
 
-            assertEquals(updatedPageLayout!!.id, foundUpdatedPageLayout?.id)
+            assertEquals(updatedPageLayout.id, foundUpdatedPageLayout.id)
             assertEquals("updated name", updatedPageLayout.name)
             assertEquals("http://example.com/updated.png", updatedPageLayout.thumbnailUrl)
             assertEquals(updateDeviceModelId, updatedPageLayout.modelId)

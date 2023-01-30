@@ -7,6 +7,7 @@ import fi.metatavu.muisti.api.test.functional.resources.MqttResource
 import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.junit.TestProfile
 import org.awaitility.Awaitility
 import org.junit.Assert.*
 import org.junit.jupiter.api.Test
@@ -14,6 +15,9 @@ import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertNotNull
 
 /**
  * Test class for testing visitor sessions API V2
@@ -26,6 +30,7 @@ import java.util.*
     QuarkusTestResource(KeycloakResource::class),
     QuarkusTestResource(MqttResource::class)
 )
+@TestProfile(DefaultTestProfile::class)
 class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
 
     @Test
@@ -83,7 +88,10 @@ class VisitorSessionV2TestsIT: AbstractFunctionalTest() {
 
             val createdAt = OffsetDateTime.parse(createdVisitorSession.createdAt)
             val expiresAt = OffsetDateTime.parse(createdVisitorSession.expiresAt)
-            assertTrue("expiresAt (${createdVisitorSession.expiresAt}) should be after createdAt (${createdVisitorSession.createdAt})", expiresAt.isAfter(createdAt))
+            assertTrue(
+                expiresAt.isAfter(createdAt),
+                "expiresAt (${createdVisitorSession.expiresAt}) should be after createdAt (${createdVisitorSession.createdAt})"
+            )
 
             assertJsonsEqual(listOf(MqttExhibitionVisitorSessionCreate(exhibitionId = exhibitionId, id = createdVisitorSession.id!!)), mqttSubscription.getMessages(1))
         }

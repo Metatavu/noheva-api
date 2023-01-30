@@ -6,8 +6,8 @@ import fi.metatavu.muisti.api.test.functional.resources.MqttResource
 import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -193,7 +193,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
         val createdRfidAntennaId = createdRfidAntenna.id!!
 
         val foundCreatedRfidAntenna = it.admin().rfidAntennas.findRfidAntenna(exhibitionId, createdRfidAntennaId)
-        assertEquals(createdRfidAntenna.id, foundCreatedRfidAntenna?.id)
+        assertEquals(createdRfidAntenna.id, foundCreatedRfidAntenna.id)
         assertEquals("created name", createdRfidAntenna.name)
         assertEquals(-123.0, createdRfidAntenna.location.x)
         assertEquals(234.0, createdRfidAntenna.location.y)
@@ -214,26 +214,26 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
           visitorSessionEndThreshold = 20
         ))
 
-        assertEquals(updatedRfidAntenna?.id, foundCreatedRfidAntenna?.id)
-        assertEquals("update name", updatedRfidAntenna?.name)
-        assertEquals(-654.0, updatedRfidAntenna?.location?.x)
-        assertEquals(765.0, updatedRfidAntenna?.location?.y)
-        assertEquals("updateid", updatedRfidAntenna?.readerId)
-        assertEquals(1, updatedRfidAntenna?.antennaNumber)
-        assertEquals(50, updatedRfidAntenna?.visitorSessionStartThreshold)
-        assertEquals(20, updatedRfidAntenna?.visitorSessionEndThreshold)
+        assertEquals(updatedRfidAntenna.id, foundCreatedRfidAntenna.id)
+        assertEquals("update name", updatedRfidAntenna.name)
+        assertEquals(-654.0, updatedRfidAntenna.location.x)
+        assertEquals(765.0, updatedRfidAntenna.location.y)
+        assertEquals("updateid", updatedRfidAntenna.readerId)
+        assertEquals(1, updatedRfidAntenna.antennaNumber)
+        assertEquals(50, updatedRfidAntenna.visitorSessionStartThreshold)
+        assertEquals(20, updatedRfidAntenna.visitorSessionEndThreshold)
 
         val foundUpdatedRfidAntenna = it.admin().rfidAntennas.findRfidAntenna(exhibitionId, createdRfidAntennaId)
-        assertEquals(foundUpdatedRfidAntenna?.id, foundCreatedRfidAntenna?.id)
-        assertEquals("update name", foundUpdatedRfidAntenna?.name)
-        assertEquals(-654.0, foundUpdatedRfidAntenna?.location?.x)
-        assertEquals(765.0, foundUpdatedRfidAntenna?.location?.y)
-        assertEquals("updateid", foundUpdatedRfidAntenna?.readerId)
-        assertEquals(1, foundUpdatedRfidAntenna?.antennaNumber)
-        assertEquals(50, foundUpdatedRfidAntenna?.visitorSessionStartThreshold)
-        assertEquals(20, foundUpdatedRfidAntenna?.visitorSessionEndThreshold)
+        assertEquals(foundUpdatedRfidAntenna.id, foundCreatedRfidAntenna.id)
+        assertEquals("update name", foundUpdatedRfidAntenna.name)
+        assertEquals(-654.0, foundUpdatedRfidAntenna.location.x)
+        assertEquals(765.0, foundUpdatedRfidAntenna.location.y)
+        assertEquals("updateid", foundUpdatedRfidAntenna.readerId)
+        assertEquals(1, foundUpdatedRfidAntenna.antennaNumber)
+        assertEquals(50, foundUpdatedRfidAntenna.visitorSessionStartThreshold)
+        assertEquals(20, foundUpdatedRfidAntenna.visitorSessionEndThreshold)
 
-        it.admin().rfidAntennas.updateRfidAntenna(exhibitionId, updatedRfidAntenna!!)
+        it.admin().rfidAntennas.updateRfidAntenna(exhibitionId, updatedRfidAntenna)
 
         assertJsonsEqual(
           listOf(

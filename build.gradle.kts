@@ -17,17 +17,16 @@ repositories {
 val quarkusPlatformGroupId: String by project
 val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
-val jaxrs_functional_test_builder_version: String by project
-val testContainersVersion: String by project
+val jaxrsFunctionalTestBuilderVersion: String by project
 val testContainersKeycloakVersion: String by project
-val awssdk_version: String by project
-val jackson_version: String by project
-val paho_version: String by project
-val jts_core_version: String by project
-val hibernate_spatial_version: String by project
-val awaitility_version: String by project
-val liquibase_version: String by project
+val awssdkVersion: String by project
+val jacksonVersion: String by project
+val pahoVersion: String by project
+val jtsCoreVersion: String by project
+val hibernateSpatialVersion: String by project
+val awaitilityVersion: String by project
 val moshiVersion: String by project
+val testContainersVersion: String by project
 
 dependencies {
     kapt("org.hibernate:hibernate-jpamodelgen:5.4.11.Final")
@@ -38,35 +37,28 @@ dependencies {
     implementation("io.quarkus:quarkus-hibernate-validator")
     implementation("io.quarkus:quarkus-liquibase")
     implementation("io.quarkus:quarkus-jdbc-mysql")
-
+    implementation("io.quarkus:quarkus-undertow")
     implementation("io.quarkus:quarkus-kotlin")
     implementation("io.quarkus:quarkus-oidc")
     implementation("io.quarkus:quarkus-keycloak-admin-client")
     implementation("io.quarkus:quarkus-resteasy-reactive")
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
+    implementation("io.quarkus:quarkus-cache")
 
-
-
-
-    implementation(platform ("com.amazonaws:aws-java-sdk-bom:$awssdk_version"))
     implementation("commons-io:commons-io")
     implementation("org.apache.commons:commons-lang3")
-    implementation("org.infinispan:infinispan-core")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation(platform ("com.amazonaws:aws-java-sdk-bom:$awssdkVersion"))
+    implementation("com.amazonaws:aws-java-sdk-s3:$awssdkVersion")
+    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:$pahoVersion")
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
-    implementation("com.amazonaws:aws-java-sdk-s3")
-    implementation("io.quarkus:quarkus-liquibase")
-    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:$paho_version")
-    implementation("io.quarkus:quarkus-undertow")
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
-    implementation("io.quarkus:quarkus-jdbc-mysql")
     /**
      * Spatial dependencies
      */
-    implementation("com.vividsolutions:jts-core:$jts_core_version")
-    implementation("org.hibernate:hibernate-spatial:$hibernate_spatial_version")
+    implementation("com.vividsolutions:jts-core:$jtsCoreVersion")
+    implementation("org.hibernate:hibernate-spatial:$hibernateSpatialVersion")
 
-    testImplementation("org.testcontainers:testcontainers:1.17.6")
+    testImplementation("org.testcontainers:testcontainers:$testContainersVersion")
     testImplementation("org.testcontainers:hivemq")
     testImplementation("org.testcontainers:mysql")
     testImplementation("org.testcontainers:localstack")
@@ -74,10 +66,8 @@ dependencies {
     testImplementation("com.squareup.okhttp3:okhttp:4.4.2")
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("org.hamcrest:hamcrest:2.2")
-    testImplementation("fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrs_functional_test_builder_version")
-    testImplementation("org.awaitility:awaitility:$awaitility_version")
-
-    //jacocoAgent("org.jacoco:org.jacoco.agent:0.8.5")
+    testImplementation("fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrsFunctionalTestBuilderVersion")
+    testImplementation("org.awaitility:awaitility:$awaitilityVersion")
 }
 java {
     sourceCompatibility = JavaVersion.VERSION_11

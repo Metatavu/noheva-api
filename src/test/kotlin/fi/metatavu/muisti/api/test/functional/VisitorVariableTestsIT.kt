@@ -1,12 +1,13 @@
 package fi.metatavu.muisti.api.test.functional
 
-import fi.metatavu.muisti.api.client.models.*
+import fi.metatavu.muisti.api.client.models.VisitorVariable
+import fi.metatavu.muisti.api.client.models.VisitorVariableType
 import fi.metatavu.muisti.api.test.functional.resources.KeycloakResource
 import fi.metatavu.muisti.api.test.functional.resources.MqttResource
 import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.Assert.*
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -104,16 +105,16 @@ class VariableVariableTestsIT: AbstractFunctionalTest() {
             assertArrayEquals(arrayOf("one", "two"), createdVisitorVariable.enum)
 
             val updatedVisitorVariable = it.admin().visitorVariables.updateVisitorVariable(exhibitionId = exhibitionId, body = createdVisitorVariable.copy(name = "upd", type = VisitorVariableType.NUMBER, enum = arrayOf("one", "three"), editableFromUI = false))
-            assertEquals("upd", updatedVisitorVariable?.name)
-            assertEquals(VisitorVariableType.NUMBER, updatedVisitorVariable?.type)
-            assertEquals(false, updatedVisitorVariable?.editableFromUI)
-            assertArrayEquals(arrayOf("one", "three"), updatedVisitorVariable?.enum)
+            assertEquals("upd", updatedVisitorVariable.name)
+            assertEquals(VisitorVariableType.NUMBER, updatedVisitorVariable.type)
+            assertEquals(false, updatedVisitorVariable.editableFromUI)
+            assertArrayEquals(arrayOf("one", "three"), updatedVisitorVariable.enum)
 
             val foundVisitorVariable = it.admin().visitorVariables.findVisitorVariable(exhibitionId = exhibitionId, visitorVariableId = createdVisitorVariable.id!!)
-            assertEquals("upd", foundVisitorVariable?.name)
-            assertEquals(false, foundVisitorVariable?.editableFromUI)
-            assertEquals(VisitorVariableType.NUMBER, foundVisitorVariable?.type)
-            assertArrayEquals(arrayOf("one", "three"), foundVisitorVariable?.enum)
+            assertEquals("upd", foundVisitorVariable.name)
+            assertEquals(false, foundVisitorVariable.editableFromUI)
+            assertEquals(VisitorVariableType.NUMBER, foundVisitorVariable.type)
+            assertArrayEquals(arrayOf("one", "three"), foundVisitorVariable.enum)
         }
     }
 

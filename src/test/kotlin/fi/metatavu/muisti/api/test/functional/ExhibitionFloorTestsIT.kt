@@ -8,8 +8,8 @@ import fi.metatavu.muisti.api.test.functional.resources.MqttResource
 import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -83,7 +83,7 @@ class ExhibitionFloorTestsIT: AbstractFunctionalTest() {
             val createdExhibitionFloorId = createdExhibitionFloor.id!!
 
             val foundCreatedExhibitionFloor = it.admin().exhibitionFloors.findExhibitionFloor(exhibitionId, createdExhibitionFloorId)
-            assertEquals(createdExhibitionFloor.id, foundCreatedExhibitionFloor?.id)
+            assertEquals(createdExhibitionFloor.id, foundCreatedExhibitionFloor.id)
             assertEquals("created name", createdExhibitionFloor.name)
             val bounds = Bounds(
                 northEastCorner = Coordinates(latitude = 18.22, longitude = 28.5),
@@ -98,13 +98,13 @@ class ExhibitionFloorTestsIT: AbstractFunctionalTest() {
 
             val updatedExhibitionFloor = it.admin().exhibitionFloors.updateExhibitionFloor(exhibitionId, exhibitionFloorToUpdate)
             val foundUpdatedExhibitionFloor = it.admin().exhibitionFloors.findExhibitionFloor(exhibitionId, createdExhibitionFloorId)
-            assertEquals(updatedExhibitionFloor!!.id, foundUpdatedExhibitionFloor?.id)
-            assertEquals("updated name", foundUpdatedExhibitionFloor?.name)
-            assertEquals("http://example.com/floorPlan.png", foundUpdatedExhibitionFloor?.floorPlanUrl)
-            assertEquals(18.22, foundUpdatedExhibitionFloor?.floorPlanBounds?.northEastCorner?.latitude)
-            assertEquals(28.5, foundUpdatedExhibitionFloor?.floorPlanBounds?.northEastCorner?.longitude)
-            assertEquals(13.22, foundUpdatedExhibitionFloor?.floorPlanBounds?.southWestCorner?.latitude)
-            assertEquals(22.5, foundUpdatedExhibitionFloor?.floorPlanBounds?.southWestCorner?.longitude)
+            assertEquals(updatedExhibitionFloor.id, foundUpdatedExhibitionFloor.id)
+            assertEquals("updated name", foundUpdatedExhibitionFloor.name)
+            assertEquals("http://example.com/floorPlan.png", foundUpdatedExhibitionFloor.floorPlanUrl)
+            assertEquals(18.22, foundUpdatedExhibitionFloor.floorPlanBounds?.northEastCorner?.latitude)
+            assertEquals(28.5, foundUpdatedExhibitionFloor.floorPlanBounds?.northEastCorner?.longitude)
+            assertEquals(13.22, foundUpdatedExhibitionFloor.floorPlanBounds?.southWestCorner?.latitude)
+            assertEquals(22.5, foundUpdatedExhibitionFloor.floorPlanBounds?.southWestCorner?.longitude)
 
             it.admin().exhibitionFloors.assertUpdateFail(404, nonExistingExhibitionId, ExhibitionFloor("name", createdExhibitionFloorId))
         }
