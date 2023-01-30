@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.files.storage
 
+import com.amazonaws.ClientConfiguration
 import com.amazonaws.SdkClientException
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
@@ -71,7 +72,7 @@ class S3FileStorageProvider : FileStorageProvider {
      * @return whether system is running in test mode
      */
     fun isInTestMode(): Boolean {
-        return StringUtils.equals("test", ProfileManager.getActiveProfile())
+        return true
     }
 
     @Throws(FileStorageException::class)
@@ -161,15 +162,11 @@ class S3FileStorageProvider : FileStorageProvider {
             val key = getKey(storedFile.id!!)
             val s3Object = client.getObject(bucket, key)
 
-            /*
-            todo: localstack does not support old request with cloned metadata
+            // todo: localstack has issues with metadata cloning
             val objectMeta = s3Object.objectMetadata.clone()
-            objectMeta.addUserMetadata(X_FILE_NAME, storedFile.fileName)
-             */
-            val objectMeta = ObjectMetadata()
-            objectMeta.userMetadata = s3Object.objectMetadata.userMetadata
-            objectMeta.addUserMetadata(X_FILE_NAME, storedFile.fileName)
+            objectMeta.contentLength = 0
             objectMeta.contentType = s3Object.objectMetadata.contentType
+            objectMeta.addUserMetadata(X_FILE_NAME, storedFile.fileName)
             val request = CopyObjectRequest(this.bucket, key, this.bucket, key)
                 .withNewObjectMetadata(objectMeta)
 
