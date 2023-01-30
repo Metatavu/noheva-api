@@ -52,7 +52,6 @@ class MqttController {
      * @param message message
      */
     fun publish(message: MqttMessage) {
-        println("Firing event ${message.subtopic}")
         messageEvent.fire(message)
     }
 

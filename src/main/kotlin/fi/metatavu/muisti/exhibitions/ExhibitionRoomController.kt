@@ -103,7 +103,6 @@ class ExhibitionRoomController() {
       var result = exhibitionRoomDAO.updateName(exhibitionRoom, name, modifierId)
       result = exhibitionRoomDAO.updateColor(result, color, modifierId)
       result = exhibitionRoomDAO.updateFloor(result, floor, modifierId)
-      println("polygon of shapr $geoShape is ${getPolygon(geoShape)?.coordinates}")
       result = exhibitionRoomDAO.updateGeoShape(result, getPolygon(geoShape), modifierId)
       return result
     }

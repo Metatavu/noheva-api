@@ -49,12 +49,10 @@ class TestMqttClient : MqttCallback, AutoCloseable {
         val subscription = TestMqttSubscription(targetClass)
         topicSubscriptions.add(subscription)
 
-        println("test cluient subscribed to $topic")
         return subscription
     }
 
     override fun messageArrived(topic: String?, message: MqttMessage?) {
-        println("Message callback on arrival $topic ${message?.payload}")
         message ?: return
 
         val messageBytes = message.payload

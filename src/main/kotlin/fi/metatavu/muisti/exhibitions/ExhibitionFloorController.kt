@@ -130,7 +130,6 @@ class ExhibitionFloorController() {
         floorPlanBounds ?: return result
 
         val neBoundPoint = getGeometryPoint(floorPlanBounds.northEastCorner)
-        println("saving point")
         result = exhibitionFloorDAO.updateFloorNEBound(result, neBoundPoint, modifierId)
 
         val swBoundPoint = getGeometryPoint(floorPlanBounds.southWestCorner)
