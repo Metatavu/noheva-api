@@ -72,7 +72,7 @@ class S3FileStorageProvider : FileStorageProvider {
      * @return whether system is running in test mode
      */
     fun isInTestMode(): Boolean {
-        return true
+        return StringUtils.equals("test", ProfileManager.getActiveProfile())
     }
 
     @Throws(FileStorageException::class)
@@ -161,11 +161,18 @@ class S3FileStorageProvider : FileStorageProvider {
         try {
             val key = getKey(storedFile.id!!)
             val s3Object = client.getObject(bucket, key)
+            val objectMeta: ObjectMetadata?
 
-            // todo: localstack has issues with metadata cloning
-            val objectMeta = s3Object.objectMetadata.clone()
-            objectMeta.contentLength = 0
-            objectMeta.contentType = s3Object.objectMetadata.contentType
+            if (isInTestMode()) {
+                //workarounds for localstack setup since its metadata object is not the same as the one by real aws
+                objectMeta = ObjectMetadata()
+                objectMeta.contentLength = 0
+                objectMeta.contentType = s3Object.objectMetadata.contentType
+                objectMeta.userMetadata = s3Object.objectMetadata.userMetadata
+            } else {
+                objectMeta = s3Object.objectMetadata.clone()
+            }
+
             objectMeta.addUserMetadata(X_FILE_NAME, storedFile.fileName)
             val request = CopyObjectRequest(this.bucket, key, this.bucket, key)
                 .withNewObjectMetadata(objectMeta)
@@ -206,7 +213,7 @@ class S3FileStorageProvider : FileStorageProvider {
         get() = if (isInTestMode())
             AmazonS3ClientBuilder
                 .standard()
-                .withEndpointConfiguration(
+                .withEndpointConfiguration( // test localstack requires special endpoint configuration
                     AwsClientBuilder.EndpointConfiguration(
                         endpoint?.get(),
                         region
