@@ -30,7 +30,7 @@ import java.util.*
 class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
     @Test
-    fun testCreateExhibitionDeviceGroup() { //todo fails with await
+    fun testCreateExhibitionDeviceGroup() {
         createTestBuilder().use {
             val mqttSubscription = it.mqtt().subscribe(MqttDeviceGroupCreate::class.java, "devicegroups/create")
 

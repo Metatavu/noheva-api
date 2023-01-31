@@ -48,11 +48,6 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
         val data = pageLayout.data
         val thumbnailUrl = pageLayout.thumbnailUrl
 
-        //todo original assumes that model is always present?
-        /*
-        val deviceModelId = payload.modelId
-        val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createBadRequest("Device model $deviceModelId could not be found")
-         */
         val deviceModelId = pageLayout.modelId ?: return createBadRequest("Device model could not be found")
         val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createBadRequest("Device model $deviceModelId could not be found")
         val screenOrientation = pageLayout.screenOrientation
@@ -73,11 +68,6 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
         val name = pageLayout.name
         val data = pageLayout.data
         val thumbnailUrl = pageLayout.thumbnailUrl
-        //todo original assumes that model is always present?
-        /*
-        val deviceModelId = payload.modelId
-        val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createBadRequest("Device model $deviceModelId could not be found")
-         */
         val deviceModelId = pageLayout.modelId ?: return createBadRequest("Device model could not be found")
         val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createBadRequest("Device model $deviceModelId could not be found")
         val screenOrientation = pageLayout.screenOrientation

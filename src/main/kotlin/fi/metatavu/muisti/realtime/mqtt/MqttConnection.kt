@@ -5,7 +5,7 @@ import org.eclipse.paho.client.mqttv3.IMqttClient
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttClient
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
+import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence
 import java.util.*
 
 /**
@@ -17,7 +17,6 @@ class MqttConnection {
 
     companion object {
 
-        //private val PUBLISHER_ID = UUID.randomUUID().toString()
         private var CLIENT: IMqttClient? = null
         private var SETTINGS: MqttSettings? = null
 
@@ -31,7 +30,7 @@ class MqttConnection {
             try {
                 synchronized (this) {
                     val serverURI = "tcp://${settings.serverUrl}"
-                    val client = MqttClient(serverURI, settings.publisherId, MemoryPersistence())   //todo replace with file
+                    val client = MqttClient(serverURI, settings.publisherId, MqttDefaultFilePersistence())
                     val options = MqttConnectOptions()
                     val username = settings.username
                     val password = settings.password

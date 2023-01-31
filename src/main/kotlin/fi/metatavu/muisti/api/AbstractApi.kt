@@ -246,26 +246,6 @@ abstract class AbstractApi {
     }
 
     /**
-     * Returns whether logged user has at least one of specified organization roles
-     *
-     * @param roles roles
-     * @return whether logged user has specified organization role or not
-     */
-    protected fun hasOrganizationRole(vararg roles: String?): Boolean {
-        /*val keycloakSecurityContext = keycloakSecurityContext ?: return false
-        val token = keycloakSecurityContext.token ?: return false
-        val realmAccess = token.realmAccess ?: return false
-        for (i in 0 until roles.size) {
-            if (realmAccess.isUserInRole(roles[i])) {
-                return true
-            }
-        }
-        return false*/
-        //todo role checl
-        return true
-    }
-
-    /**
      * Parses date time from string
      *
      * @param timeString

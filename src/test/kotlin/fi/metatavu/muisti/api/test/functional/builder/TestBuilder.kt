@@ -75,6 +75,4 @@ class TestBuilder(private val config: Map<String, String>) : AbstractAccessToken
         mqtt = null
         super.close()
     }
-
-    //todo is it proper place mqtt client
 }
