@@ -8,10 +8,14 @@ import fi.metatavu.muisti.devices.DeviceModelController
 import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
-
+/**
+ * Device models api implementation
+ */
 @RequestScoped
+@Transactional
 class DeviceModelsApiImpl : DeviceModelsApi, AbstractApi() {
 
     @Inject
@@ -23,7 +27,6 @@ class DeviceModelsApiImpl : DeviceModelsApi, AbstractApi() {
     @Inject
     lateinit var pageLayoutController: PageLayoutController
 
-    /* V1 */
     override fun listDeviceModels(): Response {
         val deviceModels = deviceModelController.listDeviceModels()
         return createOk(deviceModels.map(deviceModelTranslator::translate))

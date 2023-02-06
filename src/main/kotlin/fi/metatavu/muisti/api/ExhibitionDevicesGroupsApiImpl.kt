@@ -14,9 +14,14 @@ import org.jboss.logging.Logger
 import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
+/**
+ * Exhibition device groups api implementation
+ */
 @RequestScoped
+@Transactional
 class ExhibitionDevicesGroupsApiImpl : ExhibitionDeviceGroupsApi, AbstractApi() {
 
     @Inject
@@ -40,7 +45,6 @@ class ExhibitionDevicesGroupsApiImpl : ExhibitionDeviceGroupsApi, AbstractApi() 
     @Inject
     lateinit var logger: Logger
 
-    /* V1 */
     override fun listExhibitionDeviceGroups(exhibitionId: UUID, roomId: UUID?): Response {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)
             ?: return createNotFound("Exhibition $exhibitionId not found")

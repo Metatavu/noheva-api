@@ -10,10 +10,15 @@ import fi.metatavu.muisti.exhibitions.ExhibitionController
 import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 
 import javax.ws.rs.core.Response
 
+/**
+ * Group content versions api implementation
+ */
 @RequestScoped
+@Transactional
 class GroupContentVersionsApiImpl: GroupContentVersionsApi, AbstractApi() {
 
     @Inject
@@ -31,7 +36,6 @@ class GroupContentVersionsApiImpl: GroupContentVersionsApi, AbstractApi() {
     @Inject
     lateinit var groupContentVersionTranslator: GroupContentVersionTranslator
 
-    /* V1 */
     override fun listGroupContentVersions(exhibitionId: UUID, contentVersionId: UUID?, deviceGroupId: UUID?): Response {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
 

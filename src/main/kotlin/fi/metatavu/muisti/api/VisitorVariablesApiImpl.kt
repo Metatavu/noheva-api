@@ -8,9 +8,14 @@ import fi.metatavu.muisti.visitors.VisitorVariableController
 import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
+/**
+ * Visitor variables api implementation
+ */
 @RequestScoped
+@Transactional
 class VisitorVariablesApiImpl: VisitorVariablesApi, AbstractApi() {
 
     @Inject
@@ -21,8 +26,6 @@ class VisitorVariablesApiImpl: VisitorVariablesApi, AbstractApi() {
 
     @Inject
     lateinit var visitorVariableTranslator: VisitorVariableTranslator
-
-    /* V1 */
 
     override fun listVisitorVariables(exhibitionId: UUID, name: String?): Response {
         loggedUserId ?: return createUnauthorized(UNAUTHORIZED)

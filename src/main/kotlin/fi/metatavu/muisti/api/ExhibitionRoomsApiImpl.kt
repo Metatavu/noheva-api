@@ -10,10 +10,15 @@ import fi.metatavu.muisti.exhibitions.ExhibitionRoomController
 import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 
 import javax.ws.rs.core.Response
 
+/**
+ * Exhibition rooms api implementation
+ */
 @RequestScoped
+@Transactional
 class ExhibitionRoomsApiImpl: ExhibitionRoomsApi, AbstractApi() {
 
     @Inject
@@ -31,7 +36,6 @@ class ExhibitionRoomsApiImpl: ExhibitionRoomsApi, AbstractApi() {
     @Inject
     lateinit var exhibitionRoomTranslator: ExhibitionRoomTranslator
 
-    /* V1 */
     override fun listExhibitionRooms(exhibitionId: UUID, floorId: UUID?): Response {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)?: return createNotFound("Exhibition $exhibitionId not found")
         var floor: fi.metatavu.muisti.persistence.model.ExhibitionFloor? = null

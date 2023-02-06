@@ -12,9 +12,14 @@ import fi.metatavu.muisti.realtime.RealtimeNotificationController
 import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
+/**
+ * RFID antennas api implementation
+ */
 @RequestScoped
+@Transactional
 class RfidAntennasApi : RfidAntennasApi, AbstractApi() {
 
     @Inject

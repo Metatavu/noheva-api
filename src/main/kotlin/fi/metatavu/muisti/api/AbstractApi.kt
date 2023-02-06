@@ -22,7 +22,6 @@ import javax.ws.rs.core.SecurityContext
  * @author Antti Leppä
  */
 @RequestScoped
-@Transactional
 abstract class AbstractApi {
 
     @Inject

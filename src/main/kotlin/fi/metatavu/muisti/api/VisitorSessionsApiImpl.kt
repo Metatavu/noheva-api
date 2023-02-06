@@ -14,9 +14,14 @@ import java.time.OffsetDateTime
 import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
+/**
+ * Visitor sessions api implementation
+ */
 @RequestScoped
+@Transactional
 class VisitorSessionsApiImpl : VisitorSessionsApi, AbstractApi() {
 
     @Inject
@@ -40,7 +45,8 @@ class VisitorSessionsApiImpl : VisitorSessionsApi, AbstractApi() {
     @Inject
     lateinit var visitorSessionV2Translator: VisitorSessionV2Translator
 
-    /* V1 */
+    /* Version 1 endpoints */
+
     override fun listVisitorSessions(exhibitionId: UUID, tagId: String?): Response {
         loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
 
@@ -190,7 +196,8 @@ class VisitorSessionsApiImpl : VisitorSessionsApi, AbstractApi() {
 
         return createNoContent()
     }
-    /* V2 */
+
+    /* Version 2 endpoints */
 
     override fun listVisitorSessionsV2(exhibitionId: UUID, tagId: String?, modifiedAfter: String?): Response {
         loggedUserId ?: return createUnauthorized(UNAUTHORIZED)

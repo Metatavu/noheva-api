@@ -10,10 +10,14 @@ import fi.metatavu.muisti.exhibitions.ExhibitionRoomController
 import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
-
+/**
+ * Content Versions API implementation
+ */
 @RequestScoped
+@Transactional
 class ContentVersionsApiImpl : ContentVersionsApi, AbstractApi() {
 
     @Inject
@@ -31,7 +35,6 @@ class ContentVersionsApiImpl : ContentVersionsApi, AbstractApi() {
     @Inject
     lateinit var groupContentVersionController: GroupContentVersionController
 
-    //V1
     override fun listContentVersions(exhibitionId: UUID, roomId: UUID?): Response {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)
             ?: return createNotFound("Exhibition $exhibitionId not found")

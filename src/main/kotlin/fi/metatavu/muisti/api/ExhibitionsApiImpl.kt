@@ -11,9 +11,14 @@ import java.util.*
 import java.util.stream.Collectors
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
+/**
+ * Exhibitions api implementation
+ */
 @RequestScoped
+@Transactional
 class ExhibitionsApiImpl : ExhibitionsApi, AbstractApi() {
 
     @Inject
@@ -25,7 +30,6 @@ class ExhibitionsApiImpl : ExhibitionsApi, AbstractApi() {
     @Inject
     lateinit var contentVersionController: ContentVersionController
 
-    /* V1 */
     override fun listExhibitions(): Response {
         val result = exhibitionController.listExhibitions().stream().map {
             exhibitionTranslator.translate(it)

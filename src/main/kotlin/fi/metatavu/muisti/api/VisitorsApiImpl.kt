@@ -11,9 +11,14 @@ import fi.metatavu.muisti.visitors.VisitorController
 import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
+/**
+ * Visitors api implementation
+ */
 @RequestScoped
+@Transactional
 class VisitorsApiImpl : VisitorsApi, AbstractApi() {
 
     @Inject
@@ -30,8 +35,6 @@ class VisitorsApiImpl : VisitorsApi, AbstractApi() {
 
     @Inject
     lateinit var realtimeNotificationController: RealtimeNotificationController
-
-    /* V1 */
 
     override fun listVisitors(exhibitionId: UUID, tagId: String?, email: String?): Response {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)

@@ -10,9 +10,14 @@ import fi.metatavu.muisti.devices.DeviceModelController
 import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
+/**
+ * Page layouts api implementation
+ */
 @RequestScoped
+@Transactional
 class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
 
     @Inject
@@ -27,7 +32,6 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
     @Inject
     lateinit var exhibitionPageController: ExhibitionPageController
 
-    /* V1 */
     override fun listPageLayouts(deviceModelId: UUID?, screenOrientation: String?): Response {
         var deviceModel: fi.metatavu.muisti.persistence.model.DeviceModel? = null
         var parsedScreenOrientation: ScreenOrientation? = null

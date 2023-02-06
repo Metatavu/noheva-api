@@ -4,9 +4,14 @@ import fi.metatavu.muisti.api.spec.SystemApi
 import fi.metatavu.muisti.api.spec.model.SystemMemory
 import org.apache.commons.io.FileUtils
 import javax.enterprise.context.RequestScoped
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
+/**
+ * System api implementation
+ */
 @RequestScoped
+@Transactional
 class SystemApiImpl : SystemApi {
     override fun memory(): Response {
         val runtime = Runtime.getRuntime()

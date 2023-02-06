@@ -7,9 +7,14 @@ import fi.metatavu.muisti.contents.SubLayoutController
 import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
+/**
+ * Sub layouts api implementation
+ */
 @RequestScoped
+@Transactional
 class SubLayoutsApiImpl : SubLayoutsApi, AbstractApi() {
 
     @Inject
@@ -17,8 +22,6 @@ class SubLayoutsApiImpl : SubLayoutsApi, AbstractApi() {
 
     @Inject
     lateinit var subLayoutTranslator: SubLayoutTranslator
-
-    /* V1 */
 
     override fun listSubLayouts(): Response {
         val result = subLayoutController.listSubLayouts()

@@ -13,9 +13,14 @@ import fi.metatavu.muisti.realtime.RealtimeNotificationController
 import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
+/**
+ * Echibition pages api implementation
+ */
 @RequestScoped
+@Transactional
 class ExhibitionPagesApiImpl : ExhibitionPagesApi, AbstractApi() {
 
     @Inject
@@ -42,7 +47,6 @@ class ExhibitionPagesApiImpl : ExhibitionPagesApi, AbstractApi() {
     @Inject
     lateinit var exhibitionPageTranslator: ExhibitionPageTranslator
 
-    /* V1 */
     override fun listExhibitionPages(
         exhibitionId: UUID,
         contentVersionId: UUID?,

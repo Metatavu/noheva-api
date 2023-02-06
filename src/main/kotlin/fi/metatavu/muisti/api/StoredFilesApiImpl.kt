@@ -5,9 +5,14 @@ import fi.metatavu.muisti.api.spec.model.StoredFile
 import fi.metatavu.muisti.files.FileController
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.core.Response
 
+/**
+ * Stored files api implementation
+ */
 @RequestScoped
+@Transactional
 class StoredFilesApiImpl : StoredFilesApi, AbstractApi() {
 
     @Inject
