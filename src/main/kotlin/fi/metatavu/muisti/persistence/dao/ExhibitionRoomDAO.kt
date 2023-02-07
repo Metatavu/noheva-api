@@ -55,7 +55,7 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
      */
     fun list(exhibition: Exhibition, floor: ExhibitionFloor?): List<ExhibitionRoom> {
         
-        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionRoom> = criteriaBuilder.createQuery(ExhibitionRoom::class.java)
         val root: Root<ExhibitionRoom> = criteria.from(ExhibitionRoom::class.java)
 
@@ -68,7 +68,7 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
 
         criteria.select(root)
         criteria.where(*restrictions.toTypedArray())
-        val query: TypedQuery<ExhibitionRoom> = entityManager.createQuery<ExhibitionRoom>(criteria)
+        val query: TypedQuery<ExhibitionRoom> = getEntityManager().createQuery<ExhibitionRoom>(criteria)
         return query.getResultList()
     }
 

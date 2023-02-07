@@ -62,7 +62,7 @@ class ExhibitionPageDAO : AbstractDAO<ExhibitionPage>() {
      */
     fun list(exhibition: Exhibition, exhibitionDevice : ExhibitionDevice?, contentVersion: ContentVersion?, pageLayout: PageLayout?): List<ExhibitionPage> {
         
-        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionPage> = criteriaBuilder.createQuery(ExhibitionPage::class.java)
         val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)
 
@@ -83,7 +83,7 @@ class ExhibitionPageDAO : AbstractDAO<ExhibitionPage>() {
 
         criteria.select(root)
         criteria.where(*restrictions.toTypedArray())
-        val query: TypedQuery<ExhibitionPage> = entityManager.createQuery<ExhibitionPage>(criteria)
+        val query: TypedQuery<ExhibitionPage> = getEntityManager().createQuery<ExhibitionPage>(criteria)
         return query.resultList
     }
 
@@ -95,12 +95,12 @@ class ExhibitionPageDAO : AbstractDAO<ExhibitionPage>() {
      */
     fun listByLayout(layout: PageLayout): List<ExhibitionPage> {
         
-        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionPage> = criteriaBuilder.createQuery(ExhibitionPage::class.java)
         val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)
         criteria.select(root)
         criteria.where(criteriaBuilder.equal(root.get(ExhibitionPage_.layout), layout))
-        val query: TypedQuery<ExhibitionPage> = entityManager.createQuery<ExhibitionPage>(criteria)
+        val query: TypedQuery<ExhibitionPage> = getEntityManager().createQuery<ExhibitionPage>(criteria)
         return query.resultList
     }
 
@@ -112,13 +112,13 @@ class ExhibitionPageDAO : AbstractDAO<ExhibitionPage>() {
      */
     fun listByDeviceGroup(deviceGroup: ExhibitionDeviceGroup): List<ExhibitionPage> {
         
-        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionPage> = criteriaBuilder.createQuery(ExhibitionPage::class.java)
         val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)
         val deviceJoin = root.join(ExhibitionPage_.device)
         criteria.select(root)
         criteria.where(criteriaBuilder.equal(deviceJoin.get(ExhibitionDevice_.exhibitionDeviceGroup), deviceGroup))
-        val query: TypedQuery<ExhibitionPage> = entityManager.createQuery<ExhibitionPage>(criteria)
+        val query: TypedQuery<ExhibitionPage> = getEntityManager().createQuery<ExhibitionPage>(criteria)
         return query.resultList
     }
 

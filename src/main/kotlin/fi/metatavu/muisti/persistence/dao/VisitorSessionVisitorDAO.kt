@@ -42,12 +42,12 @@ class VisitorSessionVisitorDAO() : AbstractDAO<VisitorSessionVisitor>() {
      */
     fun listByVisitorSession(visitorSession: VisitorSession): List<VisitorSessionVisitor> {
         
-        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<VisitorSessionVisitor> = criteriaBuilder.createQuery(VisitorSessionVisitor::class.java)
         val root: Root<VisitorSessionVisitor> = criteria.from(VisitorSessionVisitor::class.java)
         criteria.select(root)
         criteria.where(criteriaBuilder.equal(root.get(VisitorSessionVisitor_.visitorSession), visitorSession))
-        val query: TypedQuery<VisitorSessionVisitor> = entityManager.createQuery<VisitorSessionVisitor>(criteria)
+        val query: TypedQuery<VisitorSessionVisitor> = getEntityManager().createQuery<VisitorSessionVisitor>(criteria)
         return query.getResultList()
     }
 
@@ -59,11 +59,11 @@ class VisitorSessionVisitorDAO() : AbstractDAO<VisitorSessionVisitor>() {
      */
     fun listSessionsByVisitor(visitor: Visitor): List<VisitorSession> {
         
-        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<VisitorSession> = criteriaBuilder.createQuery(VisitorSession::class.java)
         val root: Root<VisitorSessionVisitor> = criteria.from(VisitorSessionVisitor::class.java)
         criteria.select(root.get(VisitorSessionVisitor_.visitorSession))
         criteria.where(criteriaBuilder.equal(root.get(VisitorSessionVisitor_.visitor), visitor))
-        return entityManager.createQuery(criteria).getResultList()
+        return getEntityManager().createQuery(criteria).getResultList()
     }
 }

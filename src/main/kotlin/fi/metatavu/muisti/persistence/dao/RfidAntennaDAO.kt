@@ -77,7 +77,7 @@ class RfidAntennaDAO : AbstractDAO<RfidAntenna>() {
    */
   fun list(exhibition: Exhibition, deviceGroup: ExhibitionDeviceGroup?, room: ExhibitionRoom?): List<RfidAntenna> {
     
-    val criteriaBuilder = entityManager.criteriaBuilder
+    val criteriaBuilder = getEntityManager().criteriaBuilder
     val criteria: CriteriaQuery<RfidAntenna> = criteriaBuilder.createQuery(RfidAntenna::class.java)
     val root: Root<RfidAntenna> = criteria.from(RfidAntenna::class.java)
 
@@ -95,7 +95,7 @@ class RfidAntennaDAO : AbstractDAO<RfidAntenna>() {
     criteria.select(root)
     criteria.where(*restrictions.toTypedArray())
 
-    val query: TypedQuery<RfidAntenna> = entityManager.createQuery(criteria)
+    val query: TypedQuery<RfidAntenna> = getEntityManager().createQuery(criteria)
     return query.resultList
   }
 

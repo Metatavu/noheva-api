@@ -34,6 +34,42 @@ class KeycloakController {
     lateinit var logger: Logger
 
     /**
+     * Returns Keycloak client id
+     */
+    @ConfigProperty(name = "muisti.keycloak.admin.clientId")
+    lateinit var adminResource: String
+
+    /**
+     * Returns Keycloak api secret
+     */
+    @ConfigProperty(name = "muisti.keycloak.admin.secret")
+    lateinit var adminSecret: String
+
+    /**
+     * Returns Keycloak admin password
+     */
+    @ConfigProperty(name = "muisti.keycloak.admin.password")
+    lateinit var adminPassword: String
+
+    /**
+     * Returns Keycloak admin username
+     */
+    @ConfigProperty(name = "muisti.keycloak.admin.user")
+    lateinit var adminUser: String
+
+    /**
+     * Returns Keycloak realm
+     */
+    @ConfigProperty(name = "muisti.keycloak.admin.realm")
+    lateinit var realm: String
+
+    /**
+     * Returns Keycloak server URL
+     */
+    @ConfigProperty(name = "muisti.keycloak.admin.host")
+    lateinit var serverUrl: String
+
+    /**
      * Finds a Keycloak user by user id
      *
      * @param userId user id
@@ -289,42 +325,6 @@ class KeycloakController {
 
             )?.accessToken
         }
-
-    /**
-     * Returns Keycloak client id
-     */
-    @ConfigProperty(name = "muisti.keycloak.admin.clientId")
-    lateinit var adminResource: String
-
-    /**
-     * Returns Keycloak api secret
-     */
-    @ConfigProperty(name = "muisti.keycloak.admin.secret")
-    lateinit var adminSecret: String
-
-    /**
-     * Returns Keycloak admin password
-     */
-    @ConfigProperty(name = "muisti.keycloak.admin.password")
-    lateinit var adminPassword: String
-
-    /**
-     * Returns Keycloak admin username
-     */
-    @ConfigProperty(name = "muisti.keycloak.admin.user")
-    lateinit var adminUser: String
-
-    /**
-     * Returns Keycloak realm
-     */
-    @ConfigProperty(name = "muisti.keycloak.admin.realm")
-    lateinit var realm: String
-
-    /**
-     * Returns Keycloak server URL
-     */
-    @ConfigProperty(name = "muisti.keycloak.admin.host")
-    lateinit var serverUrl: String
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private class IdExtract {

@@ -30,7 +30,7 @@ class MqttConnection {
             try {
                 synchronized (this) {
                     val serverURI = "tcp://${settings.serverUrl}"
-                    val client = MqttClient(serverURI, settings.publisherId, MqttDefaultFilePersistence())
+                    val client = MqttClient(serverURI, settings.publisherId)
                     val options = MqttConnectOptions()
                     val username = settings.username
                     val password = settings.password

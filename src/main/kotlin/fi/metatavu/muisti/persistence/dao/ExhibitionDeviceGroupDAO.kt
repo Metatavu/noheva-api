@@ -69,7 +69,7 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
    */
   fun findByNameAndRoom(name: String, room: ExhibitionRoom?): ExhibitionDeviceGroup? {
     
-    val criteriaBuilder = entityManager.criteriaBuilder
+    val criteriaBuilder = getEntityManager().criteriaBuilder
     val criteria: CriteriaQuery<ExhibitionDeviceGroup> = criteriaBuilder.createQuery(ExhibitionDeviceGroup::class.java)
     val root: Root<ExhibitionDeviceGroup> = criteria.from(ExhibitionDeviceGroup::class.java)
 
@@ -79,7 +79,7 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
       criteriaBuilder.equal(root.get(ExhibitionDeviceGroup_.room), room)
     ))
 
-    return getSingleResult(entityManager.createQuery<ExhibitionDeviceGroup>(criteria))
+    return getSingleResult(getEntityManager().createQuery<ExhibitionDeviceGroup>(criteria))
   }
 
   /**
@@ -91,7 +91,7 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
    */
   fun list(exhibition: Exhibition, room: ExhibitionRoom?): List<ExhibitionDeviceGroup> {
     
-    val criteriaBuilder = entityManager.criteriaBuilder
+    val criteriaBuilder = getEntityManager().criteriaBuilder
     val criteria: CriteriaQuery<ExhibitionDeviceGroup> = criteriaBuilder.createQuery(ExhibitionDeviceGroup::class.java)
     val root: Root<ExhibitionDeviceGroup> = criteria.from(ExhibitionDeviceGroup::class.java)
 
@@ -104,7 +104,7 @@ class ExhibitionDeviceGroupDAO() : AbstractDAO<ExhibitionDeviceGroup>() {
 
     criteria.select(root)
     criteria.where(*restrictions.toTypedArray())
-    val query: TypedQuery<ExhibitionDeviceGroup> = entityManager.createQuery<ExhibitionDeviceGroup>(criteria)
+    val query: TypedQuery<ExhibitionDeviceGroup> = getEntityManager().createQuery<ExhibitionDeviceGroup>(criteria)
     return query.getResultList()
   }
 

@@ -39,12 +39,12 @@ class ContentVersionRoomDAO() : AbstractDAO<ContentVersionRoom>() {
      */
     fun listRoomsByContentVersion(contentVersion: ContentVersion): List<ContentVersionRoom> {
         
-        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<ContentVersionRoom> = criteriaBuilder.createQuery(ContentVersionRoom::class.java)
         val root: Root<ContentVersionRoom> = criteria.from(ContentVersionRoom::class.java)
         criteria.select(root)
         criteria.where(criteriaBuilder.equal(root.get(ContentVersionRoom_.contentVersion), contentVersion))
-        val query: TypedQuery<ContentVersionRoom> = entityManager.createQuery<ContentVersionRoom>(criteria)
+        val query: TypedQuery<ContentVersionRoom> = getEntityManager().createQuery<ContentVersionRoom>(criteria)
         return query.resultList
     }
 
@@ -55,11 +55,11 @@ class ContentVersionRoomDAO() : AbstractDAO<ContentVersionRoom>() {
      * @return List of content versions
      */
     fun listContentVersionsByRoom(exhibitionRoom: ExhibitionRoom): List<ContentVersion> {
-        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<ContentVersion> = criteriaBuilder.createQuery(ContentVersion::class.java)
         val root: Root<ContentVersionRoom> = criteria.from(ContentVersionRoom::class.java)
         criteria.select(root.get(ContentVersionRoom_.contentVersion))
         criteria.where(criteriaBuilder.equal(root.get(ContentVersionRoom_.exhibitionRoom), exhibitionRoom))
-        return entityManager.createQuery(criteria).resultList
+        return getEntityManager().createQuery(criteria).resultList
     }
 }

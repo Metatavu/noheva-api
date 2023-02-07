@@ -47,12 +47,12 @@ class VisitorSessionVisitedDeviceGroupDAO() : AbstractDAO<VisitorSessionVisitedD
      */
     fun listByVisitorSession(visitorSession: VisitorSession): List<VisitorSessionVisitedDeviceGroup> {
         
-        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<VisitorSessionVisitedDeviceGroup> = criteriaBuilder.createQuery(VisitorSessionVisitedDeviceGroup::class.java)
         val root: Root<VisitorSessionVisitedDeviceGroup> = criteria.from(VisitorSessionVisitedDeviceGroup::class.java)
         criteria.select(root)
         criteria.where(criteriaBuilder.equal(root.get(VisitorSessionVisitedDeviceGroup_.visitorSession), visitorSession))
-        val query: TypedQuery<VisitorSessionVisitedDeviceGroup> = entityManager.createQuery(criteria)
+        val query: TypedQuery<VisitorSessionVisitedDeviceGroup> = getEntityManager().createQuery(criteria)
         return query.resultList
     }
 

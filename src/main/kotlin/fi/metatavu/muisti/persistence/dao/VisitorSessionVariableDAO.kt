@@ -43,7 +43,7 @@ class VisitorSessionVariableDAO() : AbstractDAO<VisitorSessionVariable>() {
      * @return List of VisitorSessionVariables
      */
     fun findByVisitorSessionAndName(visitorSession: VisitorSession, name: String): VisitorSessionVariable? {
-        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<VisitorSessionVariable> = criteriaBuilder.createQuery(VisitorSessionVariable::class.java)
         val root: Root<VisitorSessionVariable> = criteria.from(VisitorSessionVariable::class.java)
         criteria.select(root)
@@ -52,7 +52,7 @@ class VisitorSessionVariableDAO() : AbstractDAO<VisitorSessionVariable>() {
             criteriaBuilder.equal(root.get(VisitorSessionVariable_.name), name)
         )
 
-        val query: TypedQuery<VisitorSessionVariable> = entityManager.createQuery<VisitorSessionVariable>(criteria)
+        val query: TypedQuery<VisitorSessionVariable> = getEntityManager().createQuery<VisitorSessionVariable>(criteria)
         return getSingleResult(query)
     }
 
@@ -64,12 +64,12 @@ class VisitorSessionVariableDAO() : AbstractDAO<VisitorSessionVariable>() {
      */
     fun listByVisitorSession(visitorSession: VisitorSession): List<VisitorSessionVariable> {
         
-        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<VisitorSessionVariable> = criteriaBuilder.createQuery(VisitorSessionVariable::class.java)
         val root: Root<VisitorSessionVariable> = criteria.from(VisitorSessionVariable::class.java)
         criteria.select(root)
         criteria.where(criteriaBuilder.equal(root.get(VisitorSessionVariable_.visitorSession), visitorSession))
-        val query: TypedQuery<VisitorSessionVariable> = entityManager.createQuery<VisitorSessionVariable>(criteria)
+        val query: TypedQuery<VisitorSessionVariable> = getEntityManager().createQuery<VisitorSessionVariable>(criteria)
         return query.getResultList()
     }
 

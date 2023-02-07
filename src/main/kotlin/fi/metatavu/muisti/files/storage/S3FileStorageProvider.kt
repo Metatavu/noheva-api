@@ -49,22 +49,22 @@ class S3FileStorageProvider : FileStorageProvider {
     lateinit var imageScaler: ImageScaler
 
     @ConfigProperty(name = "s3.file.storage.region")
-    var region: String? = null
+    lateinit var region: String
 
     @ConfigProperty(name = "s3.file.storage.endpoint")
-    var endpoint: Optional<String>? = null
+    lateinit var endpoint: Optional<String>
 
     @ConfigProperty(name = "s3.file.storage.bucket")
-    var bucket: String? = null
+    lateinit var bucket: String
 
     @ConfigProperty(name = "s3.file.storage.prefix")
-    var prefix: String? = null
+    lateinit var prefix: String
 
     @ConfigProperty(name = "s3.file.storage.keyid")
-    var keyId: String? = null
+    lateinit var keyId: String
 
     @ConfigProperty(name = "s3.file.storage.secret")
-    var secret: String? = null
+    lateinit var secret: String
 
     /**
      * Returns whether system is running in test mode
