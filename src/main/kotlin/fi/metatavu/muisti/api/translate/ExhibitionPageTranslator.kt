@@ -17,9 +17,6 @@ class ExhibitionPageTranslator :
     AbstractTranslator<fi.metatavu.muisti.persistence.model.ExhibitionPage, ExhibitionPage>() {
 
     @Inject
-    lateinit var objectMapper: ObjectMapper
-
-    @Inject
     lateinit var exhibitionPageController: ExhibitionPageController
 
     override fun translate(entity: fi.metatavu.muisti.persistence.model.ExhibitionPage): ExhibitionPage {
@@ -50,6 +47,7 @@ class ExhibitionPageTranslator :
      */
     private fun getResources(resources: String?): List<ExhibitionPageResource> {
         resources ?: return listOf()
+        val objectMapper = ObjectMapper()
         return objectMapper.readValue(resources)
     }
 
@@ -61,6 +59,7 @@ class ExhibitionPageTranslator :
      */
     private fun getTransitions(transitions: String?): List<ExhibitionPageTransition> {
         transitions ?: return listOf()
+        val objectMapper = ObjectMapper()
         return objectMapper.readValue(transitions)
     }
 

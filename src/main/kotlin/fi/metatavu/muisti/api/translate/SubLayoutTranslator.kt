@@ -14,8 +14,6 @@ import javax.inject.Inject
 @ApplicationScoped
 class SubLayoutTranslator : AbstractTranslator<fi.metatavu.muisti.persistence.model.SubLayout, SubLayout>() {
 
-    @Inject
-    lateinit var objectMapper: ObjectMapper
     override fun translate(entity: fi.metatavu.muisti.persistence.model.SubLayout): SubLayout {
         return SubLayout(
             id = entity.id,
@@ -35,6 +33,7 @@ class SubLayoutTranslator : AbstractTranslator<fi.metatavu.muisti.persistence.mo
      * @return JSON string
      */
     private fun getData(data: String?): PageLayoutView {
+        val objectMapper = ObjectMapper()
         return objectMapper.readValue(data, PageLayoutView::class.java)
     }
 

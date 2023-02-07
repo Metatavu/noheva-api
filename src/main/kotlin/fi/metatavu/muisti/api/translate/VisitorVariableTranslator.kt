@@ -12,8 +12,6 @@ import javax.inject.Inject
 @ApplicationScoped
 class VisitorVariableTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.VisitorVariable, VisitorVariable>() {
 
-    @Inject
-    lateinit var objectMapper: ObjectMapper
     override fun translate(entity: fi.metatavu.muisti.persistence.model.VisitorVariable): VisitorVariable {
         return VisitorVariable(
             id = entity.id,
@@ -37,6 +35,7 @@ class VisitorVariableTranslator: AbstractTranslator<fi.metatavu.muisti.persisten
      */
     private fun getEnum(enum: String?): List<String>? {
         enum ?: return null
+        val objectMapper = ObjectMapper()
         return objectMapper.readValue(enum, jacksonTypeRef<List<String>>())
     }
 
