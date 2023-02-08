@@ -35,8 +35,8 @@ abstract class AbstractFunctionalTest: AbstractResourceTest() {
      * @return created room
      */
     protected fun createDefaultRoom(testBuilder: TestBuilder, exhibition: Exhibition): ExhibitionRoom {
-        val floor = testBuilder.admin().exhibitionFloors.create(exhibition)
-        return testBuilder.admin().exhibitionRooms.create(exhibition = exhibition, floor = floor)
+        val floor = testBuilder.admin.exhibitionFloors.create(exhibition)
+        return testBuilder.admin.exhibitionRooms.create(exhibition = exhibition, floor = floor)
     }
 
     /**
@@ -48,7 +48,7 @@ abstract class AbstractFunctionalTest: AbstractResourceTest() {
      */
     protected fun createDefaultDeviceGroup(testBuilder: TestBuilder, exhibition: Exhibition): ExhibitionDeviceGroup {
         val room = createDefaultRoom(testBuilder, exhibition)
-        return testBuilder.admin().exhibitionDeviceGroups.create(
+        return testBuilder.admin.exhibitionDeviceGroups.create(
             exhibition = exhibition,
             room = room,
             name = "Group 1"
@@ -64,8 +64,8 @@ abstract class AbstractFunctionalTest: AbstractResourceTest() {
      * @return created device
      */
     protected fun createDefaultDevice(testBuilder: TestBuilder, exhibition: Exhibition, deviceGroup: ExhibitionDeviceGroup): ExhibitionDevice {
-        val model = testBuilder.admin().deviceModels.create()
-        return testBuilder.admin().exhibitionDevices.create(exhibition = exhibition, model = model, group = deviceGroup)
+        val model = testBuilder.admin.deviceModels.create()
+        return testBuilder.admin.exhibitionDevices.create(exhibition = exhibition, model = model, group = deviceGroup)
     }
 
     /**

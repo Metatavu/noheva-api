@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.api.translate
 
+import com.vividsolutions.jts.geom.Point
 import fi.metatavu.muisti.api.spec.model.ExhibitionFloor
 import fi.metatavu.muisti.geometry.getBounds
 import javax.enterprise.context.ApplicationScoped

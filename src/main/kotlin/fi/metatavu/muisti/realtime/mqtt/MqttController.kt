@@ -1,7 +1,6 @@
 package fi.metatavu.muisti.realtime.mqtt
 
 import fi.metatavu.muisti.settings.MqttSettings
-import fi.metatavu.muisti.settings.SettingsController
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.*
 import javax.annotation.PostConstruct

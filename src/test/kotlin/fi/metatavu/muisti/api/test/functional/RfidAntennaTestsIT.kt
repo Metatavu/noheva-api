@@ -27,17 +27,17 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
     @Test
     fun testCreateRfidAntenna() {
       createTestBuilder().use {
-        val mqttSubscription = it.mqtt().subscribe(MqttRfidAntennaCreate::class.java,"rfidantennas/create")
+        val mqttSubscription = it.mqtt.subscribe(MqttRfidAntennaCreate::class.java,"rfidantennas/create")
 
-        val exhibition = it.admin().exhibitions.create()
+        val exhibition = it.admin.exhibitions.create()
         val exhibitionId = exhibition.id!!
 
-        val floor = it.admin().exhibitionFloors.create(exhibitionId = exhibitionId)
+        val floor = it.admin.exhibitionFloors.create(exhibitionId = exhibitionId)
         val floorId = floor.id!!
-        val room = it.admin().exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
+        val room = it.admin.exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
         val roomId = room.id!!
-        val group = it.admin().exhibitionDeviceGroups.create(exhibitionId = exhibitionId, roomId = roomId, name = "Group 1")
-        val createdRfidAntenna = it.admin().rfidAntennas.create(
+        val group = it.admin.exhibitionDeviceGroups.create(exhibitionId = exhibitionId, roomId = roomId, name = "Group 1")
+        val createdRfidAntenna = it.admin.rfidAntennas.create(
           exhibitionId,
           RfidAntenna(
             groupId = group.id!!,
@@ -56,7 +56,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
         assertEquals(80, createdRfidAntenna.visitorSessionStartThreshold)
         assertEquals(10, createdRfidAntenna.visitorSessionEndThreshold)
 
-        it.admin().rfidAntennas.assertCreateFail(
+        it.admin.rfidAntennas.assertCreateFail(
           400,
           exhibitionId,
           RfidAntenna(
@@ -71,7 +71,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
           )
         )
 
-        it.admin().rfidAntennas.assertCreateFail(
+        it.admin.rfidAntennas.assertCreateFail(
           400,
           exhibitionId,
           RfidAntenna(
@@ -91,49 +91,49 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
     @Test
     fun testFindRfidAntenna() {
         createTestBuilder().use {
-            val exhibition = it.admin().exhibitions.create()
+            val exhibition = it.admin.exhibitions.create()
             val exhibitionId = exhibition.id!!
-            val floor = it.admin().exhibitionFloors.create(exhibitionId = exhibitionId)
+            val floor = it.admin.exhibitionFloors.create(exhibitionId = exhibitionId)
             val floorId = floor.id!!
-            val room = it.admin().exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
+            val room = it.admin.exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId = room.id!!
 
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingRfidAntennaId = UUID.randomUUID()
-            val createdRfidAntenna = it.admin().rfidAntennas.create(exhibitionId = exhibitionId, roomId = roomId)
+            val createdRfidAntenna = it.admin.rfidAntennas.create(exhibitionId = exhibitionId, roomId = roomId)
             val createdRfidAntennaId = createdRfidAntenna.id!!
 
-            it.admin().rfidAntennas.assertFindFail(404, exhibitionId, nonExistingRfidAntennaId)
-            it.admin().rfidAntennas.assertFindFail(404, nonExistingExhibitionId, nonExistingRfidAntennaId)
-            it.admin().rfidAntennas.assertFindFail(404, nonExistingExhibitionId, createdRfidAntennaId)
-            assertNotNull(it.admin().rfidAntennas.findRfidAntenna(exhibitionId, createdRfidAntennaId))
+            it.admin.rfidAntennas.assertFindFail(404, exhibitionId, nonExistingRfidAntennaId)
+            it.admin.rfidAntennas.assertFindFail(404, nonExistingExhibitionId, nonExistingRfidAntennaId)
+            it.admin.rfidAntennas.assertFindFail(404, nonExistingExhibitionId, createdRfidAntennaId)
+            assertNotNull(it.admin.rfidAntennas.findRfidAntenna(exhibitionId, createdRfidAntennaId))
         }
     }
 
     @Test
     fun testListRfidAntennas() {
         createTestBuilder().use {
-            val exhibition = it.admin().exhibitions.create()
+            val exhibition = it.admin.exhibitions.create()
             val exhibitionId = exhibition.id!!
-            val floor = it.admin().exhibitionFloors.create(exhibitionId = exhibitionId)
+            val floor = it.admin.exhibitionFloors.create(exhibitionId = exhibitionId)
             val floorId = floor.id!!
-            val room1 = it.admin().exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
+            val room1 = it.admin.exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId1 = room1.id!!
 
-            val room2 = it.admin().exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
+            val room2 = it.admin.exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId2 = room2.id!!
 
-            val group1 = it.admin().exhibitionDeviceGroups.create(exhibitionId = exhibitionId, roomId = roomId1, name = "Group 1")
-            val group2 = it.admin().exhibitionDeviceGroups.create(exhibitionId = exhibitionId, roomId = roomId2, name = "Group 2")
+            val group1 = it.admin.exhibitionDeviceGroups.create(exhibitionId = exhibitionId, roomId = roomId1, name = "Group 1")
+            val group2 = it.admin.exhibitionDeviceGroups.create(exhibitionId = exhibitionId, roomId = roomId2, name = "Group 2")
             val nonExistingExhibitionId = UUID.randomUUID()
 
-            it.admin().rfidAntennas.assertListFail(expectedStatus = 404, exhibitionId = nonExistingExhibitionId, deviceGroupId = null, roomId = null)
-            it.admin().rfidAntennas.assertListFail(expectedStatus = 400, exhibitionId = exhibitionId, deviceGroupId = UUID.randomUUID(), roomId = null)
-            it.admin().rfidAntennas.assertListFail(expectedStatus = 400, exhibitionId = exhibitionId, deviceGroupId = null, roomId = UUID.randomUUID())
+            it.admin.rfidAntennas.assertListFail(expectedStatus = 404, exhibitionId = nonExistingExhibitionId, deviceGroupId = null, roomId = null)
+            it.admin.rfidAntennas.assertListFail(expectedStatus = 400, exhibitionId = exhibitionId, deviceGroupId = UUID.randomUUID(), roomId = null)
+            it.admin.rfidAntennas.assertListFail(expectedStatus = 400, exhibitionId = exhibitionId, deviceGroupId = null, roomId = UUID.randomUUID())
 
-            assertEquals(0, it.admin().rfidAntennas.listRfidAntennas(exhibitionId = exhibitionId, deviceGroupId = null, roomId = null).size)
+            assertEquals(0, it.admin.rfidAntennas.listRfidAntennas(exhibitionId = exhibitionId, deviceGroupId = null, roomId = null).size)
 
-            val createdRfidAntenna = it.admin().rfidAntennas.create(exhibitionId = exhibitionId, payload = RfidAntenna(
+            val createdRfidAntenna = it.admin.rfidAntennas.create(exhibitionId = exhibitionId, payload = RfidAntenna(
                 name = "Default",
                 roomId = roomId1,
                 readerId = "readerid1234",
@@ -146,40 +146,40 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
 
             val createdRfidAntennaId = createdRfidAntenna.id!!
 
-            it.admin().rfidAntennas.assertCount(expected = 1, exhibitionId = exhibitionId, deviceGroupId = null, roomId = null)
-            it.admin().rfidAntennas.assertCount(expected = 1, exhibitionId = exhibitionId, deviceGroupId = group1.id!!, roomId = null)
-            it.admin().rfidAntennas.assertCount(expected = 0, exhibitionId = exhibitionId, deviceGroupId = group2.id!!, roomId = null)
+            it.admin.rfidAntennas.assertCount(expected = 1, exhibitionId = exhibitionId, deviceGroupId = null, roomId = null)
+            it.admin.rfidAntennas.assertCount(expected = 1, exhibitionId = exhibitionId, deviceGroupId = group1.id!!, roomId = null)
+            it.admin.rfidAntennas.assertCount(expected = 0, exhibitionId = exhibitionId, deviceGroupId = group2.id!!, roomId = null)
 
-            it.admin().rfidAntennas.assertCount(expected = 1, exhibitionId = exhibitionId, deviceGroupId = null, roomId = roomId1)
-            it.admin().rfidAntennas.assertCount(expected = 1, exhibitionId = exhibitionId, deviceGroupId = group1.id, roomId = roomId1)
-            it.admin().rfidAntennas.assertCount(expected = 0, exhibitionId = exhibitionId, deviceGroupId = group2.id, roomId = roomId1)
+            it.admin.rfidAntennas.assertCount(expected = 1, exhibitionId = exhibitionId, deviceGroupId = null, roomId = roomId1)
+            it.admin.rfidAntennas.assertCount(expected = 1, exhibitionId = exhibitionId, deviceGroupId = group1.id, roomId = roomId1)
+            it.admin.rfidAntennas.assertCount(expected = 0, exhibitionId = exhibitionId, deviceGroupId = group2.id, roomId = roomId1)
 
-            val rfidAntennas = it.admin().rfidAntennas.listRfidAntennas(exhibitionId = exhibitionId, deviceGroupId = null, roomId = null)
+            val rfidAntennas = it.admin.rfidAntennas.listRfidAntennas(exhibitionId = exhibitionId, deviceGroupId = null, roomId = null)
             assertEquals(1, rfidAntennas.size)
             assertEquals(createdRfidAntennaId, rfidAntennas[0].id)
-            it.admin().rfidAntennas.delete(exhibitionId, createdRfidAntennaId)
-            assertEquals(0, it.admin().rfidAntennas.listRfidAntennas(exhibitionId = exhibitionId, deviceGroupId = null, roomId = null).size)
+            it.admin.rfidAntennas.delete(exhibitionId, createdRfidAntennaId)
+            assertEquals(0, it.admin.rfidAntennas.listRfidAntennas(exhibitionId = exhibitionId, deviceGroupId = null, roomId = null).size)
         }
     }
 
     @Test
     fun testUpdateExhibition() {
       createTestBuilder().use {
-        val mqttSubscription= it.mqtt().subscribe(MqttRfidAntennaUpdate::class.java,"rfidantennas/update")
-        val exhibition = it.admin().exhibitions.create()
+        val mqttSubscription= it.mqtt.subscribe(MqttRfidAntennaUpdate::class.java,"rfidantennas/update")
+        val exhibition = it.admin.exhibitions.create()
         val exhibitionId = exhibition.id!!
         val nonExistingExhibitionId = UUID.randomUUID()
-        val floor = it.admin().exhibitionFloors.create(exhibitionId = exhibitionId)
+        val floor = it.admin.exhibitionFloors.create(exhibitionId = exhibitionId)
         val floorId = floor.id!!
-        val room1 = it.admin().exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
+        val room1 = it.admin.exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
         val roomId1 = room1.id!!
-        val room2 = it.admin().exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
+        val room2 = it.admin.exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
         val roomId2 = room2.id!!
 
-        val group1 = it.admin().exhibitionDeviceGroups.create(exhibitionId = exhibitionId, roomId = roomId1, name = "Group 1")
-        val group2 = it.admin().exhibitionDeviceGroups.create(exhibitionId = exhibitionId, roomId = roomId2, name = "Group 2")
+        val group1 = it.admin.exhibitionDeviceGroups.create(exhibitionId = exhibitionId, roomId = roomId1, name = "Group 1")
+        val group2 = it.admin.exhibitionDeviceGroups.create(exhibitionId = exhibitionId, roomId = roomId2, name = "Group 2")
 
-        val createdRfidAntenna = it.admin().rfidAntennas.create(exhibitionId, RfidAntenna(
+        val createdRfidAntenna = it.admin.rfidAntennas.create(exhibitionId, RfidAntenna(
           groupId = group1.id!!,
           roomId = roomId1,
           name = "created name",
@@ -192,7 +192,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
 
         val createdRfidAntennaId = createdRfidAntenna.id!!
 
-        val foundCreatedRfidAntenna = it.admin().rfidAntennas.findRfidAntenna(exhibitionId, createdRfidAntennaId)
+        val foundCreatedRfidAntenna = it.admin.rfidAntennas.findRfidAntenna(exhibitionId, createdRfidAntennaId)
         assertEquals(createdRfidAntenna.id, foundCreatedRfidAntenna.id)
         assertEquals("created name", createdRfidAntenna.name)
         assertEquals(-123.0, createdRfidAntenna.location.x)
@@ -202,7 +202,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
         assertEquals(80, createdRfidAntenna.visitorSessionStartThreshold)
         assertEquals(10, createdRfidAntenna.visitorSessionEndThreshold)
 
-        val updatedRfidAntenna = it.admin().rfidAntennas.updateRfidAntenna(exhibitionId, RfidAntenna(
+        val updatedRfidAntenna = it.admin.rfidAntennas.updateRfidAntenna(exhibitionId, RfidAntenna(
           id = createdRfidAntennaId,
           groupId = group2.id!!,
           roomId = roomId2,
@@ -223,7 +223,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
         assertEquals(50, updatedRfidAntenna.visitorSessionStartThreshold)
         assertEquals(20, updatedRfidAntenna.visitorSessionEndThreshold)
 
-        val foundUpdatedRfidAntenna = it.admin().rfidAntennas.findRfidAntenna(exhibitionId, createdRfidAntennaId)
+        val foundUpdatedRfidAntenna = it.admin.rfidAntennas.findRfidAntenna(exhibitionId, createdRfidAntennaId)
         assertEquals(foundUpdatedRfidAntenna.id, foundCreatedRfidAntenna.id)
         assertEquals("update name", foundUpdatedRfidAntenna.name)
         assertEquals(-654.0, foundUpdatedRfidAntenna.location.x)
@@ -233,7 +233,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
         assertEquals(50, foundUpdatedRfidAntenna.visitorSessionStartThreshold)
         assertEquals(20, foundUpdatedRfidAntenna.visitorSessionEndThreshold)
 
-        it.admin().rfidAntennas.updateRfidAntenna(exhibitionId, updatedRfidAntenna)
+        it.admin.rfidAntennas.updateRfidAntenna(exhibitionId, updatedRfidAntenna)
 
         assertJsonsEqual(
           listOf(
@@ -243,7 +243,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
           mqttSubscription.getMessages(2)
         )
 
-        it.admin().rfidAntennas.assertUpdateFail(404, nonExistingExhibitionId, RfidAntenna(
+        it.admin.rfidAntennas.assertUpdateFail(404, nonExistingExhibitionId, RfidAntenna(
           id = createdRfidAntennaId,
           groupId = UUID.randomUUID(),
           roomId = roomId2,
@@ -255,7 +255,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
           visitorSessionEndThreshold = 10
         ))
 
-        it.admin().rfidAntennas.assertUpdateFail(400, exhibitionId, RfidAntenna(
+        it.admin.rfidAntennas.assertUpdateFail(400, exhibitionId, RfidAntenna(
           id = createdRfidAntennaId,
           groupId = group2.id,
           roomId = UUID.randomUUID(),
@@ -267,7 +267,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
           visitorSessionEndThreshold = 10
         ))
 
-        it.admin().rfidAntennas.assertUpdateFail(400, exhibitionId, RfidAntenna(
+        it.admin.rfidAntennas.assertUpdateFail(400, exhibitionId, RfidAntenna(
           id = createdRfidAntennaId,
           groupId = group2.id,
           roomId = roomId2,
@@ -279,7 +279,7 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
           visitorSessionEndThreshold = 10
         ))
 
-        it.admin().rfidAntennas.assertUpdateFail(400, exhibitionId, RfidAntenna(
+        it.admin.rfidAntennas.assertUpdateFail(400, exhibitionId, RfidAntenna(
           id = createdRfidAntennaId,
           groupId = group2.id,
           roomId = roomId2,
@@ -296,18 +296,18 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
     @Test
     fun testDeleteExhibition() {
         createTestBuilder().use {
-            val mqttSubscription = it.mqtt().subscribe(MqttRfidAntennaDelete::class.java,"rfidantennas/delete")
-            val exhibition = it.admin().exhibitions.create()
+            val mqttSubscription = it.mqtt.subscribe(MqttRfidAntennaDelete::class.java,"rfidantennas/delete")
+            val exhibition = it.admin.exhibitions.create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingSessionVariableId = UUID.randomUUID()
-            val floor = it.admin().exhibitionFloors.create(exhibitionId = exhibitionId)
+            val floor = it.admin.exhibitionFloors.create(exhibitionId = exhibitionId)
             val floorId = floor.id!!
-            val room = it.admin().exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
+            val room = it.admin.exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId = room.id!!
 
-            val group = it.admin().exhibitionDeviceGroups.create(exhibitionId = exhibitionId, roomId = roomId, name = "Group 1")
-            val createdRfidAntenna = it.admin().rfidAntennas.create(exhibitionId, RfidAntenna(
+            val group = it.admin.exhibitionDeviceGroups.create(exhibitionId = exhibitionId, roomId = roomId, name = "Group 1")
+            val createdRfidAntenna = it.admin.rfidAntennas.create(exhibitionId, RfidAntenna(
                 groupId = group.id!!,
                 roomId = roomId,
                 name = "created name",
@@ -320,15 +320,15 @@ class RfidAntennaTestsIT: AbstractFunctionalTest() {
 
             val createdRfidAntennaId = createdRfidAntenna.id!!
 
-            assertNotNull(it.admin().rfidAntennas.findRfidAntenna(exhibitionId, createdRfidAntennaId))
-            it.admin().rfidAntennas.assertDeleteFail(404, exhibitionId, nonExistingSessionVariableId)
-            it.admin().rfidAntennas.assertDeleteFail(404, nonExistingExhibitionId, createdRfidAntennaId)
-            it.admin().rfidAntennas.assertDeleteFail(404, nonExistingExhibitionId, nonExistingSessionVariableId)
+            assertNotNull(it.admin.rfidAntennas.findRfidAntenna(exhibitionId, createdRfidAntennaId))
+            it.admin.rfidAntennas.assertDeleteFail(404, exhibitionId, nonExistingSessionVariableId)
+            it.admin.rfidAntennas.assertDeleteFail(404, nonExistingExhibitionId, createdRfidAntennaId)
+            it.admin.rfidAntennas.assertDeleteFail(404, nonExistingExhibitionId, nonExistingSessionVariableId)
 
-            it.admin().rfidAntennas.delete(exhibitionId, createdRfidAntenna)
+            it.admin.rfidAntennas.delete(exhibitionId, createdRfidAntenna)
             assertJsonsEqual(listOf(MqttRfidAntennaDelete(exhibitionId = exhibitionId, id = createdRfidAntenna.id)), mqttSubscription.getMessages(1))
 
-            it.admin().rfidAntennas.assertDeleteFail(404, exhibitionId, createdRfidAntennaId)
+            it.admin.rfidAntennas.assertDeleteFail(404, exhibitionId, createdRfidAntennaId)
         }
     }
 

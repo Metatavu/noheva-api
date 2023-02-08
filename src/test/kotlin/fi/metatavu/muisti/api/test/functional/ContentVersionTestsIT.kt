@@ -7,10 +7,8 @@ import fi.metatavu.muisti.api.test.functional.resources.MqttResource
 import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.Assert.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -32,11 +30,11 @@ class ContentVersionTestsIT: AbstractFunctionalTest() {
     @Test
     fun testCreateContentVersion() {
         createTestBuilder().use {
-            val exhibitionId = it.admin().exhibitions.create().id!!
-            val floorId = it.admin().exhibitionFloors.create(exhibitionId).id!!
-            val roomId = it.admin().exhibitionRooms.create(exhibitionId, floorId).id!!
+            val exhibitionId = it.admin.exhibitions.create().id!!
+            val floorId = it.admin.exhibitionFloors.create(exhibitionId).id!!
+            val roomId = it.admin.exhibitionRooms.create(exhibitionId, floorId).id!!
             val contentVersionToCreate = ContentVersion(name = "created name", language = "FI", rooms = arrayOf(roomId))
-            val createdContentVersion = it.admin().contentVersions.create(exhibitionId, contentVersionToCreate)
+            val createdContentVersion = it.admin.contentVersions.create(exhibitionId, contentVersionToCreate)
             assertNotNull(createdContentVersion)
         }
     }
@@ -44,10 +42,10 @@ class ContentVersionTestsIT: AbstractFunctionalTest() {
     @Test
     fun testUpdateContentVersion() {
         createTestBuilder().use {
-            val exhibitionId = it.admin().exhibitions.create().id!!
-            val floorId = it.admin().exhibitionFloors.create(exhibitionId).id!!
-            val roomId = it.admin().exhibitionRooms.create(exhibitionId, floorId).id!!
-            val createdContentVersion = it.admin().contentVersions.create(
+            val exhibitionId = it.admin.exhibitions.create().id!!
+            val floorId = it.admin.exhibitionFloors.create(exhibitionId).id!!
+            val roomId = it.admin.exhibitionRooms.create(exhibitionId, floorId).id!!
+            val createdContentVersion = it.admin.contentVersions.create(
                 exhibitionId = exhibitionId,
                 payload = ContentVersion(
                     name = "created name",
@@ -69,7 +67,7 @@ class ContentVersionTestsIT: AbstractFunctionalTest() {
                     equals = "value"
                 )
             )
-            val updatedContentVersion = it.admin().contentVersions.updateContentVersion(exhibitionId, contentVersionToUpdate)
+            val updatedContentVersion = it.admin.contentVersions.updateContentVersion(exhibitionId, contentVersionToUpdate)
 
             assertNotNull(updatedContentVersion)
             assertEquals(createdContentVersion.id, updatedContentVersion.id!!)
@@ -83,46 +81,46 @@ class ContentVersionTestsIT: AbstractFunctionalTest() {
     @Test
     fun testFindContentVersion() {
         createTestBuilder().use {
-            val exhibition = it.admin().exhibitions.create()
+            val exhibition = it.admin.exhibitions.create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingContentVersionId = UUID.randomUUID()
-            val createdContentVersion = it.admin().contentVersions.create(exhibitionId = exhibitionId)
+            val createdContentVersion = it.admin.contentVersions.create(exhibitionId = exhibitionId)
             val createdContentVersionId = createdContentVersion.id!!
 
-            it.admin().contentVersions.assertFindFail(404, exhibitionId, nonExistingContentVersionId)
-            it.admin().contentVersions.assertFindFail(404, nonExistingExhibitionId, nonExistingContentVersionId)
-            it.admin().contentVersions.assertFindFail(404, nonExistingExhibitionId, createdContentVersionId)
-            assertNotNull(it.admin().contentVersions.findContentVersion(exhibitionId, createdContentVersionId))
+            it.admin.contentVersions.assertFindFail(404, exhibitionId, nonExistingContentVersionId)
+            it.admin.contentVersions.assertFindFail(404, nonExistingExhibitionId, nonExistingContentVersionId)
+            it.admin.contentVersions.assertFindFail(404, nonExistingExhibitionId, createdContentVersionId)
+            assertNotNull(it.admin.contentVersions.findContentVersion(exhibitionId, createdContentVersionId))
         }
     }
 
     @Test
     fun testListContentVersions() {
         createTestBuilder().use {
-            val exhibitionId = it.admin().exhibitions.create().id!!
-            val floorId = it.admin().exhibitionFloors.create(exhibitionId).id!!
-            val roomId = it.admin().exhibitionRooms.create(exhibitionId, floorId).id!!
+            val exhibitionId = it.admin.exhibitions.create().id!!
+            val floorId = it.admin.exhibitionFloors.create(exhibitionId).id!!
+            val roomId = it.admin.exhibitionRooms.create(exhibitionId, floorId).id!!
             val nonExistingExhibitionId = UUID.randomUUID()
 
-            it.admin().contentVersions.assertListFail(404, nonExistingExhibitionId, null)
-            assertEquals(0, it.admin().contentVersions.listContentVersions(exhibitionId, null).size)
+            it.admin.contentVersions.assertListFail(404, nonExistingExhibitionId, null)
+            assertEquals(0, it.admin.contentVersions.listContentVersions(exhibitionId, null).size)
 
-            val createdContentVersionId = it.admin().contentVersions.create(exhibitionId = exhibitionId).id!!
-            val contentVersions = it.admin().contentVersions.listContentVersions(exhibitionId, null)
+            val createdContentVersionId = it.admin.contentVersions.create(exhibitionId = exhibitionId).id!!
+            val contentVersions = it.admin.contentVersions.listContentVersions(exhibitionId, null)
             assertEquals(1, contentVersions.size)
             assertEquals(createdContentVersionId, contentVersions[0].id)
-            it.admin().contentVersions.delete(exhibitionId, createdContentVersionId)
-            assertEquals(0, it.admin().contentVersions.listContentVersions(exhibitionId, null).size)
+            it.admin.contentVersions.delete(exhibitionId, createdContentVersionId)
+            assertEquals(0, it.admin.contentVersions.listContentVersions(exhibitionId, null).size)
 
-            it.admin().contentVersions.create(exhibitionId, ContentVersion(name = "created name", language = "FI", rooms = arrayOf(roomId)))
-            it.admin().contentVersions.create(exhibitionId, ContentVersion(name = "another name", language = "FI", rooms = arrayOf(roomId)))
-            it.admin().contentVersions.create(exhibitionId = exhibitionId)
+            it.admin.contentVersions.create(exhibitionId, ContentVersion(name = "created name", language = "FI", rooms = arrayOf(roomId)))
+            it.admin.contentVersions.create(exhibitionId, ContentVersion(name = "another name", language = "FI", rooms = arrayOf(roomId)))
+            it.admin.contentVersions.create(exhibitionId = exhibitionId)
 
-            val contentVersionsWithoutRoomId = it.admin().contentVersions.listContentVersions(exhibitionId, null)
+            val contentVersionsWithoutRoomId = it.admin.contentVersions.listContentVersions(exhibitionId, null)
             assertEquals(3, contentVersionsWithoutRoomId.size)
 
-            val contentVersionsWithRoomId = it.admin().contentVersions.listContentVersions(exhibitionId, roomId)
+            val contentVersionsWithRoomId = it.admin.contentVersions.listContentVersions(exhibitionId, roomId)
             assertEquals(2, contentVersionsWithRoomId.size)
         }
     }

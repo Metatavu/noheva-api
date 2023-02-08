@@ -1,5 +1,6 @@
 package fi.metatavu.muisti.persistence.model
 
+import com.vividsolutions.jts.geom.Geometry
 import com.vividsolutions.jts.geom.Point
 import org.hibernate.annotations.Type
 import org.hibernate.validator.constraints.URL

@@ -26,7 +26,7 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
     @Test
     fun testCreateSubLayout() {
         createTestBuilder().use {
-            val createdSubLayout = it.admin().subLayouts.create()
+            val createdSubLayout = it.admin.subLayouts.create()
             Assertions.assertNotNull(createdSubLayout)
         }
     }
@@ -35,16 +35,16 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
     fun testFindSubLayout() {
         createTestBuilder().use {
             val nonExistingSubLayoutId = UUID.randomUUID()
-            val createdSubLayoutId = it.admin().subLayouts.create().id!!
-            it.admin().subLayouts.assertFindFail(404, nonExistingSubLayoutId)
-            Assertions.assertNotNull(it.admin().subLayouts.findSubLayout(createdSubLayoutId))
+            val createdSubLayoutId = it.admin.subLayouts.create().id!!
+            it.admin.subLayouts.assertFindFail(404, nonExistingSubLayoutId)
+            Assertions.assertNotNull(it.admin.subLayouts.findSubLayout(createdSubLayoutId))
         }
     }
 
     @Test
     fun testListSubLayouts() {
         createTestBuilder().use {
-            Assertions.assertEquals(0, it.admin().subLayouts.listSubLayouts().size)
+            Assertions.assertEquals(0, it.admin.subLayouts.listSubLayouts().size)
 
             val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.BOOLEAN))
             val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.BUTTON, arrayOf(), arrayOf()))
@@ -56,17 +56,17 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
                 data = createdData
             )
 
-            it.admin().subLayouts.create(defaultSubLayout)
-            it.admin().subLayouts.create(defaultSubLayout)
-            it.admin().subLayouts.create(defaultSubLayout)
-            it.admin().subLayouts.create(
+            it.admin.subLayouts.create(defaultSubLayout)
+            it.admin.subLayouts.create(defaultSubLayout)
+            it.admin.subLayouts.create(defaultSubLayout)
+            it.admin.subLayouts.create(
                 SubLayout(
                     name = "created name",
                     data = createdData
                 )
             )
 
-            val allSubLayouts = it.admin().subLayouts.listSubLayouts()
+            val allSubLayouts = it.admin.subLayouts.listSubLayouts()
             Assertions.assertEquals(4, allSubLayouts.size)
         }
     }
@@ -79,7 +79,7 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
             val createdData =
                 PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
 
-            val createdSubLayout = it.admin().subLayouts.create(
+            val createdSubLayout = it.admin.subLayouts.create(
                 SubLayout(
                     name = "created name",
                     data = createdData
@@ -88,7 +88,7 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
 
             val createdSubLayoutId = createdSubLayout.id!!
 
-            val foundCreatedSubLayout = it.admin().subLayouts.findSubLayout(createdSubLayoutId)
+            val foundCreatedSubLayout = it.admin.subLayouts.findSubLayout(createdSubLayoutId)
             Assertions.assertEquals(createdSubLayout.id, foundCreatedSubLayout.id)
             Assertions.assertEquals("created name", createdSubLayout.name)
             Assertions.assertEquals(PageLayoutWidgetType.FRAME_LAYOUT, createdSubLayout.data.widget)
@@ -108,7 +108,7 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
                 children = updatedChildren
             )
 
-            val updatedSubLayout = it.admin().subLayouts.updateSubLayout(
+            val updatedSubLayout = it.admin.subLayouts.updateSubLayout(
                 SubLayout(
                     id = createdSubLayoutId,
                     name = "updated name",
@@ -116,7 +116,7 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
                 )
             )
 
-            val foundUpdatedSubLayout = it.admin().subLayouts.findSubLayout(createdSubLayoutId)
+            val foundUpdatedSubLayout = it.admin.subLayouts.findSubLayout(createdSubLayoutId)
 
             Assertions.assertEquals(updatedSubLayout.id, foundUpdatedSubLayout.id)
             Assertions.assertEquals("updated name", updatedSubLayout.name)
@@ -133,12 +133,12 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
     fun testDeleteSubLayout() {
         createTestBuilder().use {
             val nonExistingSubLayoutId = UUID.randomUUID()
-            val createdSubLayout = it.admin().subLayouts.create()
+            val createdSubLayout = it.admin.subLayouts.create()
             val createdSubLayoutId = createdSubLayout.id!!
-            Assertions.assertNotNull(it.admin().subLayouts.findSubLayout(createdSubLayoutId))
-            it.admin().subLayouts.assertDeleteFail(404, nonExistingSubLayoutId)
-            it.admin().subLayouts.delete(createdSubLayout)
-            it.admin().subLayouts.assertDeleteFail(404, createdSubLayoutId)
+            Assertions.assertNotNull(it.admin.subLayouts.findSubLayout(createdSubLayoutId))
+            it.admin.subLayouts.assertDeleteFail(404, nonExistingSubLayoutId)
+            it.admin.subLayouts.delete(createdSubLayout)
+            it.admin.subLayouts.assertDeleteFail(404, createdSubLayoutId)
         }
     }
 

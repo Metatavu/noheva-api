@@ -31,8 +31,8 @@ class ContentVersionTestBuilderResource(
      * @return created content version
      */
     fun create(exhibitionId: UUID): ContentVersion {
-        val floorId = testBuilder.admin().exhibitionFloors.create(exhibitionId).id!!
-        val roomId = testBuilder.admin().exhibitionRooms.create(exhibitionId, floorId).id!!
+        val floorId = testBuilder.admin.exhibitionFloors.create(exhibitionId).id!!
+        val roomId = testBuilder.admin.exhibitionRooms.create(exhibitionId, floorId).id!!
         return create(
             exhibitionId,
             ContentVersion(name = "default contentVersion", language = "FI", rooms = arrayOf(roomId))

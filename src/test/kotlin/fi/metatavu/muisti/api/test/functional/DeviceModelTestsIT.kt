@@ -37,7 +37,7 @@ class DeviceModelTestsIT : AbstractFunctionalTest() {
             )
 
             val capabilities = DeviceModelCapabilities(false)
-            val createdDeviceModel = it.admin().deviceModels.create(
+            val createdDeviceModel = it.admin.deviceModels.create(
                 DeviceModel(
                     manufacturer = "manu",
                     model = "model",
@@ -69,23 +69,23 @@ class DeviceModelTestsIT : AbstractFunctionalTest() {
     @Test
     fun testFindDeviceModel() {
         createTestBuilder().use {
-            val createdDeviceModel = it.admin().deviceModels.create()
+            val createdDeviceModel = it.admin.deviceModels.create()
             val createdDeviceModelId = createdDeviceModel.id!!
-            assertNotNull(it.admin().deviceModels.findDeviceModel(createdDeviceModelId))
+            assertNotNull(it.admin.deviceModels.findDeviceModel(createdDeviceModelId))
         }
     }
 
     @Test
     fun testListDeviceModels() {
         createTestBuilder().use {
-            assertEquals(0, it.admin().deviceModels.listDeviceModels().size)
-            val createdDeviceModel = it.admin().deviceModels.create()
+            assertEquals(0, it.admin.deviceModels.listDeviceModels().size)
+            val createdDeviceModel = it.admin.deviceModels.create()
             val createdDeviceModelId = createdDeviceModel.id!!
-            val deviceModels = it.admin().deviceModels.listDeviceModels()
+            val deviceModels = it.admin.deviceModels.listDeviceModels()
             assertEquals(1, deviceModels.size)
             assertEquals(createdDeviceModelId, deviceModels[0].id)
-            it.admin().deviceModels.delete(createdDeviceModelId)
-            assertEquals(0, it.admin().deviceModels.listDeviceModels().size)
+            it.admin.deviceModels.delete(createdDeviceModelId)
+            assertEquals(0, it.admin.deviceModels.listDeviceModels().size)
         }
     }
 
@@ -102,7 +102,7 @@ class DeviceModelTestsIT : AbstractFunctionalTest() {
             )
 
             val createCapabilities = DeviceModelCapabilities(false)
-            val createdDeviceModel = it.admin().deviceModels.create(
+            val createdDeviceModel = it.admin.deviceModels.create(
                 DeviceModel(
                     manufacturer = "manu",
                     model = "model",
@@ -115,7 +115,7 @@ class DeviceModelTestsIT : AbstractFunctionalTest() {
 
             val createdDeviceModelId = createdDeviceModel.id!!
 
-            val foundCreatedDeviceModel = it.admin().deviceModels.findDeviceModel(createdDeviceModelId)
+            val foundCreatedDeviceModel = it.admin.deviceModels.findDeviceModel(createdDeviceModelId)
             assertEquals(createdDeviceModel.id, foundCreatedDeviceModel.id)
             assertNotNull(createdDeviceModel)
             assertEquals(8000.0, createdDeviceModel.dimensions.deviceWidth)
@@ -143,7 +143,7 @@ class DeviceModelTestsIT : AbstractFunctionalTest() {
             )
 
             val updateCapabilities = DeviceModelCapabilities(true)
-            val updatedDeviceModel = it.admin().deviceModels.updateDeviceModel(
+            val updatedDeviceModel = it.admin.deviceModels.updateDeviceModel(
                 DeviceModel(
                     manufacturer = "altmanu",
                     model = "altmodel",
@@ -154,7 +154,7 @@ class DeviceModelTestsIT : AbstractFunctionalTest() {
                     id = createdDeviceModelId
                 )
             )
-            val foundUpdatedDeviceModel = it.admin().deviceModels.findDeviceModel(createdDeviceModelId)
+            val foundUpdatedDeviceModel = it.admin.deviceModels.findDeviceModel(createdDeviceModelId)
 
             assertEquals(updatedDeviceModel.id, foundUpdatedDeviceModel.id)
             assertEquals(5000.0, updatedDeviceModel.dimensions.deviceWidth)
@@ -178,14 +178,14 @@ class DeviceModelTestsIT : AbstractFunctionalTest() {
     fun testDeleteDeviceModel() {
         createTestBuilder().use {
             val nonExistingSessionVariableId = UUID.randomUUID()
-            val createdDeviceModel = it.admin().deviceModels.create()
+            val createdDeviceModel = it.admin.deviceModels.create()
             val createdDeviceModelId = createdDeviceModel.id!!
 
             val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.BOOLEAN))
             val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.BUTTON, arrayOf(), arrayOf()))
             val createdData =
                 PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
-            val createdPageLayout = it.admin().pageLayouts.create(
+            val createdPageLayout = it.admin.pageLayouts.create(
                 PageLayout(
                     name = "created name",
                     data = createdData,
@@ -195,15 +195,15 @@ class DeviceModelTestsIT : AbstractFunctionalTest() {
                 )
             )
 
-            assertNotNull(it.admin().deviceModels.findDeviceModel(createdDeviceModelId))
-            it.admin().deviceModels.assertDeleteFail(404, nonExistingSessionVariableId)
-            it.admin().deviceModels.assertDeleteFail(400, createdDeviceModelId)
+            assertNotNull(it.admin.deviceModels.findDeviceModel(createdDeviceModelId))
+            it.admin.deviceModels.assertDeleteFail(404, nonExistingSessionVariableId)
+            it.admin.deviceModels.assertDeleteFail(400, createdDeviceModelId)
 
-            it.admin().pageLayouts.delete(createdPageLayout.id!!)
+            it.admin.pageLayouts.delete(createdPageLayout.id!!)
 
-            it.admin().deviceModels.delete(createdDeviceModel)
+            it.admin.deviceModels.delete(createdDeviceModel)
 
-            it.admin().deviceModels.assertDeleteFail(404, createdDeviceModelId)
+            it.admin.deviceModels.assertDeleteFail(404, createdDeviceModelId)
         }
     }
 
