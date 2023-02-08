@@ -1,11 +1,11 @@
 package fi.metatavu.muisti.geometry
 
-import com.vividsolutions.jts.geom.Coordinate
-import com.vividsolutions.jts.geom.GeometryFactory
-import com.vividsolutions.jts.geom.Point
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.GeometryFactory
 import fi.metatavu.muisti.api.spec.model.Bounds
 import fi.metatavu.muisti.api.spec.model.Coordinates
 import fi.metatavu.muisti.api.spec.model.Polygon
+import org.locationtech.jts.geom.Point
 
 /**
  * Converts spec Polygon to Geometry Polygon
@@ -13,7 +13,7 @@ import fi.metatavu.muisti.api.spec.model.Polygon
  * @param polygon spec polygon
  * @return null or Geometry Polygon
  */
-fun getPolygon(polygon: Polygon?): com.vividsolutions.jts.geom.Polygon? {
+fun getPolygon(polygon: Polygon?): org.locationtech.jts.geom.Polygon? {
 
     polygon ?: return null
 
@@ -34,7 +34,7 @@ fun getPolygon(polygon: Polygon?): com.vividsolutions.jts.geom.Polygon? {
  * @param polygon spatial polygon object
  * @return null or GeoJSON with polygon data
  */
-fun getGeoShape(polygon: com.vividsolutions.jts.geom.Polygon?): Polygon? {
+fun getGeoShape(polygon: org.locationtech.jts.geom.Polygon?): Polygon? {
     polygon ?: return null
 
     val coordinates: MutableList<MutableList<MutableList<Double>>> = mutableListOf(mutableListOf(mutableListOf()))

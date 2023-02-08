@@ -55,7 +55,6 @@ dependencies {
     /**
      * Spatial dependencies
      */
-    implementation("com.vividsolutions:jts-core:$jtsCoreVersion")
     implementation("org.hibernate:hibernate-spatial:$hibernateSpatialVersion")
 
     testImplementation("org.testcontainers:testcontainers:$testContainersVersion")

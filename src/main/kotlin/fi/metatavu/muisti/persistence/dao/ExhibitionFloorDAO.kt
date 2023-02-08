@@ -1,10 +1,9 @@
 package fi.metatavu.muisti.persistence.dao
 
-import com.vividsolutions.jts.geom.Point
+import org.locationtech.jts.geom.Point
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor_
-import fi.metatavu.muisti.persistence.model.PageLayout
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery

@@ -1,6 +1,5 @@
 package fi.metatavu.muisti.exhibitions
 
-import com.vividsolutions.jts.geom.Point
 import fi.metatavu.muisti.api.spec.model.Bounds
 import fi.metatavu.muisti.geometry.getGeometryPoint
 import fi.metatavu.muisti.persistence.dao.ExhibitionFloorDAO
@@ -8,6 +7,7 @@ import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor
 import fi.metatavu.muisti.utils.CopyException
 import fi.metatavu.muisti.utils.IdMapper
+import org.locationtech.jts.geom.Point
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
