@@ -3,6 +3,7 @@ package fi.metatavu.muisti.files
 import fi.metatavu.muisti.api.spec.model.StoredFile
 import fi.metatavu.muisti.files.storage.FileStorageException
 import fi.metatavu.muisti.files.storage.FileStorageProvider
+import io.quarkus.arc.Lock
 import org.apache.commons.lang3.StringUtils
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.slf4j.Logger
@@ -19,6 +20,7 @@ import javax.inject.Singleton
  *
  * @author Antti Leppä
  */
+@Lock(time = 8, unit = TimeUnit.HOURS, value = Lock.Type.WRITE)
 @ApplicationScoped
 class FileController {
 
