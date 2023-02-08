@@ -32,7 +32,7 @@ class MysqlResource : QuarkusTestResourceLifecycleManager {
         private const val USERNAME = "user"
         private const val PASSWORD = "pass"
         val db: JdbcDatabaseContainer<*> = MySQLContainerProvider()
-                .newInstance("8")
+                .newInstance("8.0.32")
                 .withDatabaseName(DATABASE)
                 .withUsername(USERNAME)
                 .withPassword(PASSWORD)
