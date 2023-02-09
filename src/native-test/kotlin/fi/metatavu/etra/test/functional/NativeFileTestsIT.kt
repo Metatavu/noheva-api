@@ -1,6 +1,6 @@
 package fi.metatavu.etra.test.functional
 
-import fi.metatavu.muisti.api.test.functional.*
+import fi.metatavu.muisti.api.test.functional.FileTestsIT
 import fi.metatavu.muisti.api.test.functional.resources.AwsResource
 import fi.metatavu.muisti.api.test.functional.resources.KeycloakResource
 import fi.metatavu.muisti.api.test.functional.resources.MqttResource
@@ -15,5 +15,4 @@ import io.quarkus.test.junit.QuarkusIntegrationTest
     QuarkusTestResource(MqttResource::class),
     QuarkusTestResource(AwsResource::class)
 )
-class NativeFileTestsIT : FileTestsIT() {
-}
+class NativeFileTestsIT : FileTestsIT()

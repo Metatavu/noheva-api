@@ -15,5 +15,4 @@ import io.quarkus.test.junit.TestProfile
     QuarkusTestResource(MqttResource::class)
 )
 @TestProfile(DefaultTestProfile::class)
-class NativeVisitorSessionTestsIT : VisitorSessionTestsIT() {
-}
+class NativeVisitorSessionTestsIT : VisitorSessionTestsIT()

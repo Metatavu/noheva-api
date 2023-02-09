@@ -13,5 +13,4 @@ import io.quarkus.test.junit.QuarkusIntegrationTest
     QuarkusTestResource(KeycloakResource::class),
     QuarkusTestResource(MqttResource::class)
 )
-class NativeContentVersionTestsIT : ContentVersionTestsIT() {
-}
+class NativeContentVersionTestsIT : ContentVersionTestsIT()

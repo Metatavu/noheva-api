@@ -48,8 +48,7 @@ dependencies {
     implementation("commons-io:commons-io")
     implementation("org.apache.commons:commons-lang3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    implementation(platform ("com.amazonaws:aws-java-sdk-bom:$awssdkVersion"))
-    implementation("com.amazonaws:aws-java-sdk-s3:$awssdkVersion")
+    implementation("software.amazon.awssdk:s3:$awssdkVersion")
     implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:$pahoVersion")
 
     /**
@@ -67,6 +66,7 @@ dependencies {
     testImplementation("org.hamcrest:hamcrest:2.2")
     testImplementation("fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrsFunctionalTestBuilderVersion")
     testImplementation("org.awaitility:awaitility:$awaitilityVersion")
+    testImplementation("com.amazonaws:aws-java-sdk-s3:1.12.393")
 }
 java {
     sourceCompatibility = JavaVersion.VERSION_11
@@ -137,4 +137,8 @@ tasks.named("clean") {
     this.doFirst {
         file("$rootDir/src/gen").deleteRecursively()
     }
+}
+
+tasks.named<Test>("testNative") {
+  testLogging.showStandardStreams = true
 }

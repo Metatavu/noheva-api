@@ -1,13 +1,5 @@
 package fi.metatavu.muisti.files.storage
 
-import com.amazonaws.ClientConfiguration
-import com.amazonaws.SdkClientException
-import com.amazonaws.auth.AWSStaticCredentialsProvider
-import com.amazonaws.auth.BasicAWSCredentials
-import com.amazonaws.client.builder.AwsClientBuilder
-import com.amazonaws.services.s3.AmazonS3
-import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.services.s3.model.*
 import fi.metatavu.muisti.api.spec.model.StoredFile
 import fi.metatavu.muisti.files.FileMeta
 import fi.metatavu.muisti.files.InputFile
@@ -18,10 +10,19 @@ import io.quarkus.runtime.configuration.ProfileManager
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
 import org.eclipse.microprofile.config.inject.ConfigProperty
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
+import software.amazon.awssdk.core.exception.SdkClientException
+import software.amazon.awssdk.core.sync.RequestBody
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.endpoints.S3EndpointProvider
+import software.amazon.awssdk.services.s3.model.*
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.net.URI
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -77,8 +78,9 @@ class S3FileStorageProvider : FileStorageProvider {
 
     @Throws(FileStorageException::class)
     override fun init() {
-        val client: AmazonS3 = client
-        if (!client.doesBucketExistV2(bucket)) {
+        try {
+            client.headBucket(HeadBucketRequest.builder().bucket(bucket).build())
+        } catch (ex: S3Exception) {
             throw FileStorageException(String.format("bucket '%s' does not exist", bucket))
         }
     }
@@ -113,10 +115,16 @@ class S3FileStorageProvider : FileStorageProvider {
 
     override fun find(storedFileId: String): StoredFile? {
         try {
-            val s3Object = client.getObject(bucket, getKey(storedFileId))
-            return translateObject(s3Object.key, s3Object.objectMetadata)
-        } catch (e: AmazonS3Exception) {
-            if (e.statusCode == 404) {
+            val key = getKey(storedFileId)
+            val s3Object = client.getObject(
+                GetObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(getKey(storedFileId))
+                    .build()
+            ).response()
+            return translateObject(key, s3Object.metadata())
+        } catch (e: S3Exception) {
+            if (e.statusCode() == 404) {
                 return null
             }
 
@@ -130,25 +138,30 @@ class S3FileStorageProvider : FileStorageProvider {
         try {
             val prefix = StringUtils.stripEnd(StringUtils.stripStart(folder, "/"), "/") + "/"
 
-            val request = ListObjectsV2Request()
-                .withBucketName(bucket)
-                .withDelimiter("/")
+            val request = ListObjectsRequest.builder()
+                .bucket(bucket)
+                .delimiter("/")
 
             if (prefix.isNotEmpty() && prefix != "/") {
-                request.prefix = prefix
+                request.prefix(prefix)
             }
 
-            val awsResult = client.listObjectsV2(request)
+            val awsResult = client.listObjects(request.build())
 
-            val result = awsResult.commonPrefixes
+            val result = awsResult.commonPrefixes().map { it.prefix() }
                 .filter { !it.startsWith("__") }
                 .map(this::translateFolder)
 
-            return result.plus(awsResult.objectSummaries
-                .filter { !it.key.startsWith("__") }
+            return result.plus(awsResult.contents()
+                .filter { !it.key().startsWith("__") }
                 .map {
-                    val key = it.key
-                    val metadata: ObjectMetadata = client.getObjectMetadata(bucket, key)
+                    val key = it.key()
+                    val metadata = client.getObject(
+                        GetObjectRequest.builder()
+                            .bucket(bucket)
+                            .key(key)
+                            .build()
+                    ).response().metadata()
                     translateObject(key, metadata)
                 }
             )
@@ -160,22 +173,24 @@ class S3FileStorageProvider : FileStorageProvider {
     override fun update(storedFile: StoredFile): StoredFile {
         try {
             val key = getKey(storedFile.id!!)
-            val s3Object = client.getObject(bucket, key)
-            val objectMeta: ObjectMetadata?
+            val s3Object = client.getObject(
+                GetObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .build()
+            )
+            val objectMeta = s3Object.response().metadata().toMutableMap()
+            objectMeta[X_FILE_NAME] = storedFile.fileName
 
-            if (isInTestMode()) {
-                //workarounds for localstack setup since its metadata object is not the same as the one by real aws
-                objectMeta = ObjectMetadata()
-                objectMeta.contentLength = 0
-                objectMeta.contentType = s3Object.objectMetadata.contentType
-                objectMeta.userMetadata = s3Object.objectMetadata.userMetadata
-            } else {
-                objectMeta = s3Object.objectMetadata.clone()
-            }
-
-            objectMeta.addUserMetadata(X_FILE_NAME, storedFile.fileName)
-            val request = CopyObjectRequest(this.bucket, key, this.bucket, key)
-                .withNewObjectMetadata(objectMeta)
+            objectMeta.forEach { t, u -> println(t + " " + u) }
+            val request = CopyObjectRequest.builder()
+                .sourceBucket(this.bucket)
+                .sourceKey(key)
+                .destinationBucket(this.bucket)
+                .destinationKey(key)
+                .metadata(objectMeta)
+                .metadataDirective(MetadataDirective.REPLACE)
+                .build()
 
             client.copyObject(request)
 
@@ -188,12 +203,28 @@ class S3FileStorageProvider : FileStorageProvider {
     override fun delete(storedFileId: String) {
         try {
             val fileKey = this.getKey(storedFileId)
-            val s3Object = client.getObject(bucket, fileKey)
+            val s3Object = client.getObject(
+                GetObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(fileKey)
+                    .build()
+            )
+
             if (s3Object != null) {
-                val objectMeta = s3Object.objectMetadata
-                val thumbnailKey = objectMeta.userMetadata[X_THUMBNAIL_KEY]
-                thumbnailKey ?: client.deleteObject(this.bucket, thumbnailKey)
-                client.deleteObject(this.bucket, fileKey)
+                val objectMeta = s3Object.response().metadata()
+                val thumbnailKey = objectMeta[X_THUMBNAIL_KEY]
+                thumbnailKey ?: client.deleteObject(
+                    DeleteObjectRequest.builder()
+                        .bucket(bucket)
+                        .key(thumbnailKey)
+                        .build()
+                )
+                client.deleteObject(
+                    DeleteObjectRequest.builder()
+                        .bucket(bucket)
+                        .key(fileKey)
+                        .build()
+                )
             }
         } catch (e: Exception) {
             throw FileStorageException(e)
@@ -209,30 +240,35 @@ class S3FileStorageProvider : FileStorageProvider {
      *
      * @return initialized S3 client
      */
-    private val client: AmazonS3
+    private val client
         get() = if (isInTestMode())
-            AmazonS3ClientBuilder
-                .standard()
-                .withEndpointConfiguration( // test localstack requires special endpoint configuration
-                    AwsClientBuilder.EndpointConfiguration(
-                        endpoint?.get(),
-                        region
-                    )
+            S3Client.builder()
+                .endpointOverride(
+                    URI.create(endpoint?.get())
                 )
-                .withCredentials(
-                    AWSStaticCredentialsProvider(
-                        BasicAWSCredentials(keyId, secret)
+                .region(Region.of(region))
+                .credentialsProvider(
+                    StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(
+                            keyId,
+                            secret
+                        )
                     )
-                )
-                .build()
+                ).endpointProvider(
+                    S3EndpointProvider.defaultProvider()
+                ).build()
         else
-            AmazonS3ClientBuilder
-                .standard()
-                .withRegion(region)
-                .withCredentials(
-                    AWSStaticCredentialsProvider(
-                        BasicAWSCredentials(keyId, secret)
+            S3Client.builder()
+                .region(Region.of(region))
+                .credentialsProvider(
+                    StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(
+                            keyId,
+                            secret
+                        )
                     )
+                ).endpointProvider(
+                    S3EndpointProvider.defaultProvider()
                 ).build()
 
     /**
@@ -249,18 +285,21 @@ class S3FileStorageProvider : FileStorageProvider {
 
         val key = "__thumbnails/$fileKey-512x512.jpg"
 
-        val objectMeta = ObjectMetadata()
-        objectMeta.contentType = "image/jpeg"
+        val objectMeta = mutableMapOf<String, String>()
+        objectMeta[CONTENT_TYPE] = "image/jpeg"
         try {
             try {
-                objectMeta.contentLength = thumbnailData.size.toLong()
-                thumbnailData.inputStream().use { thumbnailInputStream ->
-                    client.putObject(
-                        PutObjectRequest(bucket, key, thumbnailInputStream, objectMeta).withCannedAcl(
-                            CannedAccessControlList.PublicRead
-                        )
-                    )
-                }
+                objectMeta[CONTENT_LENGTH] = thumbnailData.size.toLong().toString()
+
+                client.putObject(
+                    PutObjectRequest.builder()
+                        .bucket(bucket)
+                        .metadata(objectMeta)
+                        .key(key)
+                        .acl(ObjectCannedACL.PUBLIC_READ)
+                        .build(),
+                    RequestBody.fromBytes(thumbnailData)
+                )
 
                 return key
             } catch (e: SdkClientException) {
@@ -287,26 +326,28 @@ class S3FileStorageProvider : FileStorageProvider {
         contentType: String,
         filename: String,
         tempFile: File
-    ): ObjectMetadata {
-        val objectMeta = ObjectMetadata()
-        objectMeta.contentType = contentType
-        objectMeta.addUserMetadata(X_FILE_NAME, filename)
+    ): MutableMap<String, String> {
+        val objectMeta = mutableMapOf<String, String>()
+        objectMeta[CONTENT_TYPE] = contentType
+        objectMeta[X_FILE_NAME] = filename
 
         if (thumbnailKey != null) {
-            objectMeta.addUserMetadata(X_THUMBNAIL_KEY, thumbnailKey)
+            objectMeta[X_THUMBNAIL_KEY] = thumbnailKey
         }
 
         try {
             try {
-                objectMeta.contentLength = tempFile.length()
+                objectMeta[CONTENT_LENGTH] = tempFile.length().toString()
 
-                FileInputStream(tempFile).use { fileInputStream ->
-                    client.putObject(
-                        PutObjectRequest(bucket, key, fileInputStream, objectMeta).withCannedAcl(
-                            CannedAccessControlList.PublicRead
-                        )
-                    )
-                }
+                client.putObject(
+                    PutObjectRequest.builder()
+                        .bucket(bucket)
+                        .key(key)
+                        .metadata(objectMeta)
+                        .acl(ObjectCannedACL.PUBLIC_READ)
+                        .build(),
+                    RequestBody.fromFile(tempFile)
+                )
 
                 return objectMeta
             } catch (e: SdkClientException) {
@@ -376,16 +417,15 @@ class S3FileStorageProvider : FileStorageProvider {
      * @param objectMeta object metadata
      * @return stored file
      */
-    private fun translateObject(fileKey: String, objectMeta: ObjectMetadata): StoredFile {
-
-        val fileName = objectMeta.userMetadata[X_FILE_NAME] ?: fileKey
-        val thumbnailKey = objectMeta.userMetadata[X_THUMBNAIL_KEY]
+    private fun translateObject(fileKey: String, objectMeta: MutableMap<String, String>): StoredFile {
+        val fileName = objectMeta[X_FILE_NAME] ?: fileKey
+        val thumbnailKey = objectMeta[X_THUMBNAIL_KEY]
 
         val thumbnailUri = if (thumbnailKey != null) "$prefix/$thumbnailKey" else null
 
         return StoredFile(
             id = getStoredFileId(fileKey),
-            contentType = objectMeta.contentType,
+            contentType = objectMeta[CONTENT_TYPE] ?: "",
             fileName = fileName,
             uri = "$prefix/$fileKey",
             thumbnailUri = thumbnailUri
@@ -410,6 +450,9 @@ class S3FileStorageProvider : FileStorageProvider {
     companion object {
         const val X_FILE_NAME = "x-file-name"
         const val X_THUMBNAIL_KEY = "x-thumbnail-key"
+        const val CONTENT_LENGTH = "content-length"
+        const val CONTENT_TYPE = "content-type"
+
         const val THUMBNAIL_SIZE = 512
     }
 
