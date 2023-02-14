@@ -23,16 +23,16 @@ class LiquibaseMigrator {
     var runMigration = false
 
     @ConfigProperty(name = "quarkus.datasource.jdbc.url")
-    var datasourceUrl: String? = null
+    lateinit var datasourceUrl: String
 
     @ConfigProperty(name = "quarkus.datasource.username")
-    var datasourceUsername: String? = null
+    lateinit var datasourceUsername: String
 
     @ConfigProperty(name = "quarkus.datasource.password")
-    var datasourcePassword: String? = null
+    lateinit var datasourcePassword: String
 
     @ConfigProperty(name = "quarkus.liquibase.change-log")
-    var changeLogLocation: String? = null
+    lateinit var changeLogLocation: String
 
     /**
      * Runs liquibase migration
