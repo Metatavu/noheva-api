@@ -10,6 +10,7 @@ plugins {
 }
 
 repositories {
+    maven { setUrl("https://jitpack.io") }
     mavenLocal()
     mavenCentral()
 }
