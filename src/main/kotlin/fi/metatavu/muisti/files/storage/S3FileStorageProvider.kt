@@ -14,6 +14,7 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.core.exception.SdkClientException
 import software.amazon.awssdk.core.sync.RequestBody
+import software.amazon.awssdk.http.apache.ApacheHttpClient
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.endpoints.S3EndpointProvider
@@ -244,9 +245,10 @@ class S3FileStorageProvider : FileStorageProvider {
         get() = if (isInTestMode())
             S3Client.builder()
                 .endpointOverride(
-                    URI.create(endpoint?.get())
+                    URI.create(endpoint.get())
                 )
                 .region(Region.of(region))
+                .httpClient(ApacheHttpClient.create())
                 .credentialsProvider(
                     StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(
@@ -260,6 +262,7 @@ class S3FileStorageProvider : FileStorageProvider {
         else
             S3Client.builder()
                 .region(Region.of(region))
+                .httpClient(ApacheHttpClient.create())
                 .credentialsProvider(
                     StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(

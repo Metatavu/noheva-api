@@ -51,6 +51,8 @@ dependencies {
     implementation("org.apache.commons:commons-lang3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("software.amazon.awssdk:s3:$awssdkVersion")
+    implementation("software.amazon.awssdk:apache-client:$awssdkVersion")
+    implementation("com.github.metatavu.quarkus-register-reflection:quarkus-register-reflection:1.0.4")
 
     /**
      * Spatial dependencies
