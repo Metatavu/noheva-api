@@ -45,11 +45,12 @@ dependencies {
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
     implementation("io.quarkus:quarkus-cache")
 
+    implementation("org.apache.camel.quarkus:camel-quarkus-paho:2.16.0")
+
     implementation("commons-io:commons-io")
     implementation("org.apache.commons:commons-lang3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("software.amazon.awssdk:s3:$awssdkVersion")
-    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:$pahoVersion")
 
     /**
      * Spatial dependencies

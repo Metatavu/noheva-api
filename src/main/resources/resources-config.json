@@ -3,19 +3,5 @@
     {
       "pattern": "db/changeLog.xml"
     }
-  ],
-  "bundles": [
-    {
-      "name": "org\/eclipse\/paho\/client\/mqttv3\/internal\/nls\/messages"
-    },
-    {
-      "name": "org\/eclipse\/paho\/client\/mqttv3\/internal\/nls\/logcat"
-    },
-    {
-      "name": "org\/eclipse\/paho\/mqttv5\/common\/nls\/messages"
-    },
-    {
-      "name": "org\/eclipse\/paho\/mqttv5\/client\/internal\/nls\/logcat"
-    }
   ]
 }
