@@ -9,7 +9,8 @@ class DefaultTestProfile: QuarkusTestProfile {
 
     override fun getConfigOverrides(): Map<String?, String?> {
         return mapOf(
-            Pair("visitor.session.timeout", "PT1M")
+            Pair("visitor.session.timeout", "PT1M"),
+            Pair("quarkus.profile", "test")
         )
     }
 

@@ -6,6 +6,7 @@ import fi.metatavu.muisti.api.test.functional.resources.MqttResource
 import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.junit.TestProfile
 import org.apache.commons.codec.digest.DigestUtils
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -24,6 +25,7 @@ import java.util.*
     QuarkusTestResource(MqttResource::class),
     QuarkusTestResource(AwsResource::class)
 )
+@TestProfile(DefaultTestProfile::class)
 class FileTestsIT : AbstractFunctionalTest() {
 
     @Test
