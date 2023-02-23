@@ -184,7 +184,6 @@ class S3FileStorageProvider : FileStorageProvider {
             val objectMeta = s3Object.response().metadata().toMutableMap()
             objectMeta[X_FILE_NAME] = storedFile.fileName
 
-            objectMeta.forEach { t, u -> println(t + " " + u) }
             val request = CopyObjectRequest.builder()
                 .sourceBucket(this.bucket)
                 .sourceKey(key)
