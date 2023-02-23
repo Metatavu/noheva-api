@@ -17,5 +17,4 @@ import io.quarkus.test.junit.TestProfile
     QuarkusTestResource(MqttResource::class),
     QuarkusTestResource(AwsResource::class)
 )
-@TestProfile(DefaultTestProfile::class)
 class NativeFileTestsIT : FileTestsIT()

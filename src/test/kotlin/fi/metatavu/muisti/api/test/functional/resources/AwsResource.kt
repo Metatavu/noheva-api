@@ -31,8 +31,9 @@ class AwsResource : QuarkusTestResourceLifecycleManager {
         config["s3.file.storage.secret"] = s3.secretKey
         config["s3.file.storage.endpoint"] = endpoint.toString()
         config["file.storage.provider"] = "S3"
+        config["quarkus.profile"] = "test"
 
-        val s3Client = S3Client.builder()
+            val s3Client = S3Client.builder()
             .region(Region.US_WEST_2)
             .endpointOverride(endpoint)
             .credentialsProvider(

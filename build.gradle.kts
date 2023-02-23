@@ -45,7 +45,7 @@ dependencies {
     implementation("io.quarkus:quarkus-resteasy-reactive")
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
     implementation("io.quarkus:quarkus-cache")
-
+    implementation("io.quarkus:quarkus-awt")
     implementation("org.apache.camel.quarkus:camel-quarkus-paho:2.16.0")
 
     implementation("commons-io:commons-io")

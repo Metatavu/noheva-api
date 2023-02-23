@@ -6,6 +6,7 @@ import fi.metatavu.muisti.files.InputFile
 import fi.metatavu.muisti.media.ImageReader
 import fi.metatavu.muisti.media.ImageScaler
 import fi.metatavu.muisti.media.ImageWriter
+import io.quarkus.runtime.configuration.ConfigUtils
 import io.quarkus.runtime.configuration.ProfileManager
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
@@ -74,7 +75,7 @@ class S3FileStorageProvider : FileStorageProvider {
      * @return whether system is running in test mode
      */
     fun isInTestMode(): Boolean {
-        return StringUtils.equals("test", ProfileManager.getActiveProfile())
+        return ConfigUtils.getProfiles().contains("test")
     }
 
     @Throws(FileStorageException::class)
@@ -214,19 +215,21 @@ class S3FileStorageProvider : FileStorageProvider {
             if (s3Object != null) {
                 val objectMeta = s3Object.response().metadata()
                 val thumbnailKey = objectMeta[X_THUMBNAIL_KEY]
-                thumbnailKey ?: client.deleteObject(
-                    DeleteObjectRequest.builder()
-                        .bucket(bucket)
-                        .key(thumbnailKey)
-                        .build()
-                )
+                if (thumbnailKey != null) {
+                    client.deleteObject(
+                        DeleteObjectRequest.builder()
+                            .bucket(bucket)
+                            .key(thumbnailKey)
+                            .build()
+                        )
+                    }
+                }
                 client.deleteObject(
                     DeleteObjectRequest.builder()
                         .bucket(bucket)
                         .key(fileKey)
                         .build()
                 )
-            }
         } catch (e: Exception) {
             throw FileStorageException(e)
         }

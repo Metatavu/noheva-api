@@ -76,7 +76,8 @@ class KeycloakControllerToken {
             val secret = ConfigProvider.getConfig().getValue("muisti.keycloak.admin.secret", String::class.java)
             logger.info("Obtaining new admin access token...")
 
-            val uri = "$serverUrl/realms/$realm/protocol/openid-connect/token"
+            val uri = "${serverUrl}realms/$realm/protocol/openid-connect/token"
+            println(uri)
             try {
                 HttpClients.createDefault().use { client ->
                     val httpPost = HttpPost(uri)

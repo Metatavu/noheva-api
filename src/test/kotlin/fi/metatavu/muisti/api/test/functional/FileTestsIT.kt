@@ -25,7 +25,6 @@ import java.util.*
     QuarkusTestResource(MqttResource::class),
     QuarkusTestResource(AwsResource::class)
 )
-@TestProfile(DefaultTestProfile::class)
 class FileTestsIT : AbstractFunctionalTest() {
 
     @Test

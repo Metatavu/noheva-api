@@ -8,7 +8,6 @@ import fi.metatavu.muisti.api.test.functional.resources.MqttResource
 import fi.metatavu.muisti.api.test.functional.resources.MysqlResource
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
-import io.quarkus.test.junit.TestProfile
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertArrayEquals
@@ -26,7 +25,6 @@ import java.util.*
     QuarkusTestResource(KeycloakResource::class),
     QuarkusTestResource(MqttResource::class)
 )
-@TestProfile(DefaultTestProfile::class)
 class ExhibitionRoomTestsIT: AbstractFunctionalTest() {
 
     @Test
