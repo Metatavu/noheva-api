@@ -88,18 +88,17 @@ class ImageScaler {
      * @return buffered image
      */
     private fun toBufferedImage(image: Image): BufferedImage? {
-        if (image is BufferedImage) {
-            return image
+        return if (image is BufferedImage) {
+            image
         } else {
-            // ToolKitImages are not part of official JDK, so we need to use reflection to obtain the image
-            try {
-                val getBufferedImageMethod = image.javaClass.getMethod("getBufferedImage")
-                return getBufferedImageMethod.invoke(image) as BufferedImage
-            } catch (e: Exception) {
-                logger.error("Failed to retrieve buffered image", e)
-            }
+            val bufferedImage = BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB)
+
+            val graphics2D = bufferedImage.createGraphics()
+            graphics2D.drawImage(image, 0, 0, null)
+            graphics2D.dispose()
+
+            bufferedImage
         }
-        return null
     }
 
 }
