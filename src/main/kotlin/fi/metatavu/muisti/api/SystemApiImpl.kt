@@ -11,7 +11,6 @@ import javax.ws.rs.core.Response
  * System api implementation
  */
 @RequestScoped
-@Transactional
 class SystemApiImpl : SystemApi {
     override fun memory(): Response {
         val runtime = Runtime.getRuntime()

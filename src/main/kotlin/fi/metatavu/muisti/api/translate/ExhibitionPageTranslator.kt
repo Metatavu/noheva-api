@@ -13,13 +13,13 @@ import javax.inject.Inject
  * Translator for translating JPA exhibition page  entities into REST resources
  */
 @ApplicationScoped
-class ExhibitionPageTranslator :
-    AbstractTranslator<fi.metatavu.muisti.persistence.model.ExhibitionPage, ExhibitionPage>() {
+class ExhibitionPageTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.ExhibitionPage, fi.metatavu.muisti.api.spec.model.ExhibitionPage>() {
 
     @Inject
     lateinit var exhibitionPageController: ExhibitionPageController
 
     override fun translate(entity: fi.metatavu.muisti.persistence.model.ExhibitionPage): ExhibitionPage {
+        val objectMapper = ObjectMapper()
         return ExhibitionPage(
             id = entity.id,
             exhibitionId = entity.exhibition?.id,
@@ -27,10 +27,10 @@ class ExhibitionPageTranslator :
             layoutId = entity.layout!!.id!!,
             contentVersionId = entity.contentVersion!!.id!!,
             name = entity.name!!,
-            resources = getResources(entity.resources),
+            resources = getResources(objectMapper, entity.resources),
             eventTriggers = exhibitionPageController.parseEventTriggers(entity.eventTriggers),
-            enterTransitions = getTransitions(entity.enterTransitions),
-            exitTransitions = getTransitions(entity.exitTransitions),
+            enterTransitions = getTransitions(objectMapper, entity.enterTransitions),
+            exitTransitions = getTransitions(objectMapper, entity.exitTransitions),
             orderNumber = entity.orderNumber!!,
             creatorId = entity.creatorId,
             lastModifierId = entity.lastModifierId,
@@ -42,24 +42,24 @@ class ExhibitionPageTranslator :
     /**
      * Reads resources string as list of page resources
      *
+     * @param objectMapper objectMapper
      * @param resources resources string
      * @return JSON list of page resources
      */
-    private fun getResources(resources: String?): List<ExhibitionPageResource> {
+    private fun getResources(objectMapper: ObjectMapper, resources: String?): List<ExhibitionPageResource> {
         resources ?: return listOf()
-        val objectMapper = ObjectMapper()
         return objectMapper.readValue(resources)
     }
 
     /**
      * Reads transitions string as list of transitions
      *
+     * @param objectMapper objectMapper
      * @param transitions transitions string
      * @return JSON list of transitions
      */
-    private fun getTransitions(transitions: String?): List<ExhibitionPageTransition> {
+    private fun getTransitions(objectMapper: ObjectMapper, transitions: String?): List<ExhibitionPageTransition> {
         transitions ?: return listOf()
-        val objectMapper = ObjectMapper()
         return objectMapper.readValue(transitions)
     }
 

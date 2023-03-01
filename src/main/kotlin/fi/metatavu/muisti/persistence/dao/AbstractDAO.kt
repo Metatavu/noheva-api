@@ -15,8 +15,8 @@ import javax.persistence.TypedQuery
  * @author Antti Leppä
  *
  * @param <T> entity type
-</T> */
-abstract class AbstractDAO<T>() {
+ */
+abstract class AbstractDAO<T> {
 
     @Inject
     private lateinit var logger: Logger
@@ -62,7 +62,7 @@ abstract class AbstractDAO<T>() {
     open fun listAll(): List<T> {
         val genericTypeClass: Class<*>? = genericTypeClass
         val query: Query = entityManager.createQuery("select o from " + genericTypeClass!!.name + " o")
-        return query.getResultList() as List<T>
+        return query.resultList as List<T>
     }
 
     /**
@@ -76,9 +76,9 @@ abstract class AbstractDAO<T>() {
     open fun listAll(firstResult: Int, maxResults: Int): List<T> {
         val genericTypeClass: Class<*>? = genericTypeClass
         val query: Query = entityManager.createQuery("select o from " + genericTypeClass!!.name + " o")
-        query.setFirstResult(firstResult)
-        query.setMaxResults(maxResults)
-        return query.getResultList() as List<T>
+        query.firstResult = firstResult
+        query.maxResults = maxResults
+        return query.resultList as List<T>
     }
 
     /**
@@ -116,7 +116,7 @@ abstract class AbstractDAO<T>() {
      * @return entity or null if result is empty
      */
     protected open fun <X> getSingleResult(query: TypedQuery<X>): X? {
-        val list: List<X> = query.getResultList()
+        val list: List<X> = query.resultList
         if (list.isEmpty()) return null
         if (list.size > 1) {
             logger.error(String.format("SingleResult query returned %d elements from %s", list.size, genericTypeClass!!.name))
