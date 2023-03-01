@@ -15,7 +15,7 @@ import javax.persistence.TypedQuery
  * @author Antti Leppä
  *
  * @param <T> entity type
-</T> */
+ */
 abstract class AbstractDAO<T> {
 
     @Inject
