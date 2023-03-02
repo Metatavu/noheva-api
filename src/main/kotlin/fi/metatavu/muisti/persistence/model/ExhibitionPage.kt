@@ -14,19 +14,19 @@ import javax.validation.constraints.NotEmpty
 class ExhibitionPage {
 
     @Id
-    var id: UUID? = null
+    lateinit var id: UUID
 
     @ManyToOne
     var exhibition: Exhibition? = null
 
     @ManyToOne
-    var device: ExhibitionDevice? = null
+    lateinit var device: ExhibitionDevice
 
     @ManyToOne
-    var layout: PageLayout? = null
+    lateinit var layout: PageLayout
 
     @ManyToOne
-    var contentVersion: ContentVersion? = null
+    lateinit var contentVersion: ContentVersion
 
     @NotEmpty
     @Column(nullable = false)

@@ -21,7 +21,7 @@ class RfidAntennaTranslator :
             id = entity.id,
             exhibitionId = entity.exhibition?.id,
             groupId = entity.deviceGroup?.id,
-            roomId = entity.room!!.id!!,
+            roomId = entity.room.id,
             readerId = entity.readerId!!,
             antennaNumber = entity.antennaNumber!!,
             name = entity.name!!,

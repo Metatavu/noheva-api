@@ -14,7 +14,7 @@ import javax.persistence.*
 class VisitorSession {
 
     @Id
-    var id: UUID? = null
+    lateinit var id: UUID
 
     @Column(nullable = false)
     var expiresAt: OffsetDateTime? = null

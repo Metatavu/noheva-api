@@ -15,7 +15,7 @@ class ExhibitionRoomTranslator :
         return ExhibitionRoom(
             id = entity.id,
             exhibitionId = entity.exhibition?.id,
-            floorId = entity.floor!!.id!!,
+            floorId = entity.floor.id,
             name = entity.name!!,
             color = entity.color,
             geoShape = getGeoShape(entity.geoShape),

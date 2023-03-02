@@ -19,7 +19,7 @@ import javax.validation.constraints.NotNull
 open class Exhibition {
 
     @Id
-    var id: UUID? = null
+    lateinit var id: UUID
 
     var name: @NotNull @NotEmpty String? = null
 

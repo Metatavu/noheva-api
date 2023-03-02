@@ -22,7 +22,7 @@ import javax.validation.constraints.NotNull
 class Visitor {
 
     @Id
-    var id: UUID? = null
+    lateinit var id: UUID
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null

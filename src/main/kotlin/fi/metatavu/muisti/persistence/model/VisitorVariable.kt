@@ -17,7 +17,7 @@ import javax.validation.constraints.NotEmpty
 class VisitorVariable {
 
     @Id
-    var id: UUID? = null
+    lateinit var id: UUID
 
     @ManyToOne
     var exhibition: Exhibition? = null

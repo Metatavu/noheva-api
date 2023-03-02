@@ -15,7 +15,7 @@ import javax.validation.constraints.NotEmpty
 class ExhibitionDeviceGroup {
 
     @Id
-    var id: UUID? = null
+    lateinit var id: UUID
 
     @ManyToOne
     var exhibition: Exhibition? = null

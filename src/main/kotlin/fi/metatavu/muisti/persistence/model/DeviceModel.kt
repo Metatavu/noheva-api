@@ -15,7 +15,7 @@ import javax.validation.constraints.NotEmpty
 class DeviceModel {
 
     @Id
-    var id: UUID? = null
+    lateinit var id: UUID
 
     @NotEmpty
     @Column(nullable = false)
