@@ -39,7 +39,7 @@ class RfidAntennaDAO : AbstractDAO<RfidAntenna>() {
     id: UUID,
     exhibition: Exhibition,
     deviceGroup: ExhibitionDeviceGroup?,
-    room: ExhibitionRoom,
+    room: ExhibitionRoom?,
     name: String,
     readerId: String,
     antennaNumber: Int,
@@ -191,7 +191,7 @@ class RfidAntennaDAO : AbstractDAO<RfidAntenna>() {
    * @param lastModifierId last modifier's id
    * @return updated rfidAntenna
    */
-  fun updateRoom(rfidAntenna: RfidAntenna, room: ExhibitionRoom, lastModifierId: UUID): RfidAntenna {
+  fun updateRoom(rfidAntenna: RfidAntenna, room: ExhibitionRoom?, lastModifierId: UUID): RfidAntenna {
     rfidAntenna.lastModifierId = lastModifierId
     rfidAntenna.room = room
     return persist(rfidAntenna)

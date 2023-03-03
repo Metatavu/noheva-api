@@ -40,7 +40,7 @@ class RfidAntennaController {
   fun createRfidAntenna(
     exhibition: Exhibition,
     deviceGroup: ExhibitionDeviceGroup?,
-    room: ExhibitionRoom,
+    room: ExhibitionRoom?,
     name: String,
     readerId: String,
     antennaNumber: Int,
@@ -152,7 +152,7 @@ class RfidAntennaController {
   fun updateRfidAntenna(
     rfidAntenna: RfidAntenna,
     deviceGroup: ExhibitionDeviceGroup?,
-    room: ExhibitionRoom,
+    room: ExhibitionRoom?,
     name: String,
     readerId: String,
     antennaNumber: Int,
