@@ -15,7 +15,7 @@ import javax.validation.constraints.NotEmpty
 class ContentVersion {
 
     @Id
-    lateinit var id: UUID
+    var id: UUID? = null
 
     @ManyToOne
     var exhibition: Exhibition? = null

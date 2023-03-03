@@ -15,7 +15,7 @@ import javax.validation.constraints.NotEmpty
 class GroupContentVersion {
 
     @Id
-    lateinit var id: UUID
+    var id: UUID? = null
 
     @ManyToOne
     var exhibition: Exhibition? = null
@@ -28,10 +28,10 @@ class GroupContentVersion {
     var status: GroupContentVersionStatus? = null
 
     @ManyToOne
-    lateinit var contentVersion: ContentVersion
+    var contentVersion: ContentVersion? = null
 
     @ManyToOne
-    lateinit var deviceGroup: ExhibitionDeviceGroup
+    var deviceGroup: ExhibitionDeviceGroup? = null
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null

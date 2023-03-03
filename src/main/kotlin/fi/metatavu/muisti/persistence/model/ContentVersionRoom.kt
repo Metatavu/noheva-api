@@ -14,7 +14,7 @@ import javax.persistence.*
 class ContentVersionRoom {
 
     @Id
-    lateinit var id: UUID
+    var id: UUID? = null
 
     @ManyToOne
     var contentVersion: ContentVersion? = null

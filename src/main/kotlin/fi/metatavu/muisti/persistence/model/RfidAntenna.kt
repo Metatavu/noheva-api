@@ -14,13 +14,13 @@ import javax.validation.constraints.NotEmpty
 class RfidAntenna {
 
     @Id
-    lateinit var id: UUID
+    var id: UUID? = null
 
     @ManyToOne
     var exhibition: Exhibition? = null
 
     @ManyToOne
-    lateinit var room: ExhibitionRoom
+    var room: ExhibitionRoom? = null
 
     @ManyToOne
     var deviceGroup: ExhibitionDeviceGroup? = null

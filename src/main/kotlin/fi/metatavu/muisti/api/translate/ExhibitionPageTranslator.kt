@@ -23,9 +23,9 @@ class ExhibitionPageTranslator: AbstractTranslator<fi.metatavu.muisti.persistenc
         return ExhibitionPage(
             id = entity.id,
             exhibitionId = entity.exhibition?.id,
-            deviceId = entity.device.id,
-            layoutId = entity.layout.id,
-            contentVersionId = entity.contentVersion.id,
+            deviceId = entity.device!!.id!!,
+            layoutId = entity.layout!!.id!!,
+            contentVersionId = entity.contentVersion!!.id!!,
             name = entity.name!!,
             resources = getResources(objectMapper, entity.resources),
             eventTriggers = exhibitionPageController.parseEventTriggers(entity.eventTriggers),

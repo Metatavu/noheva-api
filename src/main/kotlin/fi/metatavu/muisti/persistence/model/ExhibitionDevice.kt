@@ -16,16 +16,16 @@ import javax.validation.constraints.NotEmpty
 class ExhibitionDevice {
 
     @Id
-    lateinit var id: UUID
+    var id: UUID? = null
 
     @ManyToOne
     var exhibition: Exhibition? = null
 
     @ManyToOne
-    lateinit var exhibitionDeviceGroup: ExhibitionDeviceGroup
+    var exhibitionDeviceGroup: ExhibitionDeviceGroup? = null
 
     @ManyToOne
-    lateinit var deviceModel: DeviceModel
+    var deviceModel: DeviceModel? = null
 
     @NotEmpty
     @Column(nullable = false)

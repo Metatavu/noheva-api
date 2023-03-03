@@ -14,13 +14,13 @@ import javax.persistence.*
 class VisitorSessionVisitedDeviceGroup {
 
     @Id
-    lateinit var id: UUID
+    var id: UUID? = null
 
     @ManyToOne
     var visitorSession: VisitorSession? = null
 
     @ManyToOne
-    lateinit var deviceGroup: ExhibitionDeviceGroup
+    var deviceGroup: ExhibitionDeviceGroup? = null
 
     @Column(nullable = false)
     var enteredAt: OffsetDateTime? = null

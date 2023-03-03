@@ -81,7 +81,7 @@ class VisitorSessionV2Translator: AbstractTranslator<fi.metatavu.muisti.persiste
      */
     private fun translateVisitedDeviceGroup(entity: fi.metatavu.muisti.persistence.model.VisitorSessionVisitedDeviceGroup): VisitorSessionVisitedDeviceGroup {
         return VisitorSessionVisitedDeviceGroup(
-            deviceGroupId = entity.deviceGroup.id, enteredAt = entity.enteredAt, exitedAt = entity.exitedAt
+            deviceGroupId = entity.deviceGroup!!.id!!, enteredAt = entity.enteredAt, exitedAt = entity.exitedAt
         )
     }
 

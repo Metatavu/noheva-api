@@ -14,7 +14,7 @@ import javax.persistence.*
 class VisitorSessionVisitor {
 
     @Id
-    lateinit var id: UUID
+    var id: UUID? = null
 
     @ManyToOne
     var visitorSession: VisitorSession? = null

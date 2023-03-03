@@ -32,9 +32,8 @@ class VisitorSessionTranslator :
             .toList()
 
         val visitorIds = visitorSessionVisitorDAO.listByVisitorSession(entity).stream()
-            .map { it.visitor?.id }
+            .map { it.visitor?.id!! }
             .toList()
-            .filterNotNull()
 
         val visitedDeviceGroups = visitorSessionVisitedDeviceGroupDAO.listByVisitorSession(entity).stream()
             .map(this::translateVisitedDeviceGroup)
@@ -75,7 +74,7 @@ class VisitorSessionTranslator :
      */
     private fun translateVisitedDeviceGroup(entity: fi.metatavu.muisti.persistence.model.VisitorSessionVisitedDeviceGroup): VisitorSessionVisitedDeviceGroup {
         return VisitorSessionVisitedDeviceGroup(
-            deviceGroupId = entity.deviceGroup.id, enteredAt = entity.enteredAt, exitedAt = entity.exitedAt
+            deviceGroupId = entity.deviceGroup!!.id!!, enteredAt = entity.enteredAt, exitedAt = entity.exitedAt
         )
     }
 

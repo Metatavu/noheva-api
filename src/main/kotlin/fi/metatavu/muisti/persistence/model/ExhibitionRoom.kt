@@ -15,13 +15,13 @@ import javax.validation.constraints.NotEmpty
 class ExhibitionRoom {
 
     @Id
-    lateinit var id: UUID
+    var id: UUID? = null
 
     @ManyToOne
     var exhibition: Exhibition? = null
 
     @ManyToOne
-    lateinit var floor: ExhibitionFloor
+    var floor: ExhibitionFloor? = null
 
     @NotEmpty
     @Column(nullable = false)
