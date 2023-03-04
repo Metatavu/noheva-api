@@ -1,29 +1,30 @@
 package fi.metatavu.muisti.api.translate
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import fi.metatavu.muisti.api.spec.model.PageLayout
 import fi.metatavu.muisti.api.spec.model.PageLayoutView
 import javax.enterprise.context.ApplicationScoped
+import javax.inject.Inject
 
 /**
  * Translator for translating JPA exhibition page layout entities into REST resources
  */
 @ApplicationScoped
-class PageLayoutTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.PageLayout, fi.metatavu.muisti.api.spec.model.PageLayout>() {
+class PageLayoutTranslator : AbstractTranslator<fi.metatavu.muisti.persistence.model.PageLayout, PageLayout>() {
 
-    override fun translate(entity: fi.metatavu.muisti.persistence.model.PageLayout): fi.metatavu.muisti.api.spec.model.PageLayout {
-        val result = fi.metatavu.muisti.api.spec.model.PageLayout()
-        result.id = entity.id
-        result.name = entity.name
-        result.data = getData(entity.data)
-        result.thumbnailUrl = entity.thumbnailUrl
-        result.modelId = entity.deviceModel?.id
-        result.screenOrientation = entity.screenOrientation
-        result.creatorId = entity.creatorId
-        result.lastModifierId = entity.lastModifierId
-        result.createdAt = entity.createdAt
-        result.modifiedAt = entity.modifiedAt
-
-        return result
+    override fun translate(entity: fi.metatavu.muisti.persistence.model.PageLayout): PageLayout {
+        return PageLayout(
+            id = entity.id,
+            name = entity.name!!,
+            data = getData(entity.data),
+            thumbnailUrl = entity.thumbnailUrl,
+            modelId = entity.deviceModel?.id,
+            screenOrientation = entity.screenOrientation!!,
+            creatorId = entity.creatorId,
+            lastModifierId = entity.lastModifierId,
+            createdAt = entity.createdAt,
+            modifiedAt = entity.modifiedAt
+        )
     }
 
     /**

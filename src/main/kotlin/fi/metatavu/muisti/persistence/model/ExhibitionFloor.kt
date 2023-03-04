@@ -1,8 +1,7 @@
 package fi.metatavu.muisti.persistence.model
 
-import com.vividsolutions.jts.geom.Point
-import org.hibernate.annotations.Type
 import org.hibernate.validator.constraints.URL
+import org.locationtech.jts.geom.Point
 import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*

@@ -18,7 +18,7 @@ import javax.inject.Inject
 class ImageReader {
 
     @Inject
-    private lateinit var logger: Logger
+    lateinit var logger: Logger
 
     /**
      * Reads image from input stream into BufferedImage

@@ -1,10 +1,9 @@
 package fi.metatavu.muisti.persistence.dao
 
-import com.vividsolutions.jts.geom.Point
+import org.locationtech.jts.geom.Point
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor_
-import fi.metatavu.muisti.persistence.model.PageLayout
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
@@ -52,13 +51,13 @@ class ExhibitionFloorDAO() : AbstractDAO<ExhibitionFloor>() {
      * @return List of ExhibitionFloors
      */
     fun listByExhibition(exhibition: Exhibition): List<ExhibitionFloor> {
-        val entityManager = getEntityManager()
-        val criteriaBuilder = entityManager.criteriaBuilder
+        
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionFloor> = criteriaBuilder.createQuery(ExhibitionFloor::class.java)
         val root: Root<ExhibitionFloor> = criteria.from(ExhibitionFloor::class.java)
         criteria.select(root)
         criteria.where(criteriaBuilder.equal(root.get(ExhibitionFloor_.exhibition), exhibition))
-        val query: TypedQuery<ExhibitionFloor> = entityManager.createQuery<ExhibitionFloor>(criteria)
+        val query: TypedQuery<ExhibitionFloor> = getEntityManager().createQuery<ExhibitionFloor>(criteria)
         return query.getResultList()
     }
 

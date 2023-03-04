@@ -18,7 +18,7 @@ import javax.inject.Inject
 class VisitorVariableController {
 
     @Inject
-    private lateinit var visitorVariableDAO: VisitorVariableDAO
+    lateinit var visitorVariableDAO: VisitorVariableDAO
     
     /**
      * Creates a new visitor variable

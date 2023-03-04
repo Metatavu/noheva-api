@@ -2,6 +2,7 @@ package fi.metatavu.muisti.files
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.slf4j.Logger
 import java.io.IOException
 import javax.enterprise.context.RequestScoped
@@ -12,7 +13,6 @@ import javax.servlet.annotation.WebServlet
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-
 
 /**
  * Servlet that handles file upload requests
@@ -25,10 +25,10 @@ import javax.servlet.http.HttpServletResponse
 class FilesServlet : HttpServlet() {
 
     @Inject
-    private lateinit var logger: Logger
+    lateinit var logger: Logger
 
     @Inject
-    private lateinit var fileController: FileController
+    lateinit var fileController: FileController
 
     @Throws(ServletException::class, IOException::class)
     override fun doGet(req: HttpServletRequest, resp: HttpServletResponse) {
@@ -54,9 +54,7 @@ class FilesServlet : HttpServlet() {
                 resp.contentType = "application/json"
                 val servletOutputStream = resp.outputStream
                 try {
-                    val objectMapper = ObjectMapper()
-                    objectMapper.registerModule(KotlinModule())
-                    objectMapper.writeValue(servletOutputStream, storedFile)
+                    jacksonObjectMapper().writeValue(servletOutputStream, storedFile)
                 } finally {
                     servletOutputStream.flush()
                 }

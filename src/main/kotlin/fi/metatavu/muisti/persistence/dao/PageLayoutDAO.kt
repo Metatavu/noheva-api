@@ -116,8 +116,8 @@ class PageLayoutDAO() : AbstractDAO<PageLayout>() {
      * @return list of page layouts
      */
     fun list(deviceModel: DeviceModel?, screenOrientation: ScreenOrientation?): List<PageLayout> {
-        val entityManager = getEntityManager()
-        val criteriaBuilder = entityManager.criteriaBuilder
+        
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<PageLayout> = criteriaBuilder.createQuery(PageLayout::class.java)
         val root: Root<PageLayout> = criteria.from(PageLayout::class.java)
 
@@ -133,7 +133,7 @@ class PageLayoutDAO() : AbstractDAO<PageLayout>() {
 
         criteria.select(root)
         criteria.where(*restrictions.toTypedArray())
-        val query: TypedQuery<PageLayout> = entityManager.createQuery<PageLayout>(criteria)
+        val query: TypedQuery<PageLayout> = getEntityManager().createQuery<PageLayout>(criteria)
         return query.resultList
     }
 

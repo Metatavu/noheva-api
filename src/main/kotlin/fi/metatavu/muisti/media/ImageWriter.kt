@@ -19,7 +19,7 @@ import javax.inject.Inject
 class ImageWriter {
 
     @Inject
-    private lateinit var logger: Logger
+    lateinit var logger: Logger
 
     /**
      * Returns preferred ImageIO format for given content type

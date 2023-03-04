@@ -2,8 +2,12 @@ package fi.metatavu.muisti.keycloak
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.quarkus.cache.CacheInvalidate
+import io.quarkus.cache.CacheKey
+import io.quarkus.cache.CacheResult
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.keycloak.OAuth2Constants
 import org.keycloak.admin.client.Keycloak
 import org.keycloak.admin.client.KeycloakBuilder
@@ -14,13 +18,9 @@ import java.io.InputStream
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import javax.annotation.Resource
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 import javax.ws.rs.core.Response
-import org.infinispan.Cache
-import java.util.concurrent.TimeUnit
-import javax.annotation.PostConstruct
 
 /**
  * Controller for Keycloak related operations
@@ -31,40 +31,55 @@ import javax.annotation.PostConstruct
 class KeycloakController {
 
     @Inject
-    private lateinit var logger: Logger
-
-    @Resource(lookup = "java:jboss/infinispan/cache/muisti/user")
-    private lateinit var userCache: Cache<UUID, UserRepresentation>
-
-    private var cacheSeconds: Long = 60
+    lateinit var logger: Logger
 
     /**
-     * Post construct method
+     * Returns Keycloak client id
      */
-    @PostConstruct
-    fun init() {
-        val cacheSecondsEnv = System.getenv("USER_CACHE_MAX_SECONDS")
-        cacheSeconds = cacheSecondsEnv?.toLong() ?: 60
-    }
+    @ConfigProperty(name = "muisti.keycloak.admin.clientId")
+    lateinit var adminResource: String
+
+    /**
+     * Returns Keycloak api secret
+     */
+    @ConfigProperty(name = "muisti.keycloak.admin.secret")
+    lateinit var adminSecret: String
+
+    /**
+     * Returns Keycloak admin password
+     */
+    @ConfigProperty(name = "muisti.keycloak.admin.password")
+    lateinit var adminPassword: String
+
+    /**
+     * Returns Keycloak admin username
+     */
+    @ConfigProperty(name = "muisti.keycloak.admin.user")
+    lateinit var adminUser: String
+
+    /**
+     * Returns Keycloak realm
+     */
+    @ConfigProperty(name = "muisti.keycloak.admin.realm")
+    lateinit var realm: String
+
+    /**
+     * Returns Keycloak server URL
+     */
+    @ConfigProperty(name = "muisti.keycloak.admin.host")
+    lateinit var serverUrl: String
 
     /**
      * Finds a Keycloak user by user id
      *
-     * @param id user id
+     * @param userId user id
      * @return user or null if not found
      */
-    fun findUserById(id: UUID?): UserRepresentation? {
-        id ?: return null
+    @CacheResult(cacheName = "users-cache")
+    fun findUserById(@CacheKey userId: UUID?): UserRepresentation? {
+        userId ?: return null
 
-        val cached = userCache[id]
-        if (cached != null) {
-            return cached
-        }
-
-        val user = keycloakClient.realm(realm).users().get(id.toString()).toRepresentation() ?: return null
-        userCache.put(id, user, cacheSeconds, TimeUnit.SECONDS)
-
-        return user
+        return keycloakClient.realm(realm).users().get(userId.toString()).toRepresentation() ?: return null
     }
 
     /**
@@ -76,7 +91,7 @@ class KeycloakController {
     fun findUserByEmail(email: String): UserRepresentation? {
         val users = searchUsers(
             username = null,
-            firstName =  null,
+            firstName = null,
             lastName = null,
             email = email,
             firstResult = 0,
@@ -98,7 +113,15 @@ class KeycloakController {
      * @param realmRoles list of realm roles
      * @return created user representation or null when creation has failed
      */
-    fun createUser(email: String, language: String, firstName: String?, lastName: String?, phone: String?, birthYear: Int?, realmRoles: List<String>): UserRepresentation? {
+    fun createUser(
+        email: String,
+        language: String,
+        firstName: String?,
+        lastName: String?,
+        phone: String?,
+        birthYear: Int?,
+        realmRoles: List<String>
+    ): UserRepresentation? {
         val usersResource = keycloakClient.realm(realm).users()
         val userRepresentation = UserRepresentation()
         userRepresentation.email = email
@@ -135,7 +158,16 @@ class KeycloakController {
      * @param birthYear user's birth year
      * @return updated user representation
      */
-    fun updateUser(userRepresentation: UserRepresentation, language: String, firstName: String?, lastName: String?, phone: String?, birthYear: Int?): UserRepresentation {
+    @CacheInvalidate(cacheName = "users-cache")
+    fun updateUser(
+        @CacheKey userId: UUID,
+        userRepresentation: UserRepresentation,
+        language: String,
+        firstName: String?,
+        lastName: String?,
+        phone: String?,
+        birthYear: Int?
+    ): UserRepresentation {
         val usersResource = keycloakClient.realm(realm).users()
         val userResource = usersResource.get(userRepresentation.id)
 
@@ -146,8 +178,6 @@ class KeycloakController {
         userRepresentation.singleAttribute(USER_ATTRIBUTE_BIRTH_YEAR, birthYear?.toString())
 
         userResource.update(userRepresentation)
-
-        userCache.remove(UUID.fromString(userRepresentation.id))
 
         return userRepresentation
     }
@@ -161,7 +191,14 @@ class KeycloakController {
      * @param email filter by email
      * @param email filter by email
      */
-    private fun searchUsers(username: String?, firstName: String?, lastName: String?, email: String?, firstResult: Int?, maxResults: Int?): List<UserRepresentation> {
+    private fun searchUsers(
+        username: String?,
+        firstName: String?,
+        lastName: String?,
+        email: String?,
+        firstResult: Int?,
+        maxResults: Int?
+    ): List<UserRepresentation> {
         try {
             return keycloakClient.realm(realm).users().search(
                 username,
@@ -220,7 +257,10 @@ class KeycloakController {
         if (response.status != 201) {
             try {
                 if (logger.isErrorEnabled) {
-                    logger.error("Failed to execute create: {}", IOUtils.toString(response.entity as InputStream, "UTF-8"))
+                    logger.error(
+                        "Failed to execute create: {}",
+                        IOUtils.toString(response.entity as InputStream, "UTF-8")
+                    )
                 }
             } catch (e: IOException) {
                 logger.error("Failed to extract error message", e)
@@ -281,44 +321,10 @@ class KeycloakController {
      */
     private val adminAccessToken: String?
         get() {
-            return KeycloakControllerToken.getAccessToken()?.accessToken
+            return KeycloakControllerToken.getAccessToken(
+
+            )?.accessToken
         }
-
-    /**
-     * Returns Keycloak client id
-     */
-    private val adminResource: String
-        get() = System.getenv("KEYCLOAK_ADMIN_RESOURCE")
-
-    /**
-     * Returns Keycloak api secret
-     */
-    private val adminSecret: String
-        get() = System.getenv("KEYCLOAK_ADMIN_SECRET")
-
-    /**
-     * Returns Keycloak admin password
-     */
-    private val adminPassword: String
-        get() = System.getenv("KEYCLOAK_ADMIN_PASSWORD")
-
-    /**
-     * Returns Keycloak admin username
-     */
-    private val adminUser: String
-        get() = System.getenv("KEYCLOAK_ADMIN_USERNAME")
-
-    /**
-     * Returns Keycloak realm
-     */
-    private val realm: String
-        get() = System.getenv("KEYCLOAK_REALM")
-
-    /**
-     * Returns Keycloak server URL
-     */
-    private val serverUrl: String
-        get() = System.getenv("KEYCLOAK_URL")
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private class IdExtract {

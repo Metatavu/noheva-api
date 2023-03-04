@@ -1,11 +1,11 @@
 package fi.metatavu.muisti.geometry
 
-import com.vividsolutions.jts.geom.Coordinate
-import com.vividsolutions.jts.geom.GeometryFactory
-import com.vividsolutions.jts.geom.Point
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.GeometryFactory
 import fi.metatavu.muisti.api.spec.model.Bounds
 import fi.metatavu.muisti.api.spec.model.Coordinates
 import fi.metatavu.muisti.api.spec.model.Polygon
+import org.locationtech.jts.geom.Point
 
 /**
  * Converts spec Polygon to Geometry Polygon
@@ -13,19 +13,19 @@ import fi.metatavu.muisti.api.spec.model.Polygon
  * @param polygon spec polygon
  * @return null or Geometry Polygon
  */
-fun getPolygon(polygon: Polygon?): com.vividsolutions.jts.geom.Polygon? {
+fun getPolygon(polygon: Polygon?): org.locationtech.jts.geom.Polygon? {
 
-  polygon ?: return null
+    polygon ?: return null
 
-  val geometryFactory = GeometryFactory()
-  val coordinates = mutableListOf<Coordinate>()
-  polygon.coordinates.forEach { shape ->
-    shape.forEach {coordinate ->
-      coordinates.add(Coordinate(coordinate[0], coordinate[1]))
+    val geometryFactory = GeometryFactory()
+    val coordinates = mutableListOf<Coordinate>()
+    polygon.coordinates?.forEach { shape ->
+        shape.forEach { coordinate ->
+            coordinates.add(Coordinate(coordinate[0], coordinate[1]))
+        }
     }
-  }
 
-  return geometryFactory.createPolygon(coordinates.toTypedArray())
+    return geometryFactory.createPolygon(coordinates.toTypedArray())
 }
 
 /**
@@ -34,18 +34,19 @@ fun getPolygon(polygon: Polygon?): com.vividsolutions.jts.geom.Polygon? {
  * @param polygon spatial polygon object
  * @return null or GeoJSON with polygon data
  */
-fun getGeoShape(polygon: com.vividsolutions.jts.geom.Polygon?): Polygon? {
-  polygon ?: return null
+fun getGeoShape(polygon: org.locationtech.jts.geom.Polygon?): Polygon? {
+    polygon ?: return null
 
-  val result = Polygon()
-  result.type = polygon.geometryType
-  result.coordinates = mutableListOf(mutableListOf())
-  polygon.coordinates.forEachIndexed { index, coordinate ->
-    result.coordinates[0].add(mutableListOf<Double>())
-    result.coordinates[0][index].add(coordinate.x)
-    result.coordinates[0][index].add(coordinate.y)
-  }
-  return result
+    val coordinates: MutableList<MutableList<MutableList<Double>>> = mutableListOf(mutableListOf(mutableListOf()))
+    polygon.coordinates?.forEachIndexed { index, coordinate ->
+        coordinates[0].add(mutableListOf())
+        coordinates[0][index].add(coordinate.x)
+        coordinates[0][index].add(coordinate.y)
+    }
+    return Polygon(
+        type = polygon.geometryType,
+        coordinates = coordinates
+    )
 }
 
 /**
@@ -56,10 +57,10 @@ fun getGeoShape(polygon: com.vividsolutions.jts.geom.Polygon?): Polygon? {
  */
 fun getGeometryPoint(coordinates: Coordinates?): Point? {
 
-  coordinates ?: return null
+    coordinates ?: return null
 
-  val geometryFactory = GeometryFactory()
-  return geometryFactory.createPoint(Coordinate(coordinates.latitude, coordinates.longitude))
+    val geometryFactory = GeometryFactory()
+    return geometryFactory.createPoint(Coordinate(coordinates.latitude, coordinates.longitude))
 }
 
 /**
@@ -71,17 +72,18 @@ fun getGeometryPoint(coordinates: Coordinates?): Point? {
  */
 fun getBounds(neBoundPoint: Point?, swBoundPoint: Point?): Bounds? {
 
-  neBoundPoint ?: return null
-  swBoundPoint ?: return null
+    neBoundPoint ?: return null
+    swBoundPoint ?: return null
 
-  val result = Bounds()
-  result.southWestCorner = Coordinates()
-  result.southWestCorner.latitude = swBoundPoint.x
-  result.southWestCorner.longitude = swBoundPoint.y
 
-  result.northEastCorner = Coordinates()
-  result.northEastCorner.latitude = neBoundPoint.x
-  result.northEastCorner.longitude = neBoundPoint.y
-
-  return result
+    return Bounds(
+        southWestCorner = Coordinates(
+            latitude = swBoundPoint.x,
+            longitude = swBoundPoint.y
+        ),
+        northEastCorner = Coordinates(
+            latitude = neBoundPoint.x,
+            longitude = neBoundPoint.y
+        )
+    )
 }

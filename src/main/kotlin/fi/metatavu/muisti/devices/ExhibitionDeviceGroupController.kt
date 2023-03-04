@@ -20,25 +20,25 @@ import javax.inject.Inject
 class ExhibitionDeviceGroupController {
 
   @Inject
-  private lateinit var logger: Logger
+  lateinit var logger: Logger
 
   @Inject
-  private lateinit var exhibitionDeviceGroupDAO: ExhibitionDeviceGroupDAO
+  lateinit var exhibitionDeviceGroupDAO: ExhibitionDeviceGroupDAO
 
   @Inject
-  private lateinit var deviceController: ExhibitionDeviceController
+  lateinit var deviceController: ExhibitionDeviceController
 
   @Inject
-  private lateinit var antennaController: RfidAntennaController
+  lateinit var antennaController: RfidAntennaController
 
   @Inject
-  private lateinit var pageController: ExhibitionPageController
+  lateinit var pageController: ExhibitionPageController
 
   @Inject
-  private lateinit var contentVersionController: ContentVersionController
+  lateinit var contentVersionController: ContentVersionController
 
   @Inject
-  private lateinit var groupContentVersionController: GroupContentVersionController
+  lateinit var groupContentVersionController: GroupContentVersionController
 
   /**
    * Creates new exhibition device group

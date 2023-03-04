@@ -17,7 +17,7 @@ import javax.inject.Inject
 class PageLayoutController {
 
     @Inject
-    private lateinit var pageLayoutDAO: PageLayoutDAO
+    lateinit var pageLayoutDAO: PageLayoutDAO
 
     /**
      * Creates new exhibition page layout

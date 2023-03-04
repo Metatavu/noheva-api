@@ -19,7 +19,7 @@ import javax.inject.Inject
 class ExhibitionRoomController() {
 
     @Inject
-    private lateinit var exhibitionRoomDAO: ExhibitionRoomDAO
+    lateinit var exhibitionRoomDAO: ExhibitionRoomDAO
 
     /**
      * Creates new exhibition room

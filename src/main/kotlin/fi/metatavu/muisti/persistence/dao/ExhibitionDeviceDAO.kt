@@ -75,8 +75,8 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
      * @return List of devices
      */
     fun list(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup?, deviceModel: DeviceModel?): List<ExhibitionDevice> {
-        val entityManager = getEntityManager()
-        val criteriaBuilder = entityManager.criteriaBuilder
+        
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionDevice> = criteriaBuilder.createQuery(ExhibitionDevice::class.java)
         val root: Root<ExhibitionDevice> = criteria.from(ExhibitionDevice::class.java)
 
@@ -94,7 +94,7 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
         criteria.select(root)
         criteria.where(*restrictions.toTypedArray())
 
-        val query: TypedQuery<ExhibitionDevice> = entityManager.createQuery<ExhibitionDevice>(criteria)
+        val query: TypedQuery<ExhibitionDevice> = getEntityManager().createQuery<ExhibitionDevice>(criteria)
         return query.resultList
     }
 
@@ -105,15 +105,15 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
      * @return List of devices
      */
     fun listByIdlePage(idlePage: ExhibitionPage): List<ExhibitionDevice> {
-        val entityManager = getEntityManager()
-        val criteriaBuilder = entityManager.criteriaBuilder
+        
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionDevice> = criteriaBuilder.createQuery(ExhibitionDevice::class.java)
         val root: Root<ExhibitionDevice> = criteria.from(ExhibitionDevice::class.java)
 
         criteria.select(root)
         criteria.where(criteriaBuilder.equal(root.get(ExhibitionDevice_.idlePage), idlePage))
 
-        val query: TypedQuery<ExhibitionDevice> = entityManager.createQuery<ExhibitionDevice>(criteria)
+        val query: TypedQuery<ExhibitionDevice> = getEntityManager().createQuery<ExhibitionDevice>(criteria)
         return query.resultList
     }
 

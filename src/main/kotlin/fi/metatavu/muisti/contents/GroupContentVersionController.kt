@@ -20,7 +20,7 @@ import javax.inject.Inject
 class GroupContentVersionController {
 
     @Inject
-    private lateinit var groupContentVersionDAO: GroupContentVersionDAO
+    lateinit var groupContentVersionDAO: GroupContentVersionDAO
 
     /**
      * Creates new group content version

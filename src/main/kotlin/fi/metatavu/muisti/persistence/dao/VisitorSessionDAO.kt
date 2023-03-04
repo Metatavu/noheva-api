@@ -65,8 +65,8 @@ class VisitorSessionDAO : AbstractDAO<VisitorSession>() {
         modifiedAfter: OffsetDateTime?,
         expiresAfter: OffsetDateTime
     ): List<VisitorSession> {
-        val entityManager = getEntityManager()
-        val criteriaBuilder = entityManager.criteriaBuilder
+        
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<VisitorSession> = criteriaBuilder.createQuery(VisitorSession::class.java)
         val root: Root<VisitorSession> = criteria.from(VisitorSession::class.java)
 
@@ -80,7 +80,7 @@ class VisitorSessionDAO : AbstractDAO<VisitorSession>() {
 
         criteria.select(root)
         criteria.where(*restrictions.toTypedArray())
-        val query: TypedQuery<VisitorSession> = entityManager.createQuery(criteria)
+        val query: TypedQuery<VisitorSession> = getEntityManager().createQuery(criteria)
         return query.resultList
     }
 

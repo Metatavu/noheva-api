@@ -13,10 +13,10 @@ import javax.inject.Inject
  * Controller for exhibition device models
  */
 @ApplicationScoped
-class DeviceModelController() {
+class DeviceModelController {
 
     @Inject
-    private lateinit var deviceModelDAO: DeviceModelDAO
+    lateinit var deviceModelDAO: DeviceModelDAO
 
     /**
      * Creates new exhibition device model

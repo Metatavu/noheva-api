@@ -2,7 +2,9 @@ package fi.metatavu.muisti.api.translate
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import fi.metatavu.muisti.api.spec.model.PageLayoutView
+import fi.metatavu.muisti.api.spec.model.SubLayout
 import javax.enterprise.context.ApplicationScoped
+import javax.inject.Inject
 
 /**
  * Translator for translating JPA exhibition sub layout entities into REST resources
@@ -10,19 +12,18 @@ import javax.enterprise.context.ApplicationScoped
  * @author Jari Nykänen
  */
 @ApplicationScoped
-class SubLayoutTranslator: AbstractTranslator<fi.metatavu.muisti.persistence.model.SubLayout, fi.metatavu.muisti.api.spec.model.SubLayout>() {
+class SubLayoutTranslator : AbstractTranslator<fi.metatavu.muisti.persistence.model.SubLayout, SubLayout>() {
 
-    override fun translate(entity: fi.metatavu.muisti.persistence.model.SubLayout): fi.metatavu.muisti.api.spec.model.SubLayout {
-        val result = fi.metatavu.muisti.api.spec.model.SubLayout()
-        result.id = entity.id
-        result.name = entity.name
-        result.data = getData(entity.data)
-        result.creatorId = entity.creatorId
-        result.lastModifierId = entity.lastModifierId
-        result.createdAt = entity.createdAt
-        result.modifiedAt = entity.modifiedAt
-
-        return result
+    override fun translate(entity: fi.metatavu.muisti.persistence.model.SubLayout): SubLayout {
+        return SubLayout(
+            id = entity.id,
+            name = entity.name!!,
+            data = getData(entity.data),
+            creatorId = entity.creatorId,
+            lastModifierId = entity.lastModifierId,
+            createdAt = entity.createdAt,
+            modifiedAt = entity.modifiedAt
+        )
     }
 
     /**

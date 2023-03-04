@@ -23,10 +23,10 @@ import javax.inject.Inject
 class ExhibitionPageController {
 
     @Inject
-    private lateinit var exhibitionPageDAO: ExhibitionPageDAO
+    lateinit var exhibitionPageDAO: ExhibitionPageDAO
 
     /**
-     * Creates new exhibition page 
+     * Creates new exhibition page
      *
      * @param exhibition exhibition
      * @param device device
@@ -39,7 +39,7 @@ class ExhibitionPageController {
      * @param enterTransitions page enter transitions
      * @param exitTransitions page exit transitions
      * @param creatorId creating user id
-     * @return created exhibition page 
+     * @return created exhibition page
      */
     fun createPage(
         exhibition: Exhibition,
@@ -49,12 +49,13 @@ class ExhibitionPageController {
         name: String,
         orderNumber: Int,
         resources: List<ExhibitionPageResource>,
-        eventTriggers:  List<ExhibitionPageEventTrigger>,
+        eventTriggers: List<ExhibitionPageEventTrigger>,
         enterTransitions: List<ExhibitionPageTransition>,
         exitTransitions: List<ExhibitionPageTransition>,
         creatorId: UUID
     ): ExhibitionPage {
-        return exhibitionPageDAO.create(UUID.randomUUID(),
+        return exhibitionPageDAO.create(
+            UUID.randomUUID(),
             exhibition = exhibition,
             device = device,
             layout = layout,
@@ -137,7 +138,12 @@ class ExhibitionPageController {
      * @param pageLayout filter by page layout. Ignored if null is passed
      * @return List of exhibition pages
      */
-    fun listExhibitionPages(exhibition: Exhibition, exhibitionDevice: ExhibitionDevice?, contentVersion: ContentVersion?, pageLayout: PageLayout?): List<ExhibitionPage> {
+    fun listExhibitionPages(
+        exhibition: Exhibition,
+        exhibitionDevice: ExhibitionDevice?,
+        contentVersion: ContentVersion?,
+        pageLayout: PageLayout?
+    ): List<ExhibitionPage> {
         return exhibitionPageDAO.list(
             exhibition = exhibition,
             exhibitionDevice = exhibitionDevice,
@@ -166,7 +172,7 @@ class ExhibitionPageController {
     }
 
     /**
-     * Updates an exhibition page 
+     * Updates an exhibition page
      *
      * @param exhibitionPage exhibition page  to be updated
      * @param device device
@@ -182,18 +188,19 @@ class ExhibitionPageController {
      * @return updated exhibition page
      */
     fun updateExhibitionPage(
-            exhibitionPage: ExhibitionPage,
-            device: ExhibitionDevice,
-            layout: PageLayout,
-            contentVersion: ContentVersion,
-            name: String,
-            resources: List<ExhibitionPageResource>,
-            eventTriggers: List<ExhibitionPageEventTrigger>,
-            enterTransitions: List<ExhibitionPageTransition>,
-            exitTransitions: List<ExhibitionPageTransition>,
-            orderNumber: Int,
-            modifierId: UUID)
-        : ExhibitionPage {
+        exhibitionPage: ExhibitionPage,
+        device: ExhibitionDevice,
+        layout: PageLayout,
+        contentVersion: ContentVersion,
+        name: String,
+        resources: List<ExhibitionPageResource>,
+        eventTriggers: List<ExhibitionPageEventTrigger>,
+        enterTransitions: List<ExhibitionPageTransition>,
+        exitTransitions: List<ExhibitionPageTransition>,
+        orderNumber: Int,
+        modifierId: UUID
+    )
+            : ExhibitionPage {
         var result = exhibitionPageDAO.updateName(exhibitionPage, name, modifierId)
         result = exhibitionPageDAO.updateLayout(result, layout, modifierId)
         result = exhibitionPageDAO.updateDevice(result, device, modifierId)
@@ -207,7 +214,7 @@ class ExhibitionPageController {
     }
 
     /**
-     * Deletes an exhibition page 
+     * Deletes an exhibition page
      *
      * @param exhibitionPage exhibition page to be deleted
      */
@@ -234,7 +241,10 @@ class ExhibitionPageController {
      * @param idMapper id mapper
      * @return remapped event triggers
      */
-    private fun remapEventTriggers(eventTriggers: List<ExhibitionPageEventTrigger>, idMapper: IdMapper): List<ExhibitionPageEventTrigger> {
+    private fun remapEventTriggers(
+        eventTriggers: List<ExhibitionPageEventTrigger>,
+        idMapper: IdMapper
+    ): List<ExhibitionPageEventTrigger> {
         return eventTriggers.map { remapEventTrigger(it, idMapper) }
     }
 
@@ -245,9 +255,11 @@ class ExhibitionPageController {
      * @param idMapper id mapper
      * @return remapped event trigger
      */
-    private fun remapEventTrigger(eventTrigger: ExhibitionPageEventTrigger, idMapper: IdMapper): ExhibitionPageEventTrigger {
-        eventTrigger.events = eventTrigger.events.map { remapEvent(it, idMapper) }
-        return eventTrigger
+    private fun remapEventTrigger(
+        eventTrigger: ExhibitionPageEventTrigger,
+        idMapper: IdMapper
+    ): ExhibitionPageEventTrigger {
+        return eventTrigger.copy(events = eventTrigger.events?.map { remapEvent(it, idMapper) })
     }
 
     /**
@@ -258,8 +270,7 @@ class ExhibitionPageController {
      * @return remapped event
      */
     private fun remapEvent(event: ExhibitionPageEvent, idMapper: IdMapper): ExhibitionPageEvent {
-        event.properties = event.properties.map { remapEventProperty(it, idMapper) }
-        return event
+        return event.copy(properties = event.properties.map { remapEventProperty(it, idMapper) })
     }
 
     /**
@@ -269,13 +280,16 @@ class ExhibitionPageController {
      * @param idMapper id mapper
      * @return remapped property
      */
-    private fun remapEventProperty(property: ExhibitionPageEventProperty, idMapper: IdMapper): ExhibitionPageEventProperty {
-        if (property.name == "pageId") {
+    private fun remapEventProperty(
+        property: ExhibitionPageEventProperty,
+        idMapper: IdMapper
+    ): ExhibitionPageEventProperty {
+        return if (property.name == "pageId") {
             val oldId = UUID.fromString(property.value)
-            property.value = idMapper.getNewId(oldId).toString()
+            property.copy(value = idMapper.getNewId(oldId).toString())
+        } else {
+            property.copy()
         }
-
-        return property
     }
 
     /**

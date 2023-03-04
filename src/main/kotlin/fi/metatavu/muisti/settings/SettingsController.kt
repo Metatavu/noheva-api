@@ -1,8 +1,10 @@
 package fi.metatavu.muisti.settings
 
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.slf4j.Logger
 import java.time.Duration
 import java.time.OffsetDateTime
+import java.util.Optional
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 
@@ -13,21 +15,10 @@ import javax.inject.Inject
 class SettingsController {
 
     @Inject
-    private lateinit var logger: Logger
+    lateinit var logger: Logger
 
-    /**
-     * Returns MQTT server settings
-     *
-     * @return MQTT server settings
-     */
-    fun getMqttSettings(): MqttSettings {
-        return MqttSettings(
-            serverUrl = System.getenv("MQTT_SERVER_URL"),
-            topic = System.getenv("MQTT_TOPIC"),
-            username = System.getenv("MQTT_USERNAME"),
-            password = System.getenv("MQTT_PASSWORD")
-        )
-    }
+    @ConfigProperty(name = "visitor.session.timeout")
+    private lateinit var visitorSessionTimeout: Optional<String>
 
     /**
      * Returns time after created visitor sessions are valid
@@ -44,12 +35,13 @@ class SettingsController {
      * @return visitor session timeout
      */
     fun getVisitorSessionTimeout(): Duration {
-        val envValue = System.getenv("VISITOR_SESSION_TIMEOUT")
-        envValue ?: return DEFAULT_VISITOR_SESSION_TIMEOUT
+        if (visitorSessionTimeout.isEmpty) {
+            return DEFAULT_VISITOR_SESSION_TIMEOUT
+        }
         var result: Duration? = null
 
         try {
-            result = Duration.parse(envValue)
+            result = Duration.parse(visitorSessionTimeout.get())
         } catch (e: Exception) {
             logger.error("Failed to parse VISITOR_SESSION_TIMEOUT, using default value")
         }
@@ -60,7 +52,7 @@ class SettingsController {
     }
 
     companion object {
-        val DEFAULT_VISITOR_SESSION_TIMEOUT = Duration.ofHours(6)
+        val DEFAULT_VISITOR_SESSION_TIMEOUT: Duration = Duration.ofHours(6)
     }
 
 }

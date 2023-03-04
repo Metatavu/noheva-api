@@ -1,6 +1,6 @@
 package fi.metatavu.muisti.persistence.dao
 
-import com.vividsolutions.jts.geom.Polygon
+import org.locationtech.jts.geom.Polygon
 import fi.metatavu.muisti.persistence.model.Exhibition
 import fi.metatavu.muisti.persistence.model.ExhibitionFloor
 import fi.metatavu.muisti.persistence.model.ExhibitionRoom
@@ -54,8 +54,8 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
      * @return List of ExhibitionRooms
      */
     fun list(exhibition: Exhibition, floor: ExhibitionFloor?): List<ExhibitionRoom> {
-        val entityManager = getEntityManager()
-        val criteriaBuilder = entityManager.criteriaBuilder
+        
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionRoom> = criteriaBuilder.createQuery(ExhibitionRoom::class.java)
         val root: Root<ExhibitionRoom> = criteria.from(ExhibitionRoom::class.java)
 
@@ -68,7 +68,7 @@ class ExhibitionRoomDAO() : AbstractDAO<ExhibitionRoom>() {
 
         criteria.select(root)
         criteria.where(*restrictions.toTypedArray())
-        val query: TypedQuery<ExhibitionRoom> = entityManager.createQuery<ExhibitionRoom>(criteria)
+        val query: TypedQuery<ExhibitionRoom> = getEntityManager().createQuery<ExhibitionRoom>(criteria)
         return query.getResultList()
     }
 

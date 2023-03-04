@@ -1,6 +1,10 @@
 package fi.metatavu.muisti.files.storage
 
+import com.amazonaws.ClientConfiguration
 import com.amazonaws.SdkClientException
+import com.amazonaws.auth.AWSStaticCredentialsProvider
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.services.s3.model.*
@@ -10,8 +14,10 @@ import fi.metatavu.muisti.files.InputFile
 import fi.metatavu.muisti.media.ImageReader
 import fi.metatavu.muisti.media.ImageScaler
 import fi.metatavu.muisti.media.ImageWriter
+import io.quarkus.runtime.configuration.ProfileManager
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -34,32 +40,43 @@ import javax.inject.Inject
 class S3FileStorageProvider : FileStorageProvider {
 
     @Inject
-    private lateinit var imageReader: ImageReader
+    lateinit var imageReader: ImageReader
 
     @Inject
-    private lateinit var imageWriter: ImageWriter
+    lateinit var imageWriter: ImageWriter
 
     @Inject
-    private lateinit var imageScaler: ImageScaler
+    lateinit var imageScaler: ImageScaler
 
-    private var region: String? = null
-    private var bucket: String? = null
-    private var prefix: String? = null
+    @ConfigProperty(name = "s3.file.storage.region")
+    lateinit var region: String
+
+    @ConfigProperty(name = "s3.file.storage.endpoint")
+    lateinit var endpoint: Optional<String>
+
+    @ConfigProperty(name = "s3.file.storage.bucket")
+    lateinit var bucket: String
+
+    @ConfigProperty(name = "s3.file.storage.prefix")
+    lateinit var prefix: String
+
+    @ConfigProperty(name = "s3.file.storage.keyid")
+    lateinit var keyId: String
+
+    @ConfigProperty(name = "s3.file.storage.secret")
+    lateinit var secret: String
+
+    /**
+     * Returns whether system is running in test mode
+     *
+     * @return whether system is running in test mode
+     */
+    fun isInTestMode(): Boolean {
+        return StringUtils.equals("test", ProfileManager.getActiveProfile())
+    }
 
     @Throws(FileStorageException::class)
     override fun init() {
-        region = System.getenv("S3_FILE_STORAGE_REGION")
-        bucket = System.getenv("S3_FILE_STORAGE_BUCKET")
-        prefix = System.getenv("S3_FILE_STORAGE_PREFIX")
-        if (StringUtils.isBlank(region)) {
-            throw FileStorageException("S3_FILE_STORAGE_REGION is not set")
-        }
-        if (StringUtils.isBlank(bucket)) {
-            throw FileStorageException("S3_FILE_STORAGE_BUCKET is not set")
-        }
-        if (StringUtils.isBlank(prefix)) {
-            throw FileStorageException("S3_FILE_STORAGE_PREFIX is not set")
-        }
         val client: AmazonS3 = client
         if (!client.doesBucketExistV2(bucket)) {
             throw FileStorageException(String.format("bucket '%s' does not exist", bucket))
@@ -79,7 +96,13 @@ class S3FileStorageProvider : FileStorageProvider {
         FileOutputStream(tempFile).use { fileOutputStream -> IOUtils.copy(data, fileOutputStream) }
         try {
             val thumbnailKey = uploadThumbnail(fileKey = fileKey, contentType = meta.contentType, tempFile = tempFile)
-            val objectMeta = uploadObject(key = fileKey, thumbnailKey = thumbnailKey, contentType = meta.contentType, filename = meta.fileName, tempFile = tempFile)
+            val objectMeta = uploadObject(
+                key = fileKey,
+                thumbnailKey = thumbnailKey,
+                contentType = meta.contentType,
+                filename = meta.fileName,
+                tempFile = tempFile
+            )
 
 
             return translateObject(fileKey = fileKey, objectMeta = objectMeta)
@@ -119,7 +142,7 @@ class S3FileStorageProvider : FileStorageProvider {
 
             val result = awsResult.commonPrefixes
                 .filter { !it.startsWith("__") }
-                .map (this::translateFolder)
+                .map(this::translateFolder)
 
             return result.plus(awsResult.objectSummaries
                 .filter { !it.key.startsWith("__") }
@@ -136,12 +159,21 @@ class S3FileStorageProvider : FileStorageProvider {
 
     override fun update(storedFile: StoredFile): StoredFile {
         try {
-            val key = getKey(storedFile.id)
+            val key = getKey(storedFile.id!!)
             val s3Object = client.getObject(bucket, key)
+            val objectMeta: ObjectMetadata?
 
-            val objectMeta = s3Object.objectMetadata.clone()
+            if (isInTestMode()) {
+                //workarounds for localstack setup since its metadata object is not the same as the one by real aws
+                objectMeta = ObjectMetadata()
+                objectMeta.contentLength = 0
+                objectMeta.contentType = s3Object.objectMetadata.contentType
+                objectMeta.userMetadata = s3Object.objectMetadata.userMetadata
+            } else {
+                objectMeta = s3Object.objectMetadata.clone()
+            }
+
             objectMeta.addUserMetadata(X_FILE_NAME, storedFile.fileName)
-
             val request = CopyObjectRequest(this.bucket, key, this.bucket, key)
                 .withNewObjectMetadata(objectMeta)
 
@@ -172,11 +204,36 @@ class S3FileStorageProvider : FileStorageProvider {
         get() = "S3"
 
     /**
-     * Returns initialized S3 client
+     * Returns initialized S3 client based on the profile (localstack test container requires additional
+     * endpoint configuration)
      *
      * @return initialized S3 client
      */
-    private val client: AmazonS3 get() = AmazonS3ClientBuilder.standard().withRegion(region).build()
+    private val client: AmazonS3
+        get() = if (isInTestMode())
+            AmazonS3ClientBuilder
+                .standard()
+                .withEndpointConfiguration( // test localstack requires special endpoint configuration
+                    AwsClientBuilder.EndpointConfiguration(
+                        endpoint?.get(),
+                        region
+                    )
+                )
+                .withCredentials(
+                    AWSStaticCredentialsProvider(
+                        BasicAWSCredentials(keyId, secret)
+                    )
+                )
+                .build()
+        else
+            AmazonS3ClientBuilder
+                .standard()
+                .withRegion(region)
+                .withCredentials(
+                    AWSStaticCredentialsProvider(
+                        BasicAWSCredentials(keyId, secret)
+                    )
+                ).build()
 
     /**
      * Uploads a thumbnail into bucket
@@ -198,7 +255,11 @@ class S3FileStorageProvider : FileStorageProvider {
             try {
                 objectMeta.contentLength = thumbnailData.size.toLong()
                 thumbnailData.inputStream().use { thumbnailInputStream ->
-                    client.putObject(PutObjectRequest(bucket, key, thumbnailInputStream, objectMeta).withCannedAcl(CannedAccessControlList.PublicRead))
+                    client.putObject(
+                        PutObjectRequest(bucket, key, thumbnailInputStream, objectMeta).withCannedAcl(
+                            CannedAccessControlList.PublicRead
+                        )
+                    )
                 }
 
                 return key
@@ -220,7 +281,13 @@ class S3FileStorageProvider : FileStorageProvider {
      * @param tempFile object data in temp file
      * @return uploaded object
      */
-    private fun uploadObject(key: String, thumbnailKey: String?, contentType: String, filename: String, tempFile: File): ObjectMetadata {
+    private fun uploadObject(
+        key: String,
+        thumbnailKey: String?,
+        contentType: String,
+        filename: String,
+        tempFile: File
+    ): ObjectMetadata {
         val objectMeta = ObjectMetadata()
         objectMeta.contentType = contentType
         objectMeta.addUserMetadata(X_FILE_NAME, filename)
@@ -234,7 +301,11 @@ class S3FileStorageProvider : FileStorageProvider {
                 objectMeta.contentLength = tempFile.length()
 
                 FileInputStream(tempFile).use { fileInputStream ->
-                    client.putObject(PutObjectRequest(bucket, key, fileInputStream, objectMeta).withCannedAcl(CannedAccessControlList.PublicRead))
+                    client.putObject(
+                        PutObjectRequest(bucket, key, fileInputStream, objectMeta).withCannedAcl(
+                            CannedAccessControlList.PublicRead
+                        )
+                    )
                 }
 
                 return objectMeta
@@ -273,7 +344,7 @@ class S3FileStorageProvider : FileStorageProvider {
 
         val scaledImage = imageScaler.scaleToCover(originalImage = image, size = THUMBNAIL_SIZE, downScaleOnly = false)
         val croppedImage = scaledImage?.getSubimage(0, 0, THUMBNAIL_SIZE, THUMBNAIL_SIZE)
-        croppedImage?: return null
+        croppedImage ?: return null
 
         return imageWriter.writeBufferedImage(croppedImage, "jpg")
     }
@@ -306,20 +377,19 @@ class S3FileStorageProvider : FileStorageProvider {
      * @return stored file
      */
     private fun translateObject(fileKey: String, objectMeta: ObjectMetadata): StoredFile {
-        val result = StoredFile()
+
         val fileName = objectMeta.userMetadata[X_FILE_NAME] ?: fileKey
         val thumbnailKey = objectMeta.userMetadata[X_THUMBNAIL_KEY]
 
-        result.id = getStoredFileId(fileKey)
-        result.contentType = objectMeta.contentType
-        result.fileName = fileName
-        result.uri = "$prefix/$fileKey"
+        val thumbnailUri = if (thumbnailKey != null) "$prefix/$thumbnailKey" else null
 
-        if (thumbnailKey != null) {
-            result.thumbnailUri = "$prefix/$thumbnailKey"
-        }
-
-        return result
+        return StoredFile(
+            id = getStoredFileId(fileKey),
+            contentType = objectMeta.contentType,
+            fileName = fileName,
+            uri = "$prefix/$fileKey",
+            thumbnailUri = thumbnailUri
+        )
     }
 
     /**
@@ -329,12 +399,12 @@ class S3FileStorageProvider : FileStorageProvider {
      * @return stored file
      */
     private fun translateFolder(key: String): StoredFile {
-        val result = StoredFile()
-        result.id = getStoredFileId(key)
-        result.contentType = "inode/directory"
-        result.fileName = StringUtils.stripEnd(StringUtils.stripStart(key, "/"), "/")
-        result.uri = "$prefix/$key"
-        return result
+        return StoredFile(
+            id = getStoredFileId(key),
+            contentType = "inode/directory",
+            fileName = StringUtils.stripEnd(StringUtils.stripStart(key, "/"), "/"),
+            uri = "$prefix/$key"
+        )
     }
 
     companion object {
@@ -342,6 +412,6 @@ class S3FileStorageProvider : FileStorageProvider {
         const val X_THUMBNAIL_KEY = "x-thumbnail-key"
         const val THUMBNAIL_SIZE = 512
     }
-    
-    
+
+
 }

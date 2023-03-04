@@ -49,8 +49,8 @@ class VisitorDAO : AbstractDAO<Visitor>() {
      * @return Found visitor or null if not found
      */
     fun findByExhibitionAndTagId(exhibition: Exhibition, tagId: String): Visitor? {
-        val entityManager = getEntityManager()
-        val criteriaBuilder = entityManager.criteriaBuilder
+        
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<Visitor> = criteriaBuilder.createQuery(Visitor::class.java)
         val root: Root<Visitor> = criteria.from(Visitor::class.java)
         criteria.select(root)
@@ -62,7 +62,7 @@ class VisitorDAO : AbstractDAO<Visitor>() {
             )
         )
 
-        val query: TypedQuery<Visitor> = entityManager.createQuery(criteria)
+        val query: TypedQuery<Visitor> = getEntityManager().createQuery(criteria)
         return getSingleResult(query)
     }
 
@@ -75,8 +75,8 @@ class VisitorDAO : AbstractDAO<Visitor>() {
      * @return List of visitors
      */
     fun list(exhibition: Exhibition?, tagId: String?, userId: UUID?, createdAfter: OffsetDateTime?): List<Visitor> {
-        val entityManager = getEntityManager()
-        val criteriaBuilder = entityManager.criteriaBuilder
+        
+        val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<Visitor> = criteriaBuilder.createQuery(Visitor::class.java)
         val root: Root<Visitor> = criteria.from(Visitor::class.java)
         val restrictions = ArrayList<Predicate>()
@@ -96,7 +96,7 @@ class VisitorDAO : AbstractDAO<Visitor>() {
 
         criteria.select(root)
         criteria.where(*restrictions.toTypedArray())
-        val query: TypedQuery<Visitor> = entityManager.createQuery(criteria)
+        val query: TypedQuery<Visitor> = getEntityManager().createQuery(criteria)
         return query.resultList
     }
 

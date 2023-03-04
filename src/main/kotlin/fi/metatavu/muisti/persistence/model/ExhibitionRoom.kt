@@ -1,6 +1,6 @@
 package fi.metatavu.muisti.persistence.model
 
-import com.vividsolutions.jts.geom.Polygon
+import org.locationtech.jts.geom.Polygon
 import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*

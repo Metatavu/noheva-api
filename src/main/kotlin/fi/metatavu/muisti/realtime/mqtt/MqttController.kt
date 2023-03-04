@@ -1,6 +1,8 @@
 package fi.metatavu.muisti.realtime.mqtt
 
-import fi.metatavu.muisti.settings.SettingsController
+import fi.metatavu.muisti.settings.MqttSettings
+import org.eclipse.microprofile.config.inject.ConfigProperty
+import java.util.*
 import javax.annotation.PostConstruct
 import javax.enterprise.context.ApplicationScoped
 import javax.enterprise.event.Event
@@ -17,15 +19,30 @@ import javax.inject.Inject
 class MqttController {
 
     @Inject
-    private lateinit var settingsController: SettingsController
+    lateinit var messageEvent: Event<MqttMessage>
 
-    @Inject
-    private lateinit var messageEvent: Event<MqttMessage>
+    @ConfigProperty(name = "mqtt.topic")
+    private lateinit var mqttTopic: String
+
+    @ConfigProperty(name = "mqtt.server.url")
+    private lateinit var serverUrl: String
+
+    @ConfigProperty(name = "mqtt.username")
+    private lateinit var username: Optional<String>
+
+    @ConfigProperty(name = "mqtt.password")
+    private lateinit var password: Optional<String>
 
     @PostConstruct
     @Suppress("unused")
     fun postConstruct() {
-        MqttConnection.connect(settingsController.getMqttSettings())
+        MqttConnection.connect(MqttSettings(
+            publisherId = UUID.randomUUID().toString(),
+            serverUrl = serverUrl,
+            topic = mqttTopic,
+            username = if (username.isPresent) username.get() else null,
+            password = if (password.isPresent) password.get() else null,
+        ))
     }
 
     /**
@@ -45,6 +62,7 @@ class MqttController {
     @Suppress("unused")
     fun onMessageEvent(@Observes(during = TransactionPhase.AFTER_SUCCESS) event: MqttMessage) {
         if (event.transactionPhase == TransactionPhase.AFTER_SUCCESS) {
+
             MqttConnection.publish(event)
         }
     }
