@@ -28,6 +28,8 @@ val hibernateSpatialVersion: String by project
 val awaitilityVersion: String by project
 val moshiVersion: String by project
 val testContainersVersion: String by project
+val camelPahoVersion: String by project
+val registerReflectionVersion: String by project
 
 dependencies {
     kapt("org.hibernate:hibernate-jpamodelgen:5.4.11.Final")
@@ -46,14 +48,14 @@ dependencies {
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
     implementation("io.quarkus:quarkus-cache")
     implementation("io.quarkus:quarkus-awt")
-    implementation("org.apache.camel.quarkus:camel-quarkus-paho:2.16.0")
+    implementation("org.apache.camel.quarkus:camel-quarkus-paho:$camelPahoVersion")
 
     implementation("commons-io:commons-io")
     implementation("org.apache.commons:commons-lang3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("software.amazon.awssdk:s3:$awssdkVersion")
     implementation("software.amazon.awssdk:apache-client:$awssdkVersion")
-    implementation("com.github.metatavu.quarkus-register-reflection:quarkus-register-reflection:1.0.4")
+    implementation("com.github.metatavu.quarkus-register-reflection:quarkus-register-reflection:$registerReflectionVersion")
 
     /**
      * Spatial dependencies
