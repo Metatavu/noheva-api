@@ -10,6 +10,7 @@ plugins {
 }
 
 repositories {
+    maven { setUrl("https://jitpack.io") }
     mavenLocal()
     mavenCentral()
 }
@@ -27,6 +28,8 @@ val hibernateSpatialVersion: String by project
 val awaitilityVersion: String by project
 val moshiVersion: String by project
 val testContainersVersion: String by project
+val camelPahoVersion: String by project
+val registerReflectionVersion: String by project
 
 dependencies {
     kapt("org.hibernate:hibernate-jpamodelgen:5.4.11.Final")
@@ -44,13 +47,15 @@ dependencies {
     implementation("io.quarkus:quarkus-resteasy-reactive")
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
     implementation("io.quarkus:quarkus-cache")
+    implementation("io.quarkus:quarkus-awt")
+    implementation("org.apache.camel.quarkus:camel-quarkus-paho:$camelPahoVersion")
 
     implementation("commons-io:commons-io")
     implementation("org.apache.commons:commons-lang3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    implementation(platform ("com.amazonaws:aws-java-sdk-bom:$awssdkVersion"))
-    implementation("com.amazonaws:aws-java-sdk-s3:$awssdkVersion")
-    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:$pahoVersion")
+    implementation("software.amazon.awssdk:s3:$awssdkVersion")
+    implementation("software.amazon.awssdk:apache-client:$awssdkVersion")
+    implementation("com.github.metatavu.quarkus-register-reflection:quarkus-register-reflection:$registerReflectionVersion")
 
     /**
      * Spatial dependencies
@@ -67,6 +72,7 @@ dependencies {
     testImplementation("org.hamcrest:hamcrest:2.2")
     testImplementation("fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrsFunctionalTestBuilderVersion")
     testImplementation("org.awaitility:awaitility:$awaitilityVersion")
+    testImplementation("com.amazonaws:aws-java-sdk-s3:1.12.393")
 }
 java {
     sourceCompatibility = JavaVersion.VERSION_11
@@ -137,4 +143,8 @@ tasks.named("clean") {
     this.doFirst {
         file("$rootDir/src/gen").deleteRecursively()
     }
+}
+
+tasks.named<Test>("testNative") {
+  testLogging.showStandardStreams = true
 }

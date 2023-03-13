@@ -312,18 +312,7 @@ class KeycloakController {
                 .grantType(OAuth2Constants.PASSWORD)
                 .username(adminUser)
                 .password(adminPassword)
-                .authorization("Bearer $adminAccessToken")
                 .build()
-        }
-
-    /**
-     * Returns API admin access token
-     */
-    private val adminAccessToken: String?
-        get() {
-            return KeycloakControllerToken.getAccessToken(
-
-            )?.accessToken
         }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

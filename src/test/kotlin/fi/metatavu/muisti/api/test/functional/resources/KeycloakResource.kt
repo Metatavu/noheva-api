@@ -12,7 +12,7 @@ class KeycloakResource : QuarkusTestResourceLifecycleManager {
         keycloak.start()
         val realm = "muisti"
         val config: MutableMap<String, String> = HashMap()
-        config["quarkus.oidc.auth-server-url"] = "${keycloak.authServerUrl}/realms/$realm"
+        config["quarkus.oidc.auth-server-url"] = "${keycloak.authServerUrl}realms/$realm"
         config["quarkus.oidc.client-id"] = "test"
         config["muisti.keycloak.admin.host"] = keycloak.authServerUrl
         config["muisti.keycloak.admin.realm"] = realm

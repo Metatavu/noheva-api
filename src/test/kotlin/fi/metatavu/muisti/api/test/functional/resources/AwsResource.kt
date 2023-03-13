@@ -1,12 +1,15 @@
 package fi.metatavu.muisti.api.test.functional.resources
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider
-import com.amazonaws.auth.BasicAWSCredentials
-import com.amazonaws.client.builder.AwsClientBuilder
-import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager
 import org.testcontainers.containers.localstack.LocalStackContainer
 import org.testcontainers.utility.DockerImageName
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.endpoints.internal.DefaultS3EndpointProvider
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest
+import java.net.URI
 
 
 var localstackImage: DockerImageName = DockerImageName.parse("localstack/localstack:0.11.3")
@@ -28,22 +31,24 @@ class AwsResource : QuarkusTestResourceLifecycleManager {
         config["s3.file.storage.secret"] = s3.secretKey
         config["s3.file.storage.endpoint"] = endpoint.toString()
         config["file.storage.provider"] = "S3"
+        config["quarkus.profile"] = "test"
 
-        val s3Client = AmazonS3ClientBuilder
-            .standard()
-            .withEndpointConfiguration(
-                AwsClientBuilder.EndpointConfiguration(
-                    endpoint.toString(),
-                    s3.region
+        val s3Client = S3Client.builder()
+            .region(Region.US_WEST_2)
+            .endpointOverride(endpoint)
+            .credentialsProvider(
+                StaticCredentialsProvider.create(
+                    AwsBasicCredentials.create(
+                        s3.accessKey,
+                        s3.secretKey
+                    )
                 )
-            )
-            .withCredentials(
-                AWSStaticCredentialsProvider(
-                    BasicAWSCredentials(s3.accessKey, s3.secretKey)
-                )
-            )
-            .build()
-        s3Client.createBucket(bucketName)
+            ).build()
+        s3Client.createBucket(
+            CreateBucketRequest.builder()
+                .bucket(bucketName)
+                .build()
+        )
         return config
     }
 
@@ -55,7 +60,5 @@ class AwsResource : QuarkusTestResourceLifecycleManager {
         var s3: LocalStackContainer = LocalStackContainer(localstackImage)
             .withServices(LocalStackContainer.Service.S3)
             .withExposedPorts(4572)
-
-
     }
 }
