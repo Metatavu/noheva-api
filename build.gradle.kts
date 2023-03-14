@@ -103,11 +103,11 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 val generateApiSpec = tasks.register("generateApiSpec", GenerateTask::class) {
     setProperty("generatorName", "kotlin-server")
-    setProperty("inputSpec", "$rootDir/muisti-api-spec/swagger.yaml")
+    setProperty("inputSpec", "$rootDir/noheva-api-spec/swagger.yaml")
     setProperty("outputDir", "$buildDir/generated/api-spec")
-    setProperty("apiPackage", "fi.metatavu.muisti.api.spec")
-    setProperty("invokerPackage", "fi.metatavu.muisti.api.spec.invoker")
-    setProperty("modelPackage", "fi.metatavu.muisti.api.spec.model")
+    setProperty("apiPackage", "fi.metatavu.noheva.api.spec")
+    setProperty("invokerPackage", "fi.metatavu.noheva.api.spec.invoker")
+    setProperty("modelPackage", "fi.metatavu.noheva.api.spec.model")
 
     this.configOptions.put("library", "jaxrs-spec")
     this.configOptions.put("dateLibrary", "java8")
@@ -122,9 +122,9 @@ val generateApiSpec = tasks.register("generateApiSpec", GenerateTask::class) {
 val generateApiClient = tasks.register("generateApiClient", GenerateTask::class) {
     setProperty("generatorName", "kotlin")
     setProperty("library", "jvm-okhttp3")
-    setProperty("inputSpec", "$rootDir/muisti-api-spec/swagger.yaml")
+    setProperty("inputSpec", "$rootDir/noheva-api-spec/swagger.yaml")
     setProperty("outputDir", "$buildDir/generated/api-client")
-    setProperty("packageName", "fi.metatavu.muisti.api.client")
+    setProperty("packageName", "fi.metatavu.noheva.api.client")
     this.configOptions.put("dateLibrary", "string")
     this.configOptions.put("collectionType", "array")
     this.configOptions.put("enumPropertyNaming", "UPPERCASE")
