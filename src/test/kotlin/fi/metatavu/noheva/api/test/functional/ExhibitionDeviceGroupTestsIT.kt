@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertNotEquals
-import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -222,30 +221,18 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             val room = it.admin.exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
             val roomId = room.id!!
 
-            val createdContentVersion = it.admin.contentVersions.create(exhibitionId = exhibitionId)
             val createdExhibitionDeviceGroup = it.admin.exhibitionDeviceGroups.create(
                 exhibitionId = exhibitionId,
                 roomId = roomId,
                 name = "Group 1"
             )
 
-            val groupContentVersionToCreate = GroupContentVersion(
-                name = "Group name",
-                status = GroupContentVersionStatus.NOTSTARTED,
-                deviceGroupId = createdExhibitionDeviceGroup.id!!,
-                contentVersionId = createdContentVersion.id!!
-            )
-
-            val createdGroupContentVersion = it.admin.groupContentVersions.create(exhibitionId = exhibitionId, payload = groupContentVersionToCreate)
             val createdExhibitionDeviceGroupId = createdExhibitionDeviceGroup.id
 
-            assertNotNull(it.admin.exhibitionDeviceGroups.findExhibitionDeviceGroup(exhibitionId, createdExhibitionDeviceGroupId))
+            assertNotNull(it.admin.exhibitionDeviceGroups.findExhibitionDeviceGroup(exhibitionId, createdExhibitionDeviceGroupId!!))
             it.admin.exhibitionDeviceGroups.assertDeleteFail(404, exhibitionId, nonExistingSessionVariableId)
             it.admin.exhibitionDeviceGroups.assertDeleteFail(404, nonExistingExhibitionId, createdExhibitionDeviceGroupId)
             it.admin.exhibitionDeviceGroups.assertDeleteFail(404, nonExistingExhibitionId, nonExistingSessionVariableId)
-            it.admin.exhibitionDeviceGroups.assertDeleteFail(400, exhibitionId = exhibitionId, id = createdExhibitionDeviceGroupId)
-
-            it.admin.groupContentVersions.delete(exhibitionId = exhibitionId, groupContentVersion = createdGroupContentVersion)
 
             it.admin.exhibitionDeviceGroups.delete(exhibitionId, createdExhibitionDeviceGroup)
             assertJsonsEqual(listOf(MqttDeviceGroupDelete(exhibitionId = exhibitionId, id = createdExhibitionDeviceGroup.id)), mqttSubscription.getMessages(1))
@@ -326,7 +313,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             cleanupCopiedResources(
                 apiTestBuilder = it,
                 exhibitionId = exhibitionId,
-                targetDeviceGroupId = targetDeviceGroupId
+                targetDeviceGroupId = targetDeviceGroupId,
+                sourceContentVersions = emptyList()
             )
 
         }
@@ -404,113 +392,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             cleanupCopiedResources(
                 apiTestBuilder = it,
                 exhibitionId = exhibitionId,
-                targetDeviceGroupId = targetDeviceGroupId
-            )
-
-        }
-
-    }
-
-    @Test
-    fun testCopyDeviceGroupWithContentVersions() {
-        createTestBuilder().use {
-            val languages = listOf("FI", "SV", "EN")
-
-            val exhibition = it.admin.exhibitions.create()
-            val room = createDefaultRoom(testBuilder = it, exhibition = exhibition)
-
-            val sourceDeviceGroup = createDefaultDeviceGroup(testBuilder = it, exhibition = exhibition)
-
-            val exhibitionId = exhibition.id!!
-            val sourceGroupId = sourceDeviceGroup.id!!
-            val roomId = room.id!!
-
-            val sourceContentVersions: List<List<ContentVersion>> = (1..3).map { i ->
-                languages.map { language ->
-                    it.admin.contentVersions.create(exhibitionId, ContentVersion(
-                        name = "$i at $language",
-                        language = language,
-                        activeCondition = ContentVersionActiveCondition(
-                            userVariable = "var $i",
-                            equals = "val $i"
-                        ),
-                        rooms = arrayOf(roomId))
-                    )
-                }
-            }
-
-            assertEquals(9, sourceContentVersions.flatten().size)
-
-            val sourceGroupContentVersions = sourceContentVersions.flatMap { contentVersions: List<ContentVersion> ->
-                contentVersions.map { contentVersion ->
-                    it.admin.groupContentVersions.create(
-                        exhibitionId = exhibitionId,
-                        payload = GroupContentVersion(
-                            name = contentVersion.name,
-                            status = GroupContentVersionStatus.NOTSTARTED,
-                            deviceGroupId = sourceGroupId,
-                            contentVersionId = contentVersion.id!!
-                        )
-                    )
-                }
-            }
-
-            assertEquals(9, sourceGroupContentVersions.size)
-
-            val targetDeviceGroup = it.admin.exhibitionDeviceGroups.copy(
-                exhibitionId = exhibitionId,
-                sourceDeviceGroupId = sourceGroupId
-            )
-
-            assertNotNull(targetDeviceGroup)
-
-            val targetDeviceGroupId = targetDeviceGroup.id!!
-
-            // Check copied group content versions
-
-            val targetGroupContentVersions = it.admin.groupContentVersions.listGroupContentVersions(
-                exhibitionId = exhibitionId,
-                contentVersionId = null,
-                deviceGroupId = targetDeviceGroupId
-            )
-
-            assertEquals(sourceGroupContentVersions.size, targetGroupContentVersions.size)
-
-            val sourceGroupContentVersionIds = sourceGroupContentVersions.mapNotNull(GroupContentVersion::id)
-            val targetGroupContentVersionIds = targetGroupContentVersions.mapNotNull(GroupContentVersion::id)
-            assertTrue(targetGroupContentVersionIds.intersect(sourceGroupContentVersionIds.toSet()).isEmpty())
-
-            val sampleSourceGroupContentVersion = sourceGroupContentVersions.find { groupContentVersion -> groupContentVersion.name == "1 at FI" }
-            val sampleTargetGroupContentVersion = targetGroupContentVersions.find { groupContentVersion -> groupContentVersion.name == "1 at FI" }
-
-            assertNotEquals(sampleSourceGroupContentVersion?.id, sampleTargetGroupContentVersion?.id)
-            assertEquals(sampleSourceGroupContentVersion?.name, sampleTargetGroupContentVersion?.name)
-            assertEquals(sampleSourceGroupContentVersion?.status, sampleTargetGroupContentVersion?.status)
-            assertNotEquals(sampleSourceGroupContentVersion?.contentVersionId, sampleTargetGroupContentVersion?.contentVersionId)
-            assertNotEquals(sampleSourceGroupContentVersion?.deviceGroupId, sampleTargetGroupContentVersion?.deviceGroupId)
-            assertEquals(sampleSourceGroupContentVersion?.exhibitionId, sampleTargetGroupContentVersion?.exhibitionId)
-
-            // Check copied content versions
-
-            val targetContentVersions = getCopiedContentVersions(it, sourceContentVersions.flatten(), exhibitionId)
-            assertEquals(sourceContentVersions.flatten().size, targetContentVersions.size)
-
-            val sampleSourceContentVersion = sourceContentVersions.flatten().find { contentVersion -> contentVersion.name == "1 at FI" }
-            assertNotNull(sampleSourceContentVersion)
-            val sampleTargetContentVersion = targetContentVersions.find { contentVersion -> contentVersion.name == "${sampleSourceContentVersion?.name} 2" }
-            assertNotNull(sampleTargetContentVersion)
-
-            assertNotEquals(sampleSourceContentVersion?.id, sampleTargetContentVersion?.id)
-            assertEquals("${sampleSourceContentVersion?.name} 2", sampleTargetContentVersion?.name)
-            assertEquals(sampleSourceContentVersion?.language, sampleTargetContentVersion?.language)
-            assertArrayEquals(sampleSourceContentVersion?.rooms, sampleTargetContentVersion?.rooms)
-            assertEquals(sampleSourceContentVersion?.exhibitionId, sampleTargetContentVersion?.exhibitionId)
-            assertJsonsEqual(sampleSourceContentVersion?.activeCondition, sampleTargetContentVersion?.activeCondition)
-
-            cleanupCopiedResources(
-                apiTestBuilder = it,
-                exhibitionId = exhibitionId,
-                targetDeviceGroupId = targetDeviceGroupId
+                targetDeviceGroupId = targetDeviceGroupId,
+                sourceContentVersions = emptyList()
             )
 
         }
@@ -550,18 +433,6 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                 it.admin.contentVersions.create(exhibitionId, ContentVersion(name = language, language = language, rooms = arrayOf(roomId)))
             }
 
-            sourceContentVersions.map { contentVersion ->
-                it.admin.groupContentVersions.create(
-                    exhibitionId = exhibitionId,
-                    payload = GroupContentVersion(
-                        name = contentVersion.name,
-                        status = GroupContentVersionStatus.NOTSTARTED,
-                        deviceGroupId = sourceGroupId,
-                        contentVersionId = contentVersion.id!!
-                    )
-                )
-            }
-
             val sourcePages = languages.flatMap { language ->
                 val contentVersion = sourceContentVersions.find { contentVersion -> contentVersion.language == language }
                 sourceDevices.flatMap { sourceDevice ->
@@ -579,7 +450,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                                     type = ExhibitionPageResourceType.IMAGE
                                 )),
                                 eventTriggers = arrayOf(),
-                                contentVersionId = contentVersion?.id!!,
+                                contentVersionId = contentVersion!!.id!!,
                                 enterTransitions = arrayOf(ExhibitionPageTransition(
                                     transition = Transition(
                                         duration = 300,
@@ -679,7 +550,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             cleanupCopiedResources(
                 apiTestBuilder = it,
                 exhibitionId = exhibitionId,
-                targetDeviceGroupId = targetDeviceGroupId
+                targetDeviceGroupId = targetDeviceGroupId,
+                sourceContentVersions = sourceContentVersions
             )
         }
 
@@ -712,16 +584,6 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             val sourceContentVersion = it.admin.contentVersions.create(exhibitionId, ContentVersion(name = "FI", language = "FI", rooms = arrayOf(roomId)))
 
-            it.admin.groupContentVersions.create(
-                exhibitionId = exhibitionId,
-                payload = GroupContentVersion(
-                    name = sourceContentVersion.name,
-                    status = GroupContentVersionStatus.NOTSTARTED,
-                    deviceGroupId = sourceGroupId,
-                    contentVersionId = sourceContentVersion.id!!
-                )
-            )
-
             val sourceIdlePage = it.admin.exhibitionPages.create(
                 exhibitionId = exhibitionId,
                 payload = ExhibitionPage(
@@ -731,7 +593,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                     orderNumber = 0,
                     resources = arrayOf(),
                     eventTriggers = arrayOf(),
-                    contentVersionId = sourceContentVersion.id,
+                    contentVersionId = sourceContentVersion.id!!,
                     enterTransitions = arrayOf(),
                     exitTransitions = arrayOf()
                 )
@@ -775,7 +637,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             cleanupCopiedResources(
                 apiTestBuilder = it,
                 exhibitionId = exhibitionId,
-                targetDeviceGroupId = targetDeviceGroupId
+                targetDeviceGroupId = targetDeviceGroupId,
+                sourceContentVersions = listOf(sourceContentVersion)
             )
         }
 
@@ -808,16 +671,6 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             val sourceContentVersion = it.admin.contentVersions.create(exhibitionId, ContentVersion(name = "FI", language = "FI", rooms = arrayOf(roomId)))
 
-            it.admin.groupContentVersions.create(
-                exhibitionId = exhibitionId,
-                payload = GroupContentVersion(
-                    name = sourceContentVersion.name,
-                    status = GroupContentVersionStatus.NOTSTARTED,
-                    deviceGroupId = sourceGroupId,
-                    contentVersionId = sourceContentVersion.id!!
-                )
-            )
-
             val sourceToPage = it.admin.exhibitionPages.create(
                 exhibitionId = exhibitionId,
                 payload = ExhibitionPage(
@@ -827,7 +680,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
                     orderNumber = 1,
                     resources = arrayOf(),
                     eventTriggers = arrayOf(),
-                    contentVersionId = sourceContentVersion.id,
+                    contentVersionId = sourceContentVersion.id!!,
                     enterTransitions = arrayOf(),
                     exitTransitions = arrayOf()
                 )
@@ -910,7 +763,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             cleanupCopiedResources(
                 apiTestBuilder = it,
                 exhibitionId = exhibitionId,
-                targetDeviceGroupId = targetDeviceGroupId
+                targetDeviceGroupId = targetDeviceGroupId,
+                sourceContentVersions = listOf(sourceContentVersion)
             )
         }
 
@@ -949,7 +803,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             cleanupCopiedResources(
                 apiTestBuilder = it,
                 exhibitionId = exhibitionId,
-                targetDeviceGroupId = targetDeviceGroup.id!!
+                targetDeviceGroupId = targetDeviceGroup.id!!,
+                sourceContentVersions = emptyList()
             )
         }
     }
@@ -987,7 +842,8 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             cleanupCopiedResources(
                 apiTestBuilder = it,
                 exhibitionId = exhibitionId,
-                targetDeviceGroupId = targetDeviceGroup.id!!
+                targetDeviceGroupId = targetDeviceGroup.id!!,
+                sourceContentVersions = emptyList()
             )
         }
     }
@@ -998,8 +854,14 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
      * @param apiTestBuilder API test builder
      * @param exhibitionId exhibition id
      * @param targetDeviceGroupId copy target device group id
+     * @param sourceContentVersions source content versions used to find their copies
      */
-    private fun cleanupCopiedResources(apiTestBuilder: TestBuilder, exhibitionId: UUID, targetDeviceGroupId: UUID) {
+    private fun cleanupCopiedResources(
+        apiTestBuilder: TestBuilder,
+        exhibitionId: UUID,
+        targetDeviceGroupId: UUID,
+        sourceContentVersions: List<ContentVersion>
+    ) {
         val targetDevices = apiTestBuilder.admin.exhibitionDevices.listExhibitionDevices(
             exhibitionId = exhibitionId,
             exhibitionGroupId = targetDeviceGroupId,
@@ -1044,26 +906,12 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             )
         }
 
+        val targetContentVersions = getCopiedContentVersions(apiTestBuilder, sourceContentVersions, exhibitionId)
 
-        val targetGroupContentVersions = apiTestBuilder.admin.groupContentVersions.listGroupContentVersions(
-            exhibitionId = exhibitionId,
-            contentVersionId = null,
-            deviceGroupId = targetDeviceGroupId
-        )
-
-        val targetContentVersionIds = targetGroupContentVersions.map { it.contentVersionId }.distinct()
-
-        targetGroupContentVersions.forEach { groupContentVersion ->
-            apiTestBuilder.admin.groupContentVersions.delete(
-                exhibitionId = exhibitionId,
-                groupContentVersion = groupContentVersion
-            )
-        }
-
-        targetContentVersionIds.forEach { targetContentVersionId ->
+        targetContentVersions.forEach { targetContentVersionId ->
             apiTestBuilder.admin.contentVersions.delete(
                 exhibitionId = exhibitionId,
-                contentVersionId = targetContentVersionId
+                contentVersionId = targetContentVersionId.id!!
             )
         }
     }

@@ -63,7 +63,6 @@ class TestMqttClient : MqttCallback, AutoCloseable {
     }
 
     override fun deliveryComplete(token: IMqttDeliveryToken?) {
-        println("deliveryComplete")
     }
 
     override fun close() {

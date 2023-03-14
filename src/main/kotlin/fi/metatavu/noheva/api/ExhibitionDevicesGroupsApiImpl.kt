@@ -3,7 +3,6 @@ package fi.metatavu.noheva.api
 import fi.metatavu.noheva.api.spec.ExhibitionDeviceGroupsApi
 import fi.metatavu.noheva.api.spec.model.ExhibitionDeviceGroup
 import fi.metatavu.noheva.api.translate.ExhibitionDeviceGroupTranslator
-import fi.metatavu.noheva.contents.GroupContentVersionController
 import fi.metatavu.noheva.devices.ExhibitionDeviceGroupController
 import fi.metatavu.noheva.exhibitions.ExhibitionController
 import fi.metatavu.noheva.exhibitions.ExhibitionRoomController
@@ -38,9 +37,6 @@ class ExhibitionDevicesGroupsApiImpl : ExhibitionDeviceGroupsApi, AbstractApi() 
 
     @Inject
     lateinit var exhibitionDeviceGroupTranslator: ExhibitionDeviceGroupTranslator
-
-    @Inject
-    lateinit var groupContentVersionController: GroupContentVersionController
 
     @Inject
     lateinit var logger: Logger
@@ -163,21 +159,10 @@ class ExhibitionDevicesGroupsApiImpl : ExhibitionDeviceGroupsApi, AbstractApi() 
 
     override fun deleteExhibitionDeviceGroup(exhibitionId: UUID, deviceGroupId: UUID): Response {
         loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
-        val exhibition = exhibitionController.findExhibitionById(exhibitionId)
+        exhibitionController.findExhibitionById(exhibitionId)
             ?: return createNotFound("Exhibition $exhibitionId not found")
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.findDeviceGroupById(deviceGroupId)
             ?: return createNotFound("Room $deviceGroupId not found")
-
-        val groupContentVersions = groupContentVersionController.listGroupContentVersions(
-            exhibition = exhibition,
-            contentVersion = null,
-            deviceGroup = exhibitionDeviceGroup
-        )
-
-        if (groupContentVersions.isNotEmpty()) {
-            val groupContentVersionIds = groupContentVersions.map { it.id }.joinToString()
-            return createBadRequest("Cannot delete device group $deviceGroupId because it's used in group content versions $groupContentVersionIds")
-        }
 
         exhibitionDeviceGroupController.deleteExhibitionDeviceGroup(exhibitionDeviceGroup)
 

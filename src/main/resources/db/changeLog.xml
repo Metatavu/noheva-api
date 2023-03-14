@@ -894,4 +894,7 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="remove_groupcontentversion" author="katja danilova">
+        <dropTable tableName="groupcontentversion" />
+    </changeSet>
 </databaseChangeLog>

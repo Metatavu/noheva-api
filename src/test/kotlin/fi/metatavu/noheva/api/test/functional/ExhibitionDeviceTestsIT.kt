@@ -166,26 +166,6 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
                 name = "Group 2"
             )
 
-            it.admin.groupContentVersions.create(
-                exhibitionId = exhibitionId,
-                payload = GroupContentVersion(
-                    name = "default",
-                    contentVersionId = contentVersion1.id!!,
-                    deviceGroupId = group1.id!!,
-                    status = GroupContentVersionStatus.INPROGRESS
-                )
-            )
-
-            it.admin.groupContentVersions.create(
-                exhibitionId = exhibitionId,
-                payload = GroupContentVersion(
-                    name = "default",
-                    contentVersionId = contentVersion2.id!!,
-                    deviceGroupId = group2.id!!,
-                    status = GroupContentVersionStatus.INPROGRESS
-                )
-            )
-
             val model1 = it.admin.deviceModels.create()
             val model2 = it.admin.deviceModels.create()
             val nonExistingGroupId = UUID.randomUUID()
@@ -193,7 +173,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             var screenOrientation = ScreenOrientation.PORTRAIT
             var createdExhibitionDevice = it.admin.exhibitionDevices.create(
                 exhibitionId = exhibitionId, payload = ExhibitionDevice(
-                    groupId = group1.id,
+                    groupId = group1.id!!,
                     modelId = model1.id!!,
                     name = "created name",
                     location = Point(-123.0, 234.0),
@@ -209,7 +189,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
                 exhibitionId = exhibitionId,
                 layoutId = layoutId,
                 deviceId = createdExhibitionDeviceId,
-                contentVersionId = contentVersion1.id
+                contentVersionId = contentVersion1.id!!
             )
 
             createdExhibitionDevice = it.admin.exhibitionDevices.updateExhibitionDevice(
@@ -236,7 +216,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             screenOrientation = ScreenOrientation.LANDSCAPE
 
             val updatedExhibitionDevice = it.admin.exhibitionDevices.updateExhibitionDevice(exhibitionId, ExhibitionDevice(
-                groupId = group2.id,
+                groupId = group2.id!!,
                 modelId = model2.id!!,
                 name = "updated name",
                 screenOrientation = screenOrientation,
@@ -336,19 +316,8 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
                 name = "Group 1"
             )
 
-            val deviceGroupId = deviceGroup.id!!
             val device = createDefaultDevice(it, exhibition, deviceGroup)
             val deviceId = device.id!!
-
-            it.admin.groupContentVersions.create(
-                exhibitionId = exhibitionId,
-                payload = GroupContentVersion(
-                    name = "default",
-                    contentVersionId = contentVersionId,
-                    deviceGroupId = deviceGroupId,
-                    status = GroupContentVersionStatus.INPROGRESS
-                )
-            )
 
             val page = it.admin.exhibitionPages.create(
                 exhibition = exhibition,

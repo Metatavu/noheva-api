@@ -4,7 +4,6 @@ import fi.metatavu.noheva.api.spec.ContentVersionsApi
 import fi.metatavu.noheva.api.spec.model.ContentVersion
 import fi.metatavu.noheva.api.translate.ContentVersionTranslator
 import fi.metatavu.noheva.contents.ContentVersionController
-import fi.metatavu.noheva.contents.GroupContentVersionController
 import fi.metatavu.noheva.exhibitions.ExhibitionController
 import fi.metatavu.noheva.exhibitions.ExhibitionRoomController
 import java.util.*
@@ -31,9 +30,6 @@ class ContentVersionsApiImpl : ContentVersionsApi, AbstractApi() {
 
     @Inject
     lateinit var contentVersionTranslator: ContentVersionTranslator
-
-    @Inject
-    lateinit var groupContentVersionController: GroupContentVersionController
 
     override fun listContentVersions(exhibitionId: UUID, roomId: UUID?): Response {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)
@@ -144,24 +140,13 @@ class ContentVersionsApiImpl : ContentVersionsApi, AbstractApi() {
         contentVersionId: UUID
     ): Response {
         loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
-        val exhibition = exhibitionController.findExhibitionById(exhibitionId)
+        exhibitionController.findExhibitionById(exhibitionId)
             ?: return createNotFound("Exhibition $exhibitionId not found")
         exhibitionController.findExhibitionById(exhibitionId)
             ?: return createNotFound("Exhibition $exhibitionId not found")
         val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound(
             "Content version $contentVersionId not found"
         )
-
-        val groupContentVersions = groupContentVersionController.listGroupContentVersions(
-            contentVersion = contentVersion,
-            exhibition = exhibition,
-            deviceGroup = null
-        )
-
-        if (groupContentVersions.isNotEmpty()) {
-            val groupContentVersionIds = groupContentVersions.map { it.id }.joinToString()
-            return createBadRequest("Cannot delete content version $contentVersionId because it's used in group content versions $groupContentVersionIds")
-        }
 
         contentVersionController.deleteContentVersion(contentVersion)
         return createNoContent()
