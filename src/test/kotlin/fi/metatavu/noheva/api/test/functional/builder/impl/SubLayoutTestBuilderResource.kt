@@ -36,7 +36,8 @@ class SubLayoutTestBuilderResource(
         return create(
             SubLayout(
                 name = "created name",
-                data = createdData
+                data = createdData,
+                layoutType = LayoutType.ANDROID
             )
         )
     }

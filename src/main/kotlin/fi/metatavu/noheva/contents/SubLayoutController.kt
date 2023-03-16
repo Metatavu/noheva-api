@@ -1,7 +1,6 @@
 package fi.metatavu.noheva.contents
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import fi.metatavu.noheva.api.spec.model.PageLayoutView
+import fi.metatavu.noheva.api.spec.model.LayoutType
 import fi.metatavu.noheva.persistence.dao.SubLayoutDAO
 import fi.metatavu.noheva.persistence.model.SubLayout
 import java.util.*
@@ -19,16 +18,20 @@ class SubLayoutController {
     @Inject
     lateinit var subLayoutDAO: SubLayoutDAO
 
+    @Inject
+    lateinit var pageLayoutDataController: PageLayoutDataController
+
     /**
      * Creates new sub layout
      *
      * @param name name
      * @param data data
+     * @param layoutType layout type
      * @param creatorId creating user id
      * @return created sub layout
      */
-    fun createSubLayout(name: String, data: PageLayoutView, creatorId: UUID): SubLayout {
-        return subLayoutDAO.create(UUID.randomUUID(), name, getDataAsString(data), creatorId, creatorId)
+    fun createSubLayout(name: String, data: Any, layoutType: LayoutType, creatorId: UUID): SubLayout {
+        return subLayoutDAO.create(UUID.randomUUID(), name, pageLayoutDataController.getRestObjectAsString(data), layoutType, creatorId, creatorId)
     }
 
     /**
@@ -47,7 +50,7 @@ class SubLayoutController {
      * @return list of sub layouts
      */
     fun listSubLayouts(): List<SubLayout> {
-        return subLayoutDAO.listAll();
+        return subLayoutDAO.listAll()
     }
 
     /**
@@ -56,12 +59,14 @@ class SubLayoutController {
      * @param subLayout sub layout to be updated
      * @param name name
      * @param data data
+     * @param layoutType layout type of the data
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateSubLayout(subLayout: SubLayout, name: String, data: PageLayoutView, modifierId: UUID): SubLayout {
+    fun updateSubLayout(subLayout: SubLayout, name: String, data: Any, layoutType: LayoutType, modifierId: UUID): SubLayout {
         subLayoutDAO.updateName(subLayout, name, modifierId)
-        subLayoutDAO.updateData(subLayout, getDataAsString(data), modifierId)
+        subLayoutDAO.updateData(subLayout, pageLayoutDataController.getRestObjectAsString(data), modifierId)
+        subLayoutDAO.updateLayoutType(subLayout, layoutType, modifierId)
         return subLayout
     }
 
@@ -72,17 +77,6 @@ class SubLayoutController {
      */
     fun deleteSubLayout(subLayout: SubLayout) {
         return subLayoutDAO.delete(subLayout)
-    }
-
-    /**
-     * Serializes the view into JSON string
-     *
-     * @param data view
-     * @return JSON string
-     */
-    private fun getDataAsString(data: PageLayoutView): String {
-        val objectMapper = ObjectMapper()
-        return objectMapper.writeValueAsString(data)
     }
 
 }

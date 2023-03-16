@@ -2,6 +2,7 @@ package fi.metatavu.noheva.api
 
 import fi.metatavu.noheva.api.spec.SubLayoutsApi
 import fi.metatavu.noheva.api.spec.model.SubLayout
+import fi.metatavu.noheva.contents.PageLayoutDataController
 import fi.metatavu.noheva.api.translate.SubLayoutTranslator
 import fi.metatavu.noheva.contents.SubLayoutController
 import java.util.*
@@ -23,6 +24,9 @@ class SubLayoutsApiImpl : SubLayoutsApi, AbstractApi() {
     @Inject
     lateinit var subLayoutTranslator: SubLayoutTranslator
 
+    @Inject
+    lateinit var pageLayoutDataController: PageLayoutDataController
+
     override fun listSubLayouts(): Response {
         val result = subLayoutController.listSubLayouts()
         return createOk(result.map(subLayoutTranslator::translate))
@@ -32,8 +36,16 @@ class SubLayoutsApiImpl : SubLayoutsApi, AbstractApi() {
         val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         val name = subLayout.name
         val data = subLayout.data
+        val layoutType = subLayout.layoutType
 
-        val created = subLayoutController.createSubLayout(name, data, userId)
+        if (pageLayoutDataController.isValidLayoutType(data, layoutType).not()) return createBadRequest(INVALID_LAYOUT_TYPE)
+
+        val created = subLayoutController.createSubLayout(
+            name = name,
+            data = data,
+            layoutType = layoutType,
+            creatorId =  userId
+        )
         return createOk(subLayoutTranslator.translate(created))
     }
 
@@ -48,10 +60,19 @@ class SubLayoutsApiImpl : SubLayoutsApi, AbstractApi() {
         val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
         val name = subLayout.name
         val data = subLayout.data
+        val layoutType = subLayout.layoutType
+
+        if (pageLayoutDataController.isValidLayoutType(data, layoutType).not()) return createBadRequest(INVALID_LAYOUT_TYPE)
 
         val subLayoutFound = subLayoutController.findSubLayoutById(subLayoutId)
             ?: return createNotFound("Sub layout $subLayoutId not found")
-        val result = subLayoutController.updateSubLayout(subLayoutFound, name, data, userId)
+        val result = subLayoutController.updateSubLayout(
+            subLayout = subLayoutFound,
+            name = name,
+            data = data,
+            layoutType = layoutType,
+            modifierId = userId
+        )
 
         return createOk(subLayoutTranslator.translate(result))
     }

@@ -1,5 +1,6 @@
 package fi.metatavu.noheva.persistence.model
 
+import fi.metatavu.noheva.api.spec.model.LayoutType
 import fi.metatavu.noheva.api.spec.model.ScreenOrientation
 import org.hibernate.validator.constraints.URL
 import java.time.OffsetDateTime
@@ -26,6 +27,10 @@ class PageLayout {
     @Column(nullable = false)
     @Lob
     var data: String? = null
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    var layoutType: LayoutType? = null
 
     @URL
     var thumbnailUrl: String? = null

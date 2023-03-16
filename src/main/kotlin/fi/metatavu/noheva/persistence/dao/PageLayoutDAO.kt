@@ -1,7 +1,10 @@
 package fi.metatavu.noheva.persistence.dao
 
+import fi.metatavu.noheva.api.spec.model.LayoutType
 import fi.metatavu.noheva.api.spec.model.ScreenOrientation
-import fi.metatavu.noheva.persistence.model.*
+import fi.metatavu.noheva.persistence.model.DeviceModel
+import fi.metatavu.noheva.persistence.model.PageLayout
+import fi.metatavu.noheva.persistence.model.PageLayout_
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
@@ -15,7 +18,7 @@ import javax.persistence.criteria.Root
  * @author Antti Leppä
  */
 @ApplicationScoped
-class PageLayoutDAO() : AbstractDAO<PageLayout>() {
+class PageLayoutDAO : AbstractDAO<PageLayout>() {
 
     /**
      * Creates new PageLayout
@@ -23,6 +26,7 @@ class PageLayoutDAO() : AbstractDAO<PageLayout>() {
      * @param id id
      * @param name name
      * @param data data
+     * @param layoutType layout type
      * @param thumbnailUrl thumbnail URL
      * @param deviceModel device model
      * @param screenOrientation screen orientation
@@ -30,11 +34,22 @@ class PageLayoutDAO() : AbstractDAO<PageLayout>() {
      * @param lastModifierId last modifier's id
      * @return created pageLayout
      */
-    fun create(id: UUID, name: String, data: String, thumbnailUrl: String?, deviceModel: DeviceModel?, screenOrientation: ScreenOrientation, creatorId: UUID, lastModifierId: UUID): PageLayout {
+    fun create(
+        id: UUID,
+        name: String,
+        data: String,
+        layoutType: LayoutType,
+        thumbnailUrl: String?,
+        deviceModel: DeviceModel?,
+        screenOrientation: ScreenOrientation,
+        creatorId: UUID,
+        lastModifierId: UUID
+    ): PageLayout {
         val pageLayout = PageLayout()
         pageLayout.id = id
         pageLayout.name = name
         pageLayout.data = data
+        pageLayout.layoutType = layoutType
         pageLayout.thumbnailUrl = thumbnailUrl
         pageLayout.deviceModel = deviceModel
         pageLayout.screenOrientation = screenOrientation
@@ -105,6 +120,20 @@ class PageLayoutDAO() : AbstractDAO<PageLayout>() {
     fun updateScreenOrientation(pageLayout: PageLayout, screenOrientation: ScreenOrientation, lastModifierId: UUID): PageLayout {
         pageLayout.lastModifierId = lastModifierId
         pageLayout.screenOrientation = screenOrientation
+        return persist(pageLayout)
+    }
+
+    /**
+     * Updates layout type
+     *
+     * @param pageLayout page layout
+     * @param layoutType layout type
+     * @param lastModifierId last modifier's id
+     * @return updated pageLayout
+     */
+    fun updateLayoutType(pageLayout: PageLayout, layoutType: LayoutType, lastModifierId: UUID): PageLayout {
+        pageLayout.lastModifierId = lastModifierId
+        pageLayout.layoutType = layoutType
         return persist(pageLayout)
     }
 

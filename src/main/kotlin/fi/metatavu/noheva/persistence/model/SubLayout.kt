@@ -1,5 +1,6 @@
 package fi.metatavu.noheva.persistence.model
 
+import fi.metatavu.noheva.api.spec.model.LayoutType
 import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*
@@ -24,6 +25,10 @@ class SubLayout {
     @Column(nullable = false)
     @Lob
     var data: String? = null
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    var layoutType: LayoutType? = null
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null

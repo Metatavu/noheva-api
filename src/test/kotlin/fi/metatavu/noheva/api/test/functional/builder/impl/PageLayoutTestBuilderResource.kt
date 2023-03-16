@@ -39,6 +39,7 @@ class PageLayoutTestBuilderResource(
                 data = createdData,
                 thumbnailUrl = "http://example.com/thumbnail.png",
                 screenOrientation = ScreenOrientation.PORTRAIT,
+                layoutType = LayoutType.ANDROID,
                 modelId = createdModelId
             )
         )

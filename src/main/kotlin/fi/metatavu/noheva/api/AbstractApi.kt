@@ -284,6 +284,7 @@ abstract class AbstractApi {
         const val STORED_FILE_NOT_FOUND = "Stored file not found"
         const val VISITOR_VARIABLE_NOT_FOUND = "Visitor variable not found"
         const val DEVICE_MODEL_NOT_FOUND = "Device model not found"
+        const val INVALID_LAYOUT_TYPE = "Data does not match layout type"
     }
 
     /**
