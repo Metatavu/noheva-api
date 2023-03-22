@@ -31,7 +31,14 @@ class SubLayoutController {
      * @return created sub layout
      */
     fun createSubLayout(name: String, data: Any, layoutType: LayoutType, creatorId: UUID): SubLayout {
-        return subLayoutDAO.create(UUID.randomUUID(), name, pageLayoutDataController.getRestObjectAsString(data), layoutType, creatorId, creatorId)
+        return subLayoutDAO.create(
+            id = UUID.randomUUID(),
+            name = name,
+            data = pageLayoutDataController.getRestObjectAsString(data),
+            layoutType = layoutType,
+            creatorId = creatorId,
+            lastModifierId = creatorId
+        )
     }
 
     /**
@@ -59,14 +66,12 @@ class SubLayoutController {
      * @param subLayout sub layout to be updated
      * @param name name
      * @param data data
-     * @param layoutType layout type of the data
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateSubLayout(subLayout: SubLayout, name: String, data: Any, layoutType: LayoutType, modifierId: UUID): SubLayout {
+    fun updateSubLayout(subLayout: SubLayout, name: String, data: Any, modifierId: UUID): SubLayout {
         subLayoutDAO.updateName(subLayout, name, modifierId)
         subLayoutDAO.updateData(subLayout, pageLayoutDataController.getRestObjectAsString(data), modifierId)
-        subLayoutDAO.updateLayoutType(subLayout, layoutType, modifierId)
         return subLayout
     }
 

@@ -19,9 +19,9 @@ class SubLayoutTranslator : AbstractTranslator<fi.metatavu.noheva.persistence.mo
     override fun translate(entity: fi.metatavu.noheva.persistence.model.SubLayout): SubLayout {
         return SubLayout(
             id = entity.id,
-            name = entity.name!!,
-            data = pageLayoutDataController.getStringDataAsRestObject(entity.data, entity.layoutType!!) ?: "",
-            layoutType = entity.layoutType!!,
+            name = entity.name,
+            data = pageLayoutDataController.getStringDataAsRestObject(entity.data, entity.layoutType),
+            layoutType = entity.layoutType,
             creatorId = entity.creatorId,
             lastModifierId = entity.lastModifierId,
             createdAt = entity.createdAt,

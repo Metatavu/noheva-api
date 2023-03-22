@@ -66,11 +66,11 @@ class SubLayoutsApiImpl : SubLayoutsApi, AbstractApi() {
 
         val subLayoutFound = subLayoutController.findSubLayoutById(subLayoutId)
             ?: return createNotFound("Sub layout $subLayoutId not found")
+        if (layoutType != subLayoutFound.layoutType) return createBadRequest("Layout type cannot be changed")
         val result = subLayoutController.updateSubLayout(
             subLayout = subLayoutFound,
             name = name,
             data = data,
-            layoutType = layoutType,
             modifierId = userId
         )
 

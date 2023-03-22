@@ -124,20 +124,6 @@ class PageLayoutDAO : AbstractDAO<PageLayout>() {
     }
 
     /**
-     * Updates layout type
-     *
-     * @param pageLayout page layout
-     * @param layoutType layout type
-     * @param lastModifierId last modifier's id
-     * @return updated pageLayout
-     */
-    fun updateLayoutType(pageLayout: PageLayout, layoutType: LayoutType, lastModifierId: UUID): PageLayout {
-        pageLayout.lastModifierId = lastModifierId
-        pageLayout.layoutType = layoutType
-        return persist(pageLayout)
-    }
-
-    /**
      * List Page layouts by device model and screen orientation
      *
      * @param deviceModel device model

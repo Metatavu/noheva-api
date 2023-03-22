@@ -60,17 +60,4 @@ class SubLayoutDAO : AbstractDAO<SubLayout>() {
         subLayout.data = data
         return persist(subLayout)
     }
-
-    /**
-     * Updates layout type
-     *
-     * @param layoutType layout type
-     * @param lastModifierId last modifier's id
-     * @return updated sub layout
-     */
-    fun updateLayoutType(subLayout: SubLayout, layoutType: LayoutType, lastModifierId: UUID): SubLayout {
-        subLayout.lastModifierId = lastModifierId
-        subLayout.layoutType = layoutType
-        return persist(subLayout)
-    }
 }

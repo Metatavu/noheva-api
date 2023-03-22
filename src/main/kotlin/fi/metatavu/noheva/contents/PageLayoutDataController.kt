@@ -21,15 +21,11 @@ class PageLayoutDataController {
      * @param layoutType layout type
      * @return translated page layout data (either PageLayoutView or PageLayoutViewHtml) or null if failed to translate
      */
-    fun getStringDataAsRestObject(data: String?, layoutType: LayoutType): Any? {
-        return try {
-            if (layoutType == LayoutType.ANDROID) {
-                objectMapper.readValue(data, PageLayoutView::class.java)
-            } else {
-                objectMapper.readValue(data, PageLayoutViewHtml::class.java)
-            }
-        } catch (e: Exception) {
-            null
+    fun getStringDataAsRestObject(data: String?, layoutType: LayoutType): Any {
+        return if (layoutType == LayoutType.ANDROID) {
+            objectMapper.readValue(data, PageLayoutView::class.java)
+        } else {
+            objectMapper.readValue(data, PageLayoutViewHtml::class.java)
         }
     }
 
@@ -41,8 +37,12 @@ class PageLayoutDataController {
      * @return true if the data is valid for the given layout type
      */
     fun isValidLayoutType(dataObject: Any, layoutType: LayoutType): Boolean {
-        getStringDataAsRestObject(getRestObjectAsString(dataObject), layoutType) ?: return false
-        return true
+        return try {
+            getStringDataAsRestObject(getRestObjectAsString(dataObject), layoutType)
+            true
+        } catch (e: Exception) {
+            return false
+        }
     }
 
     /**

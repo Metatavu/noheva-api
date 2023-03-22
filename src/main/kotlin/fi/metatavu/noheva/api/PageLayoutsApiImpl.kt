@@ -95,11 +95,12 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
         val screenOrientation = pageLayout.screenOrientation
 
         val pageLayoutFound = pageLayoutController.findPageLayoutById(pageLayoutId) ?: return createNotFound("Layout $pageLayoutId not found")
+        if (layoutType != pageLayoutFound.layoutType) return createBadRequest("Layout type cannot be changed")
+
         val result = pageLayoutController.updatePageLayout(
             pageLayout = pageLayoutFound,
             name = name,
             data = data,
-            layoutType = layoutType,
             thumbnailUrl = thumbnailUrl,
             deviceModel = deviceModel,
             screenOrientation = screenOrientation,

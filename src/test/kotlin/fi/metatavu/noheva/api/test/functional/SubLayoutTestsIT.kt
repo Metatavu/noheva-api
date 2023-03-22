@@ -142,24 +142,11 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
             Assertions.assertEquals(PageLayoutViewPropertyType.STRING, updatedSubLayoutData1.properties[0].type)
             Assertions.assertEquals(0, updatedSubLayoutData1.children.size)
 
-            // Update to HTML layout
-            val updateDataHtml = PageLayoutViewHtml(html = "<html></html>")
-            val updatedSubLayout2 = it.admin.subLayouts.updateSubLayout(
-                SubLayout(
-                    id = createdSubLayoutId,
-                    name = "updated name 1",
-                    data = updateDataHtml,
-                    layoutType = LayoutType.HTML
-                )
-            )
-            val updatedSubLayoutData2 = parsePageLayoutViewDataHtml(updatedSubLayout2.data)
-
-            Assertions.assertEquals(updateDataHtml.html, updatedSubLayoutData2!!.html)
-            Assertions.assertEquals("updated name 1", updatedSubLayout2.name)
-            Assertions.assertEquals(LayoutType.HTML, updatedSubLayout2.layoutType)
-
-            // Test updating to invalid UI format
-            it.admin.subLayouts.assertUpdateFail(400, updatedSubLayout2.copy(layoutType = LayoutType.ANDROID))
+            // Test updating with invalid format of the data
+            val htmlData = PageLayoutViewHtml(html = "<html></html>")
+            it.admin.subLayouts.assertUpdateFail(400, foundUpdatedSubLayout.copy(data = htmlData))
+            //Test that updating the layout type is not allowed
+            it.admin.subLayouts.assertUpdateFail(400, foundUpdatedSubLayout.copy(layoutType = LayoutType.HTML, data = htmlData))
         }
     }
 

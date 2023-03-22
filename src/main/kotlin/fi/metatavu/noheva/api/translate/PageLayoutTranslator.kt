@@ -17,12 +17,12 @@ class PageLayoutTranslator : AbstractTranslator<fi.metatavu.noheva.persistence.m
     override fun translate(entity: fi.metatavu.noheva.persistence.model.PageLayout): PageLayout {
         return PageLayout(
             id = entity.id,
-            name = entity.name!!,
-            data = pageLayoutDataController.getStringDataAsRestObject(entity.data, entity.layoutType!!) ?: "",
-            layoutType = entity.layoutType!!,
+            name = entity.name,
+            data = pageLayoutDataController.getStringDataAsRestObject(entity.data, entity.layoutType),
+            layoutType = entity.layoutType,
             thumbnailUrl = entity.thumbnailUrl,
             modelId = entity.deviceModel?.id,
-            screenOrientation = entity.screenOrientation!!,
+            screenOrientation = entity.screenOrientation,
             creatorId = entity.creatorId,
             lastModifierId = entity.lastModifierId,
             createdAt = entity.createdAt,

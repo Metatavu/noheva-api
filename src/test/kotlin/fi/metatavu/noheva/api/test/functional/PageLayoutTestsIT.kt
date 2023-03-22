@@ -198,20 +198,21 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             assertEquals(PageLayoutViewPropertyType.STRING, updatedDataParsed.properties[0].type)
             assertEquals(0, updatedDataParsed.children.size)
 
-            // Update with new html data
             val htmlLayoutData = PageLayoutViewHtml("<html><body><h1>Test</h1></body></html>")
-            val updatedPageLayoutHtml = it.admin.pageLayouts.updatePageLayout(
-                foundUpdatedPageLayout.copy(
+
+            // invalid update layout data attempt (type android but data is html)
+            it.admin.pageLayouts.assertUpdateFail(400, foundCreatedPageLayout.copy(data = htmlLayoutData, layoutType = LayoutType.ANDROID))
+            // Verify that layout type cannot be changed (type html and data is html)
+            it.admin.pageLayouts.assertUpdateFail(400,
+                PageLayout(
+                    id = createdPageLayoutId,
+                    name = "valid html layout",
                     data = htmlLayoutData,
-                    layoutType = LayoutType.HTML
+                    screenOrientation = ScreenOrientation.LANDSCAPE,
+                    layoutType = LayoutType.HTML,
+                    modelId = updateDeviceModelId
                 )
             )
-            val updatedData3 = parsePageLayoutViewDataHtml(updatedPageLayoutHtml.data)
-            assertEquals(LayoutType.HTML, updatedPageLayoutHtml.layoutType)
-            assertEquals("<html><body><h1>Test</h1></body></html>", updatedData3!!.html)
-
-            // invalid update layout data attempt
-            it.admin.pageLayouts.assertUpdateFail(400, updatedPageLayoutHtml.copy(data = PageLayoutView("id", PageLayoutWidgetType.BUTTON, arrayOf(), arrayOf()), layoutType = LayoutType.HTML))
         }
     }
 

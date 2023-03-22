@@ -82,7 +82,6 @@ class PageLayoutController {
      * @param pageLayout exhibition page layout to be updated
      * @param name name
      * @param data data
-     * @param layoutType layout type of the data
      * @param thumbnailUrl thumbnail URL
      * @param screenOrientation screen orientation
      * @param modifierId modifying user id
@@ -92,7 +91,6 @@ class PageLayoutController {
         pageLayout: PageLayout,
         name: String,
         data: Any,
-        layoutType: LayoutType,
         thumbnailUrl: String?,
         deviceModel: DeviceModel,
         screenOrientation: ScreenOrientation,
@@ -103,7 +101,6 @@ class PageLayoutController {
         pageLayoutDAO.updateThumbnailUrl(pageLayout, thumbnailUrl, modifierId)
         pageLayoutDAO.updateDeviceModel(pageLayout, deviceModel, modifierId)
         pageLayoutDAO.updateScreenOrientation(pageLayout, screenOrientation, modifierId)
-        pageLayoutDAO.updateLayoutType(pageLayout, layoutType, modifierId)
         return pageLayout
     }
 
