@@ -1,5 +1,6 @@
 package fi.metatavu.noheva.persistence.dao
 
+import fi.metatavu.noheva.api.spec.model.LayoutType
 import fi.metatavu.noheva.persistence.model.*
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
@@ -10,7 +11,7 @@ import javax.enterprise.context.ApplicationScoped
  * @author Jari Nykänen
  */
 @ApplicationScoped
-class SubLayoutDAO() : AbstractDAO<SubLayout>() {
+class SubLayoutDAO : AbstractDAO<SubLayout>() {
 
     /**
      * Creates new sub layout
@@ -18,15 +19,17 @@ class SubLayoutDAO() : AbstractDAO<SubLayout>() {
      * @param id id
      * @param name name
      * @param data data
+     * @param layoutType layout type of data
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created sub layout
      */
-    fun create(id: UUID, name: String, data: String, creatorId: UUID, lastModifierId: UUID): SubLayout {
+    fun create(id: UUID, name: String, data: String, layoutType: LayoutType, creatorId: UUID, lastModifierId: UUID): SubLayout {
         val subLayout = SubLayout()
         subLayout.id = id
         subLayout.name = name
         subLayout.data = data
+        subLayout.layoutType = layoutType
         subLayout.creatorId = creatorId
         subLayout.lastModifierId = lastModifierId
         return persist(subLayout)

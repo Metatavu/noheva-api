@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.noheva.api.client.models.*
 import fi.metatavu.noheva.api.test.functional.builder.AbstractResourceTest
 import fi.metatavu.noheva.api.test.functional.builder.TestBuilder
@@ -160,5 +161,31 @@ abstract class AbstractFunctionalTest: AbstractResourceTest() {
         objectMapper.registerModule(JavaTimeModule())
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         return objectMapper
+    }
+
+    /**
+     * Returns a page layout view data in android format
+     *
+     * @param data data
+     * @return page layout view data android format
+     */
+    fun parsePageLayoutViewDataAndroid(data: Any): PageLayoutView? {
+        return jacksonObjectMapper().readValue(
+            jacksonObjectMapper().writeValueAsBytes(data),
+            PageLayoutView::class.java
+        )
+    }
+
+    /**
+     * Returns a page layout view data in html format
+     *
+     * @param data data
+     * @return page layout view data html format
+     */
+    fun parsePageLayoutViewDataHtml(data: Any): PageLayoutViewHtml? {
+        return jacksonObjectMapper().readValue(
+            jacksonObjectMapper().writeValueAsBytes(data),
+            PageLayoutViewHtml::class.java
+        )
     }
 }

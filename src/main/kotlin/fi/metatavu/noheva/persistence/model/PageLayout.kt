@@ -1,5 +1,6 @@
 package fi.metatavu.noheva.persistence.model
 
+import fi.metatavu.noheva.api.spec.model.LayoutType
 import fi.metatavu.noheva.api.spec.model.ScreenOrientation
 import org.hibernate.validator.constraints.URL
 import java.time.OffsetDateTime
@@ -16,16 +17,20 @@ import javax.validation.constraints.NotEmpty
 class PageLayout {
 
     @Id
-    var id: UUID? = null
+    lateinit var id: UUID
 
     @NotEmpty
     @Column(nullable = false)
-    var name: String? = null
+    lateinit var name: String
 
     @NotEmpty
     @Column(nullable = false)
     @Lob
-    var data: String? = null
+    lateinit var data: String
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    lateinit var layoutType: LayoutType
 
     @URL
     var thumbnailUrl: String? = null
@@ -35,19 +40,19 @@ class PageLayout {
 
     @Enumerated (EnumType.STRING)
     @Column(nullable = false)
-    var screenOrientation: ScreenOrientation? = null
+    lateinit var screenOrientation: ScreenOrientation
 
     @Column(nullable = false)
-    var createdAt: OffsetDateTime? = null
+    lateinit var createdAt: OffsetDateTime
 
     @Column(nullable = false)
-    var modifiedAt: OffsetDateTime? = null
+    lateinit var modifiedAt: OffsetDateTime
 
     @Column(nullable = false)
-    var creatorId: UUID? = null
+    lateinit var creatorId: UUID
 
     @Column(nullable = false)
-    var lastModifierId: UUID? = null
+    lateinit var lastModifierId: UUID
 
     /**
      * JPA pre-persist event handler

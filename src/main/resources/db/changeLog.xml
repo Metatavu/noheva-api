@@ -894,4 +894,26 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="default_page_layout_type" author="katja danilova">
+        <addColumn tableName="pagelayout">
+            <column name="layouttype" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <sql>
+            UPDATE pagelayout SET layouttype = 'ANDROID';
+        </sql>
+
+        <addColumn tableName="sublayout">
+            <column name="layouttype" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <sql>
+            UPDATE sublayout SET layouttype = 'ANDROID';
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>

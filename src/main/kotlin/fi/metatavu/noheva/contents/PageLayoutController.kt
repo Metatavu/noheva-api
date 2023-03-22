@@ -1,7 +1,6 @@
 package fi.metatavu.noheva.contents
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import fi.metatavu.noheva.api.spec.model.PageLayoutView
+import fi.metatavu.noheva.api.spec.model.LayoutType
 import fi.metatavu.noheva.api.spec.model.ScreenOrientation
 import fi.metatavu.noheva.persistence.dao.PageLayoutDAO
 import fi.metatavu.noheva.persistence.model.DeviceModel
@@ -19,19 +18,41 @@ class PageLayoutController {
     @Inject
     lateinit var pageLayoutDAO: PageLayoutDAO
 
+    @Inject
+    lateinit var pageLayoutDataController: PageLayoutDataController
+
     /**
      * Creates new exhibition page layout
      *
      * @param name name
      * @param data data
+     * @param layoutType layout type of the data
      * @param thumbnailUrl thumbnail URL
      * @param deviceModel device model
      * @param screenOrientation screen orientation
      * @param creatorId creating user id
      * @return created exhibition page layout
      */
-    fun createPageLayout(name: String, data: PageLayoutView, thumbnailUrl: String?, deviceModel: DeviceModel, screenOrientation: ScreenOrientation, creatorId: UUID): PageLayout {
-        return pageLayoutDAO.create(UUID.randomUUID(), name, getDataAsString(data), thumbnailUrl, deviceModel, screenOrientation, creatorId, creatorId)
+    fun createPageLayout(
+        name: String,
+        data: Any,
+        layoutType: LayoutType,
+        thumbnailUrl: String?,
+        deviceModel: DeviceModel,
+        screenOrientation: ScreenOrientation,
+        creatorId: UUID
+    ): PageLayout {
+        return pageLayoutDAO.create(
+            id = UUID.randomUUID(),
+            name = name,
+            data = pageLayoutDataController.getRestObjectAsString(data),
+            layoutType = layoutType,
+            thumbnailUrl = thumbnailUrl,
+            deviceModel = deviceModel,
+            screenOrientation = screenOrientation,
+            creatorId = creatorId,
+            lastModifierId = creatorId
+        )
     }
 
     /**
@@ -66,9 +87,17 @@ class PageLayoutController {
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updatePageLayout(pageLayout: PageLayout, name: String, data: PageLayoutView, thumbnailUrl: String?, deviceModel: DeviceModel, screenOrientation: ScreenOrientation, modifierId: UUID): PageLayout {
+    fun updatePageLayout(
+        pageLayout: PageLayout,
+        name: String,
+        data: Any,
+        thumbnailUrl: String?,
+        deviceModel: DeviceModel,
+        screenOrientation: ScreenOrientation,
+        modifierId: UUID
+    ): PageLayout {
         pageLayoutDAO.updateName(pageLayout, name, modifierId)
-        pageLayoutDAO.updateData(pageLayout, getDataAsString(data), modifierId)
+        pageLayoutDAO.updateData(pageLayout, pageLayoutDataController.getRestObjectAsString(data), modifierId)
         pageLayoutDAO.updateThumbnailUrl(pageLayout, thumbnailUrl, modifierId)
         pageLayoutDAO.updateDeviceModel(pageLayout, deviceModel, modifierId)
         pageLayoutDAO.updateScreenOrientation(pageLayout, screenOrientation, modifierId)
@@ -82,17 +111,6 @@ class PageLayoutController {
      */
     fun deletePageLayout(pageLayout: PageLayout) {
         return pageLayoutDAO.delete(pageLayout)
-    }
-
-    /**
-     * Serializes the view into JSON string
-     *
-     * @param data view
-     * @return JSON string
-     */
-    private fun getDataAsString(data: PageLayoutView): String {
-        val objectMapper = ObjectMapper()
-        return objectMapper.writeValueAsString(data)
     }
 
 }

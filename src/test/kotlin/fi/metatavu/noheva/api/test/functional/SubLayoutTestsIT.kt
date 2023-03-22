@@ -28,6 +28,10 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
         createTestBuilder().use {
             val createdSubLayout = it.admin.subLayouts.create()
             Assertions.assertNotNull(createdSubLayout)
+
+            // invalid data/layout type relation
+            it.admin.subLayouts.assertCreateFail(400, createdSubLayout.copy(data = "invalid data", layoutType = LayoutType.ANDROID))
+            it.admin.subLayouts.assertCreateFail(400, createdSubLayout.copy(data = PageLayoutViewHtml(html = ""), layoutType = LayoutType.ANDROID))
         }
     }
 
@@ -53,6 +57,7 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
 
             val defaultSubLayout = SubLayout(
                 name = "created name",
+                layoutType = LayoutType.ANDROID,
                 data = createdData
             )
 
@@ -62,6 +67,7 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
             it.admin.subLayouts.create(
                 SubLayout(
                     name = "created name",
+                    layoutType = LayoutType.ANDROID,
                     data = createdData
                 )
             )
@@ -82,6 +88,7 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
             val createdSubLayout = it.admin.subLayouts.create(
                 SubLayout(
                     name = "created name",
+                    layoutType = LayoutType.ANDROID,
                     data = createdData
                 )
             )
@@ -91,41 +98,55 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
             val foundCreatedSubLayout = it.admin.subLayouts.findSubLayout(createdSubLayoutId)
             Assertions.assertEquals(createdSubLayout.id, foundCreatedSubLayout.id)
             Assertions.assertEquals("created name", createdSubLayout.name)
-            Assertions.assertEquals(PageLayoutWidgetType.FRAME_LAYOUT, createdSubLayout.data.widget)
-            Assertions.assertEquals(1, createdSubLayout.data.properties.size)
-            Assertions.assertEquals("name", createdSubLayout.data.properties[0].name)
-            Assertions.assertEquals("true", createdSubLayout.data.properties[0].value)
-            Assertions.assertEquals(PageLayoutViewPropertyType.BOOLEAN, createdSubLayout.data.properties[0].type)
-            Assertions.assertEquals(1, createdSubLayout.data.children.size)
-            Assertions.assertEquals(createdChildren[0].id, createdSubLayout.data.children[0].id)
 
+            val createdSubLayoutData = parsePageLayoutViewDataAndroid(createdSubLayout.data)
+
+            Assertions.assertEquals(PageLayoutWidgetType.FRAME_LAYOUT, createdSubLayoutData!!.widget)
+            Assertions.assertEquals(1, createdSubLayoutData.properties.size)
+            Assertions.assertEquals("name", createdSubLayoutData.properties[0].name)
+            Assertions.assertEquals("true", createdSubLayoutData.properties[0].value)
+            Assertions.assertEquals(PageLayoutViewPropertyType.BOOLEAN, createdSubLayoutData.properties[0].type)
+            Assertions.assertEquals(1, createdSubLayoutData.children.size)
+            Assertions.assertEquals(createdChildren[0].id, createdSubLayoutData.children[0].id)
+
+            // Update to another Android layout
             val updatedProperties = arrayOf(PageLayoutViewProperty("uname", "str", PageLayoutViewPropertyType.STRING))
             val updatedChildren = arrayOf<PageLayoutView>()
-            val updatedData = PageLayoutView(
+            val updatedData1 = PageLayoutView(
                 id = "updatedid",
                 widget = PageLayoutWidgetType.MEDIA_VIEW,
                 properties = updatedProperties,
                 children = updatedChildren
             )
 
-            val updatedSubLayout = it.admin.subLayouts.updateSubLayout(
+            val updatedSubLayout1 = it.admin.subLayouts.updateSubLayout(
                 SubLayout(
                     id = createdSubLayoutId,
                     name = "updated name",
-                    data = updatedData
+                    data = updatedData1,
+                    layoutType = LayoutType.ANDROID
                 )
             )
 
             val foundUpdatedSubLayout = it.admin.subLayouts.findSubLayout(createdSubLayoutId)
 
-            Assertions.assertEquals(updatedSubLayout.id, foundUpdatedSubLayout.id)
-            Assertions.assertEquals("updated name", updatedSubLayout.name)
-            Assertions.assertEquals(PageLayoutWidgetType.MEDIA_VIEW, updatedSubLayout.data.widget)
-            Assertions.assertEquals(1, updatedSubLayout.data.properties.size)
-            Assertions.assertEquals("uname", updatedSubLayout.data.properties[0].name)
-            Assertions.assertEquals("str", updatedSubLayout.data.properties[0].value)
-            Assertions.assertEquals(PageLayoutViewPropertyType.STRING, updatedSubLayout.data.properties[0].type)
-            Assertions.assertEquals(0, updatedSubLayout.data.children.size)
+            Assertions.assertEquals(updatedSubLayout1.id, foundUpdatedSubLayout.id)
+            Assertions.assertEquals("updated name", updatedSubLayout1.name)
+
+            val updatedSubLayoutData1 = parsePageLayoutViewDataAndroid(updatedSubLayout1.data)
+
+            Assertions.assertEquals(PageLayoutWidgetType.MEDIA_VIEW, updatedSubLayoutData1!!.widget)
+            Assertions.assertEquals(1, updatedSubLayoutData1.properties.size)
+            Assertions.assertEquals("uname", updatedSubLayoutData1.properties[0].name)
+            Assertions.assertEquals("str", updatedSubLayoutData1.properties[0].value)
+            Assertions.assertEquals(PageLayoutViewPropertyType.STRING, updatedSubLayoutData1.properties[0].type)
+            Assertions.assertEquals(0, updatedSubLayoutData1.children.size)
+
+            // Test updating with invalid format of the data
+            val htmlData = PageLayoutViewHtml(html = "<html></html>")
+            it.admin.subLayouts.assertUpdateFail(400, foundUpdatedSubLayout.copy(data = htmlData))
+            //Test that updating the layout type is not allowed
+            it.admin.subLayouts.assertUpdateFail(400, foundUpdatedSubLayout.copy(layoutType = LayoutType.HTML, data = htmlData))
         }
     }
 

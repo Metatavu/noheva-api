@@ -28,8 +28,21 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
     fun testCreatePageLayout() {
         createTestBuilder().use {
             val deviceModel = it.admin.deviceModels.create()
-            val createdPageLayout = it.admin.pageLayouts.create(deviceModel)
-            assertNotNull(createdPageLayout)
+            // Android layout creation
+            val createdPageLayoutAndroid = it.admin.pageLayouts.create(deviceModel)
+            assertNotNull(createdPageLayoutAndroid)
+
+            // Html layout creation
+            val htmlLayout = createdPageLayoutAndroid.copy(
+                data = PageLayoutViewHtml("<html></html>"),
+                layoutType = LayoutType.HTML
+            )
+            val createdPageLayoutHtml = it.admin.pageLayouts.create(htmlLayout)
+            val createdHtmlData = parsePageLayoutViewDataHtml(createdPageLayoutHtml.data)
+            assertEquals("<html></html>", createdHtmlData!!.html)
+
+            // Invalid layout type-data creation
+            it.admin.pageLayouts.assertCreateFail(400, htmlLayout.copy(layoutType = LayoutType.ANDROID))
         }
    }
 
@@ -58,14 +71,15 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
 
             val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.BOOLEAN))
             val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.BUTTON, arrayOf(), arrayOf()))
-            val createdData = PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
+            val createdDataAndroid = PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
 
             val defaultPageLayout = PageLayout(
-                    name = "created name",
-                    data = createdData,
-                    thumbnailUrl = "http://example.com/thumbnail.png",
-                    screenOrientation = ScreenOrientation.PORTRAIT,
-                    modelId = createdModelId
+                name = "created name",
+                data = createdDataAndroid,
+                thumbnailUrl = "http://example.com/thumbnail.png",
+                screenOrientation = ScreenOrientation.PORTRAIT,
+                layoutType = LayoutType.ANDROID,
+                modelId = createdModelId
             )
 
             it.admin.pageLayouts.create(defaultPageLayout)
@@ -73,9 +87,10 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             it.admin.pageLayouts.create(defaultPageLayout)
             it.admin.pageLayouts.create(PageLayout(
                     name = "created name",
-                    data = createdData,
+                    data = createdDataAndroid,
                     thumbnailUrl = "http://example.com/thumbnail.png",
                     screenOrientation = ScreenOrientation.LANDSCAPE,
+                    layoutType = LayoutType.ANDROID,
                     modelId = anotherCreatedModelId
             ))
 
@@ -122,6 +137,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
                 data = createdData,
                 thumbnailUrl = "http://example.com/thumbnail.png",
                 screenOrientation = ScreenOrientation.PORTRAIT,
+                layoutType = LayoutType.ANDROID,
                 modelId = createdDeviceModelId
             ))
 
@@ -133,14 +149,18 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             assertEquals("http://example.com/thumbnail.png", createdPageLayout.thumbnailUrl)
             assertEquals(createdDeviceModelId, createdPageLayout.modelId)
             assertEquals(ScreenOrientation.PORTRAIT, createdPageLayout.screenOrientation)
-            assertEquals(PageLayoutWidgetType.FRAME_LAYOUT, createdPageLayout.data.widget)
-            assertEquals(1, createdPageLayout.data.properties.size)
-            assertEquals("name", createdPageLayout.data.properties[0].name)
-            assertEquals("true", createdPageLayout.data.properties[0].value)
-            assertEquals(PageLayoutViewPropertyType.BOOLEAN, createdPageLayout.data.properties[0].type)
-            assertEquals(1, createdPageLayout.data.children.size)
-            assertEquals(createdChildren[0].id, createdPageLayout.data.children[0].id)
 
+            val createdDataParsed = parsePageLayoutViewDataAndroid(createdPageLayout.data)
+
+            assertEquals(PageLayoutWidgetType.FRAME_LAYOUT, createdDataParsed!!.widget)
+            assertEquals(1, createdDataParsed.properties.size)
+            assertEquals("name", createdDataParsed.properties[0].name)
+            assertEquals("true", createdDataParsed.properties[0].value)
+            assertEquals(PageLayoutViewPropertyType.BOOLEAN, createdDataParsed.properties[0].type)
+            assertEquals(1, createdDataParsed.children.size)
+            assertEquals(createdChildren[0].id, createdDataParsed.children[0].id)
+
+            // Update with different Android layout data
             val updatedProperties = arrayOf(PageLayoutViewProperty("uname", "str", PageLayoutViewPropertyType.STRING))
             val updatedChildren = arrayOf<PageLayoutView>()
             val updatedData = PageLayoutView(
@@ -150,14 +170,17 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
                 children = updatedChildren
             )
 
-            val updatedPageLayout = it.admin.pageLayouts.updatePageLayout(PageLayout(
-                id = createdPageLayoutId,
-                name = "updated name",
-                data = updatedData,
-                thumbnailUrl = "http://example.com/updated.png",
-                screenOrientation = ScreenOrientation.LANDSCAPE,
-                modelId = updateDeviceModelId
-            ))
+            val updatedPageLayout = it.admin.pageLayouts.updatePageLayout(
+                PageLayout(
+                    id = createdPageLayoutId,
+                    name = "updated name",
+                    data = updatedData,
+                    thumbnailUrl = "http://example.com/updated.png",
+                    screenOrientation = ScreenOrientation.LANDSCAPE,
+                    layoutType = LayoutType.ANDROID,
+                    modelId = updateDeviceModelId
+                )
+            )
 
             val foundUpdatedPageLayout = it.admin.pageLayouts.findPageLayout(createdPageLayoutId)
 
@@ -166,12 +189,30 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             assertEquals("http://example.com/updated.png", updatedPageLayout.thumbnailUrl)
             assertEquals(updateDeviceModelId, updatedPageLayout.modelId)
             assertEquals(ScreenOrientation.LANDSCAPE, updatedPageLayout.screenOrientation)
-            assertEquals(PageLayoutWidgetType.MEDIA_VIEW, updatedPageLayout.data.widget)
-            assertEquals(1, updatedPageLayout.data.properties.size)
-            assertEquals("uname", updatedPageLayout.data.properties[0].name)
-            assertEquals("str", updatedPageLayout.data.properties[0].value)
-            assertEquals(PageLayoutViewPropertyType.STRING, updatedPageLayout.data.properties[0].type)
-            assertEquals(0, updatedPageLayout.data.children.size)
+
+            val updatedDataParsed = parsePageLayoutViewDataAndroid(updatedPageLayout.data)
+            assertEquals(PageLayoutWidgetType.MEDIA_VIEW, updatedDataParsed!!.widget)
+            assertEquals(1, updatedDataParsed.properties.size)
+            assertEquals("uname", updatedDataParsed.properties[0].name)
+            assertEquals("str", updatedDataParsed.properties[0].value)
+            assertEquals(PageLayoutViewPropertyType.STRING, updatedDataParsed.properties[0].type)
+            assertEquals(0, updatedDataParsed.children.size)
+
+            val htmlLayoutData = PageLayoutViewHtml("<html><body><h1>Test</h1></body></html>")
+
+            // invalid update layout data attempt (type android but data is html)
+            it.admin.pageLayouts.assertUpdateFail(400, foundCreatedPageLayout.copy(data = htmlLayoutData, layoutType = LayoutType.ANDROID))
+            // Verify that layout type cannot be changed (type html and data is html)
+            it.admin.pageLayouts.assertUpdateFail(400,
+                PageLayout(
+                    id = createdPageLayoutId,
+                    name = "valid html layout",
+                    data = htmlLayoutData,
+                    screenOrientation = ScreenOrientation.LANDSCAPE,
+                    layoutType = LayoutType.HTML,
+                    modelId = updateDeviceModelId
+                )
+            )
         }
     }
 

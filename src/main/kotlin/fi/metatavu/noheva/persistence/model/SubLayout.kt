@@ -1,5 +1,6 @@
 package fi.metatavu.noheva.persistence.model
 
+import fi.metatavu.noheva.api.spec.model.LayoutType
 import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*
@@ -14,28 +15,32 @@ import javax.validation.constraints.NotEmpty
 class SubLayout {
 
     @Id
-    var id: UUID? = null
+    lateinit var id: UUID
 
     @NotEmpty
     @Column(nullable = false)
-    var name: String? = null
+    lateinit var name: String
 
     @NotEmpty
     @Column(nullable = false)
     @Lob
-    var data: String? = null
+    lateinit var data: String
 
     @Column(nullable = false)
-    var createdAt: OffsetDateTime? = null
+    @Enumerated(EnumType.STRING)
+    lateinit var layoutType: LayoutType
 
     @Column(nullable = false)
-    var modifiedAt: OffsetDateTime? = null
+    lateinit var createdAt: OffsetDateTime
 
     @Column(nullable = false)
-    var creatorId: UUID? = null
+    lateinit var modifiedAt: OffsetDateTime
 
     @Column(nullable = false)
-    var lastModifierId: UUID? = null
+    lateinit var creatorId: UUID
+
+    @Column(nullable = false)
+    lateinit var lastModifierId: UUID
 
     /**
      * JPA pre-persist event handler
