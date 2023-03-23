@@ -26,6 +26,10 @@ class SubLayout {
     @Lob
     lateinit var data: String
 
+    @Column
+    @Lob
+    var defaultResources: String? = null
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     lateinit var layoutType: LayoutType

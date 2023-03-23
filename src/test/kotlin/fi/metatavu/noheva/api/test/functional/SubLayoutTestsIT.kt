@@ -26,8 +26,19 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
     @Test
     fun testCreateSubLayout() {
         createTestBuilder().use {
-            val createdSubLayout = it.admin.subLayouts.create()
+            val createdSubLayout = it.admin.subLayouts.create(
+                SubLayout(
+                name = "test",
+                data = PageLayoutViewHtml(html = ""),
+                layoutType = LayoutType.HTML,
+                defaultResources = arrayOf(ExhibitionPageResource("id", "name", ExhibitionPageResourceType.TEXT))
+                )
+            )
             Assertions.assertNotNull(createdSubLayout)
+            Assertions.assertEquals(1, createdSubLayout.defaultResources!!.size)
+            Assertions.assertEquals("id", createdSubLayout.defaultResources[0].id)
+            Assertions.assertEquals("name", createdSubLayout.defaultResources[0].data)
+            Assertions.assertEquals(ExhibitionPageResourceType.TEXT, createdSubLayout.defaultResources[0].type)
 
             // invalid data/layout type relation
             it.admin.subLayouts.assertCreateFail(400, createdSubLayout.copy(data = "invalid data", layoutType = LayoutType.ANDROID))
@@ -79,13 +90,13 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
 
     @Test
     fun testUpdateSubLayout() {
-        createTestBuilder().use {
+        createTestBuilder().use { tb ->
             val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.BOOLEAN))
             val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.BUTTON, arrayOf(), arrayOf()))
             val createdData =
                 PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
 
-            val createdSubLayout = it.admin.subLayouts.create(
+            val createdSubLayout = tb.admin.subLayouts.create(
                 SubLayout(
                     name = "created name",
                     layoutType = LayoutType.ANDROID,
@@ -95,7 +106,7 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
 
             val createdSubLayoutId = createdSubLayout.id!!
 
-            val foundCreatedSubLayout = it.admin.subLayouts.findSubLayout(createdSubLayoutId)
+            val foundCreatedSubLayout = tb.admin.subLayouts.findSubLayout(createdSubLayoutId)
             Assertions.assertEquals(createdSubLayout.id, foundCreatedSubLayout.id)
             Assertions.assertEquals("created name", createdSubLayout.name)
 
@@ -110,6 +121,8 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
             Assertions.assertEquals(createdChildren[0].id, createdSubLayoutData.children[0].id)
 
             // Update to another Android layout
+            val newDefaultResources = arrayOf(ExhibitionPageResource(id = "id1", data = "data1", type = ExhibitionPageResourceType.TEXT),
+                ExhibitionPageResource(id = "id2", data = "data2", type = ExhibitionPageResourceType.TEXT))
             val updatedProperties = arrayOf(PageLayoutViewProperty("uname", "str", PageLayoutViewPropertyType.STRING))
             val updatedChildren = arrayOf<PageLayoutView>()
             val updatedData1 = PageLayoutView(
@@ -119,19 +132,26 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
                 children = updatedChildren
             )
 
-            val updatedSubLayout1 = it.admin.subLayouts.updateSubLayout(
+            val updatedSubLayout1 = tb.admin.subLayouts.updateSubLayout(
                 SubLayout(
                     id = createdSubLayoutId,
                     name = "updated name",
                     data = updatedData1,
+                    defaultResources = newDefaultResources,
                     layoutType = LayoutType.ANDROID
                 )
             )
 
-            val foundUpdatedSubLayout = it.admin.subLayouts.findSubLayout(createdSubLayoutId)
+            val foundUpdatedSubLayout = tb.admin.subLayouts.findSubLayout(createdSubLayoutId)
 
             Assertions.assertEquals(updatedSubLayout1.id, foundUpdatedSubLayout.id)
             Assertions.assertEquals("updated name", updatedSubLayout1.name)
+            Assertions.assertEquals(2, updatedSubLayout1.defaultResources!!.size)
+            val resource1 = updatedSubLayout1.defaultResources.find { it.id == "id1" }
+            Assertions.assertTrue(resource1 != null)
+            Assertions.assertEquals("data1", resource1!!.data)
+            Assertions.assertEquals(ExhibitionPageResourceType.TEXT, resource1.type)
+            Assertions.assertTrue(updatedSubLayout1.defaultResources.find { it.id == "id2" } != null)
 
             val updatedSubLayoutData1 = parsePageLayoutViewDataAndroid(updatedSubLayout1.data)
 
@@ -144,9 +164,9 @@ class SubLayoutTestsIT : AbstractFunctionalTest() {
 
             // Test updating with invalid format of the data
             val htmlData = PageLayoutViewHtml(html = "<html></html>")
-            it.admin.subLayouts.assertUpdateFail(400, foundUpdatedSubLayout.copy(data = htmlData))
+            tb.admin.subLayouts.assertUpdateFail(400, foundUpdatedSubLayout.copy(data = htmlData))
             //Test that updating the layout type is not allowed
-            it.admin.subLayouts.assertUpdateFail(400, foundUpdatedSubLayout.copy(layoutType = LayoutType.HTML, data = htmlData))
+            tb.admin.subLayouts.assertUpdateFail(400, foundUpdatedSubLayout.copy(layoutType = LayoutType.HTML, data = htmlData))
         }
     }
 

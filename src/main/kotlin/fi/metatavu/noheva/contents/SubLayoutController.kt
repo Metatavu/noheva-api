@@ -1,5 +1,6 @@
 package fi.metatavu.noheva.contents
 
+import fi.metatavu.noheva.api.spec.model.ExhibitionPageResource
 import fi.metatavu.noheva.api.spec.model.LayoutType
 import fi.metatavu.noheva.persistence.dao.SubLayoutDAO
 import fi.metatavu.noheva.persistence.model.SubLayout
@@ -19,7 +20,7 @@ class SubLayoutController {
     lateinit var subLayoutDAO: SubLayoutDAO
 
     @Inject
-    lateinit var pageLayoutDataController: PageLayoutDataController
+    lateinit var dataSerializationController: DataSerializationController
 
     /**
      * Creates new sub layout
@@ -27,15 +28,23 @@ class SubLayoutController {
      * @param name name
      * @param data data
      * @param layoutType layout type
+     * @param defaultResources default resources
      * @param creatorId creating user id
      * @return created sub layout
      */
-    fun createSubLayout(name: String, data: Any, layoutType: LayoutType, creatorId: UUID): SubLayout {
+    fun createSubLayout(
+        name: String,
+        data: Any,
+        layoutType: LayoutType,
+        defaultResources: List<ExhibitionPageResource>?,
+        creatorId: UUID
+    ): SubLayout {
         return subLayoutDAO.create(
             id = UUID.randomUUID(),
             name = name,
-            data = pageLayoutDataController.getRestObjectAsString(data),
+            data = dataSerializationController.getDataAsString(data),
             layoutType = layoutType,
+            defaultResources = dataSerializationController.getDataAsString(defaultResources),
             creatorId = creatorId,
             lastModifierId = creatorId
         )
@@ -66,12 +75,20 @@ class SubLayoutController {
      * @param subLayout sub layout to be updated
      * @param name name
      * @param data data
+     * @param defaultResources default resources
      * @param modifierId modifying user id
      * @return updated exhibition
      */
-    fun updateSubLayout(subLayout: SubLayout, name: String, data: Any, modifierId: UUID): SubLayout {
+    fun updateSubLayout(
+        subLayout: SubLayout,
+        name: String,
+        data: Any,
+        defaultResources: List<ExhibitionPageResource>?,
+        modifierId: UUID
+    ): SubLayout {
         subLayoutDAO.updateName(subLayout, name, modifierId)
-        subLayoutDAO.updateData(subLayout, pageLayoutDataController.getRestObjectAsString(data), modifierId)
+        subLayoutDAO.updateData(subLayout, dataSerializationController.getDataAsString(data), modifierId)
+        subLayoutDAO.updateDefaultResources(subLayout, dataSerializationController.getDataAsString(defaultResources), modifierId)
         return subLayout
     }
 

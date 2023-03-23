@@ -1,7 +1,7 @@
 package fi.metatavu.noheva.api.translate
 
 import fi.metatavu.noheva.api.spec.model.PageLayout
-import fi.metatavu.noheva.contents.PageLayoutDataController
+import fi.metatavu.noheva.contents.DataSerializationController
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 
@@ -12,14 +12,15 @@ import javax.inject.Inject
 class PageLayoutTranslator : AbstractTranslator<fi.metatavu.noheva.persistence.model.PageLayout, PageLayout>() {
 
     @Inject
-    lateinit var pageLayoutDataController: PageLayoutDataController
+    lateinit var dataSerializationController: DataSerializationController
 
     override fun translate(entity: fi.metatavu.noheva.persistence.model.PageLayout): PageLayout {
         return PageLayout(
             id = entity.id,
             name = entity.name,
-            data = pageLayoutDataController.getStringDataAsRestObject(entity.data, entity.layoutType),
+            data = dataSerializationController.getStringDataAsRestObject(entity.data, entity.layoutType),
             layoutType = entity.layoutType,
+            defaultResources = dataSerializationController.parseStringToPageResources(entity.defaultResources),
             thumbnailUrl = entity.thumbnailUrl,
             modelId = entity.deviceModel?.id,
             screenOrientation = entity.screenOrientation,

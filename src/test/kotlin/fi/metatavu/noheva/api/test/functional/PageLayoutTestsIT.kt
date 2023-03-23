@@ -6,8 +6,7 @@ import fi.metatavu.noheva.api.test.functional.resources.MqttResource
 import fi.metatavu.noheva.api.test.functional.resources.MysqlResource
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -35,11 +34,16 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             // Html layout creation
             val htmlLayout = createdPageLayoutAndroid.copy(
                 data = PageLayoutViewHtml("<html></html>"),
-                layoutType = LayoutType.HTML
+                layoutType = LayoutType.HTML,
+                defaultResources = arrayOf(ExhibitionPageResource("id", "name", ExhibitionPageResourceType.TEXT))
             )
             val createdPageLayoutHtml = it.admin.pageLayouts.create(htmlLayout)
             val createdHtmlData = parsePageLayoutViewDataHtml(createdPageLayoutHtml.data)
             assertEquals("<html></html>", createdHtmlData!!.html)
+            assertEquals(1, createdPageLayoutHtml.defaultResources!!.size)
+            assertEquals("id", createdPageLayoutHtml.defaultResources[0].id)
+            assertEquals("name", createdPageLayoutHtml.defaultResources[0].data)
+            assertEquals(ExhibitionPageResourceType.TEXT, createdPageLayoutHtml.defaultResources[0].type)
 
             // Invalid layout type-data creation
             it.admin.pageLayouts.assertCreateFail(400, htmlLayout.copy(layoutType = LayoutType.ANDROID))
@@ -125,14 +129,14 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testUpdatePageLayout() {
-        createTestBuilder().use {
+        createTestBuilder().use { tb ->
             val createdProperties = arrayOf(PageLayoutViewProperty("name", "true", PageLayoutViewPropertyType.BOOLEAN))
             val createdChildren = arrayOf(PageLayoutView("childid", PageLayoutWidgetType.BUTTON, arrayOf(), arrayOf()))
             val createdData = PageLayoutView("rootid", PageLayoutWidgetType.FRAME_LAYOUT, createdProperties, createdChildren)
-            val createdDeviceModelId = it.admin.deviceModels.create().id!!
-            val updateDeviceModelId = it.admin.deviceModels.create().id!!
+            val createdDeviceModelId = tb.admin.deviceModels.create().id!!
+            val updateDeviceModelId = tb.admin.deviceModels.create().id!!
 
-            val createdPageLayout = it.admin.pageLayouts.create(PageLayout(
+            val createdPageLayout = tb.admin.pageLayouts.create(PageLayout(
                 name = "created name",
                 data = createdData,
                 thumbnailUrl = "http://example.com/thumbnail.png",
@@ -143,7 +147,7 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
 
             val createdPageLayoutId = createdPageLayout.id!!
 
-            val foundCreatedPageLayout = it.admin.pageLayouts.findPageLayout(createdPageLayoutId)
+            val foundCreatedPageLayout = tb.admin.pageLayouts.findPageLayout(createdPageLayoutId)
             assertEquals(createdPageLayout.id, foundCreatedPageLayout.id)
             assertEquals("created name", createdPageLayout.name)
             assertEquals("http://example.com/thumbnail.png", createdPageLayout.thumbnailUrl)
@@ -170,25 +174,35 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
                 children = updatedChildren
             )
 
-            val updatedPageLayout = it.admin.pageLayouts.updatePageLayout(
+            val newDefaultResources = arrayOf(ExhibitionPageResource(id = "id1", data = "data1", type = ExhibitionPageResourceType.TEXT),
+                ExhibitionPageResource(id = "id2", data = "data2", type = ExhibitionPageResourceType.TEXT))
+
+            val updatedPageLayout = tb.admin.pageLayouts.updatePageLayout(
                 PageLayout(
                     id = createdPageLayoutId,
                     name = "updated name",
                     data = updatedData,
                     thumbnailUrl = "http://example.com/updated.png",
+                    defaultResources = newDefaultResources,
                     screenOrientation = ScreenOrientation.LANDSCAPE,
                     layoutType = LayoutType.ANDROID,
                     modelId = updateDeviceModelId
                 )
             )
 
-            val foundUpdatedPageLayout = it.admin.pageLayouts.findPageLayout(createdPageLayoutId)
+            val foundUpdatedPageLayout = tb.admin.pageLayouts.findPageLayout(createdPageLayoutId)
 
             assertEquals(updatedPageLayout.id, foundUpdatedPageLayout.id)
             assertEquals("updated name", updatedPageLayout.name)
             assertEquals("http://example.com/updated.png", updatedPageLayout.thumbnailUrl)
             assertEquals(updateDeviceModelId, updatedPageLayout.modelId)
             assertEquals(ScreenOrientation.LANDSCAPE, updatedPageLayout.screenOrientation)
+            assertEquals(2, updatedPageLayout.defaultResources!!.size)
+            val resource1 = updatedPageLayout.defaultResources.find { it.id == "id1" }
+            assertTrue(resource1 != null)
+            assertEquals("data1", resource1!!.data)
+            assertEquals(ExhibitionPageResourceType.TEXT, resource1.type)
+            assertTrue(updatedPageLayout.defaultResources.find { it.id == "id2" } != null)
 
             val updatedDataParsed = parsePageLayoutViewDataAndroid(updatedPageLayout.data)
             assertEquals(PageLayoutWidgetType.MEDIA_VIEW, updatedDataParsed!!.widget)
@@ -201,9 +215,9 @@ class PageLayoutTestsIT: AbstractFunctionalTest() {
             val htmlLayoutData = PageLayoutViewHtml("<html><body><h1>Test</h1></body></html>")
 
             // invalid update layout data attempt (type android but data is html)
-            it.admin.pageLayouts.assertUpdateFail(400, foundCreatedPageLayout.copy(data = htmlLayoutData, layoutType = LayoutType.ANDROID))
+            tb.admin.pageLayouts.assertUpdateFail(400, foundCreatedPageLayout.copy(data = htmlLayoutData, layoutType = LayoutType.ANDROID))
             // Verify that layout type cannot be changed (type html and data is html)
-            it.admin.pageLayouts.assertUpdateFail(400,
+            tb.admin.pageLayouts.assertUpdateFail(400,
                 PageLayout(
                     id = createdPageLayoutId,
                     name = "valid html layout",

@@ -2,8 +2,8 @@ package fi.metatavu.noheva.api
 
 import fi.metatavu.noheva.api.spec.SubLayoutsApi
 import fi.metatavu.noheva.api.spec.model.SubLayout
-import fi.metatavu.noheva.contents.PageLayoutDataController
 import fi.metatavu.noheva.api.translate.SubLayoutTranslator
+import fi.metatavu.noheva.contents.DataSerializationController
 import fi.metatavu.noheva.contents.SubLayoutController
 import java.util.*
 import javax.enterprise.context.RequestScoped
@@ -25,7 +25,7 @@ class SubLayoutsApiImpl : SubLayoutsApi, AbstractApi() {
     lateinit var subLayoutTranslator: SubLayoutTranslator
 
     @Inject
-    lateinit var pageLayoutDataController: PageLayoutDataController
+    lateinit var dataSerializationController: DataSerializationController
 
     override fun listSubLayouts(): Response {
         val result = subLayoutController.listSubLayouts()
@@ -37,13 +37,15 @@ class SubLayoutsApiImpl : SubLayoutsApi, AbstractApi() {
         val name = subLayout.name
         val data = subLayout.data
         val layoutType = subLayout.layoutType
+        val defaultResources = subLayout.defaultResources
 
-        if (pageLayoutDataController.isValidLayoutType(data, layoutType).not()) return createBadRequest(INVALID_LAYOUT_TYPE)
+        if (dataSerializationController.isValidDataLayoutType(data, layoutType).not()) return createBadRequest(INVALID_LAYOUT_TYPE)
 
         val created = subLayoutController.createSubLayout(
             name = name,
             data = data,
             layoutType = layoutType,
+            defaultResources = defaultResources,
             creatorId =  userId
         )
         return createOk(subLayoutTranslator.translate(created))
@@ -61,8 +63,9 @@ class SubLayoutsApiImpl : SubLayoutsApi, AbstractApi() {
         val name = subLayout.name
         val data = subLayout.data
         val layoutType = subLayout.layoutType
+        val defaultResources = subLayout.defaultResources
 
-        if (pageLayoutDataController.isValidLayoutType(data, layoutType).not()) return createBadRequest(INVALID_LAYOUT_TYPE)
+        if (dataSerializationController.isValidDataLayoutType(data, layoutType).not()) return createBadRequest(INVALID_LAYOUT_TYPE)
 
         val subLayoutFound = subLayoutController.findSubLayoutById(subLayoutId)
             ?: return createNotFound("Sub layout $subLayoutId not found")
@@ -71,6 +74,7 @@ class SubLayoutsApiImpl : SubLayoutsApi, AbstractApi() {
             subLayout = subLayoutFound,
             name = name,
             data = data,
+            defaultResources = defaultResources,
             modifierId = userId
         )
 
