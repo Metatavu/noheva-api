@@ -1,6 +1,6 @@
 package fi.metatavu.noheva.contents
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import fi.metatavu.noheva.api.spec.model.*
 import fi.metatavu.noheva.persistence.dao.ExhibitionPageDAO
@@ -24,6 +24,9 @@ class ExhibitionPageController {
 
     @Inject
     lateinit var exhibitionPageDAO: ExhibitionPageDAO
+
+    @Inject
+    lateinit var dataSerializationController: DataSerializationController
 
     /**
      * Creates new exhibition page
@@ -62,10 +65,10 @@ class ExhibitionPageController {
             contentVersion = contentVersion,
             name = name,
             orderNumber = orderNumber,
-            resources = getDataAsString(resources),
-            eventTriggers = getDataAsString(eventTriggers),
-            enterTransitions = getDataAsString(enterTransitions),
-            exitTransitions = getDataAsString(exitTransitions),
+            resources = dataSerializationController.getDataAsString(resources),
+            eventTriggers = dataSerializationController.getDataAsString(eventTriggers),
+            enterTransitions = dataSerializationController.getDataAsString(enterTransitions),
+            exitTransitions = dataSerializationController.getDataAsString(exitTransitions),
             creatorId = creatorId,
             lastModifierId = creatorId
         )
@@ -111,7 +114,7 @@ class ExhibitionPageController {
             name = sourcePage.name ?: throw CopyException("Source page name not found"),
             orderNumber = sourcePage.orderNumber ?: throw CopyException("Source page orderNumber not found"),
             resources = sourcePage.resources ?: throw CopyException("Source page resources not found"),
-            eventTriggers = getDataAsString(eventTriggers),
+            eventTriggers = dataSerializationController.getDataAsString(eventTriggers),
             enterTransitions = sourcePage.enterTransitions,
             exitTransitions = sourcePage.exitTransitions,
             creatorId = creatorId,
@@ -205,10 +208,10 @@ class ExhibitionPageController {
         result = exhibitionPageDAO.updateLayout(result, layout, modifierId)
         result = exhibitionPageDAO.updateDevice(result, device, modifierId)
         result = exhibitionPageDAO.updateContentVersion(result, contentVersion, modifierId)
-        result = exhibitionPageDAO.updateResources(result, getDataAsString(resources), modifierId)
-        result = exhibitionPageDAO.updateEventTriggers(result, getDataAsString(eventTriggers), modifierId)
-        result = exhibitionPageDAO.updateEnterTransitions(result, getDataAsString(enterTransitions), modifierId)
-        result = exhibitionPageDAO.updateExitTransitions(result, getDataAsString(exitTransitions), modifierId)
+        result = exhibitionPageDAO.updateResources(result, dataSerializationController.getDataAsString(resources), modifierId)
+        result = exhibitionPageDAO.updateEventTriggers(result, dataSerializationController.getDataAsString(eventTriggers), modifierId)
+        result = exhibitionPageDAO.updateEnterTransitions(result, dataSerializationController.getDataAsString(enterTransitions), modifierId)
+        result = exhibitionPageDAO.updateExitTransitions(result, dataSerializationController.getDataAsString(exitTransitions), modifierId)
         result = exhibitionPageDAO.updateOrderNumber(result, orderNumber, modifierId)
         return result
     }
@@ -230,7 +233,7 @@ class ExhibitionPageController {
      */
     fun parseEventTriggers(eventTriggers: String?): List<ExhibitionPageEventTrigger> {
         eventTriggers ?: return listOf()
-        val objectMapper = ObjectMapper()
+        val objectMapper = jacksonObjectMapper()
         return objectMapper.readValue(eventTriggers)
     }
 
@@ -291,16 +294,4 @@ class ExhibitionPageController {
             property.copy()
         }
     }
-
-    /**
-     * Serializes the object into JSON string
-     *
-     * @param data object
-     * @return JSON string
-     */
-    private fun <T> getDataAsString(data: T): String {
-        val objectMapper = ObjectMapper()
-        return objectMapper.writeValueAsString(data)
-    }
-
 }

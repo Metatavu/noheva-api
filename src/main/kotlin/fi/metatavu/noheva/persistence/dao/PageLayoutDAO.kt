@@ -27,6 +27,7 @@ class PageLayoutDAO : AbstractDAO<PageLayout>() {
      * @param name name
      * @param data data
      * @param layoutType layout type
+     * @param defaultResources default resources serialized as string
      * @param thumbnailUrl thumbnail URL
      * @param deviceModel device model
      * @param screenOrientation screen orientation
@@ -39,6 +40,7 @@ class PageLayoutDAO : AbstractDAO<PageLayout>() {
         name: String,
         data: String,
         layoutType: LayoutType,
+        defaultResources: String?,
         thumbnailUrl: String?,
         deviceModel: DeviceModel?,
         screenOrientation: ScreenOrientation,
@@ -50,6 +52,7 @@ class PageLayoutDAO : AbstractDAO<PageLayout>() {
         pageLayout.name = name
         pageLayout.data = data
         pageLayout.layoutType = layoutType
+        pageLayout.defaultResources = defaultResources
         pageLayout.thumbnailUrl = thumbnailUrl
         pageLayout.deviceModel = deviceModel
         pageLayout.screenOrientation = screenOrientation
@@ -120,6 +123,20 @@ class PageLayoutDAO : AbstractDAO<PageLayout>() {
     fun updateScreenOrientation(pageLayout: PageLayout, screenOrientation: ScreenOrientation, lastModifierId: UUID): PageLayout {
         pageLayout.lastModifierId = lastModifierId
         pageLayout.screenOrientation = screenOrientation
+        return persist(pageLayout)
+    }
+
+    /**
+     * Updates default resources
+     *
+     * @param pageLayout page layout to update
+     * @param defaultResources default resources as string
+     * @param lastModifierId modifier id
+     * @return updated layout
+     */
+    fun updateDefaultResources(pageLayout: PageLayout, defaultResources: String?, lastModifierId: UUID): PageLayout {
+        pageLayout.lastModifierId = lastModifierId
+        pageLayout.defaultResources = defaultResources
         return persist(pageLayout)
     }
 

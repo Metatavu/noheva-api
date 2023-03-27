@@ -3,8 +3,8 @@ package fi.metatavu.noheva.api
 import fi.metatavu.noheva.api.spec.PageLayoutsApi
 import fi.metatavu.noheva.api.spec.model.PageLayout
 import fi.metatavu.noheva.api.spec.model.ScreenOrientation
-import fi.metatavu.noheva.contents.PageLayoutDataController
 import fi.metatavu.noheva.api.translate.PageLayoutTranslator
+import fi.metatavu.noheva.contents.DataSerializationController
 import fi.metatavu.noheva.contents.ExhibitionPageController
 import fi.metatavu.noheva.contents.PageLayoutController
 import fi.metatavu.noheva.devices.DeviceModelController
@@ -34,7 +34,7 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
     lateinit var exhibitionPageController: ExhibitionPageController
 
     @Inject
-    lateinit var pageLayoutDataController: PageLayoutDataController
+    lateinit var dataSerializationController: DataSerializationController
 
     override fun listPageLayouts(deviceModelId: UUID?, screenOrientation: String?): Response {
         var deviceModel: fi.metatavu.noheva.persistence.model.DeviceModel? = null
@@ -56,8 +56,8 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
         val data = pageLayout.data
         val layoutType = pageLayout.layoutType
         val thumbnailUrl = pageLayout.thumbnailUrl
-
-        if (pageLayoutDataController.isValidLayoutType(data, layoutType).not()) return createBadRequest(INVALID_LAYOUT_TYPE)
+        val resources = pageLayout.defaultResources
+        if (dataSerializationController.isValidDataLayoutType(data, layoutType).not()) return createBadRequest(INVALID_LAYOUT_TYPE)
 
         val deviceModelId = pageLayout.modelId ?: return createBadRequest("Device model could not be found")
         val deviceModel = deviceModelController.findDeviceModelById(deviceModelId) ?: return createBadRequest("Device model $deviceModelId could not be found")
@@ -66,6 +66,7 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
         val created = pageLayoutController.createPageLayout(
             name = name,
             data = data,
+            defaultResources = resources,
             layoutType = layoutType,
             thumbnailUrl = thumbnailUrl,
             deviceModel = deviceModel,
@@ -87,7 +88,8 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
         val name = pageLayout.name
         val data = pageLayout.data
         val layoutType = pageLayout.layoutType
-        if (pageLayoutDataController.isValidLayoutType(data, layoutType).not()) return createBadRequest(INVALID_LAYOUT_TYPE)
+        val defaultResources = pageLayout.defaultResources
+        if (dataSerializationController.isValidDataLayoutType(data, layoutType).not()) return createBadRequest(INVALID_LAYOUT_TYPE)
 
         val thumbnailUrl = pageLayout.thumbnailUrl
         val deviceModelId = pageLayout.modelId ?: return createBadRequest("Device model could not be found")
@@ -101,6 +103,7 @@ class PageLayoutsApiImpl: PageLayoutsApi, AbstractApi() {
             pageLayout = pageLayoutFound,
             name = name,
             data = data,
+            defaultResources = defaultResources,
             thumbnailUrl = thumbnailUrl,
             deviceModel = deviceModel,
             screenOrientation = screenOrientation,

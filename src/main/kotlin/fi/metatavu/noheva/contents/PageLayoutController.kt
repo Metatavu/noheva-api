@@ -1,5 +1,6 @@
 package fi.metatavu.noheva.contents
 
+import fi.metatavu.noheva.api.spec.model.ExhibitionPageResource
 import fi.metatavu.noheva.api.spec.model.LayoutType
 import fi.metatavu.noheva.api.spec.model.ScreenOrientation
 import fi.metatavu.noheva.persistence.dao.PageLayoutDAO
@@ -19,7 +20,7 @@ class PageLayoutController {
     lateinit var pageLayoutDAO: PageLayoutDAO
 
     @Inject
-    lateinit var pageLayoutDataController: PageLayoutDataController
+    lateinit var dataSerializationController: DataSerializationController
 
     /**
      * Creates new exhibition page layout
@@ -27,6 +28,7 @@ class PageLayoutController {
      * @param name name
      * @param data data
      * @param layoutType layout type of the data
+     * @param defaultResources default page resources
      * @param thumbnailUrl thumbnail URL
      * @param deviceModel device model
      * @param screenOrientation screen orientation
@@ -37,6 +39,7 @@ class PageLayoutController {
         name: String,
         data: Any,
         layoutType: LayoutType,
+        defaultResources: List<ExhibitionPageResource>?,
         thumbnailUrl: String?,
         deviceModel: DeviceModel,
         screenOrientation: ScreenOrientation,
@@ -45,7 +48,8 @@ class PageLayoutController {
         return pageLayoutDAO.create(
             id = UUID.randomUUID(),
             name = name,
-            data = pageLayoutDataController.getRestObjectAsString(data),
+            data = dataSerializationController.getDataAsString(data),
+            defaultResources = dataSerializationController.getDataAsString(defaultResources),
             layoutType = layoutType,
             thumbnailUrl = thumbnailUrl,
             deviceModel = deviceModel,
@@ -82,6 +86,7 @@ class PageLayoutController {
      * @param pageLayout exhibition page layout to be updated
      * @param name name
      * @param data data
+     * @param defaultResources default page resources
      * @param thumbnailUrl thumbnail URL
      * @param screenOrientation screen orientation
      * @param modifierId modifying user id
@@ -91,13 +96,15 @@ class PageLayoutController {
         pageLayout: PageLayout,
         name: String,
         data: Any,
+        defaultResources: List<ExhibitionPageResource>?,
         thumbnailUrl: String?,
         deviceModel: DeviceModel,
         screenOrientation: ScreenOrientation,
         modifierId: UUID
     ): PageLayout {
         pageLayoutDAO.updateName(pageLayout, name, modifierId)
-        pageLayoutDAO.updateData(pageLayout, pageLayoutDataController.getRestObjectAsString(data), modifierId)
+        pageLayoutDAO.updateData(pageLayout, dataSerializationController.getDataAsString(data), modifierId)
+        pageLayoutDAO.updateDefaultResources(pageLayout, dataSerializationController.getDataAsString(defaultResources), modifierId)
         pageLayoutDAO.updateThumbnailUrl(pageLayout, thumbnailUrl, modifierId)
         pageLayoutDAO.updateDeviceModel(pageLayout, deviceModel, modifierId)
         pageLayoutDAO.updateScreenOrientation(pageLayout, screenOrientation, modifierId)

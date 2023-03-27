@@ -922,4 +922,14 @@
         </sql>
     </changeSet>
 
+    <changeSet id="default_resources_page_sub_layouts" author="katja danilova">
+        <addColumn tableName="pagelayout">
+            <column name="defaultresources" type="longtext"/>
+        </addColumn>
+
+        <addColumn tableName="sublayout">
+            <column name="defaultresources" type="longtext"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
