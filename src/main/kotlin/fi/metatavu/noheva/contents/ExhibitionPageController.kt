@@ -1,6 +1,6 @@
 package fi.metatavu.noheva.contents
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import fi.metatavu.noheva.api.spec.model.*
 import fi.metatavu.noheva.persistence.dao.ExhibitionPageDAO
@@ -233,7 +233,7 @@ class ExhibitionPageController {
      */
     fun parseEventTriggers(eventTriggers: String?): List<ExhibitionPageEventTrigger> {
         eventTriggers ?: return listOf()
-        val objectMapper = ObjectMapper()
+        val objectMapper = jacksonObjectMapper()
         return objectMapper.readValue(eventTriggers)
     }
 

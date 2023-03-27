@@ -1,6 +1,7 @@
 package fi.metatavu.noheva.api.translate
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import fi.metatavu.noheva.api.spec.model.ExhibitionPage
 import fi.metatavu.noheva.api.spec.model.ExhibitionPageResource
@@ -19,12 +20,12 @@ class ExhibitionPageTranslator: AbstractTranslator<fi.metatavu.noheva.persistenc
     lateinit var exhibitionPageController: ExhibitionPageController
 
     override fun translate(entity: fi.metatavu.noheva.persistence.model.ExhibitionPage): ExhibitionPage {
-        val objectMapper = ObjectMapper()
+        val objectMapper = jacksonObjectMapper()
         return ExhibitionPage(
             id = entity.id,
             exhibitionId = entity.exhibition?.id,
             deviceId = entity.device!!.id!!,
-            layoutId = entity.layout!!.id!!,
+            layoutId = entity.layout!!.id,
             contentVersionId = entity.contentVersion!!.id!!,
             name = entity.name!!,
             resources = getResources(objectMapper, entity.resources),

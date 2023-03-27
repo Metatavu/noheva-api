@@ -1,6 +1,6 @@
 package fi.metatavu.noheva.contents
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import fi.metatavu.noheva.api.spec.model.ExhibitionPageResource
 import fi.metatavu.noheva.api.spec.model.LayoutType
@@ -14,7 +14,7 @@ import javax.enterprise.context.ApplicationScoped
 @ApplicationScoped
 class DataSerializationController {
 
-    private val objectMapper = ObjectMapper()
+   private val objectMapper = jacksonObjectMapper()
 
     /**
      * Serializes the object into JSON string
@@ -64,7 +64,6 @@ class DataSerializationController {
      * @return list of page resource objects
      */
     fun parseStringToPageResources(resources: String?): List<ExhibitionPageResource> {
-        val objectMapper = ObjectMapper()
         resources ?: return listOf()
         return objectMapper.readValue(resources)
     }
