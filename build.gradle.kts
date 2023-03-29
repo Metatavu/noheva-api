@@ -75,8 +75,8 @@ dependencies {
     testImplementation("com.amazonaws:aws-java-sdk-s3:1.12.393")
 }
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 allOpen {
@@ -96,7 +96,7 @@ sourceSets["test"].java {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
     kotlinOptions.javaParameters = true
 }
 
