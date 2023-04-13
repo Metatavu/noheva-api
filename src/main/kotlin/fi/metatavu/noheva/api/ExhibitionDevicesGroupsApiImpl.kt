@@ -3,7 +3,7 @@ package fi.metatavu.noheva.api
 import fi.metatavu.noheva.api.spec.ExhibitionDeviceGroupsApi
 import fi.metatavu.noheva.api.spec.model.ExhibitionDeviceGroup
 import fi.metatavu.noheva.api.translate.ExhibitionDeviceGroupTranslator
-import fi.metatavu.noheva.contents.GroupContentVersionController
+import fi.metatavu.noheva.contents.ContentVersionController
 import fi.metatavu.noheva.devices.ExhibitionDeviceGroupController
 import fi.metatavu.noheva.exhibitions.ExhibitionController
 import fi.metatavu.noheva.exhibitions.ExhibitionRoomController
@@ -40,7 +40,7 @@ class ExhibitionDevicesGroupsApiImpl : ExhibitionDeviceGroupsApi, AbstractApi() 
     lateinit var exhibitionDeviceGroupTranslator: ExhibitionDeviceGroupTranslator
 
     @Inject
-    lateinit var groupContentVersionController: GroupContentVersionController
+    lateinit var contentVersionController: ContentVersionController
 
     @Inject
     lateinit var logger: Logger
@@ -89,7 +89,8 @@ class ExhibitionDevicesGroupsApiImpl : ExhibitionDeviceGroupsApi, AbstractApi() 
                     sourceDeviceGroup = sourceDeviceGroup,
                     targetRoom = sourceDeviceGroup.room
                         ?: return createBadRequest("Source device group $sourceDeviceGroupId has no room"),
-                    creatorId = userId
+                    creatorId = userId,
+                    targetContentVersionExhibition = null
                 )
             } catch (e: CopyException) {
                 logger.error("Failed to copy device group", e)
@@ -168,10 +169,10 @@ class ExhibitionDevicesGroupsApiImpl : ExhibitionDeviceGroupsApi, AbstractApi() 
         val exhibitionDeviceGroup = exhibitionDeviceGroupController.findDeviceGroupById(deviceGroupId)
             ?: return createNotFound("Room $deviceGroupId not found")
 
-        val groupContentVersions = groupContentVersionController.listGroupContentVersions(
+        val groupContentVersions = contentVersionController.listContentVersions(
             exhibition = exhibition,
-            contentVersion = null,
-            deviceGroup = exhibitionDeviceGroup
+            deviceGroup = exhibitionDeviceGroup,
+            exhibitionRoom = null
         )
 
         if (groupContentVersions.isNotEmpty()) {

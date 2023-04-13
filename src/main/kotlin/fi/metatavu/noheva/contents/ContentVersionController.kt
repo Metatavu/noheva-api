@@ -1,6 +1,7 @@
 package fi.metatavu.noheva.contents
 
 import fi.metatavu.noheva.api.spec.model.ContentVersionActiveCondition
+import fi.metatavu.noheva.api.spec.model.ContentVersionStatus
 import fi.metatavu.noheva.exhibitions.ExhibitionRoomController
 import fi.metatavu.noheva.persistence.dao.ContentVersionDAO
 import fi.metatavu.noheva.persistence.dao.ContentVersionRoomDAO
@@ -32,6 +33,8 @@ class ContentVersionController {
      * @param name content version name
      * @param language language code
      * @param activeCondition active condition
+     * @param status status
+     * @param deviceGroup device group
      * @param creatorId creating user id
      * @return created exhibition content version
      */
@@ -40,6 +43,8 @@ class ContentVersionController {
         name: String,
         language: String,
         activeCondition: ContentVersionActiveCondition?,
+        status: ContentVersionStatus?,
+        deviceGroup: ExhibitionDeviceGroup?,
         creatorId: UUID
     ): ContentVersion {
         return contentVersionDAO.create(
@@ -49,6 +54,8 @@ class ContentVersionController {
             language = language,
             activeConditionEquals = activeCondition?.equals,
             activeConditionUserVariable = activeCondition?.userVariable,
+            status = status,
+            deviceGroup = deviceGroup,
             creatorId = creatorId,
             lastModifierId = creatorId
         )
@@ -60,6 +67,7 @@ class ContentVersionController {
      * @param sourceContentVersion source content version
      * @param targetExhibition target exhibition
      * @param idMapper id mapper
+     * @param targetDeviceGroup target device group for the content version
      * @param creatorId id of user that created the copy
      * @return a copy of a content version
      */
@@ -67,6 +75,7 @@ class ContentVersionController {
         sourceContentVersion: ContentVersion,
         targetExhibition: Exhibition,
         idMapper: IdMapper,
+        targetDeviceGroup: ExhibitionDeviceGroup?,
         creatorId: UUID
     ): ContentVersion {
         val id = idMapper.getNewId(sourceContentVersion.id) ?: throw CopyException("Target content version id not found")
@@ -95,6 +104,8 @@ class ContentVersionController {
             language = language,
             activeConditionUserVariable = sourceContentVersion.activeConditionUserVariable,
             activeConditionEquals = sourceContentVersion.activeConditionEquals,
+            status = sourceContentVersion.status,
+            deviceGroup = targetDeviceGroup,
             creatorId = creatorId,
             lastModifierId = creatorId
         )
@@ -153,18 +164,32 @@ class ContentVersionController {
      * Lists content versions in an exhibitions
      * @param exhibition exhibition
      * @param exhibitionRoom exhibition room
+     * @param deviceGroup device group
      * @returns list of content versions
      */
     fun listContentVersions(
         exhibition: Exhibition,
-        exhibitionRoom: ExhibitionRoom?
+        exhibitionRoom: ExhibitionRoom?,
+        deviceGroup: ExhibitionDeviceGroup?,
     ): List<ContentVersion> {
 
-        if (exhibitionRoom != null) {
-            return contentVersionRoomDAO.listContentVersionsByRoom(exhibitionRoom)
+        if (exhibitionRoom == null && deviceGroup == null) {
+            return contentVersionDAO.listByExhibition(exhibition)
         }
 
-        return contentVersionDAO.listByExhibition(exhibition)
+        return contentVersionDAO.listContentVersions(exhibitionRoom, deviceGroup)
+    }
+
+    /**
+     * Lists content versions based on exhibitions that are not connected to a device group
+     *
+     * @param exhibition exhibition
+     * @returns list of content versions
+     */
+    fun listContentVersionsWithoutDeviceGroup(
+        exhibition: Exhibition,
+    ): List<ContentVersion> {
+        return contentVersionDAO.listByExhibitionWithoutDeviceGroup(exhibition)
     }
 
     /**
@@ -194,6 +219,8 @@ class ContentVersionController {
      * @param name group name
      * @param language language code
      * @param activeCondition active condition
+     * @param status status
+     * @param deviceGroup device group
      * @param modifierId modifying user id
      * @return updated ContentVersion
      */
@@ -202,12 +229,16 @@ class ContentVersionController {
         name: String,
         language: String,
         activeCondition: ContentVersionActiveCondition?,
+        status: ContentVersionStatus?,
+        deviceGroup: ExhibitionDeviceGroup?,
         modifierId: UUID
     ): ContentVersion {
         var result = contentVersionDAO.updateName(contentVersion, name, modifierId)
         result = contentVersionDAO.updateLanguage(result, language, modifierId)
         result = contentVersionDAO.updateActiveConditionUserVariable(result, activeCondition?.userVariable, modifierId)
         result = contentVersionDAO.updateActiveConditionEquals(result, activeCondition?.equals, modifierId)
+        result = contentVersionDAO.updateStatus(result, status, modifierId)
+        result = contentVersionDAO.updateDeviceGroup(result, deviceGroup, modifierId)
         return result
     }
 

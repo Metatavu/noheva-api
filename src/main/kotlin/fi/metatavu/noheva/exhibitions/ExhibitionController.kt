@@ -93,9 +93,10 @@ class ExhibitionController {
             room = null
         )
 
-        val sourceContentVersions = contentVersionController.listContentVersions(
-            exhibition = sourceExhibition,
-            exhibitionRoom = null
+        /* Copy content versions that belong to exhibition but not groups because those ones will be copied
+        *  later at copyDeviceGroups stage */
+        val sourceContentVersions = contentVersionController.listContentVersionsWithoutDeviceGroup(
+            exhibition = sourceExhibition
         )
 
         sourceVisitorVariables.map(VisitorVariable::id).map(idMapper::assignId)
@@ -133,7 +134,8 @@ class ExhibitionController {
         copyDeviceGroups(
             idMapper = idMapper,
             sourceDeviceGroups = sourceDeviceGroups,
-            creatorId = creatorId
+            targetContentVersionExhibition = result,
+            creatorId = creatorId,
         )
 
         return result
@@ -158,6 +160,7 @@ class ExhibitionController {
             val targetContentVersion = contentVersionController.copyContentVersion(
                 sourceContentVersion = sourceContentVersion,
                 targetExhibition = targetExhibition,
+                targetDeviceGroup = sourceContentVersion.deviceGroup,
                 idMapper = idMapper,
                 creatorId = creatorId
             )
@@ -231,14 +234,16 @@ class ExhibitionController {
      *
      * @param idMapper id mapper
      * @param sourceDeviceGroups source device groups
+     * @param targetContentVersionExhibition target content version exhibition
      * @param creatorId creating user id
      * @return copied device groups
      */
     private fun copyDeviceGroups(
         idMapper: IdMapper,
         sourceDeviceGroups: List<ExhibitionDeviceGroup>,
+        targetContentVersionExhibition: Exhibition,
         creatorId: UUID
-    ): List<ExhibitionDeviceGroup> {
+        ): List<ExhibitionDeviceGroup> {
         return sourceDeviceGroups.map { sourceDeviceGroup ->
             val sourceRoom = sourceDeviceGroup.room ?: throw CopyException("Source room not found")
             val targetRoom = roomController.findExhibitionRoomById(idMapper.getNewId(sourceRoom.id)) ?: throw CopyException("Target room not found")
@@ -247,6 +252,7 @@ class ExhibitionController {
                 idMapper = idMapper,
                 sourceDeviceGroup = sourceDeviceGroup,
                 targetRoom = targetRoom,
+                targetContentVersionExhibition = targetContentVersionExhibition,
                 creatorId = creatorId
             )
 
