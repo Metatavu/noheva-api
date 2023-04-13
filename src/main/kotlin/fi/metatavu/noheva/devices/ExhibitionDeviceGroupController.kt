@@ -305,18 +305,18 @@ class ExhibitionDeviceGroupController {
       sourceDevices.size, sourcePages.size
     )
 
-    val targetPages = copyPages(
-      sourcePages = sourcePages,
-      idMapper = idMapper,
-      targetDevices = targetDevices,
-      creatorId = creatorId
-    )
-
     copyContentVersions(
       contentVersions = sourceGroupContentVersions,
       idMapper = idMapper,
       targetDeviceGroup = targetDeviceGroup,
       targetExhibition = targetContentVersionExhibition ?: sourceExhibition,
+      creatorId = creatorId
+    )
+
+    val targetPages = copyPages(
+      sourcePages = sourcePages,
+      idMapper = idMapper,
+      targetDevices = targetDevices,
       creatorId = creatorId
     )
 

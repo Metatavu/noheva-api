@@ -485,7 +485,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
     }
 
- //   @Test
+    @Test
     fun testCopyDeviceGroupWithPages() {
         createTestBuilder().use {
             val languages = listOf("FI", "SV")
@@ -515,20 +515,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             }
 
             val sourceContentVersions: List<ContentVersion> = languages.map { language ->
-                it.admin.contentVersions.create(exhibitionId, ContentVersion(name = language, language = language, rooms = arrayOf(roomId)))
-            }
-
-            sourceContentVersions.map { contentVersion ->
-                it.admin.contentVersions.create(
-                    exhibitionId = exhibitionId,
-                    payload = ContentVersion(
-                        name = contentVersion.name,
-                        status = ContentVersionStatus.NOTSTARTED,
-                        deviceGroupId = sourceGroupId,
-                        language = contentVersion.language,
-                        rooms = contentVersion.rooms
-                    )
-                )
+                it.admin.contentVersions.create(exhibitionId, ContentVersion(name = language, language = language, deviceGroupId = sourceGroupId, rooms = arrayOf(roomId)))
             }
 
             val sourcePages = languages.flatMap { language ->
@@ -580,7 +567,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
             val targetDeviceGroupId = targetDeviceGroup.id!!
             val targetContentVersions = getCopiedContentVersions(it, sourceContentVersions, exhibitionId)
-            assertEquals(2, targetContentVersions.size)
+            assertEquals(6, targetContentVersions.size)
 
             val targetDevices = it.admin.exhibitionDevices.listExhibitionDevices(
                 exhibitionId = exhibitionId,
