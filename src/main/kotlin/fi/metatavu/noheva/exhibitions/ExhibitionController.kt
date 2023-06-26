@@ -243,7 +243,7 @@ class ExhibitionController {
         sourceDeviceGroups: List<ExhibitionDeviceGroup>,
         targetContentVersionExhibition: Exhibition,
         creatorId: UUID
-        ): List<ExhibitionDeviceGroup> {
+      ): List<ExhibitionDeviceGroup> {
         return sourceDeviceGroups.map { sourceDeviceGroup ->
             val sourceRoom = sourceDeviceGroup.room ?: throw CopyException("Source room not found")
             val targetRoom = roomController.findExhibitionRoomById(idMapper.getNewId(sourceRoom.id)) ?: throw CopyException("Target room not found")
