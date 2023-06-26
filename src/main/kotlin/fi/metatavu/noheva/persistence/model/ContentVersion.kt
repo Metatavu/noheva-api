@@ -1,5 +1,6 @@
 package fi.metatavu.noheva.persistence.model
 
+import fi.metatavu.noheva.api.spec.model.ContentVersionStatus
 import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*
@@ -31,6 +32,15 @@ class ContentVersion {
     var activeConditionUserVariable: String? = null
 
     var activeConditionEquals: String? = null
+
+    @OneToMany(mappedBy = "contentVersion", cascade = [CascadeType.DETACH], orphanRemoval = false, targetEntity = ContentVersionRoom::class)
+    var contentVersionRooms: List<ContentVersionRoom>? = null
+
+    @Column
+    var status: ContentVersionStatus? = null
+
+    @ManyToOne
+    var deviceGroup: ExhibitionDeviceGroup? = null
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null

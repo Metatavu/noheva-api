@@ -77,10 +77,12 @@ class ContentVersionTestBuilderResource(
      * Lists ContentVersions
      *
      * @param exhibitionId exhibition id
+     * @param roomId room id
+     * @param deviceGroupId device group id
      * @return ContentVersions
      */
-    fun listContentVersions(exhibitionId: UUID, roomId: UUID?): Array<ContentVersion> {
-        return api.listContentVersions(exhibitionId, roomId)
+    fun listContentVersions(exhibitionId: UUID, roomId: UUID? = null, deviceGroupId: UUID? = null): Array<ContentVersion> {
+        return api.listContentVersions(exhibitionId, roomId, deviceGroupId)
     }
 
     /**

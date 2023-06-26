@@ -331,13 +331,14 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
                 )
             )
 
-            val sourceGroupContentVersion = testBuilder.admin.groupContentVersions.create(
+            val sourceDeviceGroupContentVersion = testBuilder.admin.contentVersions.create(
                 exhibitionId = sourceExhibitionId,
-                payload = GroupContentVersion(
-                    contentVersionId = sourceContentVersion.id!!,
+                payload = ContentVersion(
                     deviceGroupId = sourceGroup.id!!,
                     name = "copy test group content version",
-                    status = GroupContentVersionStatus.READY
+                    status = ContentVersionStatus.READY,
+                    language = sourceContentVersion.language,
+                    rooms = sourceContentVersion.rooms
                 )
             )
 
@@ -362,7 +363,7 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
                 exhibitionId = sourceExhibitionId,
                 payload = ExhibitionPage(
                     name = "copy device page",
-                    contentVersionId = sourceContentVersion.id,
+                    contentVersionId = sourceContentVersion.id!!,
                     deviceId = sourceDevice.id!!,
                     orderNumber = 0,
                     resources = arrayOf(),
@@ -415,12 +416,13 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
 
             // Gather copied data
             val copiedContentVersions = testBuilder.admin.contentVersions.listContentVersions(exhibitionId = copiedExhibitionId, roomId = null)
-            assertEquals(1, copiedContentVersions.size)
-            val copiedContentVersion = copiedContentVersions.first()
+            assertEquals(2, copiedContentVersions.size)
 
-            val copiedGroupContentVersions = testBuilder.admin.groupContentVersions.listGroupContentVersions(exhibitionId = copiedExhibitionId, contentVersionId = null, deviceGroupId = null)
-            assertEquals(1, copiedGroupContentVersions.size)
-            val copiedGroupContentVersion = copiedGroupContentVersions.first()
+            // Check that both content version for group and no group got copied
+            val copiedContentVersion = copiedContentVersions.find { !it.name.contains("group") }
+            val copiedGroupContentVersion = copiedContentVersions.find { it.name.contains("group") }
+            assertNotNull(copiedContentVersion)
+            assertNotNull(copiedGroupContentVersion)
 
             val copiedDevices = testBuilder.admin.exhibitionDevices.listExhibitionDevices(exhibitionId = copiedExhibitionId, exhibitionGroupId = null, deviceModelId = null)
             assertEquals(1, copiedDevices.size)
@@ -495,7 +497,7 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
             assertJsonsEqual(sourceDevicePage.enterTransitions, copiedDevicePage.enterTransitions)
             assertJsonsEqual(sourceDevicePage.resources, copiedDevicePage.resources)
             assertJsonsEqual(sourceDevicePage.eventTriggers, copiedDevicePage.eventTriggers)
-            assertEquals(copiedContentVersion.id, copiedDevicePage.contentVersionId)
+            assertEquals(copiedContentVersion!!.id, copiedDevicePage.contentVersionId)
             assertEquals(copiedDevice.id, copiedDevicePage.deviceId)
             assertNotEquals(sourceIdlePage.id, copiedIdlePage.id)
 
@@ -508,10 +510,9 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
             assertJsonsEqual(sourceContentVersion.activeCondition, copiedContentVersion.activeCondition)
 
             // Assert copied group content version
-            assertNotEquals(sourceGroupContentVersion.id, copiedGroupContentVersion.id)
-            assertEquals(sourceGroupContentVersion.name, copiedGroupContentVersion.name)
-            assertEquals(sourceGroupContentVersion.status, copiedGroupContentVersion.status)
-            assertEquals(copiedContentVersion.id, copiedGroupContentVersion.contentVersionId)
+            assertNotEquals(sourceDeviceGroupContentVersion.id, copiedGroupContentVersion!!.id)
+            assertEquals(sourceDeviceGroupContentVersion.name, copiedGroupContentVersion.name)
+            assertEquals(sourceDeviceGroupContentVersion.status, copiedGroupContentVersion.status)
             assertEquals(copiedGroup.id, copiedGroupContentVersion.deviceGroupId)
             assertEquals(copiedExhibitionId, copiedGroupContentVersion.exhibitionId)
 
@@ -651,25 +652,15 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
             )
         }
 
-        val targetGroupContentVersions = apiTestBuilder.admin.groupContentVersions.listGroupContentVersions(
-            exhibitionId = copiedExhibitionId,
-            contentVersionId = null,
-            deviceGroupId = null
+        val targetGroupContentVersions = apiTestBuilder.admin.contentVersions.listContentVersions(
+            exhibitionId = copiedExhibitionId
         )
 
-        val targetContentVersionIds = targetGroupContentVersions.map { it.contentVersionId }.distinct()
 
         targetGroupContentVersions.forEach { groupContentVersion ->
-            apiTestBuilder.admin.groupContentVersions.delete(
-                exhibitionId = copiedExhibitionId,
-                groupContentVersion = groupContentVersion
-            )
-        }
-
-        targetContentVersionIds.forEach { targetContentVersionId ->
             apiTestBuilder.admin.contentVersions.delete(
                 exhibitionId = copiedExhibitionId,
-                contentVersionId = targetContentVersionId
+                contentVersion = groupContentVersion
             )
         }
 
