@@ -29,7 +29,7 @@ import java.util.*
 )
 class ExhibitionTestsIT : AbstractFunctionalTest() {
 
-    @Test
+   @Test
     fun testCreateExhibition() {
         createTestBuilder().use {
             assertNotNull(it.admin.exhibitions.create())
@@ -652,12 +652,11 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
             )
         }
 
-        val targetGroupContentVersions = apiTestBuilder.admin.contentVersions.listContentVersions(
+        val targetContentVersions = apiTestBuilder.admin.contentVersions.listContentVersions(
             exhibitionId = copiedExhibitionId
         )
 
-
-        targetGroupContentVersions.forEach { groupContentVersion ->
+        targetContentVersions.forEach { groupContentVersion ->
             apiTestBuilder.admin.contentVersions.delete(
                 exhibitionId = copiedExhibitionId,
                 contentVersion = groupContentVersion

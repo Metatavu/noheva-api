@@ -77,20 +77,12 @@ class ExhibitionDevicesGroupsApiImpl : ExhibitionDeviceGroupsApi, AbstractApi() 
             try {
                 val idMapper = IdMapper()
 
-                exhibitionDeviceGroupController.copyDependingContentVersions(
-                    idMapper = idMapper,
-                    sourceDeviceGroup = sourceDeviceGroup,
-                    targetExhibition = exhibition,
-                    creatorId = userId
-                )
-
                 exhibitionDeviceGroupController.copyDeviceGroup(
                     idMapper = idMapper,
                     sourceDeviceGroup = sourceDeviceGroup,
                     targetRoom = sourceDeviceGroup.room
                         ?: return createBadRequest("Source device group $sourceDeviceGroupId has no room"),
-                    creatorId = userId,
-                    targetContentVersionExhibition = null
+                    creatorId = userId
                 )
             } catch (e: CopyException) {
                 logger.error("Failed to copy device group", e)

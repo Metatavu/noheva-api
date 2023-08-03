@@ -150,7 +150,6 @@ class ExhibitionDeviceGroupController {
   fun copyDeviceGroup(
     idMapper: IdMapper,
     sourceDeviceGroup: ExhibitionDeviceGroup,
-    targetContentVersionExhibition: Exhibition?,
     targetRoom: ExhibitionRoom,
     creatorId: UUID
   ): ExhibitionDeviceGroup {
@@ -182,7 +181,6 @@ class ExhibitionDeviceGroupController {
       sourceDeviceGroup = sourceDeviceGroup,
       targetDeviceGroup = targetDeviceGroup,
       idMapper = idMapper,
-      targetContentVersionExhibition = targetContentVersionExhibition,
       creatorId = creatorId
     )
 
@@ -225,7 +223,6 @@ class ExhibitionDeviceGroupController {
 
     val sourceContentVersions = (contentVersionsFromPages)
       .distinctBy(ContentVersion::id)
-
     sourceContentVersions.map(ContentVersion::id).map(idMapper::assignId)
 
     copyContentVersions(
@@ -242,20 +239,19 @@ class ExhibitionDeviceGroupController {
    *
    * @param sourceDeviceGroup copy source device group
    * @param targetDeviceGroup copy target device group
-   * @param targetContentVersionExhibition if present then content versions should be assigned to this exhibition
    * @param idMapper id mapper
    * @param creatorId id of user that created the copy
    */
   private fun copyResources(
     sourceDeviceGroup: ExhibitionDeviceGroup,
     targetDeviceGroup: ExhibitionDeviceGroup,
-    targetContentVersionExhibition: Exhibition?,
     idMapper: IdMapper,
     creatorId: UUID
   ) {
     // Resolve source resources
 
     val sourceExhibition = sourceDeviceGroup.exhibition ?: throw CopyException("Source device group exhibition not found")
+    val targetExhibition = targetDeviceGroup.exhibition ?: throw CopyException("Target device group exhibition not found")
 
     val sourceDevices = deviceController.listExhibitionDevices(
       exhibition = sourceExhibition,
@@ -279,12 +275,17 @@ class ExhibitionDeviceGroupController {
       exhibitionRoom = null
     )
 
-    // Assign ids for target resources
+    val contentVersionsFromPages = sourcePages
+        .mapNotNull(ExhibitionPage::contentVersion)
 
+
+    val sourceContentVersions = (contentVersionsFromPages+sourceGroupContentVersions)
+        .distinctBy(ContentVersion::id)
+    // Assign ids for target resources
     sourceDevices.map(ExhibitionDevice::id).map(idMapper::assignId)
     sourceAntennas.map(RfidAntenna::id).map(idMapper::assignId)
     sourcePages.map(ExhibitionPage::id).map(idMapper::assignId)
-    sourceGroupContentVersions.map(ContentVersion::id).map(idMapper::assignId)
+    sourceContentVersions.map(ContentVersion::id).map(idMapper::assignId)
 
     val targetDevices = copyDevices(
       sourceDevices = sourceDevices,
@@ -306,10 +307,10 @@ class ExhibitionDeviceGroupController {
     )
 
     copyContentVersions(
-      contentVersions = sourceGroupContentVersions,
+      contentVersions = sourceContentVersions,
       idMapper = idMapper,
       targetDeviceGroup = targetDeviceGroup,
-      targetExhibition = targetContentVersionExhibition ?: sourceExhibition,
+      targetExhibition = targetExhibition,
       creatorId = creatorId
     )
 
@@ -350,7 +351,7 @@ class ExhibitionDeviceGroupController {
 
       val targetContentVersion = contentVersionController.copyContentVersion(
         sourceContentVersion = sourceContentVersion,
-        targetDeviceGroup = targetDeviceGroup ?: sourceContentVersion.deviceGroup,
+        targetDeviceGroup = targetDeviceGroup,
         targetExhibition = targetExhibition,
         idMapper = idMapper,
         creatorId = creatorId

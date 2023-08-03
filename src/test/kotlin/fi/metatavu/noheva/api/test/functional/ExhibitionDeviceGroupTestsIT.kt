@@ -641,7 +641,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
     }
 
-  //  @Test
+    @Test
     fun testCopyDeviceGroupWithIdlePage() {
         createTestBuilder().use {
             val exhibition = it.admin.exhibitions.create()
@@ -727,7 +727,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
 
     }
 
-  //  @Test
+    @Test
     fun testCopyDeviceGroupWithNAVIGATEAction() {
         createTestBuilder().use {
             val exhibition = it.admin.exhibitions.create()

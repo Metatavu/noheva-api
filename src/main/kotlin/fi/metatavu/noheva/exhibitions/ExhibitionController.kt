@@ -99,6 +99,9 @@ class ExhibitionController {
             exhibition = sourceExhibition
         )
 
+        sourceContentVersions.forEach {
+            println(it.id.toString() + " " +it.deviceGroup?.id )
+        }
         sourceVisitorVariables.map(VisitorVariable::id).map(idMapper::assignId)
         sourceFloors.map(ExhibitionFloor::id).map(idMapper::assignId)
         sourceRooms.map(ExhibitionRoom::id).map(idMapper::assignId)
@@ -134,7 +137,6 @@ class ExhibitionController {
         copyDeviceGroups(
             idMapper = idMapper,
             sourceDeviceGroups = sourceDeviceGroups,
-            targetContentVersionExhibition = result,
             creatorId = creatorId,
         )
 
@@ -241,9 +243,8 @@ class ExhibitionController {
     private fun copyDeviceGroups(
         idMapper: IdMapper,
         sourceDeviceGroups: List<ExhibitionDeviceGroup>,
-        targetContentVersionExhibition: Exhibition,
-        creatorId: UUID
-      ): List<ExhibitionDeviceGroup> {
+        creatorId: UUID,
+    ): List<ExhibitionDeviceGroup> {
         return sourceDeviceGroups.map { sourceDeviceGroup ->
             val sourceRoom = sourceDeviceGroup.room ?: throw CopyException("Source room not found")
             val targetRoom = roomController.findExhibitionRoomById(idMapper.getNewId(sourceRoom.id)) ?: throw CopyException("Target room not found")
@@ -252,7 +253,6 @@ class ExhibitionController {
                 idMapper = idMapper,
                 sourceDeviceGroup = sourceDeviceGroup,
                 targetRoom = targetRoom,
-                targetContentVersionExhibition = targetContentVersionExhibition,
                 creatorId = creatorId
             )
 
