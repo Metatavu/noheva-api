@@ -932,4 +932,44 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="device_requests_and_initial_devices" author="Ville Juutila">
+        <createTable tableName="device">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="devicemodel_id" type="binary(16)">
+                <constraints
+                    nullable="true"
+                    foreignKeyName="FK_DEVICE_REQUEST_DEVICE_MODEL_ID"
+                    referencedColumnNames="id"
+                    referencedTableName="devicemodel"/>
+            </column>
+            <column name="serialnumber" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(191)"/>
+            <column name="description" type="varchar(191)"/>
+            <column name="status" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="approvalstatus" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="devicekey" type="longblob"/>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)"/>
+            <column name="lastseen" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>

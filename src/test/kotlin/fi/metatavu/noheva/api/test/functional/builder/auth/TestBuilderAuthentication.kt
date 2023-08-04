@@ -39,6 +39,7 @@ class TestBuilderAuthentication(
     val contentVersions: ContentVersionTestBuilderResource = ContentVersionTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     val groupContentVersions: GroupContentVersionTestBuilderResource = GroupContentVersionTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     val visitorVariables: VisitorVariableTestBuilderResource = VisitorVariableTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
+    val devices: DevicesTestBuilderResource = DevicesTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
 
     override fun createClient(authProvider: AccessTokenProvider): ApiClient {
         val result = ApiClient(ApiTestSettings.apiBasePath)
