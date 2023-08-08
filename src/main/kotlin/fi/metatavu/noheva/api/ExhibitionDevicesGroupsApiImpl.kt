@@ -22,7 +22,7 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 @Transactional
-@Suppress ("unused")
+@Suppress("unused")
 class ExhibitionDevicesGroupsApiImpl : ExhibitionDeviceGroupsApi, AbstractApi() {
 
     @Inject
