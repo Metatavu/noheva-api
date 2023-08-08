@@ -1,10 +1,12 @@
 package fi.metatavu.noheva.persistence.dao
 
+import fi.metatavu.noheva.api.spec.model.ContentVersionStatus
 import fi.metatavu.noheva.persistence.model.*
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
 import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.JoinType
 import javax.persistence.criteria.Root
 
 /**
@@ -24,6 +26,8 @@ class ContentVersionDAO : AbstractDAO<ContentVersion>() {
      * @param language language code
      * @param activeConditionUserVariable active condition user variable
      * @param activeConditionEquals active condition equals
+     * @param status status
+     * @param deviceGroup device group
      * @param creatorId creator's id
      * @param lastModifierId last modifier's id
      * @return created contentVersion
@@ -35,6 +39,8 @@ class ContentVersionDAO : AbstractDAO<ContentVersion>() {
         language: String,
         activeConditionUserVariable: String?,
         activeConditionEquals: String?,
+        status: ContentVersionStatus?,
+        deviceGroup: ExhibitionDeviceGroup?,
         creatorId: UUID,
         lastModifierId: UUID
     ): ContentVersion {
@@ -45,6 +51,8 @@ class ContentVersionDAO : AbstractDAO<ContentVersion>() {
         contentVersion.activeConditionUserVariable = activeConditionUserVariable
         contentVersion.activeConditionEquals = activeConditionEquals
         contentVersion.exhibition = exhibition
+        contentVersion.deviceGroup = deviceGroup
+        contentVersion.status = status
         contentVersion.creatorId = creatorId
         contentVersion.lastModifierId = lastModifierId
         return persist(contentVersion)
@@ -74,7 +82,36 @@ class ContentVersionDAO : AbstractDAO<ContentVersion>() {
             )
         )
 
-        return getSingleResult(getEntityManager().createQuery<ContentVersion>(criteria))
+        return getSingleResult(getEntityManager().createQuery(criteria))
+    }
+
+    /**
+     * Lists content versions
+     *
+     * @param exhibitionRoom exhibition room filter
+     * @param deviceGroup device group filter
+     * @return content version list
+     */
+    fun listContentVersions(exhibitionRoom: ExhibitionRoom?, deviceGroup: ExhibitionDeviceGroup?): List<ContentVersion> {
+        val criteriaBuilder = getEntityManager().criteriaBuilder
+        val criteria: CriteriaQuery<ContentVersion> = criteriaBuilder.createQuery(ContentVersion::class.java)
+
+        val root: Root<ContentVersion> = criteria.from(ContentVersion::class.java)
+        val restrictions = ArrayList<javax.persistence.criteria.Predicate>()
+
+        if (exhibitionRoom != null) {
+            val roomRoot = root.join(ContentVersion_.contentVersionRooms, JoinType.LEFT)
+            restrictions.add(criteriaBuilder.equal(roomRoot.get(ContentVersionRoom_.exhibitionRoom), exhibitionRoom))
+        }
+
+        if (deviceGroup != null) {
+            restrictions.add(criteriaBuilder.equal(root.get(ContentVersion_.deviceGroup), deviceGroup))
+        }
+
+        criteria.select(root).distinct(true)
+        criteria.where( *restrictions.toTypedArray())
+
+        return getEntityManager().createQuery(criteria).resultList
     }
 
     /**
@@ -89,7 +126,7 @@ class ContentVersionDAO : AbstractDAO<ContentVersion>() {
         val root: Root<ContentVersion> = criteria.from(ContentVersion::class.java)
         criteria.select(root)
         criteria.where(criteriaBuilder.equal(root.get(ContentVersion_.exhibition), exhibition))
-        val query: TypedQuery<ContentVersion> = getEntityManager().createQuery<ContentVersion>(criteria)
+        val query: TypedQuery<ContentVersion> = getEntityManager().createQuery(criteria)
         return query.resultList
     }
 
@@ -149,5 +186,32 @@ class ContentVersionDAO : AbstractDAO<ContentVersion>() {
         return persist(contentVersion)
     }
 
+    /**
+     * Updates status
+     *
+     * @param contentVersion content version
+     * @param status status
+     * @param lastModifierId last modifier's id
+     * @return updated contentVersion
+     */
+    fun updateStatus(contentVersion: ContentVersion, status: ContentVersionStatus?, lastModifierId: UUID): ContentVersion {
+        contentVersion.lastModifierId = lastModifierId
+        contentVersion.status = status
+        return persist(contentVersion)
+    }
+
+    /**
+     * Updates device group
+     *
+     * @param contentVersion content version
+     * @param deviceGroup device group
+     * @param lastModifierId last modifier's id
+     * @return updated contentVersion
+     */
+    fun updateDeviceGroup(contentVersion: ContentVersion, deviceGroup: ExhibitionDeviceGroup?, lastModifierId: UUID): ContentVersion {
+        contentVersion.lastModifierId = lastModifierId
+        contentVersion.deviceGroup = deviceGroup
+        return persist(contentVersion)
+    }
 
 }

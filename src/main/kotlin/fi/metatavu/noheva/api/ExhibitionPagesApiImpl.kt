@@ -5,7 +5,6 @@ import fi.metatavu.noheva.api.spec.model.ExhibitionPage
 import fi.metatavu.noheva.api.translate.ExhibitionPageTranslator
 import fi.metatavu.noheva.contents.ContentVersionController
 import fi.metatavu.noheva.contents.ExhibitionPageController
-import fi.metatavu.noheva.contents.GroupContentVersionController
 import fi.metatavu.noheva.contents.PageLayoutController
 import fi.metatavu.noheva.devices.ExhibitionDeviceController
 import fi.metatavu.noheva.exhibitions.ExhibitionController
@@ -39,13 +38,10 @@ class ExhibitionPagesApiImpl : ExhibitionPagesApi, AbstractApi() {
     lateinit var pageLayoutController: PageLayoutController
 
     @Inject
-    lateinit var groupContentVersionController: GroupContentVersionController
+    lateinit var exhibitionPageTranslator: ExhibitionPageTranslator
 
     @Inject
     lateinit var contentVersionController: ContentVersionController
-
-    @Inject
-    lateinit var exhibitionPageTranslator: ExhibitionPageTranslator
 
     override fun listExhibitionPages(
         exhibitionId: UUID,
@@ -94,17 +90,6 @@ class ExhibitionPagesApiImpl : ExhibitionPagesApi, AbstractApi() {
             contentVersionController.findContentVersionById(exhibitionPage.contentVersionId) ?: return createBadRequest(
                 "Content version ${exhibitionPage.contentVersionId} not found"
             )
-        val contentGroupVersions = groupContentVersionController.listGroupContentVersions(
-            exhibition = exhibition,
-            deviceGroup = device.exhibitionDeviceGroup,
-            contentVersion = contentVersion
-        )
-
-        if (contentGroupVersions.isEmpty()) {
-            return createBadRequest(
-                "Cannot create page for device ${device.id} and content version ${contentVersion.id} because they are not connected by any contentGroupVersions"
-            )
-        }
 
         val name = exhibitionPage.name
         val resources = exhibitionPage.resources

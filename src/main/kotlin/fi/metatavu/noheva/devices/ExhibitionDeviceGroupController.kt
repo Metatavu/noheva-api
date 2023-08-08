@@ -3,7 +3,6 @@ package fi.metatavu.noheva.devices
 import fi.metatavu.noheva.api.spec.model.DeviceGroupVisitorSessionStartStrategy
 import fi.metatavu.noheva.contents.ExhibitionPageController
 import fi.metatavu.noheva.contents.ContentVersionController
-import fi.metatavu.noheva.contents.GroupContentVersionController
 import fi.metatavu.noheva.persistence.dao.ExhibitionDeviceGroupDAO
 import fi.metatavu.noheva.persistence.model.*
 import fi.metatavu.noheva.utils.CopyException
@@ -36,9 +35,6 @@ class ExhibitionDeviceGroupController {
 
   @Inject
   lateinit var contentVersionController: ContentVersionController
-
-  @Inject
-  lateinit var groupContentVersionController: GroupContentVersionController
 
   /**
    * Creates new exhibition device group
@@ -146,7 +142,10 @@ class ExhibitionDeviceGroupController {
   /**
    * Copies device group including all it's contents (devices, content versions, group content versions and pages).
    *
+   * @param idMapper id mapper
    * @param sourceDeviceGroup source device group
+   * @param targetRoom target room
+   * @param copyContentVersions whether to copy content versions
    * @param creatorId id of user that created the copy
    * @return copied device group
    */
@@ -154,6 +153,7 @@ class ExhibitionDeviceGroupController {
     idMapper: IdMapper,
     sourceDeviceGroup: ExhibitionDeviceGroup,
     targetRoom: ExhibitionRoom,
+    copyContentVersions: Boolean,
     creatorId: UUID
   ): ExhibitionDeviceGroup {
     logger.debug("Creating copy of device group {}", sourceDeviceGroup.id)
@@ -184,7 +184,8 @@ class ExhibitionDeviceGroupController {
       sourceDeviceGroup = sourceDeviceGroup,
       targetDeviceGroup = targetDeviceGroup,
       idMapper = idMapper,
-      creatorId = creatorId
+      creatorId = creatorId,
+      copyContentVersions = copyContentVersions
     )
 
     logger.debug("Copied device group {} -> {}", sourceDeviceGroup.id, targetDeviceGroup.id)
@@ -202,69 +203,25 @@ class ExhibitionDeviceGroupController {
   }
 
   /**
-   * Copies content versions that are depending on the given source device group
-   *
-   * @param idMapper id mapper
-   * @param sourceDeviceGroup source device group
-   * @param targetExhibition target exhibition
-   * @param creatorId creator id
-   */
-  fun copyDependingContentVersions(
-    idMapper: IdMapper,
-    sourceDeviceGroup: ExhibitionDeviceGroup,
-    targetExhibition: Exhibition,
-    creatorId: UUID
-  ) {
-    val sourceExhibition = sourceDeviceGroup.exhibition ?: throw CopyException("Source device group exhibition not found")
-
-    val sourcePages = pageController.listDeviceGroupPages(
-      deviceGroup = sourceDeviceGroup
-    )
-
-    val sourceGroupContentVersions = groupContentVersionController.listGroupContentVersions(
-      exhibition = sourceExhibition,
-      deviceGroup = sourceDeviceGroup,
-      contentVersion = null
-    )
-
-    val contentVersionsFromGroupContentVersions = sourceGroupContentVersions
-      .mapNotNull(GroupContentVersion::contentVersion)
-
-    val contentVersionsFromPages = sourcePages
-      .mapNotNull(ExhibitionPage::contentVersion)
-
-    val sourceContentVersions = (contentVersionsFromGroupContentVersions + contentVersionsFromPages)
-      .distinctBy(ContentVersion::id)
-
-    sourceContentVersions.map(ContentVersion::id).map(idMapper::assignId)
-
-    logger.debug("Copying {} content versions", sourceContentVersions.size)
-
-    copyContentVersions(
-      sourceContentVersions = sourceContentVersions,
-      targetExhibition = targetExhibition,
-      idMapper = idMapper,
-      creatorId = creatorId
-    )
-  }
-
-  /**
    * Copies resources related to source device group into target device group
    *
    * @param sourceDeviceGroup copy source device group
    * @param targetDeviceGroup copy target device group
    * @param idMapper id mapper
+   * @param copyContentVersions whether to copy content versions
    * @param creatorId id of user that created the copy
    */
   private fun copyResources(
     sourceDeviceGroup: ExhibitionDeviceGroup,
     targetDeviceGroup: ExhibitionDeviceGroup,
     idMapper: IdMapper,
-    creatorId: UUID
+    creatorId: UUID,
+    copyContentVersions: Boolean
   ) {
     // Resolve source resources
 
     val sourceExhibition = sourceDeviceGroup.exhibition ?: throw CopyException("Source device group exhibition not found")
+    val targetExhibition = targetDeviceGroup.exhibition ?: throw CopyException("Target device group exhibition not found")
 
     val sourceDevices = deviceController.listExhibitionDevices(
       exhibition = sourceExhibition,
@@ -282,18 +239,26 @@ class ExhibitionDeviceGroupController {
       deviceGroup = sourceDeviceGroup
     )
 
-    val sourceGroupContentVersions = groupContentVersionController.listGroupContentVersions(
-      exhibition = sourceExhibition,
-      deviceGroup = sourceDeviceGroup,
-      contentVersion = null
-    )
+    val sourceContentVersions = if (copyContentVersions) {
+      val contentVersionsFromGroup = contentVersionController.listContentVersions(
+        exhibition = sourceExhibition,
+        deviceGroup = sourceDeviceGroup,
+        exhibitionRoom = null
+      )
+
+      val contentVersionsFromPages = sourcePages
+        .mapNotNull(ExhibitionPage::contentVersion)
+
+      (contentVersionsFromGroup + contentVersionsFromPages).distinctBy(ContentVersion::id)
+    } else {
+      emptyList()
+    }
 
     // Assign ids for target resources
-
     sourceDevices.map(ExhibitionDevice::id).map(idMapper::assignId)
     sourceAntennas.map(RfidAntenna::id).map(idMapper::assignId)
     sourcePages.map(ExhibitionPage::id).map(idMapper::assignId)
-    sourceGroupContentVersions.map(GroupContentVersion::id).map(idMapper::assignId)
+    sourceContentVersions.map(ContentVersion::id).map(idMapper::assignId)
 
     val targetDevices = copyDevices(
       sourceDevices = sourceDevices,
@@ -314,17 +279,20 @@ class ExhibitionDeviceGroupController {
       sourceDevices.size, sourcePages.size
     )
 
+    if (copyContentVersions) {
+      copyContentVersions(
+        contentVersions = sourceContentVersions,
+        idMapper = idMapper,
+        targetDeviceGroup = targetDeviceGroup,
+        targetExhibition = targetExhibition,
+        creatorId = creatorId
+      )
+    }
+
     val targetPages = copyPages(
       sourcePages = sourcePages,
       idMapper = idMapper,
       targetDevices = targetDevices,
-      creatorId = creatorId
-    )
-
-    copyGroupContentVersions(
-      sourceGroupContentVersions = sourceGroupContentVersions,
-      idMapper = idMapper,
-      targetDeviceGroup = targetDeviceGroup,
       creatorId = creatorId
     )
 
@@ -338,37 +306,35 @@ class ExhibitionDeviceGroupController {
   }
 
   /**
-   * Copies group content versions
+   * Copies content versions from source device group to target device group
    *
-   * @param sourceGroupContentVersions copy source group content versions
+   * @param contentVersions copy source content versions
    * @param targetDeviceGroup copy target device group
+   * @param targetExhibition target exhitbition
    * @param idMapper id mapper
    * @param creatorId id of user that created the copy
    * @return copied content versions
    */
-  private fun copyGroupContentVersions(
-    sourceGroupContentVersions: List<GroupContentVersion>,
-    targetDeviceGroup: ExhibitionDeviceGroup,
+  private fun copyContentVersions(
+    contentVersions: List<ContentVersion>,
+    targetDeviceGroup: ExhibitionDeviceGroup?,
+    targetExhibition: Exhibition,
     idMapper: IdMapper,
     creatorId: UUID
-  ): List<GroupContentVersion> {
-    return sourceGroupContentVersions.map { sourceGroupContentVersion ->
-      val sourceContentVersion = sourceGroupContentVersion.contentVersion ?: throw CopyException("Source content version not found")
-      val sourceContentVersionId = sourceContentVersion.id ?: throw CopyException("Source content version id not found")
-      val targetContentVersionId = idMapper.getNewId(sourceContentVersionId) ?: throw CopyException("Target id content version not found")
-      val targetContentVersion = contentVersionController.findContentVersionById(id = targetContentVersionId) ?: throw CopyException("Target content version not found")
+  ): List<ContentVersion> {
+    return contentVersions.map { sourceContentVersion ->
 
-      val targetGroupContentVersion = groupContentVersionController.copyGroupContentVersion(
-        sourceGroupContentVersion = sourceGroupContentVersion,
+      val targetContentVersion = contentVersionController.copyContentVersion(
+        sourceContentVersion = sourceContentVersion,
         targetDeviceGroup = targetDeviceGroup,
-        targetContentVersion = targetContentVersion,
+        targetExhibition = targetExhibition,
         idMapper = idMapper,
         creatorId = creatorId
       )
 
-      logger.debug("Copied group content version {} -> {}", sourceGroupContentVersion.id, targetGroupContentVersion.id)
+      logger.debug("Copied group content version {} -> {}", sourceContentVersion.id, targetContentVersion.id)
 
-      targetGroupContentVersion
+      targetContentVersion
     }
   }
 
@@ -404,35 +370,6 @@ class ExhibitionDeviceGroupController {
       logger.debug("Copied content version {} -> {}", sourcePage.id, targetPage.id)
 
       targetPage
-    }
-  }
-
-  /**
-   * Copies content versions
-   *
-   * @param sourceContentVersions copy source content versions
-   * @param targetExhibition copy target exhibition
-   * @param idMapper id mapper
-   * @param creatorId id of user that created the copy
-   * @return copied pages
-   */
-  private fun copyContentVersions(
-    sourceContentVersions: List<ContentVersion>,
-    targetExhibition: Exhibition,
-    idMapper: IdMapper,
-    creatorId: UUID
-  ): List<ContentVersion> {
-    return sourceContentVersions.map { sourceContentVersion ->
-      val targetContentVersion = contentVersionController.copyContentVersion(
-        sourceContentVersion = sourceContentVersion,
-        targetExhibition = targetExhibition,
-        idMapper = idMapper,
-        creatorId = creatorId
-      )
-
-      logger.debug("Copied content version {} -> {}", sourceContentVersion.id, targetContentVersion.id)
-
-      targetContentVersion
     }
   }
 

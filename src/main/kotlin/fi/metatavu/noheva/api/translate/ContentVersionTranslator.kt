@@ -26,6 +26,8 @@ class ContentVersionTranslator :
             id = entity.id,
             exhibitionId = entity.exhibition?.id,
             activeCondition = getActiveCondition(entity),
+            deviceGroupId = entity.deviceGroup?.id,
+            status = entity.status,
             name = entity.name!!,
             language = entity.language!!,
             rooms = roomIds,
