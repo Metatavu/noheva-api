@@ -637,10 +637,10 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
             exhibitionId = copiedExhibitionId
         )
 
-        targetContentVersions.forEach { groupContentVersion ->
+        targetContentVersions.forEach { contentVersion ->
             apiTestBuilder.admin.contentVersions.delete(
                 exhibitionId = copiedExhibitionId,
-                contentVersion = groupContentVersion
+                contentVersion = contentVersion
             )
         }
 
