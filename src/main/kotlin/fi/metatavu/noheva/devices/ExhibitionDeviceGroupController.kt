@@ -308,7 +308,7 @@ class ExhibitionDeviceGroupController {
   /**
    * Copies content versions from source device group to target device group
    *
-   * @param contentVersions copy source group content versions
+   * @param contentVersions copy source content versions
    * @param targetDeviceGroup copy target device group
    * @param targetExhibition target exhitbition
    * @param idMapper id mapper
