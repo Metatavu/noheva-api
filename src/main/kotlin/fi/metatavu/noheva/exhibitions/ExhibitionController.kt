@@ -93,15 +93,12 @@ class ExhibitionController {
             room = null
         )
 
-        /* Copy content versions that belong to exhibition but not groups because those ones will be copied
-        *  later at copyDeviceGroups stage */
-        val sourceContentVersions = contentVersionController.listContentVersionsWithoutDeviceGroup(
-            exhibition = sourceExhibition
+        val sourceContentVersions = contentVersionController.listContentVersions(
+            exhibition = sourceExhibition,
+            deviceGroup = null,
+            exhibitionRoom = null
         )
 
-        sourceContentVersions.forEach {
-            println(it.id.toString() + " " +it.deviceGroup?.id )
-        }
         sourceVisitorVariables.map(VisitorVariable::id).map(idMapper::assignId)
         sourceFloors.map(ExhibitionFloor::id).map(idMapper::assignId)
         sourceRooms.map(ExhibitionRoom::id).map(idMapper::assignId)
@@ -127,18 +124,31 @@ class ExhibitionController {
             creatorId = creatorId
         )
 
-        copyContentVersions(
+        val copiedContentVersions = copyContentVersions(
             idMapper = idMapper,
             sourceContentVersions = sourceContentVersions,
             targetExhibition = result,
             creatorId = creatorId
         )
 
-        copyDeviceGroups(
+        val copiedGroups = copyDeviceGroups(
             idMapper = idMapper,
             sourceDeviceGroups = sourceDeviceGroups,
             creatorId = creatorId,
         )
+
+        for (copiedContentVersion in copiedContentVersions) {
+            val targetDeviceGroupId = idMapper.getNewId(copiedContentVersion.deviceGroup?.id)
+                ?: throw CopyException("Target device group id not found")
+            val targetDeviceGroup = copiedGroups.find { it.id == targetDeviceGroupId }
+                ?: throw CopyException("Target device group not found")
+
+            contentVersionController.updateContentVersionDeviceGroup(
+                contentVersion = copiedContentVersion,
+                deviceGroup = targetDeviceGroup,
+                lastModifierId = creatorId
+            )
+        }
 
         return result
     }
@@ -157,8 +167,8 @@ class ExhibitionController {
         sourceContentVersions: List<ContentVersion>,
         targetExhibition: Exhibition,
         creatorId: UUID
-    ) {
-        sourceContentVersions.map { sourceContentVersion ->
+    ): List<ContentVersion> {
+        return sourceContentVersions.map { sourceContentVersion ->
             val targetContentVersion = contentVersionController.copyContentVersion(
                 sourceContentVersion = sourceContentVersion,
                 targetExhibition = targetExhibition,
@@ -236,7 +246,6 @@ class ExhibitionController {
      *
      * @param idMapper id mapper
      * @param sourceDeviceGroups source device groups
-     * @param targetContentVersionExhibition target content version exhibition
      * @param creatorId creating user id
      * @return copied device groups
      */
@@ -253,7 +262,8 @@ class ExhibitionController {
                 idMapper = idMapper,
                 sourceDeviceGroup = sourceDeviceGroup,
                 targetRoom = targetRoom,
-                creatorId = creatorId
+                creatorId = creatorId,
+                copyContentVersions = false
             )
 
             logger.debug("Copied device group {} -> {}", sourceDeviceGroup.id, targetDeviceGroup.id)

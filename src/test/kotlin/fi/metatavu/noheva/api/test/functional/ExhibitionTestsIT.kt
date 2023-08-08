@@ -292,242 +292,223 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
     }
 
     @Test
-    fun testCopyExhibitionWithContents() {
-        createTestBuilder().use { testBuilder ->
-            val sourceExhibition = testBuilder.admin.exhibitions.create(payload = Exhibition(name = "copy test"))
-            val sourceExhibitionId = sourceExhibition.id!!
-            val sourceFloor =  testBuilder.admin.exhibitionFloors.create(
-                exhibitionId = sourceExhibitionId,
-                payload = ExhibitionFloor(name = "copy test floor")
+    fun testCopyExhibitionWithContents() = createTestBuilder().use { testBuilder ->
+        val sourceExhibition = testBuilder.admin.exhibitions.create(payload = Exhibition(name = "copy test"))
+        val sourceExhibitionId = sourceExhibition.id!!
+        val sourceFloor =  testBuilder.admin.exhibitionFloors.create(
+            exhibitionId = sourceExhibitionId,
+            payload = ExhibitionFloor(name = "copy test floor")
+        )
+
+        val sourceRoom = testBuilder.admin.exhibitionRooms.create(
+            exhibitionId = sourceExhibitionId,
+            payload = ExhibitionRoom(
+                name = "copy test room",
+                floorId = sourceFloor.id!!
             )
+        )
 
-            val sourceRoom = testBuilder.admin.exhibitionRooms.create(
-                exhibitionId = sourceExhibitionId,
-                payload = ExhibitionRoom(
-                    name = "copy test room",
-                    floorId = sourceFloor.id!!
-                )
+        val sourceGroup = testBuilder.admin.exhibitionDeviceGroups.create(
+            exhibitionId = sourceExhibitionId,
+            sourceDeviceGroupId = null,
+            payload = ExhibitionDeviceGroup(
+                name = "copy test group",
+                roomId = sourceRoom.id!!,
+                allowVisitorSessionCreation = false,
+                visitorSessionEndTimeout = 10L,
+                visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.ENDOTHERS
             )
+        )
 
-            val sourceGroup = testBuilder.admin.exhibitionDeviceGroups.create(
-                exhibitionId = sourceExhibitionId,
-                sourceDeviceGroupId = null,
-                payload = ExhibitionDeviceGroup(
-                    name = "copy test group",
-                    roomId = sourceRoom.id!!,
-                    allowVisitorSessionCreation = false,
-                    visitorSessionEndTimeout = 10L,
-                    visitorSessionStartStrategy = DeviceGroupVisitorSessionStartStrategy.ENDOTHERS
-                )
+        val sourceContentVersion = testBuilder.admin.contentVersions.create(
+            exhibitionId = sourceExhibitionId,
+            payload = ContentVersion(
+                deviceGroupId = sourceGroup.id!!,
+                name = "copy test content version",
+                status = ContentVersionStatus.READY,
+                language = "FI",
+                rooms = arrayOf(sourceRoom.id),
+                activeCondition = ContentVersionActiveCondition(userVariable = "test-var", equals = "test-val")
             )
+        )
 
-            val sourceContentVersion = testBuilder.admin.contentVersions.create(
-                exhibitionId = sourceExhibitionId,
-                payload = ContentVersion(
-                    language = "FI",
-                    name = "copy test content version",
-                    rooms = arrayOf(sourceRoom.id),
-                    activeCondition = ContentVersionActiveCondition(userVariable = "test-var", equals = "test-val")
-                )
+        val model = testBuilder.admin.deviceModels.create()
+
+        var sourceDevice = testBuilder.admin.exhibitionDevices.create(
+            exhibitionId = sourceExhibition.id,
+            payload = ExhibitionDevice(
+                groupId = sourceGroup.id,
+                modelId = model.id!!,
+                name = "copy test device",
+                screenOrientation = ScreenOrientation.PORTRAIT,
+                imageLoadStrategy = DeviceImageLoadStrategy.MEMORY
             )
+        )
 
-            val sourceDeviceGroupContentVersion = testBuilder.admin.contentVersions.create(
-                exhibitionId = sourceExhibitionId,
-                payload = ContentVersion(
-                    deviceGroupId = sourceGroup.id!!,
-                    name = "copy test group content version",
-                    status = ContentVersionStatus.READY,
-                    language = sourceContentVersion.language,
-                    rooms = sourceContentVersion.rooms
-                )
+        val deviceModel = testBuilder.admin.deviceModels.create()
+        val defaultPageLayout = testBuilder.admin.pageLayouts.create(deviceModel)
+        val sourceLayout = testBuilder.admin.pageLayouts.create(defaultPageLayout)
+
+        val sourceDevicePage = testBuilder.admin.exhibitionPages.create(
+            exhibitionId = sourceExhibitionId,
+            payload = ExhibitionPage(
+                name = "copy device page",
+                contentVersionId = sourceContentVersion.id!!,
+                deviceId = sourceDevice.id!!,
+                orderNumber = 0,
+                resources = arrayOf(),
+                eventTriggers = arrayOf(),
+                enterTransitions = arrayOf(),
+                exitTransitions = arrayOf(),
+                layoutId = sourceLayout.id!!
             )
+        )
 
-            val model = testBuilder.admin.deviceModels.create()
-
-            var sourceDevice = testBuilder.admin.exhibitionDevices.create(
-                exhibitionId = sourceExhibition.id,
-                payload = ExhibitionDevice(
-                    groupId = sourceGroup.id,
-                    modelId = model.id!!,
-                    name = "copy test device",
-                    screenOrientation = ScreenOrientation.PORTRAIT,
-                    imageLoadStrategy = DeviceImageLoadStrategy.MEMORY
-                )
+        val sourceIdlePage = testBuilder.admin.exhibitionPages.create(
+            exhibitionId = sourceExhibitionId,
+            payload = ExhibitionPage(
+                deviceId = sourceDevice.id!!,
+                name = "copy idle page",
+                orderNumber = 0,
+                resources = arrayOf(),
+                eventTriggers = arrayOf(),
+                contentVersionId = sourceContentVersion.id,
+                enterTransitions = arrayOf(),
+                exitTransitions = arrayOf(),
+                layoutId = sourceLayout.id
             )
+        )
 
-            val deviceModel = testBuilder.admin.deviceModels.create()
-            val defaultPageLayout = testBuilder.admin.pageLayouts.create(deviceModel)
-            val sourceLayout = testBuilder.admin.pageLayouts.create(defaultPageLayout)
-
-            val sourceDevicePage = testBuilder.admin.exhibitionPages.create(
-                exhibitionId = sourceExhibitionId,
-                payload = ExhibitionPage(
-                    name = "copy device page",
-                    contentVersionId = sourceContentVersion.id!!,
-                    deviceId = sourceDevice.id!!,
-                    orderNumber = 0,
-                    resources = arrayOf(),
-                    eventTriggers = arrayOf(),
-                    enterTransitions = arrayOf(),
-                    exitTransitions = arrayOf(),
-                    layoutId = sourceLayout.id!!
-                )
+        sourceDevice = testBuilder.admin.exhibitionDevices.updateExhibitionDevice(
+            exhibitionId = sourceExhibitionId,
+            payload = sourceDevice.copy(
+                idlePageId = sourceIdlePage.id!!
             )
+        )
 
-            val sourceIdlePage = testBuilder.admin.exhibitionPages.create(
-                exhibitionId = sourceExhibitionId,
-                payload = ExhibitionPage(
-                    deviceId = sourceDevice.id!!,
-                    name = "copy idle page",
-                    orderNumber = 0,
-                    resources = arrayOf(),
-                    eventTriggers = arrayOf(),
-                    contentVersionId = sourceContentVersion.id,
-                    enterTransitions = arrayOf(),
-                    exitTransitions = arrayOf(),
-                    layoutId = sourceLayout.id
-                )
+        val sourceAntenna = testBuilder.admin.rfidAntennas.create(
+            exhibitionId = sourceExhibitionId,
+            payload = RfidAntenna(
+                groupId = sourceGroup.id,
+                roomId = sourceRoom.id,
+                name = "copy test antenna",
+                antennaNumber = 5,
+                readerId = "readid",
+                location = Point(x = 123.0, y = 234.0),
+                visitorSessionStartThreshold = 80,
+                visitorSessionEndThreshold = 10
             )
+        )
 
-            sourceDevice = testBuilder.admin.exhibitionDevices.updateExhibitionDevice(
-                exhibitionId = sourceExhibitionId,
-                payload = sourceDevice.copy(
-                    idlePageId = sourceIdlePage.id!!
-                )
+        // Copy exhibition
+        val copiedExhibition = testBuilder.admin.exhibitions.copy(sourceExhibitionId = sourceExhibitionId)
+        val copiedExhibitionId = copiedExhibition.id!!
+
+        // Gather copied data
+        val copiedContentVersions = testBuilder.admin.contentVersions.listContentVersions(exhibitionId = copiedExhibitionId, roomId = null)
+        assertEquals(1, copiedContentVersions.size)
+
+        val copiedContentVersion = copiedContentVersions.find { it.name.contains("copy test content version") }
+        assertNotNull(copiedContentVersion)
+
+        val copiedDevices = testBuilder.admin.exhibitionDevices.listExhibitionDevices(exhibitionId = copiedExhibitionId, exhibitionGroupId = null, deviceModelId = null)
+        assertEquals(1, copiedDevices.size)
+        val copiedDevice = copiedDevices.first()
+
+        val copiedRooms = testBuilder.admin.exhibitionRooms.listExhibitionRooms(exhibitionId = copiedExhibitionId,floorId = null)
+        assertEquals(1, copiedRooms.size)
+        val copiedRoom = copiedRooms.first()
+
+        val copiedGroups = testBuilder.admin.exhibitionDeviceGroups.listExhibitionDeviceGroups(exhibitionId = copiedExhibitionId, roomId = null)
+        assertEquals(1, copiedGroups.size)
+        val copiedGroup = copiedGroups.first()
+
+        val copiedFloors = testBuilder.admin.exhibitionFloors.listExhibitionFloors(exhibitionId = copiedExhibitionId)
+        assertEquals(1, copiedFloors.size)
+        val copiedFloor = copiedFloors.first()
+
+        val copiedAntennas = testBuilder.admin.rfidAntennas.listRfidAntennas(exhibitionId = copiedExhibitionId, deviceGroupId = null, roomId = null)
+        assertEquals(1, copiedAntennas.size)
+        val copiedAntenna = copiedAntennas.first()
+
+        val copiedPages = testBuilder.admin.exhibitionPages.listExhibitionPages(exhibitionId = copiedExhibitionId, exhibitionDeviceId = null, contentVersionId = null, pageLayoutId = null)
+        assertEquals(2, copiedPages.size)
+        val copiedDevicePage = copiedPages.first { it.name == "copy device page" }
+        val copiedIdlePage = copiedPages.first { it.name == "copy idle page" }
+
+        // Assert copied floor
+        assertNotEquals(copiedFloor.id, sourceFloor.id)
+        assertEquals(sourceFloor.name, copiedFloor.name)
+        assertEquals(sourceFloor.floorPlanUrl, copiedFloor.floorPlanUrl)
+        assertJsonsEqual(sourceFloor.floorPlanBounds, copiedFloor.floorPlanBounds)
+        assertEquals(copiedExhibitionId, copiedFloor.exhibitionId)
+
+        // Assert copied room
+        assertNotEquals(sourceRoom.id, copiedRoom.id)
+        assertEquals(copiedFloor.id, copiedRoom.floorId)
+        assertEquals(sourceRoom.name, copiedRoom.name)
+        assertEquals(sourceRoom.color, copiedRoom.color)
+        assertEquals(sourceRoom.geoShape, copiedRoom.geoShape)
+        assertEquals(copiedExhibitionId, copiedRoom.exhibitionId)
+
+        // Assert copied device
+        assertNotEquals(sourceDevice.id, copiedDevice.id)
+        assertEquals(sourceDevice.name, copiedDevice.name)
+        assertEquals(copiedExhibitionId, copiedDevice.exhibitionId)
+        assertEquals(copiedGroup.id, copiedDevice.groupId)
+        assertEquals(sourceDevice.modelId, copiedDevice.modelId)
+        assertEquals(sourceDevice.screenOrientation, copiedDevice.screenOrientation)
+        assertEquals(sourceDevice.imageLoadStrategy, copiedDevice.imageLoadStrategy)
+        assertEquals(sourceDevice.location, copiedDevice.location)
+        assertEquals(copiedIdlePage.id, copiedDevice.idlePageId)
+
+        // Assert copied antenna
+        assertNotEquals(sourceAntenna.id, copiedAntenna.id)
+        assertEquals(sourceAntenna.name, copiedAntenna.name)
+        assertEquals(copiedExhibitionId, copiedAntenna.exhibitionId)
+        assertEquals(copiedGroup.id, copiedAntenna.groupId)
+        assertEquals(sourceAntenna.antennaNumber, copiedAntenna.antennaNumber)
+        assertEquals(sourceAntenna.readerId, copiedAntenna.readerId)
+        assertEquals(copiedRoom.id, copiedAntenna.roomId)
+        assertJsonsEqual(sourceAntenna.location, copiedAntenna.location)
+        assertEquals(sourceAntenna.visitorSessionEndThreshold, copiedAntenna.visitorSessionEndThreshold)
+        assertEquals(sourceAntenna.visitorSessionStartThreshold, copiedAntenna.visitorSessionStartThreshold)
+
+        // Assert copied page
+        assertNotEquals(sourceDevicePage.id, copiedDevicePage.id)
+        assertEquals(sourceDevicePage.name, copiedDevicePage.name)
+        assertEquals(sourceDevicePage.layoutId, copiedDevicePage.layoutId)
+        assertEquals(copiedExhibitionId, copiedDevicePage.exhibitionId)
+        assertEquals(sourceDevicePage.orderNumber, copiedDevicePage.orderNumber)
+        assertJsonsEqual(sourceDevicePage.exitTransitions, copiedDevicePage.exitTransitions)
+        assertJsonsEqual(sourceDevicePage.enterTransitions, copiedDevicePage.enterTransitions)
+        assertJsonsEqual(sourceDevicePage.resources, copiedDevicePage.resources)
+        assertJsonsEqual(sourceDevicePage.eventTriggers, copiedDevicePage.eventTriggers)
+        assertEquals(copiedContentVersion!!.id, copiedDevicePage.contentVersionId)
+        assertEquals(copiedDevice.id, copiedDevicePage.deviceId)
+        assertNotEquals(sourceIdlePage.id, copiedIdlePage.id)
+
+        // Assert copied content version
+        assertNotEquals(sourceContentVersion.id, copiedContentVersion.id)
+        assertEquals(sourceContentVersion.name, copiedContentVersion.name)
+        assertEquals(sourceContentVersion.language, copiedContentVersion.language)
+        assertArrayEquals(arrayOf(copiedRoom.id), copiedContentVersion.rooms)
+        assertEquals(copiedExhibitionId, copiedContentVersion.exhibitionId)
+        assertJsonsEqual(sourceContentVersion.activeCondition, copiedContentVersion.activeCondition)
+        assertEquals(copiedGroup.id, copiedContentVersion.deviceGroupId)
+        assertEquals(copiedExhibitionId, copiedContentVersion.exhibitionId)
+
+        testBuilder.admin.exhibitionDevices.updateExhibitionDevice(
+            exhibitionId = sourceExhibitionId,
+            payload = sourceDevice.copy(
+                idlePageId = null
             )
+        )
 
-            val sourceAntenna = testBuilder.admin.rfidAntennas.create(
-                exhibitionId = sourceExhibitionId,
-                payload = RfidAntenna(
-                    groupId = sourceGroup.id,
-                    roomId = sourceRoom.id,
-                    name = "copy test antenna",
-                    antennaNumber = 5,
-                    readerId = "readid",
-                    location = Point(x = 123.0, y = 234.0),
-                    visitorSessionStartThreshold = 80,
-                    visitorSessionEndThreshold = 10
-                )
-            )
-
-            // Copy exhibition
-            val copiedExhibition = testBuilder.admin.exhibitions.copy(sourceExhibitionId = sourceExhibitionId)
-            val copiedExhibitionId = copiedExhibition.id!!
-
-            // Gather copied data
-            val copiedContentVersions = testBuilder.admin.contentVersions.listContentVersions(exhibitionId = copiedExhibitionId, roomId = null)
-            assertEquals(2, copiedContentVersions.size)
-
-            // Check that both content version for group and no group got copied
-            val copiedContentVersion = copiedContentVersions.find { !it.name.contains("group") }
-            val copiedGroupContentVersion = copiedContentVersions.find { it.name.contains("group") }
-            assertNotNull(copiedContentVersion)
-            assertNotNull(copiedGroupContentVersion)
-
-            val copiedDevices = testBuilder.admin.exhibitionDevices.listExhibitionDevices(exhibitionId = copiedExhibitionId, exhibitionGroupId = null, deviceModelId = null)
-            assertEquals(1, copiedDevices.size)
-            val copiedDevice = copiedDevices.first()
-
-            val copiedRooms = testBuilder.admin.exhibitionRooms.listExhibitionRooms(exhibitionId = copiedExhibitionId,floorId = null)
-            assertEquals(1, copiedRooms.size)
-            val copiedRoom = copiedRooms.first()
-
-            val copiedGroups = testBuilder.admin.exhibitionDeviceGroups.listExhibitionDeviceGroups(exhibitionId = copiedExhibitionId, roomId = null)
-            assertEquals(1, copiedGroups.size)
-            val copiedGroup = copiedGroups.first()
-
-            val copiedFloors = testBuilder.admin.exhibitionFloors.listExhibitionFloors(exhibitionId = copiedExhibitionId)
-            assertEquals(1, copiedFloors.size)
-            val copiedFloor = copiedFloors.first()
-
-            val copiedAntennas = testBuilder.admin.rfidAntennas.listRfidAntennas(exhibitionId = copiedExhibitionId, deviceGroupId = null, roomId = null)
-            assertEquals(1, copiedAntennas.size)
-            val copiedAntenna = copiedAntennas.first()
-
-            val copiedPages = testBuilder.admin.exhibitionPages.listExhibitionPages(exhibitionId = copiedExhibitionId, exhibitionDeviceId = null, contentVersionId = null, pageLayoutId = null)
-            assertEquals(2, copiedPages.size)
-            val copiedDevicePage = copiedPages.first { it.name == "copy device page" }
-            val copiedIdlePage = copiedPages.first { it.name == "copy idle page" }
-
-            // Assert copied floor
-            assertNotEquals(copiedFloor.id, sourceFloor.id)
-            assertEquals(sourceFloor.name, copiedFloor.name)
-            assertEquals(sourceFloor.floorPlanUrl, copiedFloor.floorPlanUrl)
-            assertJsonsEqual(sourceFloor.floorPlanBounds, copiedFloor.floorPlanBounds)
-            assertEquals(copiedExhibitionId, copiedFloor.exhibitionId)
-
-            // Assert copied room
-            assertNotEquals(sourceRoom.id, copiedRoom.id)
-            assertEquals(copiedFloor.id, copiedRoom.floorId)
-            assertEquals(sourceRoom.name, copiedRoom.name)
-            assertEquals(sourceRoom.color, copiedRoom.color)
-            assertEquals(sourceRoom.geoShape, copiedRoom.geoShape)
-            assertEquals(copiedExhibitionId, copiedRoom.exhibitionId)
-
-            // Assert copied device
-            assertNotEquals(sourceDevice.id, copiedDevice.id)
-            assertEquals(sourceDevice.name, copiedDevice.name)
-            assertEquals(copiedExhibitionId, copiedDevice.exhibitionId)
-            assertEquals(copiedGroup.id, copiedDevice.groupId)
-            assertEquals(sourceDevice.modelId, copiedDevice.modelId)
-            assertEquals(sourceDevice.screenOrientation, copiedDevice.screenOrientation)
-            assertEquals(sourceDevice.imageLoadStrategy, copiedDevice.imageLoadStrategy)
-            assertEquals(sourceDevice.location, copiedDevice.location)
-            assertEquals(copiedIdlePage.id, copiedDevice.idlePageId)
-
-            // Assert copied antenna
-            assertNotEquals(sourceAntenna.id, copiedAntenna.id)
-            assertEquals(sourceAntenna.name, copiedAntenna.name)
-            assertEquals(copiedExhibitionId, copiedAntenna.exhibitionId)
-            assertEquals(copiedGroup.id, copiedAntenna.groupId)
-            assertEquals(sourceAntenna.antennaNumber, copiedAntenna.antennaNumber)
-            assertEquals(sourceAntenna.readerId, copiedAntenna.readerId)
-            assertEquals(copiedRoom.id, copiedAntenna.roomId)
-            assertJsonsEqual(sourceAntenna.location, copiedAntenna.location)
-            assertEquals(sourceAntenna.visitorSessionEndThreshold, copiedAntenna.visitorSessionEndThreshold)
-            assertEquals(sourceAntenna.visitorSessionStartThreshold, copiedAntenna.visitorSessionStartThreshold)
-
-            // Assert copied page
-            assertNotEquals(sourceDevicePage.id, copiedDevicePage.id)
-            assertEquals(sourceDevicePage.name, copiedDevicePage.name)
-            assertEquals(sourceDevicePage.layoutId, copiedDevicePage.layoutId)
-            assertEquals(copiedExhibitionId, copiedDevicePage.exhibitionId)
-            assertEquals(sourceDevicePage.orderNumber, copiedDevicePage.orderNumber)
-            assertJsonsEqual(sourceDevicePage.exitTransitions, copiedDevicePage.exitTransitions)
-            assertJsonsEqual(sourceDevicePage.enterTransitions, copiedDevicePage.enterTransitions)
-            assertJsonsEqual(sourceDevicePage.resources, copiedDevicePage.resources)
-            assertJsonsEqual(sourceDevicePage.eventTriggers, copiedDevicePage.eventTriggers)
-            assertEquals(copiedContentVersion!!.id, copiedDevicePage.contentVersionId)
-            assertEquals(copiedDevice.id, copiedDevicePage.deviceId)
-            assertNotEquals(sourceIdlePage.id, copiedIdlePage.id)
-
-            // Assert copied content version
-            assertNotEquals(sourceContentVersion.id, copiedContentVersion.id)
-            assertEquals(sourceContentVersion.name, copiedContentVersion.name)
-            assertEquals(sourceContentVersion.language, copiedContentVersion.language)
-            assertArrayEquals(arrayOf(copiedRoom.id), copiedContentVersion.rooms)
-            assertEquals(copiedExhibitionId, copiedContentVersion.exhibitionId)
-            assertJsonsEqual(sourceContentVersion.activeCondition, copiedContentVersion.activeCondition)
-
-            // Assert copied group content version
-            assertNotEquals(sourceDeviceGroupContentVersion.id, copiedGroupContentVersion!!.id)
-            assertEquals(sourceDeviceGroupContentVersion.name, copiedGroupContentVersion.name)
-            assertEquals(sourceDeviceGroupContentVersion.status, copiedGroupContentVersion.status)
-            assertEquals(copiedGroup.id, copiedGroupContentVersion.deviceGroupId)
-            assertEquals(copiedExhibitionId, copiedGroupContentVersion.exhibitionId)
-
-            testBuilder.admin.exhibitionDevices.updateExhibitionDevice(
-                exhibitionId = sourceExhibitionId,
-                payload = sourceDevice.copy(
-                    idlePageId = null
-                )
-            )
-
-            cleanCopiedExhibition(
-                apiTestBuilder = testBuilder,
-                copiedExhibition = copiedExhibition
-            )
-        }
+        cleanCopiedExhibition(
+            apiTestBuilder = testBuilder,
+            copiedExhibition = copiedExhibition
+        )
     }
 
     @Test

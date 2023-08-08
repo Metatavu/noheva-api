@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 @Transactional
+@Suppress ("unused")
 class ExhibitionDevicesGroupsApiImpl : ExhibitionDeviceGroupsApi, AbstractApi() {
 
     @Inject
@@ -82,7 +83,8 @@ class ExhibitionDevicesGroupsApiImpl : ExhibitionDeviceGroupsApi, AbstractApi() 
                     sourceDeviceGroup = sourceDeviceGroup,
                     targetRoom = sourceDeviceGroup.room
                         ?: return createBadRequest("Source device group $sourceDeviceGroupId has no room"),
-                    creatorId = userId
+                    creatorId = userId,
+                    copyContentVersions = true
                 )
             } catch (e: CopyException) {
                 logger.error("Failed to copy device group", e)

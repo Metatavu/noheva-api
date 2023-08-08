@@ -486,370 +486,359 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
-    fun testCopyDeviceGroupWithPages() {
-        createTestBuilder().use {
-            val languages = listOf("FI", "SV")
+    fun testCopyDeviceGroupWithPages() = createTestBuilder().use {
+        val languages = listOf("FI", "SV")
 
-            val exhibition = it.admin.exhibitions.create()
-            val deviceModel = it.admin.deviceModels.create()
-            val room = createDefaultRoom(testBuilder = it, exhibition = exhibition)
-            val pageLayout = it.admin.pageLayouts.create(deviceModel)
+        val exhibition = it.admin.exhibitions.create()
+        val deviceModel = it.admin.deviceModels.create()
+        val room = createDefaultRoom(testBuilder = it, exhibition = exhibition)
+        val pageLayout = it.admin.pageLayouts.create(deviceModel)
+        val sourceDeviceGroup = createDefaultDeviceGroup(testBuilder = it, exhibition = exhibition)
+        val exhibitionId = exhibition.id!!
+        val sourceGroupId = sourceDeviceGroup.id!!
+        val roomId = room.id!!
+        val deviceModelId = deviceModel.id!!
+        val pageLayoutId = pageLayout.id!!
 
-            val sourceDeviceGroup = createDefaultDeviceGroup(testBuilder = it, exhibition = exhibition)
-
-            val exhibitionId = exhibition.id!!
-            val sourceGroupId = sourceDeviceGroup.id!!
-            val roomId = room.id!!
-            val deviceModelId = deviceModel.id!!
-            val pageLayoutId = pageLayout.id!!
-
-            val sourceDevices = (1..2).map { i ->
-                it.admin.exhibitionDevices.create(exhibitionId = exhibitionId, payload = ExhibitionDevice(
-                    name = "Device $i",
-                    modelId = deviceModelId,
-                    groupId = sourceGroupId,
-                    screenOrientation = ScreenOrientation.LANDSCAPE,
-                    location = Point(55.0, 33.0),
-                    imageLoadStrategy = DeviceImageLoadStrategy.MEMORY
-                ))
-            }
-
-            val sourceContentVersions: List<ContentVersion> = languages.map { language ->
-                it.admin.contentVersions.create(exhibitionId, ContentVersion(name = language, language = language, deviceGroupId = sourceGroupId, rooms = arrayOf(roomId)))
-            }
-
-            val sourcePages = languages.flatMap { language ->
-                val contentVersion = sourceContentVersions.find { contentVersion -> contentVersion.language == language }
-                sourceDevices.flatMap { sourceDevice ->
-                    (0..1).map { orderNumber ->
-                        it.admin.exhibitionPages.create(
-                            exhibitionId = exhibitionId,
-                            payload = ExhibitionPage(
-                                layoutId = pageLayoutId,
-                                deviceId = sourceDevice.id!!,
-                                name = "create page",
-                                orderNumber = orderNumber,
-                                resources = arrayOf(ExhibitionPageResource(
-                                    id = "createresid",
-                                    data = "https://example.com/image.png",
-                                    type = ExhibitionPageResourceType.IMAGE
-                                )),
-                                eventTriggers = arrayOf(),
-                                contentVersionId = contentVersion?.id!!,
-                                enterTransitions = arrayOf(ExhibitionPageTransition(
-                                    transition = Transition(
-                                        duration = 300,
-                                        animation = Animation.FADE,
-                                        timeInterpolation = AnimationTimeInterpolation.ACCELERATE
-                                    )
-                                )),
-                                exitTransitions = arrayOf(ExhibitionPageTransition(
-                                    transition = Transition(
-                                        duration = 500,
-                                        animation = Animation.MORPH,
-                                        timeInterpolation = AnimationTimeInterpolation.DECELERATE
-                                    )
-                                ))
-                            )
-                        )
-                   }
-                }
-            }
-
-            assertEquals(8, sourcePages.size)
-
-            val targetDeviceGroup = it.admin.exhibitionDeviceGroups.copy(
-                exhibitionId = exhibitionId,
-                sourceDeviceGroupId = sourceGroupId
-            )
-
-            assertNotNull(targetDeviceGroup)
-
-            val targetDeviceGroupId = targetDeviceGroup.id!!
-            val targetContentVersions = getCopiedContentVersions(it, sourceContentVersions, exhibitionId)
-            assertEquals(6, targetContentVersions.size)
-
-            val targetDevices = it.admin.exhibitionDevices.listExhibitionDevices(
-                exhibitionId = exhibitionId,
-                exhibitionGroupId = targetDeviceGroupId,
-                deviceModelId = null
-            )
-
-            assertEquals(sourceDevices.size, targetDevices.size)
-
-            targetDevices.forEach { targetDevice ->
-                val sourceDevice = sourceDevices.find { sourceDevice -> sourceDevice.name == targetDevice.name }
-
-                it.admin.exhibitionPages.assertCount(
-                    expected = 4,
-                    exhibitionId = exhibitionId,
-                    exhibitionDeviceId = targetDevice.id!!,
-                    contentVersionId = null,
-                    pageLayoutId = null
-                )
-
-                targetContentVersions.forEach { targetContentVersion ->
-                    val sourceContentVersion = sourceContentVersions.find { sourceContentVersion -> sourceContentVersion.language == targetContentVersion.language }
-
-                    val sourceContentVersionPages = it.admin.exhibitionPages.listExhibitionPages(
-                        exhibitionId = exhibitionId,
-                        exhibitionDeviceId = sourceDevice?.id!!,
-                        contentVersionId = sourceContentVersion?.id!!,
-                        pageLayoutId = null
-                    )
-
-                    assertEquals(2, sourceContentVersionPages.size)
-
-                    val targetContentVersionPages = it.admin.exhibitionPages.listExhibitionPages(
-                        exhibitionId = exhibitionId,
-                        exhibitionDeviceId = targetDevice.id,
-                        contentVersionId = targetContentVersion.id!!,
-                        pageLayoutId = null
-                    )
-
-                    assertEquals(sourceContentVersionPages.size, targetContentVersionPages.size)
-
-                    sourceContentVersionPages.sortBy(ExhibitionPage::orderNumber)
-                    targetContentVersionPages.sortBy(ExhibitionPage::orderNumber)
-
-                    targetContentVersionPages.indices.forEach { i ->
-                        val sourceContentVersionPage = sourceContentVersionPages[i]
-                        val targetContentVersionPage = targetContentVersionPages[i]
-
-                        assertNotEquals(sourceContentVersionPage.id, targetContentVersionPage.id)
-                        assertEquals(sourceContentVersionPage.name, targetContentVersionPage.name)
-                        assertEquals(targetDevice.id, targetContentVersionPage.deviceId)
-                        assertEquals(sourceContentVersionPage.layoutId, targetContentVersionPage.layoutId)
-                        assertNotEquals(sourceContentVersionPage.contentVersionId, targetContentVersionPage.contentVersionId)
-                        assertJsonsEqual(sourceContentVersionPage.resources, targetContentVersionPage.resources)
-                        assertJsonsEqual(sourceContentVersionPage.eventTriggers, targetContentVersionPage.eventTriggers)
-                        assertJsonsEqual(sourceContentVersionPage.enterTransitions, targetContentVersionPage.enterTransitions)
-                        assertJsonsEqual(sourceContentVersionPage.exitTransitions, targetContentVersionPage.exitTransitions)
-                        assertEquals(sourceContentVersionPage.orderNumber, targetContentVersionPage.orderNumber)
-                        assertEquals(sourceContentVersionPage.exhibitionId, targetContentVersionPage.exhibitionId)
-                    }
-
-                }
-            }
-
-            cleanupCopiedResources(
-                apiTestBuilder = it,
-                exhibitionId = exhibitionId,
-                targetDeviceGroupId = targetDeviceGroupId
-            )
-        }
-
-    }
-
-    @Test
-    fun testCopyDeviceGroupWithIdlePage() {
-        createTestBuilder().use {
-            val exhibition = it.admin.exhibitions.create()
-            val deviceModel = it.admin.deviceModels.create()
-            val room = createDefaultRoom(testBuilder = it, exhibition = exhibition)
-            val pageLayout = it.admin.pageLayouts.create(deviceModel)
-
-            val sourceDeviceGroup = createDefaultDeviceGroup(testBuilder = it, exhibition = exhibition)
-
-            val exhibitionId = exhibition.id!!
-            val sourceGroupId = sourceDeviceGroup.id!!
-            val roomId = room.id!!
-            val deviceModelId = deviceModel.id!!
-            val pageLayoutId = pageLayout.id!!
-
-            var sourceDevice = it.admin.exhibitionDevices.create(exhibitionId = exhibitionId, payload = ExhibitionDevice(
-                name = "Device",
+        val sourceDevices = (1..2).map { i ->
+            it.admin.exhibitionDevices.create(exhibitionId = exhibitionId, payload = ExhibitionDevice(
+                name = "Device $i",
                 modelId = deviceModelId,
                 groupId = sourceGroupId,
                 screenOrientation = ScreenOrientation.LANDSCAPE,
-                imageLoadStrategy = DeviceImageLoadStrategy.MEMORY,
-                location = Point(55.0, 33.0)
+                location = Point(55.0, 33.0),
+                imageLoadStrategy = DeviceImageLoadStrategy.MEMORY
             ))
-
-            val sourceContentVersion = it.admin.contentVersions.create(exhibitionId, ContentVersion(name = "FI", language = "FI", rooms = arrayOf(roomId)))
-
-            val sourceIdlePage = it.admin.exhibitionPages.create(
-                exhibitionId = exhibitionId,
-                payload = ExhibitionPage(
-                    layoutId = pageLayoutId,
-                    deviceId = sourceDevice.id!!,
-                    name = "idle page",
-                    orderNumber = 0,
-                    resources = arrayOf(),
-                    eventTriggers = arrayOf(),
-                    contentVersionId = sourceContentVersion.id!!,
-                    enterTransitions = arrayOf(),
-                    exitTransitions = arrayOf()
-                )
-            )
-
-            sourceDevice = it.admin.exhibitionDevices.updateExhibitionDevice(
-                exhibitionId = exhibitionId,
-                payload = sourceDevice.copy(
-                    idlePageId = sourceIdlePage.id!!
-                )
-            )
-
-            val targetDeviceGroup = it.admin.exhibitionDeviceGroups.copy(
-                exhibitionId = exhibitionId,
-                sourceDeviceGroupId = sourceGroupId
-            )
-
-            assertNotNull(targetDeviceGroup)
-
-            val targetDeviceGroupId = targetDeviceGroup.id!!
-
-            val targetDevices = it.admin.exhibitionDevices.listExhibitionDevices(
-                exhibitionId = exhibitionId,
-                exhibitionGroupId = targetDeviceGroupId,
-                deviceModelId = null
-            )
-
-            assertEquals(1, targetDevices.size)
-
-            val targetDevice = targetDevices[0]
-
-            assertNotNull(targetDevice.idlePageId)
-            assertNotNull(sourceDevice.idlePageId)
-            assertNotEquals(sourceDevice.idlePageId, targetDevice.idlePageId)
-
-            it.admin.exhibitionDevices.updateExhibitionDevice(
-                exhibitionId = exhibitionId,
-                payload = sourceDevice.copy(idlePageId = null)
-            )
-
-            cleanupCopiedResources(
-                apiTestBuilder = it,
-                exhibitionId = exhibitionId,
-                targetDeviceGroupId = targetDeviceGroupId
-            )
         }
 
-    }
+        val sourceContentVersions: List<ContentVersion> = languages.map { language ->
+            it.admin.contentVersions.create(exhibitionId, ContentVersion(name = language, language = language, deviceGroupId = sourceGroupId, rooms = arrayOf(roomId)))
+        }
 
-    @Test
-    fun testCopyDeviceGroupWithNAVIGATEAction() {
-        createTestBuilder().use {
-            val exhibition = it.admin.exhibitions.create()
-            val deviceModel = it.admin.deviceModels.create()
-            val room = createDefaultRoom(testBuilder = it, exhibition = exhibition)
-            val pageLayout = it.admin.pageLayouts.create(deviceModel)
-
-            val sourceDeviceGroup = createDefaultDeviceGroup(testBuilder = it, exhibition = exhibition)
-
-            val exhibitionId = exhibition.id!!
-            val sourceGroupId = sourceDeviceGroup.id!!
-            val roomId = room.id!!
-            val deviceModelId = deviceModel.id!!
-            val pageLayoutId = pageLayout.id!!
-
-            val sourceDevice = it.admin.exhibitionDevices.create(exhibitionId = exhibitionId, payload = ExhibitionDevice(
-                name = "Device",
-                modelId = deviceModelId,
-                groupId = sourceGroupId,
-                screenOrientation = ScreenOrientation.LANDSCAPE,
-                imageLoadStrategy = DeviceImageLoadStrategy.MEMORY,
-                location = Point(55.0, 33.0)
-            ))
-
-            val sourceContentVersion = it.admin.contentVersions.create(exhibitionId, ContentVersion(name = "FI", language = "FI", rooms = arrayOf(roomId)))
-
-            val sourceToPage = it.admin.exhibitionPages.create(
-                exhibitionId = exhibitionId,
-                payload = ExhibitionPage(
-                    layoutId = pageLayoutId,
-                    deviceId = sourceDevice.id!!,
-                    name = "to page",
-                    orderNumber = 1,
-                    resources = arrayOf(),
-                    eventTriggers = arrayOf(),
-                    contentVersionId = sourceContentVersion.id!!,
-                    enterTransitions = arrayOf(),
-                    exitTransitions = arrayOf()
-                )
-            )
-
-            val sourceFromPage = it.admin.exhibitionPages.create(
-                exhibitionId = exhibitionId,
-                payload = ExhibitionPage(
-                    layoutId = pageLayoutId,
-                    deviceId = sourceDevice.id,
-                    name = "from page",
-                    orderNumber = 0,
-                    resources = arrayOf(),
-                    eventTriggers = arrayOf(ExhibitionPageEventTrigger(
-                        events = arrayOf(ExhibitionPageEvent(
-                            action = ExhibitionPageEventActionType.NAVIGATE,
-                            properties = arrayOf(
-                                ExhibitionPageEventProperty(
-                                    name = "pageId",
-                                    type = ExhibitionPageEventPropertyType.STRING,
-                                    value = sourceToPage.id.toString()
+        val sourcePages = languages.flatMap { language ->
+            val contentVersion = sourceContentVersions.find { contentVersion -> contentVersion.language == language }
+            sourceDevices.flatMap { sourceDevice ->
+                (0..1).map { orderNumber ->
+                    it.admin.exhibitionPages.create(
+                        exhibitionId = exhibitionId,
+                        payload = ExhibitionPage(
+                            layoutId = pageLayoutId,
+                            deviceId = sourceDevice.id!!,
+                            name = "create page",
+                            orderNumber = orderNumber,
+                            resources = arrayOf(ExhibitionPageResource(
+                                id = "createresid",
+                                data = "https://example.com/image.png",
+                                type = ExhibitionPageResourceType.IMAGE
+                            )),
+                            eventTriggers = arrayOf(),
+                            contentVersionId = contentVersion?.id!!,
+                            enterTransitions = arrayOf(ExhibitionPageTransition(
+                                transition = Transition(
+                                    duration = 300,
+                                    animation = Animation.FADE,
+                                    timeInterpolation = AnimationTimeInterpolation.ACCELERATE
                                 )
-                            )
-                        )),
-                        clickViewId =  "createviewid",
-                        delay = 0,
-                        next = arrayOf(),
-                        id = UUID.randomUUID(),
-                        name = "Create View"
-                    )),
-                    contentVersionId = sourceContentVersion.id,
-                    enterTransitions = arrayOf(),
-                    exitTransitions = arrayOf()
-                )
-            )
+                            )),
+                            exitTransitions = arrayOf(ExhibitionPageTransition(
+                                transition = Transition(
+                                    duration = 500,
+                                    animation = Animation.MORPH,
+                                    timeInterpolation = AnimationTimeInterpolation.DECELERATE
+                                )
+                            ))
+                        )
+                    )
+               }
+            }
+        }
 
-            val targetDeviceGroup = it.admin.exhibitionDeviceGroups.copy(
+        assertEquals(8, sourcePages.size)
+
+        val targetDeviceGroup = it.admin.exhibitionDeviceGroups.copy(
+            exhibitionId = exhibitionId,
+            sourceDeviceGroupId = sourceGroupId
+        )
+
+        assertNotNull(targetDeviceGroup)
+
+        val targetDeviceGroupId = targetDeviceGroup.id!!
+        val targetContentVersions = getCopiedContentVersions(it, sourceContentVersions, exhibitionId)
+        assertEquals(sourceContentVersions.size, targetContentVersions.size)
+
+        val targetDevices = it.admin.exhibitionDevices.listExhibitionDevices(
+            exhibitionId = exhibitionId,
+            exhibitionGroupId = targetDeviceGroupId,
+            deviceModelId = null
+        )
+
+        assertEquals(sourceDevices.size, targetDevices.size)
+
+        targetDevices.forEach { targetDevice ->
+            val sourceDevice = sourceDevices.find { sourceDevice -> sourceDevice.name == targetDevice.name }
+
+            it.admin.exhibitionPages.assertCount(
+                expected = 4,
                 exhibitionId = exhibitionId,
-                sourceDeviceGroupId = sourceGroupId
-            )
-
-            assertNotNull(targetDeviceGroup)
-
-            val targetDeviceGroupId = targetDeviceGroup.id!!
-
-            val targetDevices = it.admin.exhibitionDevices.listExhibitionDevices(
-                exhibitionId = exhibitionId,
-                exhibitionGroupId = targetDeviceGroupId,
-                deviceModelId = null
-            )
-
-            assertEquals(1, targetDevices.size)
-
-            val targetDeviceId = targetDevices[0].id!!
-
-            val targetPages = it.admin.exhibitionPages.listExhibitionPages(
-                exhibitionId = exhibitionId,
-                exhibitionDeviceId = targetDeviceId,
+                exhibitionDeviceId = targetDevice.id!!,
                 contentVersionId = null,
                 pageLayoutId = null
             )
 
-            assertEquals(2, targetPages.size)
+            targetContentVersions.forEach { targetContentVersion ->
+                val sourceContentVersion = sourceContentVersions.find { sourceContentVersion -> sourceContentVersion.language == targetContentVersion.language }
 
-            targetPages.sortBy(ExhibitionPage::orderNumber)
+                val sourceContentVersionPages = it.admin.exhibitionPages.listExhibitionPages(
+                    exhibitionId = exhibitionId,
+                    exhibitionDeviceId = sourceDevice?.id!!,
+                    contentVersionId = sourceContentVersion?.id!!,
+                    pageLayoutId = null
+                )
 
-            assertNotEquals(sourceFromPage.id, targetPages[0].id)
-            assertEquals(sourceFromPage.name, targetPages[0].name)
-            assertNotEquals(sourceToPage.id, targetPages[1].id)
-            assertEquals(sourceToPage.name, targetPages[1].name)
+                assertEquals(2, sourceContentVersionPages.size)
 
-            assertEquals(1, targetPages[0].eventTriggers.size)
-            assertEquals(1, targetPages[0].eventTriggers[0].events?.size)
-            assertEquals(ExhibitionPageEventActionType.NAVIGATE, targetPages[0].eventTriggers[0].events?.get(0)?.action)
-            assertEquals(1, targetPages[0].eventTriggers[0].events?.get(0)?.properties?.size)
-            assertEquals("pageId", targetPages[0].eventTriggers[0].events?.get(0)?.properties?.get(0)?.name)
-            assertEquals(ExhibitionPageEventPropertyType.STRING, targetPages[0].eventTriggers[0].events?.get(0)?.properties?.get(0)?.type)
-            assertEquals(targetPages[1].id.toString(), targetPages[0].eventTriggers[0].events?.get(0)?.properties?.get(0)?.value)
+                val targetContentVersionPages = it.admin.exhibitionPages.listExhibitionPages(
+                    exhibitionId = exhibitionId,
+                    exhibitionDeviceId = targetDevice.id,
+                    contentVersionId = targetContentVersion.id!!,
+                    pageLayoutId = null
+                )
 
-            cleanupCopiedResources(
-                apiTestBuilder = it,
-                exhibitionId = exhibitionId,
-                targetDeviceGroupId = targetDeviceGroupId
-            )
+                assertEquals(sourceContentVersionPages.size, targetContentVersionPages.size)
+
+                sourceContentVersionPages.sortBy(ExhibitionPage::orderNumber)
+                targetContentVersionPages.sortBy(ExhibitionPage::orderNumber)
+
+                targetContentVersionPages.indices.forEach { i ->
+                    val sourceContentVersionPage = sourceContentVersionPages[i]
+                    val targetContentVersionPage = targetContentVersionPages[i]
+
+                    assertNotEquals(sourceContentVersionPage.id, targetContentVersionPage.id)
+                    assertEquals(sourceContentVersionPage.name, targetContentVersionPage.name)
+                    assertEquals(targetDevice.id, targetContentVersionPage.deviceId)
+                    assertEquals(sourceContentVersionPage.layoutId, targetContentVersionPage.layoutId)
+                    assertNotEquals(sourceContentVersionPage.contentVersionId, targetContentVersionPage.contentVersionId)
+                    assertJsonsEqual(sourceContentVersionPage.resources, targetContentVersionPage.resources)
+                    assertJsonsEqual(sourceContentVersionPage.eventTriggers, targetContentVersionPage.eventTriggers)
+                    assertJsonsEqual(sourceContentVersionPage.enterTransitions, targetContentVersionPage.enterTransitions)
+                    assertJsonsEqual(sourceContentVersionPage.exitTransitions, targetContentVersionPage.exitTransitions)
+                    assertEquals(sourceContentVersionPage.orderNumber, targetContentVersionPage.orderNumber)
+                    assertEquals(sourceContentVersionPage.exhibitionId, targetContentVersionPage.exhibitionId)
+                }
+
+            }
         }
 
+        cleanupCopiedResources(
+            apiTestBuilder = it,
+            exhibitionId = exhibitionId,
+            targetDeviceGroupId = targetDeviceGroupId
+        )
+    }
+
+    @Test
+    fun testCopyDeviceGroupWithIdlePage() = createTestBuilder().use {
+        val exhibition = it.admin.exhibitions.create()
+        val deviceModel = it.admin.deviceModels.create()
+        val room = createDefaultRoom(testBuilder = it, exhibition = exhibition)
+        val pageLayout = it.admin.pageLayouts.create(deviceModel)
+
+        val sourceDeviceGroup = createDefaultDeviceGroup(testBuilder = it, exhibition = exhibition)
+
+        val exhibitionId = exhibition.id!!
+        val sourceGroupId = sourceDeviceGroup.id!!
+        val roomId = room.id!!
+        val deviceModelId = deviceModel.id!!
+        val pageLayoutId = pageLayout.id!!
+
+        var sourceDevice = it.admin.exhibitionDevices.create(exhibitionId = exhibitionId, payload = ExhibitionDevice(
+            name = "Device",
+            modelId = deviceModelId,
+            groupId = sourceGroupId,
+            screenOrientation = ScreenOrientation.LANDSCAPE,
+            imageLoadStrategy = DeviceImageLoadStrategy.MEMORY,
+            location = Point(55.0, 33.0)
+        ))
+
+        val sourceContentVersion = it.admin.contentVersions.create(exhibitionId, ContentVersion(name = "FI", language = "FI", rooms = arrayOf(roomId)))
+
+        val sourceIdlePage = it.admin.exhibitionPages.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionPage(
+                layoutId = pageLayoutId,
+                deviceId = sourceDevice.id!!,
+                name = "idle page",
+                orderNumber = 0,
+                resources = arrayOf(),
+                eventTriggers = arrayOf(),
+                contentVersionId = sourceContentVersion.id!!,
+                enterTransitions = arrayOf(),
+                exitTransitions = arrayOf()
+            )
+        )
+
+        sourceDevice = it.admin.exhibitionDevices.updateExhibitionDevice(
+            exhibitionId = exhibitionId,
+            payload = sourceDevice.copy(
+                idlePageId = sourceIdlePage.id!!
+            )
+        )
+
+        val targetDeviceGroup = it.admin.exhibitionDeviceGroups.copy(
+            exhibitionId = exhibitionId,
+            sourceDeviceGroupId = sourceGroupId
+        )
+
+        assertNotNull(targetDeviceGroup)
+
+        val targetDeviceGroupId = targetDeviceGroup.id!!
+
+        val targetDevices = it.admin.exhibitionDevices.listExhibitionDevices(
+            exhibitionId = exhibitionId,
+            exhibitionGroupId = targetDeviceGroupId,
+            deviceModelId = null
+        )
+
+        assertEquals(1, targetDevices.size)
+
+        val targetDevice = targetDevices[0]
+
+        assertNotNull(targetDevice.idlePageId)
+        assertNotNull(sourceDevice.idlePageId)
+        assertNotEquals(sourceDevice.idlePageId, targetDevice.idlePageId)
+
+        it.admin.exhibitionDevices.updateExhibitionDevice(
+            exhibitionId = exhibitionId,
+            payload = sourceDevice.copy(idlePageId = null)
+        )
+
+        cleanupCopiedResources(
+            apiTestBuilder = it,
+            exhibitionId = exhibitionId,
+            targetDeviceGroupId = targetDeviceGroupId
+        )
+    }
+
+    @Test
+    fun testCopyDeviceGroupWithNAVIGATEAction() = createTestBuilder().use {
+        val exhibition = it.admin.exhibitions.create()
+        val deviceModel = it.admin.deviceModels.create()
+        val room = createDefaultRoom(testBuilder = it, exhibition = exhibition)
+        val pageLayout = it.admin.pageLayouts.create(deviceModel)
+
+        val sourceDeviceGroup = createDefaultDeviceGroup(testBuilder = it, exhibition = exhibition)
+
+        val exhibitionId = exhibition.id!!
+        val sourceGroupId = sourceDeviceGroup.id!!
+        val roomId = room.id!!
+        val deviceModelId = deviceModel.id!!
+        val pageLayoutId = pageLayout.id!!
+
+        val sourceDevice = it.admin.exhibitionDevices.create(exhibitionId = exhibitionId, payload = ExhibitionDevice(
+            name = "Device",
+            modelId = deviceModelId,
+            groupId = sourceGroupId,
+            screenOrientation = ScreenOrientation.LANDSCAPE,
+            imageLoadStrategy = DeviceImageLoadStrategy.MEMORY,
+            location = Point(55.0, 33.0)
+        ))
+
+        val sourceContentVersion = it.admin.contentVersions.create(exhibitionId, ContentVersion(name = "FI", language = "FI", rooms = arrayOf(roomId)))
+
+        val sourceToPage = it.admin.exhibitionPages.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionPage(
+                layoutId = pageLayoutId,
+                deviceId = sourceDevice.id!!,
+                name = "to page",
+                orderNumber = 1,
+                resources = arrayOf(),
+                eventTriggers = arrayOf(),
+                contentVersionId = sourceContentVersion.id!!,
+                enterTransitions = arrayOf(),
+                exitTransitions = arrayOf()
+            )
+        )
+
+        val sourceFromPage = it.admin.exhibitionPages.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionPage(
+                layoutId = pageLayoutId,
+                deviceId = sourceDevice.id,
+                name = "from page",
+                orderNumber = 0,
+                resources = arrayOf(),
+                eventTriggers = arrayOf(ExhibitionPageEventTrigger(
+                    events = arrayOf(ExhibitionPageEvent(
+                        action = ExhibitionPageEventActionType.NAVIGATE,
+                        properties = arrayOf(
+                            ExhibitionPageEventProperty(
+                                name = "pageId",
+                                type = ExhibitionPageEventPropertyType.STRING,
+                                value = sourceToPage.id.toString()
+                            )
+                        )
+                    )),
+                    clickViewId =  "createviewid",
+                    delay = 0,
+                    next = arrayOf(),
+                    id = UUID.randomUUID(),
+                    name = "Create View"
+                )),
+                contentVersionId = sourceContentVersion.id,
+                enterTransitions = arrayOf(),
+                exitTransitions = arrayOf()
+            )
+        )
+
+        val targetDeviceGroup = it.admin.exhibitionDeviceGroups.copy(
+            exhibitionId = exhibitionId,
+            sourceDeviceGroupId = sourceGroupId
+        )
+
+        assertNotNull(targetDeviceGroup)
+
+        val targetDeviceGroupId = targetDeviceGroup.id!!
+
+        val targetDevices = it.admin.exhibitionDevices.listExhibitionDevices(
+            exhibitionId = exhibitionId,
+            exhibitionGroupId = targetDeviceGroupId,
+            deviceModelId = null
+        )
+
+        assertEquals(1, targetDevices.size)
+
+        val targetDeviceId = targetDevices[0].id!!
+
+        val targetPages = it.admin.exhibitionPages.listExhibitionPages(
+            exhibitionId = exhibitionId,
+            exhibitionDeviceId = targetDeviceId,
+            contentVersionId = null,
+            pageLayoutId = null
+        )
+
+        assertEquals(2, targetPages.size)
+
+        targetPages.sortBy(ExhibitionPage::orderNumber)
+
+        assertNotEquals(sourceFromPage.id, targetPages[0].id)
+        assertEquals(sourceFromPage.name, targetPages[0].name)
+        assertNotEquals(sourceToPage.id, targetPages[1].id)
+        assertEquals(sourceToPage.name, targetPages[1].name)
+
+        assertEquals(1, targetPages[0].eventTriggers.size)
+        assertEquals(1, targetPages[0].eventTriggers[0].events?.size)
+        assertEquals(ExhibitionPageEventActionType.NAVIGATE, targetPages[0].eventTriggers[0].events?.get(0)?.action)
+        assertEquals(1, targetPages[0].eventTriggers[0].events?.get(0)?.properties?.size)
+        assertEquals("pageId", targetPages[0].eventTriggers[0].events?.get(0)?.properties?.get(0)?.name)
+        assertEquals(ExhibitionPageEventPropertyType.STRING, targetPages[0].eventTriggers[0].events?.get(0)?.properties?.get(0)?.type)
+        assertEquals(targetPages[1].id.toString(), targetPages[0].eventTriggers[0].events?.get(0)?.properties?.get(0)?.value)
+
+        cleanupCopiedResources(
+            apiTestBuilder = it,
+            exhibitionId = exhibitionId,
+            targetDeviceGroupId = targetDeviceGroupId
+        )
     }
 
     @Test

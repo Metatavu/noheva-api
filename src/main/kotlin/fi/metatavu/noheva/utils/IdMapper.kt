@@ -19,6 +19,11 @@ class IdMapper {
      */
     fun assignId(oldId: UUID?): UUID? {
         oldId ?: return null
+
+        if (idMap.containsKey(oldId)) {
+            throw IllegalArgumentException("Id $oldId already mapped")
+        }
+
         val newId = UUID.randomUUID()
         idMap[oldId] = newId
         return newId

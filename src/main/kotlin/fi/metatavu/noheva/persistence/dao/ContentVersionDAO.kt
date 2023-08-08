@@ -82,7 +82,7 @@ class ContentVersionDAO : AbstractDAO<ContentVersion>() {
             )
         )
 
-        return getSingleResult(getEntityManager().createQuery<ContentVersion>(criteria))
+        return getSingleResult(getEntityManager().createQuery(criteria))
     }
 
     /**
@@ -126,28 +126,8 @@ class ContentVersionDAO : AbstractDAO<ContentVersion>() {
         val root: Root<ContentVersion> = criteria.from(ContentVersion::class.java)
         criteria.select(root)
         criteria.where(criteriaBuilder.equal(root.get(ContentVersion_.exhibition), exhibition))
-        val query: TypedQuery<ContentVersion> = getEntityManager().createQuery<ContentVersion>(criteria)
+        val query: TypedQuery<ContentVersion> = getEntityManager().createQuery(criteria)
         return query.resultList
-    }
-
-    /**
-     * Lists content versions by exhibition that do not belong to device groups
-     *
-     * @param exhibition exhibition
-     * @return content versions
-     */
-    fun listByExhibitionWithoutDeviceGroup(exhibition: Exhibition): List<ContentVersion> {
-        val criteriaBuilder = getEntityManager().criteriaBuilder
-        val criteria: CriteriaQuery<ContentVersion> = criteriaBuilder.createQuery(ContentVersion::class.java)
-        val root: Root<ContentVersion> = criteria.from(ContentVersion::class.java)
-        val restrictions = ArrayList<javax.persistence.criteria.Predicate>()
-        restrictions.add(criteriaBuilder.equal(root.get(ContentVersion_.exhibition), exhibition))
-        restrictions.add(criteriaBuilder.isNull(root.get(ContentVersion_.deviceGroup)))
-
-        criteria.select(root).distinct(true)
-        criteria.where( *restrictions.toTypedArray())
-
-        return getEntityManager().createQuery(criteria).resultList
     }
 
     /**

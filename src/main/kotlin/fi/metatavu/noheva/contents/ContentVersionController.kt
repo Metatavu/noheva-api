@@ -181,18 +181,6 @@ class ContentVersionController {
     }
 
     /**
-     * Lists content versions based on exhibitions that are not connected to a device group
-     *
-     * @param exhibition exhibition
-     * @returns list of content versions
-     */
-    fun listContentVersionsWithoutDeviceGroup(
-        exhibition: Exhibition,
-    ): List<ContentVersion> {
-        return contentVersionDAO.listByExhibitionWithoutDeviceGroup(exhibition)
-    }
-
-    /**
      * Sets content version rooms
      *
      * @param contentVersion content version
@@ -240,6 +228,26 @@ class ContentVersionController {
         result = contentVersionDAO.updateStatus(result, status, modifierId)
         result = contentVersionDAO.updateDeviceGroup(result, deviceGroup, modifierId)
         return result
+    }
+
+    /**
+     * Updates content version
+     *
+     * @param contentVersion content version to be updated
+     * @param deviceGroup device group
+     * @param lastModifierId modifying user id
+     * @return updated ContentVersion
+     */
+    fun updateContentVersionDeviceGroup(
+        contentVersion: ContentVersion,
+        deviceGroup: ExhibitionDeviceGroup?,
+        lastModifierId: UUID
+    ): ContentVersion {
+        return contentVersionDAO.updateDeviceGroup(
+            contentVersion = contentVersion,
+            deviceGroup = deviceGroup,
+            lastModifierId = lastModifierId
+        )
     }
 
     /**
