@@ -168,23 +168,24 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
                 name = "Group 2"
             )
 
-            it.admin.groupContentVersions.create(
+            it.admin.contentVersions.create(
                 exhibitionId = exhibitionId,
-                payload = GroupContentVersion(
+                payload = ContentVersion(
                     name = "default",
-                    contentVersionId = contentVersion1.id!!,
                     deviceGroupId = group1.id!!,
-                    status = GroupContentVersionStatus.INPROGRESS
+                    status = ContentVersionStatus.INPROGRESS,
+                    language = contentVersion1.language,
+                    rooms = contentVersion1.rooms
                 )
             )
 
-            it.admin.groupContentVersions.create(
+            it.admin.contentVersions.create(
                 exhibitionId = exhibitionId,
-                payload = GroupContentVersion(
+                payload = ContentVersion(
                     name = "default",
-                    contentVersionId = contentVersion2.id!!,
                     deviceGroupId = group2.id!!,
-                    status = GroupContentVersionStatus.INPROGRESS
+                    language = contentVersion2.language,
+                    rooms = contentVersion2.rooms
                 )
             )
 
@@ -207,7 +208,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
                 exhibitionId = exhibitionId,
                 layoutId = layoutId,
                 deviceId = createdExhibitionDeviceId,
-                contentVersionId = contentVersion1.id
+                contentVersionId = contentVersion1.id!!
             )
 
             createdExhibitionDevice = it.admin.exhibitionDevices.updateExhibitionDevice(
@@ -319,7 +320,6 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val exhibitionId = exhibition.id!!
             val layout = it.admin.pageLayouts.create(it.admin.deviceModels.create())
             val contentVersion = it.admin.contentVersions.create(exhibition)
-            val contentVersionId = contentVersion.id!!
 
             val floor = it.admin.exhibitionFloors.create(exhibitionId = exhibitionId)
             val floorId = floor.id!!
@@ -335,13 +335,14 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val device = createDefaultDevice(it, exhibition, deviceGroup)
             val deviceId = device.id!!
 
-            it.admin.groupContentVersions.create(
+            it.admin.contentVersions.create(
                 exhibitionId = exhibitionId,
-                payload = GroupContentVersion(
+                payload = ContentVersion(
                     name = "default",
-                    contentVersionId = contentVersionId,
                     deviceGroupId = deviceGroupId,
-                    status = GroupContentVersionStatus.INPROGRESS
+                    status = ContentVersionStatus.INPROGRESS,
+                    language = contentVersion.language,
+                    rooms = contentVersion.rooms
                 )
             )
 

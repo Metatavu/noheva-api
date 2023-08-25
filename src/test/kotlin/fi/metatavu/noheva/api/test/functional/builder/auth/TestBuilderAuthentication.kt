@@ -37,7 +37,6 @@ class TestBuilderAuthentication(
     val exhibitionPages: ExhibitionPageTestBuilderResource = ExhibitionPageTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     val storedFiles: StoredFilesTestBuilderResource = StoredFilesTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     val contentVersions: ContentVersionTestBuilderResource = ContentVersionTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
-    val groupContentVersions: GroupContentVersionTestBuilderResource = GroupContentVersionTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     val visitorVariables: VisitorVariableTestBuilderResource = VisitorVariableTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     val devices: DevicesTestBuilderResource = DevicesTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
 

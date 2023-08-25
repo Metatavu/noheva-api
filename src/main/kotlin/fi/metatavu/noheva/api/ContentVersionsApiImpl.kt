@@ -4,7 +4,7 @@ import fi.metatavu.noheva.api.spec.ContentVersionsApi
 import fi.metatavu.noheva.api.spec.model.ContentVersion
 import fi.metatavu.noheva.api.translate.ContentVersionTranslator
 import fi.metatavu.noheva.contents.ContentVersionController
-import fi.metatavu.noheva.contents.GroupContentVersionController
+import fi.metatavu.noheva.devices.ExhibitionDeviceGroupController
 import fi.metatavu.noheva.exhibitions.ExhibitionController
 import fi.metatavu.noheva.exhibitions.ExhibitionRoomController
 import java.util.*
@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 @Transactional
+@Suppress("unused")
 class ContentVersionsApiImpl : ContentVersionsApi, AbstractApi() {
 
     @Inject
@@ -33,13 +34,24 @@ class ContentVersionsApiImpl : ContentVersionsApi, AbstractApi() {
     lateinit var contentVersionTranslator: ContentVersionTranslator
 
     @Inject
-    lateinit var groupContentVersionController: GroupContentVersionController
+    lateinit var exhibitionDeviceGroupController: ExhibitionDeviceGroupController
 
-    override fun listContentVersions(exhibitionId: UUID, roomId: UUID?): Response {
+    override fun listContentVersions(exhibitionId: UUID, roomId: UUID?, deviceGroupId: UUID?): Response {
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)
             ?: return createNotFound("Exhibition $exhibitionId not found")
-        val room = exhibitionRoomController.findExhibitionRoomById(roomId)
-        val contentVersions = contentVersionController.listContentVersions(exhibition, room)
+        val room = if (roomId != null ) {
+            exhibitionRoomController.findExhibitionRoomById(roomId) ?: return createNotFound("Room $roomId not found")
+        } else {
+            null
+        }
+
+        val deviceGroup = if (deviceGroupId != null) {
+            exhibitionDeviceGroupController.findDeviceGroupById(deviceGroupId) ?: return createNotFound("Device group $deviceGroupId not found")
+        } else {
+            null
+        }
+
+        val contentVersions = contentVersionController.listContentVersions(exhibition, room, deviceGroup)
         return createOk(contentVersions.map(contentVersionTranslator::translate))
     }
 
@@ -52,6 +64,12 @@ class ContentVersionsApiImpl : ContentVersionsApi, AbstractApi() {
             ?: return createNotFound("Exhibition $exhibitionId not found")
         val name = contentVersion.name
         val language = contentVersion.language
+        val deviceGroupId = contentVersion.deviceGroupId
+
+        var deviceGroup: fi.metatavu.noheva.persistence.model.ExhibitionDeviceGroup? = null
+        if (deviceGroupId != null) {
+            deviceGroup = exhibitionDeviceGroupController.findDeviceGroupById(deviceGroupId)?: return createBadRequest("Device group $deviceGroupId not found")
+        }
 
         val exhibitionRooms = mutableListOf<fi.metatavu.noheva.persistence.model.ExhibitionRoom>()
         for (roomId in contentVersion.rooms) {
@@ -75,6 +93,8 @@ class ContentVersionsApiImpl : ContentVersionsApi, AbstractApi() {
             name = name,
             language = language,
             activeCondition = contentVersion.activeCondition,
+            status = contentVersion.status,
+            deviceGroup = deviceGroup,
             creatorId = userId
         )
 
@@ -110,6 +130,11 @@ class ContentVersionsApiImpl : ContentVersionsApi, AbstractApi() {
         )
         val name = contentVersion.name
         val language = contentVersion.language
+        val deviceGroupId = contentVersion.deviceGroupId
+        val deviceGroup = if (deviceGroupId != null) {
+            exhibitionDeviceGroupController.findDeviceGroupById(deviceGroupId) ?: return createBadRequest("Invalid exhibition group id $deviceGroupId")
+        } else null
+
         val exhibitionRooms = mutableListOf<fi.metatavu.noheva.persistence.model.ExhibitionRoom>()
         for (roomId in contentVersion.rooms) {
             val room = exhibitionRoomController.findExhibitionRoomById(roomId)
@@ -132,6 +157,8 @@ class ContentVersionsApiImpl : ContentVersionsApi, AbstractApi() {
             name = name,
             language = language,
             activeCondition = contentVersion.activeCondition,
+            status = contentVersion.status,
+            deviceGroup = deviceGroup,
             modifierId = userId
         )
 
@@ -144,24 +171,13 @@ class ContentVersionsApiImpl : ContentVersionsApi, AbstractApi() {
         contentVersionId: UUID
     ): Response {
         loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
-        val exhibition = exhibitionController.findExhibitionById(exhibitionId)
+        exhibitionController.findExhibitionById(exhibitionId)
             ?: return createNotFound("Exhibition $exhibitionId not found")
         exhibitionController.findExhibitionById(exhibitionId)
             ?: return createNotFound("Exhibition $exhibitionId not found")
         val contentVersion = contentVersionController.findContentVersionById(contentVersionId) ?: return createNotFound(
             "Content version $contentVersionId not found"
         )
-
-        val groupContentVersions = groupContentVersionController.listGroupContentVersions(
-            contentVersion = contentVersion,
-            exhibition = exhibition,
-            deviceGroup = null
-        )
-
-        if (groupContentVersions.isNotEmpty()) {
-            val groupContentVersionIds = groupContentVersions.map { it.id }.joinToString()
-            return createBadRequest("Cannot delete content version $contentVersionId because it's used in group content versions $groupContentVersionIds")
-        }
 
         contentVersionController.deleteContentVersion(contentVersion)
         return createNoContent()

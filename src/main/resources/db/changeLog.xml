@@ -932,6 +932,24 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="remove_group_contentversion" author="katja danilova">
+    <addColumn tableName="contentversion">
+            <column name="status" type="varchar(191)"/>
+            <column name="devicegroup_id" type="binary(16)">
+                <constraints foreignKeyName="FK_CONTENT_VERSION_DEVICE_GROUP_ID" referencedColumnNames="id" referencedTableName="exhibitiondevicegroup"/>
+            </column>
+        </addColumn>
+
+        <sql>
+
+            UPDATE contentversion cv
+            INNER JOIN groupcontentversion gcv ON gcv.contentversion_id = cv.id
+            SET
+            cv.status = gcv.status,
+            cv.devicegroup_id = gcv.devicegroup_id
+        </sql>
+        <dropTable tableName="groupcontentversion"/>
+    </changeSet>
     <changeSet id="initial_devices" author="Ville Juutila">
         <createTable tableName="device">
             <column name="id" type="binary(16)">
