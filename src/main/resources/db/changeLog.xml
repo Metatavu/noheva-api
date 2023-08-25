@@ -932,7 +932,7 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="device_requests_and_initial_devices" author="Ville Juutila">
+    <changeSet id="initial_devices" author="Ville Juutila">
         <createTable tableName="device">
             <column name="id" type="binary(16)">
                 <constraints nullable="false" primaryKey="true"/>
@@ -940,7 +940,7 @@
             <column name="devicemodel_id" type="binary(16)">
                 <constraints
                     nullable="true"
-                    foreignKeyName="FK_DEVICE_REQUEST_DEVICE_MODEL_ID"
+                    foreignKeyName="FK_DEVICE_DEVICE_MODEL_ID"
                     referencedColumnNames="id"
                     referencedTableName="devicemodel"/>
             </column>
@@ -970,6 +970,19 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+        <addColumn tableName="exhibitiondevice">
+            <column name="device_id" type="binary(16)">
+                <constraints
+                    nullable="true"
+                    foreignKeyName="FK_EXHIBITION_DEVICE_DEVICE_ID"
+                    referencedColumnNames="id"
+                    referencedTableName="device"/>
+            </column>
+        </addColumn>
+        <dropForeignKeyConstraint baseTableName="exhibitiondevice" constraintName="FK_EXHIBITION_DEVICE_DEVICE_MODEL_ID"/>
+        <dropColumn tableName="exhibitiondevice">
+            <column name="devicemodel_id"/>
+        </dropColumn>
     </changeSet>
 
 </databaseChangeLog>

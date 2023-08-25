@@ -341,13 +341,13 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
                 )
             )
 
-            val model = testBuilder.admin.deviceModels.create()
+            val device = testBuilder.admin.devices.create()
 
             var sourceDevice = testBuilder.admin.exhibitionDevices.create(
                 exhibitionId = sourceExhibition.id,
                 payload = ExhibitionDevice(
                     groupId = sourceGroup.id,
-                    modelId = model.id!!,
+                    deviceId = device.id!!,
                     name = "copy test device",
                     screenOrientation = ScreenOrientation.PORTRAIT,
                     imageLoadStrategy = DeviceImageLoadStrategy.MEMORY
@@ -467,7 +467,7 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
             assertEquals(sourceDevice.name, copiedDevice.name)
             assertEquals(copiedExhibitionId, copiedDevice.exhibitionId)
             assertEquals(copiedGroup.id, copiedDevice.groupId)
-            assertEquals(sourceDevice.modelId, copiedDevice.modelId)
+            assertEquals(sourceDevice.deviceId, copiedDevice.deviceId)
             assertEquals(sourceDevice.screenOrientation, copiedDevice.screenOrientation)
             assertEquals(sourceDevice.imageLoadStrategy, copiedDevice.imageLoadStrategy)
             assertEquals(sourceDevice.location, copiedDevice.location)

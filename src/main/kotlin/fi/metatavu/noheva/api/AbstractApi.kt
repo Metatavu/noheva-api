@@ -2,6 +2,8 @@ package fi.metatavu.noheva.api
 
 import fi.metatavu.noheva.api.spec.model.Error
 import fi.metatavu.noheva.api.spec.model.ScreenOrientation
+import fi.metatavu.noheva.crypto.CryptoController
+import fi.metatavu.noheva.devices.DeviceController
 import org.apache.commons.lang3.EnumUtils
 import org.apache.commons.lang3.StringUtils
 import org.eclipse.microprofile.jwt.JsonWebToken
@@ -12,6 +14,7 @@ import java.util.stream.Collectors
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
 import javax.ws.rs.core.Context
+import javax.ws.rs.core.HttpHeaders
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.SecurityContext
 
@@ -26,8 +29,17 @@ abstract class AbstractApi {
     @Inject
     lateinit var jsonWebToken: JsonWebToken
 
+    @Inject
+    protected lateinit var cryptoController: CryptoController
+
+    @Inject
+    protected lateinit var deviceController: DeviceController
+
     @Context
     private lateinit var securityContext: SecurityContext
+
+    @Context
+    lateinit var httpHeaders: HttpHeaders
 
     /**
      * Returns list parameter as <E> translated by given translate function.
@@ -100,6 +112,33 @@ abstract class AbstractApi {
 
             return null
         }
+
+    /**
+     * Checks whether incoming request from Device has authorized device key as a header
+     *
+     * @param deviceId device id
+     * @return whether device key is authorized
+     */
+    protected fun isAuthorizedDevice(deviceId: UUID): Boolean {
+        val deviceKeyHeader = httpHeaders.requestHeaders[DEVICE_KEY_HEADER]
+        if (deviceKeyHeader.isNullOrEmpty()) {
+            return false
+        }
+        val token = deviceKeyHeader.firstOrNull() ?: return false
+        val privateKey = cryptoController.loadPrivateKeyBase64(token) ?: return false
+        val deviceKey = deviceController.getDeviceKey(deviceId) ?: return false
+        val publicKey = cryptoController.loadPublicKey(deviceKey) ?: return false
+        val challenge = cryptoController.signUUID(
+            privateKey = privateKey,
+            id = deviceId
+        ) ?: return false
+
+        return cryptoController.verifyUUID(
+            publicKey = publicKey,
+            signature = challenge,
+            id = deviceId
+        )
+    }
 
     /**
      * Constructs ok response
@@ -298,6 +337,8 @@ abstract class AbstractApi {
         const val VISITOR_VARIABLE_NOT_FOUND = "Visitor variable not found"
         const val DEVICE_MODEL_NOT_FOUND = "Device model not found"
         const val INVALID_LAYOUT_TYPE = "Data does not match layout type"
+
+        const val DEVICE_KEY_HEADER = "X-DEVICE-KEY"
     }
 
     /**

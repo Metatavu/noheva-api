@@ -4,10 +4,7 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.noheva.api.client.apis.DevicesApi
 import fi.metatavu.noheva.api.client.infrastructure.ApiClient
 import fi.metatavu.noheva.api.client.infrastructure.ClientException
-import fi.metatavu.noheva.api.client.models.Device
-import fi.metatavu.noheva.api.client.models.DeviceApprovalStatus
-import fi.metatavu.noheva.api.client.models.DeviceRequest
-import fi.metatavu.noheva.api.client.models.DeviceStatus
+import fi.metatavu.noheva.api.client.models.*
 import fi.metatavu.noheva.api.test.functional.builder.TestBuilder
 import fi.metatavu.noheva.api.test.functional.settings.ApiTestSettings
 import org.junit.Assert
@@ -21,6 +18,9 @@ class DevicesTestBuilderResource(
     val accessTokenProvider: AccessTokenProvider?,
     apiClient: ApiClient
 ): ApiTestBuilderResource<Device, ApiClient?>(testBuilder, apiClient) {
+
+    private val createdDeviceIds = mutableListOf<UUID>()
+
     override fun clean(t: Device?) {
         api.deleteDevice(t?.id!!)
     }
@@ -41,10 +41,10 @@ class DevicesTestBuilderResource(
      * @return created device
      */
     fun create(
-        serialNumber: String,
+        serialNumber: String = "123",
         name: String? = null,
         description: String? = null,
-        version: String
+        version: String = "1.0.0"
     ): Device {
         val result: Device = api.createDevice(
             DeviceRequest(
@@ -54,7 +54,10 @@ class DevicesTestBuilderResource(
                 version = version
             )
         )
-        addClosable(result)
+        if (!createdDeviceIds.contains(result.id)) {
+            addClosable(result)
+            createdDeviceIds.add(result.id!!)
+        }
 
         return result
     }
@@ -98,6 +101,27 @@ class DevicesTestBuilderResource(
             val closeableDevice: Device = closable
             closeableDevice.id == device.id
         }
+        createdDeviceIds.remove(device.id)
+    }
+
+    /**
+     * Finds device
+     *
+     * @param deviceId device id
+     * @return found device
+     */
+    fun find(deviceId: UUID): Device {
+        return api.findDevice(deviceId)
+    }
+
+    /**
+     * Gets device key for
+     *
+     * @param deviceId device id
+     * @return device key
+     */
+    fun getDeviceKey(deviceId: UUID): DeviceKey {
+        return api.getDeviceKey(deviceId)
     }
 
     /**
@@ -110,6 +134,52 @@ class DevicesTestBuilderResource(
         try {
             api.createDevice(deviceRequest)
             Assert.fail(String.format("Expected create to fail with message %d", expectedStatus))
+        } catch (e: ClientException) {
+            assertClientExceptionStatus(expectedStatus, e)
+        }
+    }
+
+    /**
+     * Asserts that finding Device fails with given status code
+     *
+     * @param expectedStatus expected status code
+     * @param deviceId deviceId
+     */
+    fun assertFindFail(expectedStatus: Int, deviceId: UUID) {
+        try {
+            api.findDevice(deviceId)
+            Assert.fail(String.format("Expected find to fail with message %d", expectedStatus))
+        } catch (e: ClientException) {
+            assertClientExceptionStatus(expectedStatus, e)
+        }
+    }
+
+    /**
+     * Asserts that updating Device fails with given status code
+     *
+     * @param expectedStatus expected status code
+     * @param deviceId deviceId
+     * @param device device payload
+     */
+    fun assertUpdateFail(expectedStatus: Int, deviceId: UUID, device: Device) {
+        try {
+            api.updateDevice(deviceId, device)
+            Assert.fail(String.format("Expected update to fail with message %d", expectedStatus))
+        } catch (e: ClientException) {
+            assertClientExceptionStatus(expectedStatus, e)
+        }
+    }
+
+    /**
+     * Asserts that deleting Device fails with given status code
+     *
+     * @param expectedStatus expectedStatusCode
+     * @param deviceId deviceId
+     */
+    fun assertDeleteFail(expectedStatus: Int, deviceId: UUID) {
+        try {
+            api.deleteDevice(deviceId)
+            Assert.fail(String.format("Expected delete to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
             assertClientExceptionStatus(expectedStatus, e)
         }

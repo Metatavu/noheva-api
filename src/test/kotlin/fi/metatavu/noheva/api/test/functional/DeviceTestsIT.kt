@@ -10,6 +10,7 @@ import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.util.UUID
 
 
 /**
@@ -90,6 +91,151 @@ class DeviceTestsIT: AbstractFunctionalTest() {
 
             assertEquals(foundDevices2.size, 5)
             assertEquals(foundDevices3.size, 5)
+        }
+    }
+
+    @Test
+    fun testDeviceApproval() {
+        createTestBuilder().use { testBuilder ->
+            val createdDevice = testBuilder.admin.devices.create(serialNumber = "123abc", version = "1.0.0")
+            assertEquals(createdDevice.approvalStatus, DeviceApprovalStatus.PENDING)
+
+            val updatedDevice = testBuilder.admin.devices.update(
+                deviceId = createdDevice.id!!,
+                device = createdDevice.copy(approvalStatus = DeviceApprovalStatus.APPROVED)
+            )
+            assertEquals(updatedDevice.approvalStatus, DeviceApprovalStatus.APPROVED)
+
+            // Assert that one cannot create device with same serial number if it exists and approval status isn't PENDING_REAPPROVAL
+            testBuilder.admin.devices.assertCreateFail(
+                expectedStatus = 409,
+                deviceRequest = DeviceRequest(
+                    serialNumber = "123abc",
+                    version = "1.0.0"
+                )
+            )
+            testBuilder.admin.devices.getDeviceKey(createdDevice.id)
+            val readyDevice = testBuilder.admin.devices.find(createdDevice.id)
+            assertEquals(readyDevice.approvalStatus, DeviceApprovalStatus.READY)
+
+            val updatedDevice2 = testBuilder.admin.devices.update(
+                deviceId = createdDevice.id,
+                device = createdDevice.copy(approvalStatus = DeviceApprovalStatus.PENDING_REAPPROVAL)
+            )
+            assertEquals(updatedDevice2.approvalStatus, DeviceApprovalStatus.PENDING_REAPPROVAL)
+
+            // Assert that one can create device with same serial number if it exists and approval status is PENDING_REAPPROVAL
+            val reCreatedDevice = testBuilder.admin.devices.create(serialNumber = "123abc", version = "1.0.0")
+            assertEquals(reCreatedDevice.approvalStatus, DeviceApprovalStatus.PENDING)
+            val reUpdatedDevice = testBuilder.admin.devices.update(
+                deviceId = createdDevice.id,
+                device = createdDevice.copy(approvalStatus = DeviceApprovalStatus.APPROVED)
+            )
+            assertEquals(reUpdatedDevice.approvalStatus, DeviceApprovalStatus.APPROVED)
+
+            testBuilder.admin.devices.getDeviceKey(createdDevice.id)
+            val readyDevice2 = testBuilder.admin.devices.find(createdDevice.id)
+            assertEquals(readyDevice2.approvalStatus, DeviceApprovalStatus.READY)
+        }
+    }
+
+    @Test
+    fun testFindDevice() {
+        createTestBuilder().use { testBuilder ->
+            val createdDevice = testBuilder.admin.devices.create(serialNumber = "123abc", version = "1.0.0")
+            val foundDevice = testBuilder.admin.devices.find(createdDevice.id!!)
+            assertEquals(foundDevice.serialNumber, "123abc")
+            assertEquals(foundDevice.version, "1.0.0")
+            assertEquals(foundDevice.approvalStatus, DeviceApprovalStatus.PENDING)
+            assertEquals(foundDevice.status, DeviceStatus.ONLINE)
+            assertEquals(foundDevice.lastSeen, foundDevice.createdAt)
+            assertNull(foundDevice.name)
+            assertNull(foundDevice.description)
+            assertNull(foundDevice.lastModifierId)
+            assertNotNull(foundDevice.createdAt)
+            assertNotNull(foundDevice.modifiedAt)
+
+            // Asserts that one cannot find device with invalid id
+            testBuilder.admin.devices.assertFindFail(
+                expectedStatus = 404,
+                deviceId = UUID.randomUUID()
+            )
+        }
+    }
+
+    @Test
+    fun testUpdateDevice() {
+        createTestBuilder().use { testBuilder ->
+            val deviceModel = testBuilder.admin.deviceModels.create()
+            val createdDevice = testBuilder.admin.devices.create(serialNumber = "123abc", version = "1.0.0")
+            val updatedDevice = testBuilder.admin.devices.update(
+                deviceId = createdDevice.id!!,
+                device = createdDevice.copy(
+                    name = "Test device",
+                    description = "Test device description",
+                    deviceModelId = deviceModel.id!!,
+                    approvalStatus = DeviceApprovalStatus.APPROVED,
+                )
+            )
+            assertEquals(updatedDevice.name, "Test device")
+            assertEquals(updatedDevice.description, "Test device description")
+            assertEquals(updatedDevice.approvalStatus, DeviceApprovalStatus.APPROVED)
+            assertEquals(updatedDevice.status, DeviceStatus.ONLINE)
+            assertEquals(updatedDevice.lastSeen, updatedDevice.createdAt)
+            assertEquals(updatedDevice.deviceModelId, deviceModel.id)
+            assertNotNull(updatedDevice.lastModifierId)
+            assertNotNull(updatedDevice.createdAt)
+            assertNotNull(updatedDevice.modifiedAt)
+
+            // Asserts that one cannot update device with invalid id
+            testBuilder.admin.devices.assertUpdateFail(
+                expectedStatus = 404,
+                deviceId = UUID.randomUUID(),
+                device = updatedDevice
+            )
+
+            // Asserts that one cannot update device with invalid device model id
+            testBuilder.admin.devices.assertUpdateFail(
+                expectedStatus = 400,
+                deviceId = updatedDevice.id!!,
+                device = updatedDevice.copy(deviceModelId = UUID.randomUUID())
+            )
+        }
+    }
+
+    @Test
+    fun testDeleteDevice() {
+        createTestBuilder().use { testBuilder ->
+            val createdDevice = testBuilder.admin.devices.create(serialNumber = "123abc", version = "1.0.0")
+            val foundDevice = testBuilder.admin.devices.find(createdDevice.id!!)
+
+            assertEquals(foundDevice, createdDevice)
+
+            testBuilder.admin.devices.delete(createdDevice)
+            testBuilder.admin.devices.assertFindFail(
+                expectedStatus = 404,
+                deviceId = createdDevice.id
+            )
+            // Asserts that one cannot delete device with invalid id
+            testBuilder.admin.devices.assertDeleteFail(
+                expectedStatus = 404,
+                deviceId = UUID.randomUUID()
+            )
+        }
+    }
+
+    @Test
+    fun testDeleteDeviceFail() {
+        createTestBuilder().use { testBuilder ->
+            val createdDevice = testBuilder.admin.devices.create(serialNumber = "123abc", version = "1.0.0")
+            val exhibition = testBuilder.admin.exhibitions.create()
+            val exhibitionDeviceGroup = createDefaultDeviceGroup(testBuilder, exhibition)
+            val exhibitionDevice = createDefaultDevice(testBuilder, exhibition, exhibitionDeviceGroup)
+            val updatedExhibitionDevice = testBuilder.admin.exhibitionDevices.updateExhibitionDevice(exhibition.id!!, exhibitionDevice.copy(deviceId = createdDevice.id!!))
+
+            assertEquals(updatedExhibitionDevice.deviceId, createdDevice.id)
+
+            testBuilder.admin.devices.assertDeleteFail(400, createdDevice.id)
         }
     }
 }

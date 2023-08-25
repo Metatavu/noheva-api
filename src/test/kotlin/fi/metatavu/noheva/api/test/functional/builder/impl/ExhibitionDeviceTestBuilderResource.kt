@@ -25,14 +25,12 @@ class ExhibitionDeviceTestBuilderResource(
      *
      * @param exhibitionId exhibition id
      * @param groupId group id
-     * @param modelId model id
      * @return created exhibition device
      */
-    fun create(exhibitionId: UUID, groupId: UUID, modelId: UUID): ExhibitionDevice {
+    fun create(exhibitionId: UUID, groupId: UUID): ExhibitionDevice {
         val result: ExhibitionDevice = api.createExhibitionDevice(
             exhibitionId, ExhibitionDevice(
                 groupId = groupId,
-                modelId = modelId,
                 name = "Default",
                 screenOrientation = ScreenOrientation.PORTRAIT,
                 imageLoadStrategy = DeviceImageLoadStrategy.MEMORY
@@ -48,13 +46,11 @@ class ExhibitionDeviceTestBuilderResource(
      *
      * @param exhibition exhibition
      * @param group group
-     * @param model model
      * @return created exhibition device
      */
-    fun create(exhibition: Exhibition, group: ExhibitionDeviceGroup, model: DeviceModel): ExhibitionDevice {
+    fun create(exhibition: Exhibition, group: ExhibitionDeviceGroup): ExhibitionDevice {
         return create(
             exhibitionId = exhibition.id!!,
-            modelId = model.id!!,
             groupId = group.id!!
         )
     }

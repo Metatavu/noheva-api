@@ -32,8 +32,24 @@ class ExhibitionRoomController() {
      * @param creatorId creating user id
      * @return created exhibition room
      */
-    fun createExhibitionRoom(exhibition: Exhibition, floor: ExhibitionFloor, name: String, color: String?, geoShape: Polygon?, creatorId: UUID): ExhibitionRoom {
-        return exhibitionRoomDAO.create(id = UUID.randomUUID(), exhibition = exhibition, floor = floor, name = name, color = color, geoShape = getPolygon(geoShape), creatorId = creatorId, lastModifierId = creatorId)
+    fun createExhibitionRoom(
+        exhibition: Exhibition,
+        floor: ExhibitionFloor,
+        name: String,
+        color: String?,
+        geoShape: Polygon?,
+        creatorId: UUID
+    ): ExhibitionRoom {
+        return exhibitionRoomDAO.create(
+            id = UUID.randomUUID(),
+            exhibition = exhibition,
+            floor = floor,
+            name = name,
+            color = color,
+            geoShape = getPolygon(geoShape),
+            creatorId = creatorId,
+            lastModifierId = creatorId
+        )
     }
 
     /**

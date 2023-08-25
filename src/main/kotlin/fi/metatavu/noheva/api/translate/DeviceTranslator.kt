@@ -12,7 +12,7 @@ import javax.enterprise.context.ApplicationScoped
 class DeviceTranslator: AbstractTranslator<Device, fi.metatavu.noheva.api.spec.model.Device>() {
     override fun translate(entity: Device): fi.metatavu.noheva.api.spec.model.Device {
         val deviceLastSeen = entity.lastSeen
-        val deviceStatus = if (deviceLastSeen.isBefore(OffsetDateTime.now().minusMinutes(5))) {
+        val deviceStatus = if (deviceLastSeen.isBefore(OffsetDateTime.now().minusMinutes(2))) {
             DeviceStatus.OFFLINE
         } else {
             entity.status

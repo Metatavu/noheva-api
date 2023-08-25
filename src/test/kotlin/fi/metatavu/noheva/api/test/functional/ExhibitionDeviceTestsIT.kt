@@ -41,11 +41,11 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
                 name = "Group 1"
             )
 
-            val model = it.admin.deviceModels.create()
+            val device = it.admin.devices.create()
             val screenOrientation = ScreenOrientation.PORTRAIT
             val createdDevice = it.admin.exhibitionDevices.create(exhibitionId, ExhibitionDevice(
                 groupId = group.id!!,
-                modelId = model.id!!,
+                deviceId = device.id!!,
                 name = "name",
                 screenOrientation = screenOrientation,
                 imageLoadStrategy = DeviceImageLoadStrategy.DISK
@@ -54,8 +54,8 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             assertNotNull(createdDevice)
             assertJsonsEqual(listOf(MqttDeviceCreate(exhibitionId = exhibitionId, id = createdDevice.id!!)), mqttSubscription.getMessages(1))
 
-            it.admin.exhibitionDevices.assertCreateFail(400, exhibitionId, ExhibitionDevice(groupId = UUID.randomUUID(), modelId = model.id, name = "name", screenOrientation = screenOrientation, imageLoadStrategy = DeviceImageLoadStrategy.MEMORY))
-            it.admin.exhibitionDevices.assertCreateFail(400, exhibitionId, ExhibitionDevice(groupId = group.id, modelId = UUID.randomUUID(), name = "name", screenOrientation = screenOrientation, imageLoadStrategy = DeviceImageLoadStrategy.MEMORY))
+            it.admin.exhibitionDevices.assertCreateFail(400, exhibitionId, ExhibitionDevice(groupId = UUID.randomUUID(), deviceId = device.id, name = "name", screenOrientation = screenOrientation, imageLoadStrategy = DeviceImageLoadStrategy.MEMORY))
+            it.admin.exhibitionDevices.assertCreateFail(400, exhibitionId, ExhibitionDevice(groupId = group.id, deviceId = UUID.randomUUID(), name = "name", screenOrientation = screenOrientation, imageLoadStrategy = DeviceImageLoadStrategy.MEMORY))
         }
    }
 
@@ -74,10 +74,9 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
                 name = "Group 1"
             )
 
-            val model = it.admin.deviceModels.create()
             val nonExistingExhibitionId = UUID.randomUUID()
             val nonExistingExhibitionDeviceId = UUID.randomUUID()
-            val createdExhibitionDevice = it.admin.exhibitionDevices.create(exhibitionId, group.id!!, model.id!!)
+            val createdExhibitionDevice = it.admin.exhibitionDevices.create(exhibitionId, group.id!!)
             val createdExhibitionDeviceId = createdExhibitionDevice.id!!
 
             it.admin.exhibitionDevices.assertFindFail(404, exhibitionId, nonExistingExhibitionDeviceId)
@@ -91,6 +90,8 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
     fun testListDevices() {
         createTestBuilder().use {
             val exhibition = it.admin.exhibitions.create()
+            val model = it.admin.deviceModels.create()
+            val createdDevice = it.admin.devices.create()
             val exhibitionId = exhibition.id!!
             val floor = it.admin.exhibitionFloors.create(exhibitionId = exhibitionId)
             val floorId = floor.id!!
@@ -108,14 +109,14 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
                 roomId = roomId,
                 name = "Group 2"
             )
-
-            val model = it.admin.deviceModels.create()
+            it.admin.devices.update(createdDevice.id!!, createdDevice.copy(deviceModelId = model.id!!))
             val nonExistingExhibitionId = UUID.randomUUID()
 
             it.admin.exhibitionDevices.assertListFail(404, nonExistingExhibitionId, null, null)
             assertEquals(0, it.admin.exhibitionDevices.listExhibitionDevices(exhibitionId, null, null).size)
 
-            val createdExhibitionDevice = it.admin.exhibitionDevices.create(exhibitionId, group1.id!!, model.id!!)
+            val createdExhibitionDevice = it.admin.exhibitionDevices.create(exhibitionId, group1.id!!)
+            it.admin.exhibitionDevices.updateExhibitionDevice(exhibitionId, createdExhibitionDevice.copy(deviceId = createdDevice.id))
             val createdExhibitionDeviceId = createdExhibitionDevice.id!!
 
             it.admin.exhibitionDevices.assertCount(1, exhibitionId, null, null)
@@ -143,6 +144,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             val mqttSubscription = it.mqtt.subscribe(MqttDeviceUpdate::class.java,"devices/update")
 
             val exhibition = it.admin.exhibitions.create()
+            val device = it.admin.devices.create()
             val exhibitionId = exhibition.id!!
             val nonExistingExhibitionId = UUID.randomUUID()
             val floor = it.admin.exhibitionFloors.create(exhibitionId = exhibitionId)
@@ -186,15 +188,11 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
                 )
             )
 
-            val model1 = it.admin.deviceModels.create()
-            val model2 = it.admin.deviceModels.create()
             val nonExistingGroupId = UUID.randomUUID()
-            val nonExistingModelId = UUID.randomUUID()
             var screenOrientation = ScreenOrientation.PORTRAIT
             var createdExhibitionDevice = it.admin.exhibitionDevices.create(
                 exhibitionId = exhibitionId, payload = ExhibitionDevice(
                     groupId = group1.id,
-                    modelId = model1.id!!,
                     name = "created name",
                     location = Point(-123.0, 234.0),
                     screenOrientation = screenOrientation,
@@ -223,7 +221,6 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
                 deviceId = createdExhibitionDeviceId,
                 contentVersionId = contentVersion1.id
             )
-
             val foundCreatedExhibitionDevice = it.admin.exhibitionDevices.findExhibitionDevice(exhibitionId, createdExhibitionDeviceId)
             assertEquals(createdExhibitionDevice.id, foundCreatedExhibitionDevice.id)
             assertEquals("created name", createdExhibitionDevice.name)
@@ -231,13 +228,12 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             assertEquals(234.0, createdExhibitionDevice.location?.y)
             assertEquals(ScreenOrientation.PORTRAIT, createdExhibitionDevice.screenOrientation)
             assertEquals(DeviceImageLoadStrategy.MEMORY, createdExhibitionDevice.imageLoadStrategy)
-            assertEquals(model1.id, createdExhibitionDevice.modelId)
             assertEquals(idlePage1.id, createdExhibitionDevice.idlePageId)
             screenOrientation = ScreenOrientation.LANDSCAPE
 
             val updatedExhibitionDevice = it.admin.exhibitionDevices.updateExhibitionDevice(exhibitionId, ExhibitionDevice(
                 groupId = group2.id,
-                modelId = model2.id!!,
+                deviceId = device.id!!,
                 name = "updated name",
                 screenOrientation = screenOrientation,
                 id = createdExhibitionDeviceId,
@@ -263,16 +259,16 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             assertEquals("updated name", updatedExhibitionDevice.name)
             assertEquals(123.2, updatedExhibitionDevice.location?.x)
             assertEquals(-234.4, updatedExhibitionDevice.location?.y)
-            assertEquals(model2.id, updatedExhibitionDevice.modelId)
+            assertEquals(device.id, updatedExhibitionDevice.deviceId)
             assertEquals(group2.id, updatedExhibitionDevice.groupId)
             assertEquals(ScreenOrientation.LANDSCAPE, updatedExhibitionDevice.screenOrientation)
             assertEquals(DeviceImageLoadStrategy.DISK, updatedExhibitionDevice.imageLoadStrategy)
             assertEquals(idlePage2.id, updatedExhibitionDevice.idlePageId)
 
-            it.admin.exhibitionDevices.assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDevice(groupId = group1.id, modelId = model2.id, name = "name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId, imageLoadStrategy = DeviceImageLoadStrategy.MEMORY))
-            it.admin.exhibitionDevices.assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = nonExistingGroupId, modelId = model2.id, name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId, imageLoadStrategy = DeviceImageLoadStrategy.MEMORY))
-            it.admin.exhibitionDevices.assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = group1.id, modelId = nonExistingModelId, name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId, imageLoadStrategy = DeviceImageLoadStrategy.MEMORY))
-            it.admin.exhibitionDevices.assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = group1.id, modelId = model2.id, name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId, idlePageId = UUID.randomUUID(), imageLoadStrategy = DeviceImageLoadStrategy.MEMORY))
+            it.admin.exhibitionDevices.assertUpdateFail(404, nonExistingExhibitionId, ExhibitionDevice(groupId = group1.id, deviceId = device.id, name = "name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId, imageLoadStrategy = DeviceImageLoadStrategy.MEMORY))
+            it.admin.exhibitionDevices.assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = nonExistingGroupId, deviceId = device.id, name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId, imageLoadStrategy = DeviceImageLoadStrategy.MEMORY))
+            it.admin.exhibitionDevices.assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = group1.id, deviceId = UUID.randomUUID(), name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId, imageLoadStrategy = DeviceImageLoadStrategy.MEMORY))
+            it.admin.exhibitionDevices.assertUpdateFail(400, exhibitionId, ExhibitionDevice(groupId = group1.id, deviceId = device.id, name = "updated name", screenOrientation = screenOrientation, id = createdExhibitionDeviceId, idlePageId = UUID.randomUUID(), imageLoadStrategy = DeviceImageLoadStrategy.MEMORY))
 
             it.admin.exhibitionDevices.updateExhibitionDevice(
                 exhibitionId = exhibitionId,
@@ -301,8 +297,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
                 name = "Group 1"
             )
 
-            val model = it.admin.deviceModels.create()
-            val createdExhibitionDevice = it.admin.exhibitionDevices.create(exhibitionId, group.id!!, model.id!!)
+            val createdExhibitionDevice = it.admin.exhibitionDevices.create(exhibitionId, group.id!!)
             val createdExhibitionDeviceId = createdExhibitionDevice.id!!
 
             assertNotNull(it.admin.exhibitionDevices.findExhibitionDevice(exhibitionId, createdExhibitionDeviceId))

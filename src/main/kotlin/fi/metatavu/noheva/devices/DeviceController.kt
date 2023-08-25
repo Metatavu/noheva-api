@@ -4,6 +4,8 @@ import fi.metatavu.noheva.api.spec.model.DeviceApprovalStatus
 import fi.metatavu.noheva.api.spec.model.DeviceStatus
 import fi.metatavu.noheva.persistence.dao.DeviceDAO
 import fi.metatavu.noheva.persistence.model.Device
+import fi.metatavu.noheva.persistence.model.DeviceModel
+import java.security.PublicKey
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -77,19 +79,21 @@ class DeviceController {
      *
      * @param existingDevice existing device
      * @param newDevice new device
+     * @param deviceModel device model
      * @param userId user id
      * @return updated device
      */
     fun updateDevice(
         existingDevice: Device,
         newDevice: fi.metatavu.noheva.api.spec.model.Device,
+        deviceModel: DeviceModel?,
         userId: UUID
     ): Device {
         existingDevice.name = newDevice.name
         existingDevice.description = newDevice.description
         existingDevice.status = newDevice.status
         existingDevice.approvalStatus = newDevice.approvalStatus
-        existingDevice.version = newDevice.version
+        existingDevice.deviceModel = deviceModel
         existingDevice.lastModifierId = userId
 
         return deviceDAO.update(existingDevice)
@@ -102,5 +106,48 @@ class DeviceController {
      */
     fun deleteDevice(device: Device) {
         return deviceDAO.delete(device)
+    }
+
+    /**
+     * Stores Device key
+     *
+     * @param device device
+     * @param key key
+     * @return updated device
+     */
+    fun storeDeviceKey(device: Device, key: PublicKey): Device {
+        device.deviceKey = key.encoded
+        device.approvalStatus = DeviceApprovalStatus.READY
+
+        return deviceDAO.update(device)
+    }
+
+    /**
+     * Re-initiates device approval
+     *
+     * @param device device
+     * @param name name
+     * @param description description
+     * @param version version
+     * @return updated device
+     */
+    fun reInitiateDeviceApproval(device: Device, name: String?, description: String?, version: String): Device {
+        device.name = name
+        device.description = description
+        device.version = version
+        device.deviceKey = null
+        device.approvalStatus = DeviceApprovalStatus.PENDING
+
+        return deviceDAO.update(device)
+    }
+
+    /**
+     * Gets Device public key by id
+     *
+     * @param id id
+     * @return device public key encoded
+     */
+    fun getDeviceKey(id: UUID): ByteArray? {
+        return deviceDAO.findById(id)?.deviceKey
     }
 }

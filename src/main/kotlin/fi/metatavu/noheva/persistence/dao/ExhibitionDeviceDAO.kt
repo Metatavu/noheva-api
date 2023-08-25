@@ -25,7 +25,7 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
      * @param id id
      * @param exhibition exhibition
      * @param exhibitionDeviceGroup exhibitionDeviceGroup
-     * @param deviceModel deviceModel
+     * @param device device
      * @param name name
      * @param locationX location x
      * @param locationY location y
@@ -40,7 +40,7 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
         id: UUID,
         exhibition: Exhibition,
         exhibitionDeviceGroup: ExhibitionDeviceGroup,
-        deviceModel: DeviceModel,
+        device: Device?,
         name: String,
         locationX: Double?,
         locationY: Double?,
@@ -55,7 +55,7 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
         exhibitionDevice.name = name
         exhibitionDevice.exhibition = exhibition
         exhibitionDevice.exhibitionDeviceGroup = exhibitionDeviceGroup
-        exhibitionDevice.deviceModel = deviceModel
+        exhibitionDevice.device = device
         exhibitionDevice.locationX = locationX
         exhibitionDevice.locationY = locationY
         exhibitionDevice.screenOrientation = screenOrientation
@@ -67,15 +67,14 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
     }
 
     /**
-     * Lists devices
+     * Lists exhibition devices
      *
      * @param exhibition exhibition
      * @param exhibitionDeviceGroup filter by exhibition device group. Ignored if null is passed
      * @param deviceModel filter by device model. Ignored if null is passed
-     * @return List of devices
+     * @return List of exhibition devices
      */
     fun list(exhibition: Exhibition, exhibitionDeviceGroup: ExhibitionDeviceGroup?, deviceModel: DeviceModel?): List<ExhibitionDevice> {
-        
         val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<ExhibitionDevice> = criteriaBuilder.createQuery(ExhibitionDevice::class.java)
         val root: Root<ExhibitionDevice> = criteria.from(ExhibitionDevice::class.java)
@@ -88,7 +87,8 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
         }
 
         if (deviceModel != null) {
-            restrictions.add(criteriaBuilder.equal(root.get(ExhibitionDevice_.deviceModel), deviceModel))
+            val deviceJoin = root.join(ExhibitionDevice_.device)
+            restrictions.add(criteriaBuilder.equal(deviceJoin.get(Device_.deviceModel), deviceModel))
         }
 
         criteria.select(root)
@@ -99,10 +99,29 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
     }
 
     /**
+     * Lists exhibition devices by device
+     *
+     * @param device device
+     * @return list of exhibition devices
+     */
+    fun listByDevice(device: Device): List<ExhibitionDevice> {
+        val criteriaBuilder = getEntityManager().criteriaBuilder
+        val criteria: CriteriaQuery<ExhibitionDevice> = criteriaBuilder.createQuery(ExhibitionDevice::class.java)
+        val root: Root<ExhibitionDevice> = criteria.from(ExhibitionDevice::class.java)
+
+        criteria.select(root)
+        criteria.where(criteriaBuilder.equal(root.get(ExhibitionDevice_.device), device))
+
+        val query: TypedQuery<ExhibitionDevice> = getEntityManager().createQuery(criteria)
+
+        return query.resultList
+    }
+
+    /**
      * Lists devices by idle page
      *
      * @param idlePage idlePage
-     * @return List of devices
+     * @return List of exhibition devices
      */
     fun listByIdlePage(idlePage: ExhibitionPage): List<ExhibitionDevice> {
         
@@ -118,16 +137,16 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
     }
 
     /**
-     * Updates exhibition device model
+     * Updates exhibition devices device
      *
      * @param exhibitionDevice exhibition device to be updated
-     * @param deviceModel model
+     * @param device device
      * @param lastModifierId last modifier's id
      * @return updated exhibitionDevice
      */
-    fun updateExhibitionDeviceModel(exhibitionDevice: ExhibitionDevice, deviceModel: DeviceModel, lastModifierId: UUID): ExhibitionDevice {
+    fun updateExhibitionDevicesDevice(exhibitionDevice: ExhibitionDevice, device: Device?, lastModifierId: UUID): ExhibitionDevice {
         exhibitionDevice.lastModifierId = lastModifierId
-        exhibitionDevice.deviceModel = deviceModel
+        exhibitionDevice.device = device
         return persist(exhibitionDevice)
     }
 
