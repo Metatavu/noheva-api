@@ -3,6 +3,7 @@ package fi.metatavu.noheva.persistence.dao
 import fi.metatavu.noheva.api.spec.model.DeviceApprovalStatus
 import fi.metatavu.noheva.api.spec.model.DeviceStatus
 import fi.metatavu.noheva.persistence.model.Device
+import fi.metatavu.noheva.persistence.model.DeviceModel
 import fi.metatavu.noheva.persistence.model.Device_
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
@@ -88,12 +89,119 @@ class DeviceDAO: AbstractDAO<Device>() {
     }
 
     /**
-     * Updates Device
+     * Updates Devices name
      *
      * @param device device
+     * @param name name
      * @return updated device
      */
-    fun update(device: Device): Device {
+    fun updateName(device: Device, name: String?): Device {
+        device.name = name
+
+        return persist(device)
+    }
+
+    /**
+     * Updates Devices description
+     *
+     * @param device device
+     * @param description description
+     * @return updated device
+     */
+    fun updateDescription(device: Device, description: String?): Device {
+        device.description = description
+
+        return persist(device)
+    }
+
+    /**
+     * Updates devices status
+     *
+     * @param device device
+     * @param status status
+     * @return updated device
+     */
+    fun updateStatus(device: Device, status: DeviceStatus): Device {
+        device.status = status
+
+        return persist(device)
+    }
+
+    /**
+     * Updates devices approval status
+     *
+     * @param device device
+     * @param approvalStatus approval status
+     * @return updated device
+     */
+    fun updateApprovalStatus(device: Device, approvalStatus: DeviceApprovalStatus): Device {
+        device.approvalStatus = approvalStatus
+
+        return persist(device)
+    }
+
+    /**
+     * Updates devices version
+     *
+     * @param device device
+     * @param version version
+     * @return updated device
+     */
+    fun updateVersion(device: Device, version: String): Device {
+        device.version = version
+
+        return persist(device)
+    }
+
+    /**
+     * Updates devices serial number
+     *
+     * @param device device
+     * @param serialNumber serial number
+     * @return updated device
+     */
+    fun updateSerialNumber(device: Device, serialNumber: String): Device {
+        device.serialNumber = serialNumber
+
+        return persist(device)
+    }
+
+    /**
+     * Updates devices device model
+     *
+     * @param device device
+     * @param deviceModel device model
+     * @return updated device
+     */
+    fun updateDeviceModel(device: Device, deviceModel: DeviceModel?): Device {
+        device.deviceModel = deviceModel
+
+        return persist(device)
+    }
+
+    /**
+     * Updates devices last modifier id
+     *
+     * @param device device
+     * @param lastModifierId last modifier id
+     * @return updated device
+     */
+    fun updateLastModifierId(device: Device, lastModifierId: UUID?): Device {
+        device.lastModifierId = lastModifierId
+
+        return persist(device)
+    }
+
+    /**
+     * Updates devices device key
+     *
+     * @param device device
+     * @param deviceKey device key
+     * @return updated device
+     */
+    fun updateDeviceKey(device: Device, deviceKey: ByteArray?): Device {
+        device.deviceKey = deviceKey
+
         return persist(device)
     }
 }

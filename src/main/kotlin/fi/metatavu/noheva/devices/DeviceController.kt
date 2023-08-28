@@ -89,14 +89,14 @@ class DeviceController {
         deviceModel: DeviceModel?,
         userId: UUID
     ): Device {
-        existingDevice.name = newDevice.name
-        existingDevice.description = newDevice.description
-        existingDevice.status = newDevice.status
-        existingDevice.approvalStatus = newDevice.approvalStatus
-        existingDevice.deviceModel = deviceModel
-        existingDevice.lastModifierId = userId
+        var result = deviceDAO.updateName(existingDevice, newDevice.name)
+        result = deviceDAO.updateDescription(result, newDevice.description)
+        result = deviceDAO.updateStatus(result, newDevice.status)
+        result = deviceDAO.updateApprovalStatus(result, newDevice.approvalStatus)
+        result = deviceDAO.updateDeviceModel(result, deviceModel)
+        result = deviceDAO.updateSerialNumber(result, newDevice.serialNumber)
 
-        return deviceDAO.update(existingDevice)
+        return deviceDAO.updateLastModifierId(result, userId)
     }
 
     /**
@@ -116,10 +116,9 @@ class DeviceController {
      * @return updated device
      */
     fun storeDeviceKey(device: Device, key: PublicKey): Device {
-        device.deviceKey = key.encoded
-        device.approvalStatus = DeviceApprovalStatus.READY
+        val result = deviceDAO.updateDeviceKey(device, key.encoded)
 
-        return deviceDAO.update(device)
+        return deviceDAO.updateApprovalStatus(result, DeviceApprovalStatus.READY)
     }
 
     /**
@@ -132,13 +131,12 @@ class DeviceController {
      * @return updated device
      */
     fun reInitiateDeviceApproval(device: Device, name: String?, description: String?, version: String): Device {
-        device.name = name
-        device.description = description
-        device.version = version
-        device.deviceKey = null
-        device.approvalStatus = DeviceApprovalStatus.PENDING
+        var result = deviceDAO.updateApprovalStatus(device, DeviceApprovalStatus.PENDING)
+        result = deviceDAO.updateName(result, name)
+        result = deviceDAO.updateDescription(result, description)
+        result = deviceDAO.updateVersion(result, version)
 
-        return deviceDAO.update(device)
+        return deviceDAO.updateDeviceKey(result, null)
     }
 
     /**
