@@ -13,14 +13,14 @@ import fi.metatavu.noheva.api.test.functional.settings.ApiTestSettings
  * @author Jari Nykänen
  *
  * @param testBuilder test builder instance
+ * @param deviceKey device key
  * @param accessTokenProvider access token provider
  */
 class TestBuilderAuthentication(
     private val testBuilder: TestBuilder,
-    accessTokenProvider: AccessTokenProvider
+    private val accessTokenProvider: AccessTokenProvider?,
+    private val deviceKey: String?,
 ): AccessTokenTestBuilderAuthentication<ApiClient>(testBuilder, accessTokenProvider) {
-
-    private var accessTokenProvider: AccessTokenProvider? = accessTokenProvider
 
     val exhibitions: ExhibitionsTestBuilderResource = ExhibitionsTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     val visitorSessions: VisitorSessionTestBuilderResource = VisitorSessionTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
@@ -39,6 +39,7 @@ class TestBuilderAuthentication(
     val contentVersions: ContentVersionTestBuilderResource = ContentVersionTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     val visitorVariables: VisitorVariableTestBuilderResource = VisitorVariableTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     val devices: DevicesTestBuilderResource = DevicesTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
+    val deviceDatas: DeviceDatasTestBuilderResource = DeviceDatasTestBuilderResource(testBuilder, this.deviceKey, createClient())
 
     override fun createClient(authProvider: AccessTokenProvider): ApiClient {
         val result = ApiClient(ApiTestSettings.apiBasePath)

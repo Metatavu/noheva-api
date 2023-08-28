@@ -5,6 +5,7 @@ import fi.metatavu.noheva.api.spec.model.LayoutType
 import fi.metatavu.noheva.api.spec.model.ScreenOrientation
 import fi.metatavu.noheva.persistence.dao.PageLayoutDAO
 import fi.metatavu.noheva.persistence.model.DeviceModel
+import fi.metatavu.noheva.persistence.model.ExhibitionDevice
 import fi.metatavu.noheva.persistence.model.PageLayout
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
@@ -76,8 +77,25 @@ class PageLayoutController {
      * @param screenOrientation screen orientation
      * @return list of exhibition page layouts
      */
-    fun listPageLayouts(deviceModel: DeviceModel?, screenOrientation: ScreenOrientation?): List<PageLayout> {
+    fun listPageLayouts(
+        deviceModel: DeviceModel?,
+        screenOrientation: ScreenOrientation?
+    ): List<PageLayout> {
         return pageLayoutDAO.list(deviceModel, screenOrientation)
+    }
+
+    /**
+     * Lists layouts used in given device
+     *
+     * @param exhibitionDevice device
+     * @return layouts used in the device
+     */
+    fun listPageLayoutsForDevice(
+        exhibitionDevice: ExhibitionDevice
+    ): List<PageLayout> {
+        return pageLayoutDAO.listByDevice(
+            exhibitionDevice = exhibitionDevice
+        )
     }
 
     /**

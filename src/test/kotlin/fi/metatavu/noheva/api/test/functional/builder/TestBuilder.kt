@@ -5,6 +5,7 @@ import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.jaxrs.test.functional.builder.auth.AuthorizedTestBuilderAuthentication
 import fi.metatavu.jaxrs.test.functional.builder.auth.KeycloakAccessTokenProvider
+import fi.metatavu.jaxrs.test.functional.builder.auth.NullAccessTokenProvider
 import fi.metatavu.noheva.api.client.infrastructure.ApiClient
 import fi.metatavu.noheva.api.test.functional.builder.auth.TestBuilderAuthentication
 import fi.metatavu.noheva.api.test.functional.mqtt.TestMqttClient
@@ -21,6 +22,16 @@ class TestBuilder(private val config: Map<String, String>) : AbstractAccessToken
     var mqtt = TestMqttClient()
 
     /**
+     * Returns client with device key auth
+     *
+     * @param deviceKey device key
+     * @return device authorized client
+     */
+    fun getDevice(deviceKey: String?): TestBuilderAuthentication {
+        return TestBuilderAuthentication(this, NullAccessTokenProvider(), deviceKey)
+    }
+
+    /**
      * Returns admin authenticated authentication resource
      *
      * @return admin authenticated authentication resource
@@ -35,7 +46,8 @@ class TestBuilder(private val config: Map<String, String>) : AbstractAccessToken
         val password = ConfigProvider.getConfig().getValue("muisti.keycloak.admin.password", String::class.java)
         return TestBuilderAuthentication(
             this,
-            KeycloakAccessTokenProvider(authServerUrl, realm, clientId, username, password, null)
+            KeycloakAccessTokenProvider(authServerUrl, realm, clientId, username, password, null),
+            deviceKey = null
         )
     }
 
@@ -43,7 +55,11 @@ class TestBuilder(private val config: Map<String, String>) : AbstractAccessToken
         abstractTestBuilder: AbstractTestBuilder<ApiClient, AccessTokenProvider>,
         authProvider: AccessTokenProvider
     ): AuthorizedTestBuilderAuthentication<ApiClient, AccessTokenProvider> {
-        return TestBuilderAuthentication(this, authProvider)
+        return TestBuilderAuthentication(
+            testBuilder = this,
+            accessTokenProvider = authProvider,
+            deviceKey = null
+        )
     }
 
     override fun close() {
