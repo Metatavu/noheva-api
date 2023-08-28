@@ -65,8 +65,7 @@ abstract class AbstractFunctionalTest: AbstractResourceTest() {
      * @return created device
      */
     protected fun createDefaultDevice(testBuilder: TestBuilder, exhibition: Exhibition, deviceGroup: ExhibitionDeviceGroup): ExhibitionDevice {
-        val model = testBuilder.admin.deviceModels.create()
-        return testBuilder.admin.exhibitionDevices.create(exhibition = exhibition, model = model, group = deviceGroup)
+        return testBuilder.admin.exhibitionDevices.create(exhibition = exhibition, group = deviceGroup)
     }
 
     /**
@@ -77,7 +76,7 @@ abstract class AbstractFunctionalTest: AbstractResourceTest() {
      * @throws IOException thrown when file reading fails
      */
     @Throws(IOException::class)
-    protected open fun getResourceMd5(resourceName: String?): String? {
+    protected fun getResourceMd5(resourceName: String?): String? {
         val classLoader = javaClass.classLoader
         classLoader.getResourceAsStream(resourceName).use { fileStream -> return DigestUtils.md5Hex(fileStream) }
     }

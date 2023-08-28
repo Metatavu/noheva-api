@@ -202,8 +202,7 @@ class ExhibitionPageController {
         exitTransitions: List<ExhibitionPageTransition>,
         orderNumber: Int,
         modifierId: UUID
-    )
-            : ExhibitionPage {
+    ): ExhibitionPage {
         var result = exhibitionPageDAO.updateName(exhibitionPage, name, modifierId)
         result = exhibitionPageDAO.updateLayout(result, layout, modifierId)
         result = exhibitionPageDAO.updateDevice(result, device, modifierId)

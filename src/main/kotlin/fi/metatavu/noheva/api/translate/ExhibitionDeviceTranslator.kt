@@ -21,7 +21,7 @@ class ExhibitionDeviceTranslator :
             exhibitionId = entity.exhibition?.id,
             name = entity.name!!,
             groupId = entity.exhibitionDeviceGroup!!.id!!,
-            modelId = entity.deviceModel!!.id!!,
+            deviceId = entity.device?.id,
             creatorId = entity.creatorId,
             lastModifierId = entity.lastModifierId,
             createdAt = entity.createdAt,

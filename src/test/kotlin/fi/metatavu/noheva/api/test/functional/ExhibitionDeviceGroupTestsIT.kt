@@ -259,18 +259,16 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
     fun testCopyDeviceGroupWithDevices() {
         createTestBuilder().use {
             val exhibition = it.admin.exhibitions.create()
-            val deviceModel = it.admin.deviceModels.create()
-
             val sourceDeviceGroup = createDefaultDeviceGroup(testBuilder = it, exhibition = exhibition)
 
             val exhibitionId = exhibition.id!!
             val sourceGroupId = sourceDeviceGroup.id!!
-            val deviceModelId = deviceModel.id!!
+            val device = it.admin.devices.create()
 
             val sourceDevices = (1..3).map { i ->
                 it.admin.exhibitionDevices.create(exhibitionId = exhibitionId, payload = ExhibitionDevice(
                     name = "Device $i",
-                    modelId = deviceModelId,
+                    deviceId = device.id,
                     groupId = sourceGroupId,
                     screenOrientation = ScreenOrientation.LANDSCAPE,
                     imageLoadStrategy = DeviceImageLoadStrategy.MEMORY,
@@ -316,7 +314,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
             assertNotNull(sampleTargetDevice)
 
             assertNotEquals(sampleSourceDevice?.id, sampleTargetDevice?.id)
-            assertEquals(sampleSourceDevice?.modelId, sampleTargetDevice?.modelId)
+            assertEquals(sampleSourceDevice?.deviceId, sampleTargetDevice?.deviceId)
             assertEquals(sampleSourceDevice?.name, sampleTargetDevice?.name)
             assertEquals(sampleSourceDevice?.screenOrientation, sampleTargetDevice?.screenOrientation)
             assertEquals(sampleSourceDevice?.imageLoadStrategy, sampleTargetDevice?.imageLoadStrategy)
@@ -488,7 +486,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
     @Test
     fun testCopyDeviceGroupWithPages() = createTestBuilder().use {
         val languages = listOf("FI", "SV")
-
+        val device = it.admin.devices.create()
         val exhibition = it.admin.exhibitions.create()
         val deviceModel = it.admin.deviceModels.create()
         val room = createDefaultRoom(testBuilder = it, exhibition = exhibition)
@@ -497,13 +495,12 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
         val exhibitionId = exhibition.id!!
         val sourceGroupId = sourceDeviceGroup.id!!
         val roomId = room.id!!
-        val deviceModelId = deviceModel.id!!
         val pageLayoutId = pageLayout.id!!
 
         val sourceDevices = (1..2).map { i ->
             it.admin.exhibitionDevices.create(exhibitionId = exhibitionId, payload = ExhibitionDevice(
                 name = "Device $i",
-                modelId = deviceModelId,
+                deviceId = device.id,
                 groupId = sourceGroupId,
                 screenOrientation = ScreenOrientation.LANDSCAPE,
                 location = Point(55.0, 33.0),
@@ -512,7 +509,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
         }
 
         val sourceContentVersions: List<ContentVersion> = languages.map { language ->
-            it.admin.contentVersions.create(exhibitionId, ContentVersion(name = language, language = language, deviceGroupId = sourceGroupId, rooms = arrayOf(roomId)))
+            it.admin.contentVersions.create(exhibitionId, ContentVersion(name = language, language = language, rooms = arrayOf(roomId)))
         }
 
         val sourcePages = languages.flatMap { language ->
@@ -640,6 +637,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
     fun testCopyDeviceGroupWithIdlePage() = createTestBuilder().use {
         val exhibition = it.admin.exhibitions.create()
         val deviceModel = it.admin.deviceModels.create()
+        val device = it.admin.devices.create()
         val room = createDefaultRoom(testBuilder = it, exhibition = exhibition)
         val pageLayout = it.admin.pageLayouts.create(deviceModel)
 
@@ -648,12 +646,11 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
         val exhibitionId = exhibition.id!!
         val sourceGroupId = sourceDeviceGroup.id!!
         val roomId = room.id!!
-        val deviceModelId = deviceModel.id!!
         val pageLayoutId = pageLayout.id!!
 
         var sourceDevice = it.admin.exhibitionDevices.create(exhibitionId = exhibitionId, payload = ExhibitionDevice(
             name = "Device",
-            modelId = deviceModelId,
+            deviceId = device.id,
             groupId = sourceGroupId,
             screenOrientation = ScreenOrientation.LANDSCAPE,
             imageLoadStrategy = DeviceImageLoadStrategy.MEMORY,
@@ -723,6 +720,7 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
     fun testCopyDeviceGroupWithNAVIGATEAction() = createTestBuilder().use {
         val exhibition = it.admin.exhibitions.create()
         val deviceModel = it.admin.deviceModels.create()
+        val device = it.admin.devices.create()
         val room = createDefaultRoom(testBuilder = it, exhibition = exhibition)
         val pageLayout = it.admin.pageLayouts.create(deviceModel)
 
@@ -731,12 +729,11 @@ class ExhibitionDeviceGroupTestsIT: AbstractFunctionalTest() {
         val exhibitionId = exhibition.id!!
         val sourceGroupId = sourceDeviceGroup.id!!
         val roomId = room.id!!
-        val deviceModelId = deviceModel.id!!
         val pageLayoutId = pageLayout.id!!
 
         val sourceDevice = it.admin.exhibitionDevices.create(exhibitionId = exhibitionId, payload = ExhibitionDevice(
             name = "Device",
-            modelId = deviceModelId,
+            deviceId = device.id,
             groupId = sourceGroupId,
             screenOrientation = ScreenOrientation.LANDSCAPE,
             imageLoadStrategy = DeviceImageLoadStrategy.MEMORY,

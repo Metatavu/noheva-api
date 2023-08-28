@@ -5,7 +5,6 @@ import org.slf4j.event.Level
 import org.testcontainers.hivemq.HiveMQContainer
 import org.testcontainers.utility.DockerImageName
 
-
 /**
  * Starts test container for mysql
  */

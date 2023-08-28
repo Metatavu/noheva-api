@@ -19,6 +19,7 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 @Transactional
+@Suppress("unused")
 class ExhibitionsApiImpl : ExhibitionsApi, AbstractApi() {
 
     @Inject

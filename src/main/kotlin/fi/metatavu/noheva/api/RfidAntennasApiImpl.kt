@@ -1,6 +1,5 @@
 package fi.metatavu.noheva.api
 
-
 import fi.metatavu.noheva.api.spec.RfidAntennasApi
 import fi.metatavu.noheva.api.spec.model.RfidAntenna
 import fi.metatavu.noheva.api.translate.RfidAntennaTranslator
@@ -20,6 +19,7 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 @Transactional
+@Suppress("UNUSED")
 class RfidAntennasApiImpl : RfidAntennasApi, AbstractApi() {
 
     @Inject

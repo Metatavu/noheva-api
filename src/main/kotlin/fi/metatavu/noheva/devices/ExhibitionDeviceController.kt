@@ -25,7 +25,7 @@ class ExhibitionDeviceController {
      *
      * @param exhibition exhibition
      * @param exhibitionDeviceGroup exhibition device group
-     * @param deviceModel device model
+     * @param device device
      * @param name device name
      * @param location location
      * @param screenOrientation screen orientation
@@ -37,7 +37,7 @@ class ExhibitionDeviceController {
     fun createExhibitionDevice(
         exhibition: Exhibition,
         exhibitionDeviceGroup: ExhibitionDeviceGroup,
-        deviceModel: DeviceModel,
+        device: Device?,
         name: String,
         location: Point?,
         screenOrientation: ScreenOrientation,
@@ -45,10 +45,11 @@ class ExhibitionDeviceController {
         idlePage: ExhibitionPage?,
         creatorId: UUID
     ): ExhibitionDevice {
-        return exhibitionDeviceDAO.create(id = UUID.randomUUID(),
+        return exhibitionDeviceDAO.create(
+            id = UUID.randomUUID(),
             exhibition = exhibition,
             exhibitionDeviceGroup = exhibitionDeviceGroup,
-            deviceModel = deviceModel,
+            device = device,
             name = name,
             locationX = location?.x,
             locationY = location?.y,
@@ -83,7 +84,7 @@ class ExhibitionDeviceController {
             id = id,
             exhibition = targetExhibition,
             exhibitionDeviceGroup = targetDeviceGroup,
-            deviceModel = sourceDevice.deviceModel ?: throw CopyException("Source device model not found"),
+            device = sourceDevice.device,
             name = sourceDevice.name ?: throw CopyException("Source device name not found"),
             locationX = sourceDevice.locationX,
             locationY = sourceDevice.locationY,
@@ -106,7 +107,7 @@ class ExhibitionDeviceController {
     }
 
     /**
-     * Lists device s in an exhibitions
+     * Lists devices in an exhibitions
      *
      * @param exhibition exhibition
      * @param exhibitionDeviceGroup filter by exhibition device group
@@ -126,6 +127,16 @@ class ExhibitionDeviceController {
     }
 
     /**
+     * Lists exhibition devices by device
+     *
+     * @param device device
+     * @return list of exhibition devices
+     */
+    fun listByDevice(device: Device): List<ExhibitionDevice> {
+        return exhibitionDeviceDAO.listByDevice(device = device)
+    }
+
+    /**
      * Lists devices by idle page
      *
      * @param idlePage device idle page
@@ -140,7 +151,7 @@ class ExhibitionDeviceController {
      *
      * @param exhibitionDevice exhibition device to be updated
      * @param exhibitionDeviceGroup exhibition device group
-     * @param deviceModel device model
+     * @param device device
      * @param name device name
      * @param location location
      * @param screenOrientation screen orientation
@@ -152,7 +163,7 @@ class ExhibitionDeviceController {
     fun updateExhibitionDevice(
         exhibitionDevice: ExhibitionDevice,
         exhibitionDeviceGroup: ExhibitionDeviceGroup,
-        deviceModel: DeviceModel,
+        device: Device?,
         name: String,
         location: Point?,
         screenOrientation: ScreenOrientation,
@@ -162,7 +173,7 @@ class ExhibitionDeviceController {
     ): ExhibitionDevice {
         var result = exhibitionDeviceDAO.updateName(exhibitionDevice, name, modifierId)
         result = exhibitionDeviceDAO.updateExhibitionDeviceGroup(result, exhibitionDeviceGroup, modifierId)
-        result = exhibitionDeviceDAO.updateExhibitionDeviceModel(result, deviceModel, modifierId)
+        result = exhibitionDeviceDAO.updateExhibitionDevicesDevice(result, device, modifierId)
         result = exhibitionDeviceDAO.updateLocationX(result, location?.x, modifierId)
         result = exhibitionDeviceDAO.updateLocationY(result, location?.y, modifierId)
         result = exhibitionDeviceDAO.updateScreenOrientation(result, screenOrientation, modifierId)

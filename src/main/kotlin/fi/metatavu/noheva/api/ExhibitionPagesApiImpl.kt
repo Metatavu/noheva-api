@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 @Transactional
+@Suppress("unused")
 class ExhibitionPagesApiImpl : ExhibitionPagesApi, AbstractApi() {
 
     @Inject

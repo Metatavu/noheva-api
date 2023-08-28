@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 @Transactional
+@Suppress("unused")
 class ExhibitionDeviceApiImpl : ExhibitionDevicesApi, AbstractApi() {
 
     @Inject
@@ -67,8 +68,10 @@ class ExhibitionDeviceApiImpl : ExhibitionDevicesApi, AbstractApi() {
     override fun createExhibitionDevice(exhibitionId: UUID, exhibitionDevice: ExhibitionDevice): Response {
         val exhibitionGroup = exhibitionDeviceGroupController.findDeviceGroupById(exhibitionDevice.groupId)
             ?: return createBadRequest("Invalid exhibition group id ${exhibitionDevice.groupId}")
-        val model = deviceModelController.findDeviceModelById(exhibitionDevice.modelId)
-            ?: return createBadRequest("Device model ${exhibitionDevice.modelId} not found")
+        val device = exhibitionDevice.deviceId?.let { deviceController.findDevice(it) }
+        if (device == null && exhibitionDevice.deviceId != null) {
+            return createBadRequest("Invalid device id ${exhibitionDevice.deviceId}")
+        }
         val exhibition = exhibitionController.findExhibitionById(exhibitionId)
             ?: return createNotFound("Exhibition $exhibitionId not found")
         val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
@@ -84,7 +87,7 @@ class ExhibitionDeviceApiImpl : ExhibitionDevicesApi, AbstractApi() {
         val result = exhibitionDeviceController.createExhibitionDevice(
             exhibition = exhibition,
             exhibitionDeviceGroup = exhibitionGroup,
-            deviceModel = model,
+            device = device,
             name = exhibitionDevice.name,
             location = location,
             screenOrientation = screenOrientation,
@@ -118,13 +121,14 @@ class ExhibitionDeviceApiImpl : ExhibitionDevicesApi, AbstractApi() {
         exhibitionDevice: ExhibitionDevice
     ): Response {
         val userId = loggedUserId ?: return createUnauthorized(UNAUTHORIZED)
-        val exhibitionGroup = exhibitionDeviceGroupController.findDeviceGroupById(exhibitionDevice.groupId)
-            ?: return createBadRequest("Invalid exhibition group id ${exhibitionDevice.groupId}")
-        val model = deviceModelController.findDeviceModelById(exhibitionDevice.modelId)
-            ?: return createBadRequest("Device model $exhibitionDevice.modelId not found")
-
         exhibitionController.findExhibitionById(exhibitionId)
             ?: return createNotFound("Exhibition $exhibitionId not found")
+        val exhibitionGroup = exhibitionDeviceGroupController.findDeviceGroupById(exhibitionDevice.groupId)
+            ?: return createBadRequest("Invalid exhibition group id ${exhibitionDevice.groupId}")
+        val device = exhibitionDevice.deviceId?.let { deviceController.findDevice(it) }
+        if (device == null && exhibitionDevice.deviceId != null) {
+            return createBadRequest("Invalid device id ${exhibitionDevice.deviceId}")
+        }
         val foundExhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(deviceId)
             ?: return createNotFound("Device $deviceId not found")
         val groupChanged = foundExhibitionDevice.exhibitionDeviceGroup?.id != exhibitionGroup.id
@@ -140,7 +144,7 @@ class ExhibitionDeviceApiImpl : ExhibitionDevicesApi, AbstractApi() {
         val result = exhibitionDeviceController.updateExhibitionDevice(
             exhibitionDevice = foundExhibitionDevice,
             exhibitionDeviceGroup = exhibitionGroup,
-            deviceModel = model,
+            device = device,
             name = exhibitionDevice.name,
             location = location,
             screenOrientation = screenOrientation,

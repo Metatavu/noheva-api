@@ -22,8 +22,6 @@ class ContentVersionTestBuilderResource(
     apiClient: ApiClient
 ) : ApiTestBuilderResource<ContentVersion, ApiClient?>(testBuilder, apiClient) {
 
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     /**
      * Creates new content version with default values
      *

@@ -38,6 +38,7 @@ class TestBuilderAuthentication(
     val storedFiles: StoredFilesTestBuilderResource = StoredFilesTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     val contentVersions: ContentVersionTestBuilderResource = ContentVersionTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     val visitorVariables: VisitorVariableTestBuilderResource = VisitorVariableTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
+    val devices: DevicesTestBuilderResource = DevicesTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
 
     override fun createClient(authProvider: AccessTokenProvider): ApiClient {
         val result = ApiClient(ApiTestSettings.apiBasePath)
