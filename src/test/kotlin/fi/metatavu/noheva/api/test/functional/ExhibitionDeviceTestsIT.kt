@@ -332,7 +332,7 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             )
 
             val deviceGroupId = deviceGroup.id!!
-            val device = createDefaultDevice(it, exhibition, deviceGroup)
+            val device = createDefaultExhibitionDevice(it, exhibition, deviceGroup)
             val deviceId = device.id!!
 
             it.admin.contentVersions.create(
@@ -357,5 +357,47 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
             it.admin.exhibitionPages.delete(exhibitionId = exhibitionId, exhibitionPage = page)
             it.admin.exhibitionDevices.delete(exhibitionId, device)
         }
+    }
+
+    @Test
+    fun testDeviceAttachedToExhibitionDevice() = createTestBuilder().use {
+        val exhibition = it.admin.exhibitions.create()
+        val exhibitionId = exhibition.id!!
+        val floor = it.admin.exhibitionFloors.create(exhibitionId = exhibitionId)
+        val floorId = floor.id!!
+        val room = it.admin.exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
+        val roomId = room.id!!
+        val group = it.admin.exhibitionDeviceGroups.create(
+            exhibitionId = exhibitionId,
+            roomId = roomId,
+            name = "Group 1"
+        )
+        val exhibitionDevice = createDefaultExhibitionDevice(it, exhibition, group)
+        val device1 = it.admin.devices.create()
+        val device2 = it.admin.devices.create(serialNumber = "1234")
+        val attachedToExhibitionSubscription = it.mqtt.subscribe(MqttDeviceAttachedToExhibition::class.java, "devices/${device1.id}/attached")
+        val attachedToExhibitionSubscription2 = it.mqtt.subscribe(MqttDeviceAttachedToExhibition::class.java, "devices/${device2.id}/attached")
+        val detachedFromExhibitionSubscription = it.mqtt.subscribe(MqttDeviceDetachedFromExhibition::class.java, "devices/${device1.id}/detached")
+
+        it.admin.exhibitionDevices.updateExhibitionDevice(
+            exhibitionId = exhibitionId,
+            payload = exhibitionDevice.copy(deviceId = device1.id!!)
+        )
+
+        // Assert that message is delivered to appropriate device
+        assertEquals(1, attachedToExhibitionSubscription.getMessages(1).size)
+
+        it.admin.exhibitionDevices.updateExhibitionDevice(
+            exhibitionId = exhibitionId,
+            payload = exhibitionDevice.copy(deviceId = device2.id!!)
+        )
+        // Remove relation to device to allow proper clean up
+        it.admin.exhibitionDevices.updateExhibitionDevice(
+            exhibitionId = exhibitionId,
+            payload = exhibitionDevice.copy(deviceId = null)
+        )
+        assertEquals(1, attachedToExhibitionSubscription2.getMessages(1).size)
+        assertEquals(1, detachedFromExhibitionSubscription.getMessages(1).size)
+
     }
 }

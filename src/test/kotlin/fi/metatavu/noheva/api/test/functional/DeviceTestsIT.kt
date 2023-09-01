@@ -228,7 +228,7 @@ class DeviceTestsIT: AbstractFunctionalTest() {
             val createdDevice = testBuilder.admin.devices.create(serialNumber = "123abc", version = "1.0.0")
             val exhibition = testBuilder.admin.exhibitions.create()
             val exhibitionDeviceGroup = createDefaultDeviceGroup(testBuilder, exhibition)
-            val exhibitionDevice = createDefaultDevice(testBuilder, exhibition, exhibitionDeviceGroup)
+            val exhibitionDevice = createDefaultExhibitionDevice(testBuilder, exhibition, exhibitionDeviceGroup)
             val updatedExhibitionDevice = testBuilder.admin.exhibitionDevices.updateExhibitionDevice(exhibition.id!!, exhibitionDevice.copy(deviceId = createdDevice.id!!))
 
             assertEquals(updatedExhibitionDevice.deviceId, createdDevice.id)
