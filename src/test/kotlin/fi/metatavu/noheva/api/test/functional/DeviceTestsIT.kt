@@ -1,8 +1,6 @@
 package fi.metatavu.noheva.api.test.functional
 
-import fi.metatavu.noheva.api.client.models.DeviceApprovalStatus
-import fi.metatavu.noheva.api.client.models.DeviceRequest
-import fi.metatavu.noheva.api.client.models.DeviceStatus
+import fi.metatavu.noheva.api.client.models.*
 import fi.metatavu.noheva.api.test.functional.resources.KeycloakResource
 import fi.metatavu.noheva.api.test.functional.resources.MqttResource
 import fi.metatavu.noheva.api.test.functional.resources.MysqlResource
@@ -238,4 +236,177 @@ class DeviceTestsIT: AbstractFunctionalTest() {
             testBuilder.admin.devices.assertDeleteFail(400, createdDevice.id)
         }
     }
+
+    @Test
+    fun testListDeviceDatas() = createTestBuilder().use { testBuilder ->
+        val exhibition = testBuilder.admin.exhibitions.create()
+        val exhibitionId = exhibition.id!!
+
+        val devices = (1..3).map {
+            testBuilder.admin.devices.create(serialNumber = "device-$it", version = "1.0.0")
+        }
+
+        val deviceGroups = (1..3).map {
+            createDefaultDeviceGroup(testBuilder, exhibition)
+        }
+
+        val floorId = testBuilder.admin.exhibitionFloors.create(exhibitionId).id!!
+        val roomId = testBuilder.admin.exhibitionRooms.create(exhibitionId, floorId).id!!
+
+        val contentVersions = List(deviceGroups.size) { index ->
+            testBuilder.admin.contentVersions.create(
+                exhibitionId = exhibitionId,
+                payload = ContentVersion(name = "created name $index", language = "FI", rooms = arrayOf(roomId))
+            )
+        }
+
+        val pageLayouts = (1..4).map {
+            testBuilder.admin.pageLayouts.create(
+                payload = PageLayout(
+                    name = "created name",
+                    data = PageLayoutViewHtml("<html><body><h1>Test</h1></body></html>"),
+                    thumbnailUrl = "http://example.com/thumbnail.png",
+                    screenOrientation = ScreenOrientation.PORTRAIT,
+                    layoutType = LayoutType.HTML,
+                    modelId = testBuilder.admin.deviceModels.create().id!!
+                )
+            )
+        }
+
+        val deviceKeys = devices.map { device ->
+            testBuilder.admin.devices.update(
+                deviceId = device.id!!,
+                device = device .copy(approvalStatus = DeviceApprovalStatus.APPROVED)
+            )
+
+            testBuilder.admin.devices.getDeviceKey(device.id).key
+        }
+
+        val exhibitionDevices = devices.mapIndexed { index, device ->
+            testBuilder.admin.exhibitionDevices.create(
+                exhibitionId = exhibitionId,
+                payload = ExhibitionDevice(
+                    deviceId = device.id!!,
+                    exhibitionId = exhibitionId,
+                    groupId = deviceGroups[index].id!!,
+                    location = Point(0.0, 0.0),
+                    name = "Exhibition device $index",
+                    screenOrientation = ScreenOrientation.LANDSCAPE,
+                    imageLoadStrategy = DeviceImageLoadStrategy.DISK
+                )
+            )
+        }
+
+        val pages = (1..4).map {
+            testBuilder.admin.exhibitionPages.create(
+                exhibitionId = exhibitionId,
+                payload = ExhibitionPage(
+                    name = "created name",
+                    deviceId = exhibitionDevices[(it - 1) / 2].id!!,
+                    layoutId = pageLayouts[it - 1].id!!,
+                    contentVersionId = contentVersions[(it - 1) / 2].id!!,
+                    exhibitionId = exhibitionId,
+                    enterTransitions = arrayOf(),
+                    eventTriggers = arrayOf(),
+                    exitTransitions = arrayOf(),
+                    resources = arrayOf(),
+                    orderNumber = it,
+                )
+            )
+        }
+
+        val deviceLayouts = exhibitionDevices.mapIndexed { index, exhibitionDevice ->
+            testBuilder.getDevice(deviceKeys[index]).deviceDatas.listDeviceDataLayouts(
+                exhibitionDevice.id!!
+            )
+        }
+
+        val devicePages = exhibitionDevices.mapIndexed { index, exhibitionDevice ->
+            testBuilder.getDevice(deviceKeys[index]).deviceDatas.listDeviceDataPages(
+                exhibitionDevice.id!!
+            )
+        }
+
+        // Device 1 should have layouts 1, 2
+        assertEquals(deviceLayouts[0].size, 2)
+        assertTrue(deviceLayouts[0].map(DeviceLayout::id).contains(pageLayouts[0].id))
+        assertTrue(deviceLayouts[0].map(DeviceLayout::id).contains(pageLayouts[1].id))
+
+        // Device 2 should have layouts 3, 4
+        assertEquals(deviceLayouts[1].size, 2)
+        assertTrue(deviceLayouts[1].map(DeviceLayout::id).contains(pageLayouts[2].id))
+        assertTrue(deviceLayouts[1].map(DeviceLayout::id).contains(pageLayouts[3].id))
+
+        // Device 3 should not have layouts
+        assertEquals(deviceLayouts[2].size, 0)
+
+        // Device 1 should have pages 1, 2
+        assertEquals(devicePages[0].size, 2)
+        assertTrue(devicePages[0].map(DevicePage::id).contains(pages[0].id))
+        assertTrue(devicePages[0].map(DevicePage::id).contains(pages[1].id))
+
+        // Device 2 should have pages 3, 4
+        assertEquals(devicePages[1].size, 2)
+        assertTrue(devicePages[1].map(DevicePage::id).contains(pages[2].id))
+        assertTrue(devicePages[1].map(DevicePage::id).contains(pages[3].id))
+
+        // Device 3 should have not pages
+        assertEquals(devicePages[2].size, 0)
+    }
+
+    @Test
+    fun testListDeviceDataUnauthorized() = createTestBuilder().use { testBuilder ->
+        val exhibition = testBuilder.admin.exhibitions.create()
+        val exhibitionId = exhibition.id!!
+        val device = testBuilder.admin.devices.create(serialNumber = "device", version = "1.0.0")
+        val deviceGroup = createDefaultDeviceGroup(testBuilder, exhibition)
+        val exhibitionDevice = testBuilder.admin.exhibitionDevices.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionDevice(
+                deviceId = device.id!!,
+                exhibitionId = exhibitionId,
+                groupId = deviceGroup.id!!,
+                location = Point(0.0, 0.0),
+                name = "Exhibition device",
+                screenOrientation = ScreenOrientation.LANDSCAPE,
+                imageLoadStrategy = DeviceImageLoadStrategy.DISK
+            )
+        )
+
+        // No device key
+        testBuilder.getDevice(null).deviceDatas.assertListDeviceDataLayouts(403, exhibitionDevice.id!!)
+        testBuilder.getDevice(null).deviceDatas.assertListDeviceDataLayouts(403, exhibitionDevice.id)
+
+        // Invalid key
+        testBuilder.getDevice("fake-key").deviceDatas.assertListDeviceDataLayouts(403, exhibitionDevice.id)
+        testBuilder.getDevice("fake-key").deviceDatas.assertListDeviceDataPages(403, exhibitionDevice.id)
+
+        testBuilder.admin.devices.update(
+            deviceId = device.id,
+            device = device .copy(approvalStatus = DeviceApprovalStatus.APPROVED)
+        )
+
+        val key = testBuilder.admin.devices.getDeviceKey(device.id).key
+
+        // Assert it works with the key
+        assertEquals(testBuilder.getDevice(key).deviceDatas.listDeviceDataLayouts(exhibitionDevice.id).size, 0)
+        assertEquals(testBuilder.getDevice(key).deviceDatas.listDeviceDataPages(exhibitionDevice.id).size, 0)
+
+        testBuilder.admin.devices.update(
+            deviceId = device.id,
+            device = device .copy(approvalStatus = DeviceApprovalStatus.PENDING_REAPPROVAL)
+        )
+
+        // Unapproved device
+        testBuilder.getDevice(key).deviceDatas.assertListDeviceDataLayouts(404, device.id)
+        testBuilder.getDevice(key).deviceDatas.assertListDeviceDataPages(404, device.id)
+    }
+
+    @Test
+    fun testListDeviceDataInvalid() = createTestBuilder().use { testBuilder ->
+        // Invalid device id
+        testBuilder.getDevice("fake-key").deviceDatas.assertListDeviceDataLayouts(404, UUID.randomUUID())
+        testBuilder.getDevice("fake-key").deviceDatas.assertListDeviceDataPages(404, UUID.randomUUID())
+    }
+
 }

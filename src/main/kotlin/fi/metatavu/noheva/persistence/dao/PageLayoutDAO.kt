@@ -2,9 +2,7 @@ package fi.metatavu.noheva.persistence.dao
 
 import fi.metatavu.noheva.api.spec.model.LayoutType
 import fi.metatavu.noheva.api.spec.model.ScreenOrientation
-import fi.metatavu.noheva.persistence.model.DeviceModel
-import fi.metatavu.noheva.persistence.model.PageLayout
-import fi.metatavu.noheva.persistence.model.PageLayout_
+import fi.metatavu.noheva.persistence.model.*
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.TypedQuery
@@ -167,6 +165,23 @@ class PageLayoutDAO : AbstractDAO<PageLayout>() {
         criteria.where(*restrictions.toTypedArray())
         val query: TypedQuery<PageLayout> = getEntityManager().createQuery<PageLayout>(criteria)
         return query.resultList
+    }
+
+    /**
+     * List page layouts by device
+     *
+     * @param exhibitionDevice exhibition device
+     * @return list of page layouts
+     */
+    fun listByDevice(exhibitionDevice: ExhibitionDevice): List<PageLayout> {
+        val criteriaBuilder = getEntityManager().criteriaBuilder
+        val criteria: CriteriaQuery<PageLayout> = criteriaBuilder.createQuery(PageLayout::class.java)
+        val root: Root<ExhibitionPage> = criteria.from(ExhibitionPage::class.java)
+        val layoutsJoin = root.join(ExhibitionPage_.layout)
+        val devicesJoin = root.join(ExhibitionPage_.device)
+        criteria.select(layoutsJoin)
+        criteria.where(criteriaBuilder.equal(devicesJoin.get(ExhibitionDevice_.id), exhibitionDevice.id))
+        return getEntityManager().createQuery(criteria).resultList
     }
 
 }
