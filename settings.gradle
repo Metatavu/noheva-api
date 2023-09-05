@@ -1,4 +1,11 @@
-rootProject.name = 'muisti-api'
-include 'api-spec'
-include 'api-client'
-include 'api-test-builder'
+pluginManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        id "${quarkusPluginId}" version "${quarkusPluginVersion}"
+    }
+}
+rootProject.name='noheva-api'

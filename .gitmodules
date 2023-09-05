@@ -1,6 +1,3 @@
-[submodule "muisti-api-spec"]
-	path = muisti-api-spec
-	url = https://github.com/Metatavu/muisti-api-spec.git
-[submodule "api-test-builder"]
-	path = api-test-builder
-	url = https://github.com/Metatavu/muisti-api-test-builder.git
+[submodule "noheva-api-spec"]
+	path = noheva-api-spec
+	url = https://github.com/Metatavu/noheva-api-spec.git
