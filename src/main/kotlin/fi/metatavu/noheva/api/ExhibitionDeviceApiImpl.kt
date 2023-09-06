@@ -169,23 +169,24 @@ class ExhibitionDeviceApiImpl : ExhibitionDevicesApi, AbstractApi() {
             groupChanged = groupChanged
         )
 
-        if (result.device != null) {
-            if (originalDeviceId != null) {
-                if (originalDeviceId != result.device?.id) {
-                    realtimeNotificationController.notifyDeviceDetachedFromExhibition(
-                        exhibitionId = exhibitionId,
-                        deviceId = originalDeviceId,
-                        exhibitionDeviceId = result.id!!,
-                        exhibitionDeviceGroupId = result.exhibitionDeviceGroup!!.id!!
-                    )
-                }
+        result.device?.let { newDevice ->
+            if (originalDeviceId != newDevice.id) {
+                realtimeNotificationController.notifyDeviceAttachedToExhibition(
+                    exhibitionId = exhibitionId,
+                    deviceId = result.device!!.id,
+                    exhibitionDeviceId = result.id!!,
+                    exhibitionDeviceGroupId = result.exhibitionDeviceGroup!!.id!!
+                )
             }
-            realtimeNotificationController.notifyDeviceAttachedToExhibition(
-                exhibitionId = exhibitionId,
-                deviceId = result.device!!.id,
-                exhibitionDeviceId = result.id!!,
-                exhibitionDeviceGroupId = result.exhibitionDeviceGroup!!.id!!
-            )
+
+            if (originalDeviceId != null) {
+                realtimeNotificationController.notifyDeviceDetachedFromExhibition(
+                    exhibitionId = exhibitionId,
+                    deviceId = originalDeviceId,
+                    exhibitionDeviceId = result.id!!,
+                    exhibitionDeviceGroupId = result.exhibitionDeviceGroup!!.id!!
+                )
+            }
         }
 
         return createOk(exhibitionDeviceTranslator.translate(result))
