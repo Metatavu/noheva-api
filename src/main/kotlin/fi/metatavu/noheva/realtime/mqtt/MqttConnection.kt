@@ -28,7 +28,7 @@ class MqttConnection {
         fun connect(settings: MqttSettings) {
             try {
                 synchronized (this) {
-                    val serverURI = "tcp://${settings.serverUrl}"
+                    val serverURI = settings.serverUrl
                     val client = MqttClient(serverURI, settings.publisherId)
                     val options = MqttConnectOptions()
                     val username = settings.username
