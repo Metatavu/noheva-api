@@ -360,6 +360,49 @@ class ExhibitionDeviceTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
+    fun testDeviceDetachedFromExhibition() = createTestBuilder().use {
+        val exhibition = it.admin.exhibitions.create()
+        val exhibitionId = exhibition.id!!
+        val floor = it.admin.exhibitionFloors.create(exhibitionId = exhibitionId)
+        val floorId = floor.id!!
+        val room = it.admin.exhibitionRooms.create(exhibitionId = exhibitionId, floorId = floorId)
+        val roomId = room.id!!
+        val group = it.admin.exhibitionDeviceGroups.create(
+            exhibitionId = exhibitionId,
+            roomId = roomId,
+            name = "Group 1"
+        )
+
+        val exhibitionDevice = createDefaultExhibitionDevice(it, exhibition, group)
+        val device = it.admin.devices.create()
+
+        val attachedToExhibitionSubscription = it.mqtt.subscribe(MqttDeviceAttachedToExhibition::class.java, "devices/${device.id}/attached")
+        val detachedFromExhibitionSubscription = it.mqtt.subscribe(MqttDeviceDetachedFromExhibition::class.java, "devices/${device.id}/detached")
+
+        // Device is attached to exhibition
+        it.admin.exhibitionDevices.updateExhibitionDevice(
+            exhibitionId = exhibitionId,
+            payload = exhibitionDevice.copy(deviceId = device.id!!)
+        )
+
+        assertEquals(1, attachedToExhibitionSubscription.getMessages(1).size)
+        assertEquals(0, detachedFromExhibitionSubscription.getMessages(0).size)
+
+        attachedToExhibitionSubscription.clearMessages()
+        detachedFromExhibitionSubscription.clearMessages()
+
+        // Device is detached from exhibition
+
+        it.admin.exhibitionDevices.updateExhibitionDevice(
+            exhibitionId = exhibitionId,
+            payload = exhibitionDevice.copy(deviceId = null)
+        )
+
+        assertEquals(1, detachedFromExhibitionSubscription.getMessages(1).size)
+        assertEquals(0, attachedToExhibitionSubscription.getMessages(0).size)
+    }
+
+    @Test
     fun testDeviceAttachedToExhibitionDevice() {
         createTestBuilder().use {
             val exhibition = it.admin.exhibitions.create()
