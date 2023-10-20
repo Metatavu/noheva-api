@@ -1,5 +1,6 @@
 package fi.metatavu.noheva.api.test.functional.mqtt
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.noheva.realtime.mqtt.MqttConnection
 import fi.metatavu.noheva.settings.MqttSettings
 import org.eclipse.microprofile.config.ConfigProvider
@@ -7,6 +8,7 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import java.util.*
+import javax.enterprise.event.TransactionPhase
 
 /**
  * MQTT client for functional tests
@@ -28,6 +30,22 @@ class TestMqttClient : MqttCallback, AutoCloseable {
         ))
 
         MqttConnection.setSubscriber(this)
+    }
+
+    /**
+     * Publishes given message to given topic
+     *
+     * @param message message
+     * @param subTopic topic
+     */
+    fun <T> publish(message: T, subTopic: String) {
+        MqttConnection.publish(
+            fi.metatavu.noheva.realtime.mqtt.MqttMessage(
+                subtopic = subTopic,
+                data = jacksonObjectMapper().writeValueAsBytes(message),
+                transactionPhase = TransactionPhase.AFTER_COMPLETION
+            )
+        )
     }
 
     /**

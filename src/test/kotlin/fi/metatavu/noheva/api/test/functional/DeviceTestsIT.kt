@@ -1,6 +1,7 @@
 package fi.metatavu.noheva.api.test.functional
 
 import fi.metatavu.noheva.api.client.models.*
+import fi.metatavu.noheva.api.test.functional.builder.TestBuilder
 import fi.metatavu.noheva.api.test.functional.resources.KeycloakResource
 import fi.metatavu.noheva.api.test.functional.resources.MqttResource
 import fi.metatavu.noheva.api.test.functional.resources.MysqlResource
@@ -409,4 +410,59 @@ class DeviceTestsIT: AbstractFunctionalTest() {
         testBuilder.getDevice("fake-key").deviceDatas.assertListDeviceDataPages(404, UUID.randomUUID())
     }
 
+    @Test
+    fun testHandleDeviceStatusMessages() = createTestBuilder().use { testBuilder ->
+        val device = setupApprovedDevice(testBuilder)
+        val statusMessageSubscription = testBuilder.mqtt.subscribe(MqttDeviceAttachedToExhibition::class.java, "${device.id}/status")
+        testBuilder.mqtt.publish(
+            message = MqttDeviceStatus(
+                deviceId = device.id,
+                status = DeviceStatus.ONLINE,
+                version = "1.0.0"
+            ),
+            subTopic = "${device.id}/status"
+        )
+        val statusMessages = statusMessageSubscription.getMessages(1)
+        assertEquals(statusMessages.size, 1)
+
+        val foundDevice = testBuilder.admin.devices.find(device.id!!)
+        assertEquals(foundDevice.status, DeviceStatus.ONLINE)
+        assertEquals(foundDevice.version, "1.0.0")
+
+        Thread.sleep(60000)
+
+        testBuilder.mqtt.publish(
+            message = MqttDeviceStatus(
+                deviceId = device.id,
+                status = DeviceStatus.OFFLINE,
+                version = "1.0.0"
+            ),
+            subTopic = "${device.id}/status"
+        )
+        val statusMessages2 = statusMessageSubscription.getMessages(1)
+        assertEquals(statusMessages2.size, 2)
+
+        val foundDevice2 = testBuilder.admin.devices.find(device.id)
+        val usageHours = foundDevice2.usageHours ?: 0.0
+        println(usageHours)
+        // Assert usage hours is greater than one minute (0.01)
+        assertTrue(usageHours > 0.01)
+        assertEquals(foundDevice2.status, DeviceStatus.OFFLINE)
+    }
+
+    /**
+     * Setups approved device
+     *
+     * @return approved device
+     */
+    private fun setupApprovedDevice(testBuilder: TestBuilder): Device {
+        val createdDevice = testBuilder.admin.devices.create(serialNumber = "123abc", version = "0.9.0")
+        assertEquals(createdDevice.approvalStatus, DeviceApprovalStatus.PENDING)
+        assertEquals(createdDevice.version, "0.9.0")
+
+        return testBuilder.admin.devices.update(
+            deviceId = createdDevice.id!!,
+            device = createdDevice.copy(approvalStatus = DeviceApprovalStatus.APPROVED)
+        )
+    }
 }

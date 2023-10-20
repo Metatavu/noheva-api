@@ -1003,4 +1003,11 @@
         </dropColumn>
     </changeSet>
 
+    <changeSet id="device_fleet_management_fields" author="Ville Juutila">
+        <addColumn tableName="device">
+            <column name="warrantyexpiry" type="datetime(6)"/>
+            <column name="usagehours" type="double"/>
+            <column name="lastconnected" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
