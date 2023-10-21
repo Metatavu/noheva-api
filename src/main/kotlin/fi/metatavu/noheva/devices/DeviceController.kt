@@ -176,13 +176,13 @@ class DeviceController {
     private fun handleOfflineStatusMessage(device: Device): Device {
         var updatedDevice = deviceDAO.updateStatus(device, DeviceStatus.OFFLINE)
         val lastConnected = device.lastConnected?.toEpochSecond()
-        println("lastConnected: $lastConnected")
+
         val now = OffsetDateTime.now().toEpochSecond()
-        val currentUsageHours = device.usageHours
+        val currentUsageHours = updatedDevice.usageHours
         if (lastConnected != null) {
             val usageHours = (now - lastConnected.toDouble()) / 3600
              updatedDevice = deviceDAO.updateUsageHours(
-                device = device,
+                device = updatedDevice,
                 usageHours = usageHours + (currentUsageHours ?: 0.0)
             )
         }
@@ -198,9 +198,9 @@ class DeviceController {
      */
     private fun handleOnlineStatusMessage(device: Device): Device {
         var updatedDevice = device
-        if (device.status == DeviceStatus.OFFLINE) {
+        if (updatedDevice.status == DeviceStatus.OFFLINE) {
             updatedDevice = deviceDAO.updateLastConnected(
-                device = device,
+                device = updatedDevice,
                 lastConnected = OffsetDateTime.now())
         }
 

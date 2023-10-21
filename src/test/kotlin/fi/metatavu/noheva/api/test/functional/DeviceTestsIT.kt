@@ -439,12 +439,11 @@ class DeviceTestsIT: AbstractFunctionalTest() {
             ),
             subTopic = "${device.id}/status"
         )
-        val statusMessages2 = statusMessageSubscription.getMessages(1)
+        val statusMessages2 = statusMessageSubscription.getMessages(2)
         assertEquals(statusMessages2.size, 2)
 
         val foundDevice2 = testBuilder.admin.devices.find(device.id)
         val usageHours = foundDevice2.usageHours ?: 0.0
-        println(usageHours)
         // Assert usage hours is greater than one minute (0.01)
         assertTrue(usageHours > 0.01)
         assertEquals(foundDevice2.status, DeviceStatus.OFFLINE)
