@@ -45,6 +45,9 @@ abstract class AbstractMqttListener<T>(private val targetClass: Class<T>) {
         }
     }
 
+    /**
+     * Sets listener to MQTT client
+     */
     fun setListener(addListener: (key: String, value: AbstractMqttListener<T>) -> Unit) {
         addListener(topic, this)
     }
