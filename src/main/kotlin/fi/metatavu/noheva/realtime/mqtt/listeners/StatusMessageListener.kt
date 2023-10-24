@@ -2,13 +2,14 @@ package fi.metatavu.noheva.realtime.mqtt.listeners
 
 import fi.metatavu.noheva.api.spec.model.MqttDeviceStatus
 import fi.metatavu.noheva.devices.DeviceController
+import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * MQTT Listener for device status messages
  */
-@Singleton
+@Suppress("unused")
+@ApplicationScoped
 class StatusMessageListener: AbstractMqttListener<MqttDeviceStatus>(targetClass = MqttDeviceStatus::class.java) {
 
     override val topic: String
