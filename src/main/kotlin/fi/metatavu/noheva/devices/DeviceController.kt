@@ -6,6 +6,7 @@ import fi.metatavu.noheva.persistence.dao.DeviceDAO
 import fi.metatavu.noheva.persistence.model.Device
 import fi.metatavu.noheva.persistence.model.DeviceModel
 import java.security.PublicKey
+import java.time.OffsetDateTime
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -95,6 +96,7 @@ class DeviceController {
         result = deviceDAO.updateApprovalStatus(result, newDevice.approvalStatus)
         result = deviceDAO.updateDeviceModel(result, deviceModel)
         result = deviceDAO.updateSerialNumber(result, newDevice.serialNumber)
+        result = deviceDAO.updateWarrantyExpire(result, newDevice.warrantyExpiry)
 
         return deviceDAO.updateLastModifierId(result, userId)
     }
@@ -147,5 +149,61 @@ class DeviceController {
      */
     fun getDeviceKey(id: UUID): ByteArray? {
         return deviceDAO.findById(id)?.deviceKey
+    }
+
+    /**
+     * Handles device status messages
+     * When status is [DeviceStatus.OFFLINE], calculates usage hours based on last connection time
+     *
+     * @param device device
+     * @param status status
+     * @param version version
+     */
+    fun handleDeviceStatusMessage(device: Device, status: DeviceStatus, version: String) {
+        val updatedDevice = deviceDAO.updateVersion(device, version)
+        when (status) {
+            DeviceStatus.ONLINE -> handleOnlineStatusMessage(updatedDevice)
+            DeviceStatus.OFFLINE -> handleOfflineStatusMessage(updatedDevice)
+        }
+    }
+
+    /**
+     * Handles device status messages when status is [DeviceStatus.OFFLINE]
+     *
+     * @param device device
+     * @return updated device
+     */
+    private fun handleOfflineStatusMessage(device: Device): Device {
+        var updatedDevice = deviceDAO.updateStatus(device, DeviceStatus.OFFLINE)
+        val lastConnected = device.lastConnected?.toEpochSecond()
+
+        val now = OffsetDateTime.now().toEpochSecond()
+        val currentUsageHours = updatedDevice.usageHours
+        if (lastConnected != null) {
+            val usageHours = (now - lastConnected.toDouble()) / 3600
+             updatedDevice = deviceDAO.updateUsageHours(
+                device = updatedDevice,
+                usageHours = usageHours + (currentUsageHours ?: 0.0)
+            )
+        }
+
+        return updatedDevice
+    }
+
+    /**
+     * Handles device status messages when status is [DeviceStatus.ONLINE]
+     *
+     * @param device device
+     * @return updated device
+     */
+    private fun handleOnlineStatusMessage(device: Device): Device {
+        var updatedDevice = device
+        if (updatedDevice.status == DeviceStatus.OFFLINE) {
+            updatedDevice = deviceDAO.updateLastConnected(
+                device = updatedDevice,
+                lastConnected = OffsetDateTime.now())
+        }
+
+        return deviceDAO.updateStatus(updatedDevice, DeviceStatus.ONLINE)
     }
 }
