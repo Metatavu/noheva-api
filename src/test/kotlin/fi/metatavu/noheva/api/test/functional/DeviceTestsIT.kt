@@ -416,7 +416,7 @@ class DeviceTestsIT: AbstractFunctionalTest() {
         val statusMessageSubscription = testBuilder.mqtt.subscribe(MqttDeviceAttachedToExhibition::class.java, "${device.id}/status")
         testBuilder.mqtt.publish(
             message = MqttDeviceStatus(
-                deviceId = device.id,
+                deviceId = device.id!!,
                 status = DeviceStatus.ONLINE,
                 version = "1.0.0"
             ),
