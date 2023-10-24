@@ -244,4 +244,17 @@ class DeviceDAO: AbstractDAO<Device>() {
 
         return persist(device)
     }
+
+    /**
+     * Updates devices last seen
+     *
+     * @param device device
+     * @param lastSeen last seen
+     * @return updated device
+     */
+    fun updateLastSeen(device: Device, lastSeen: OffsetDateTime): Device {
+        device.lastSeen = lastSeen
+
+        return persist(device)
+    }
 }

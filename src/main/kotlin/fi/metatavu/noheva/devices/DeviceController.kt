@@ -160,7 +160,9 @@ class DeviceController {
      * @param version version
      */
     fun handleDeviceStatusMessage(device: Device, status: DeviceStatus, version: String) {
-        val updatedDevice = deviceDAO.updateVersion(device, version)
+        var updatedDevice = deviceDAO.updateVersion(device, version)
+        updatedDevice = deviceDAO.updateLastSeen(updatedDevice, OffsetDateTime.now())
+
         when (status) {
             DeviceStatus.ONLINE -> handleOnlineStatusMessage(updatedDevice)
             DeviceStatus.OFFLINE -> handleOfflineStatusMessage(updatedDevice)

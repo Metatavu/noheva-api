@@ -447,6 +447,7 @@ class DeviceTestsIT: AbstractFunctionalTest() {
         // Assert usage hours is greater than one minute (0.01)
         assertTrue(usageHours > 0.01)
         assertEquals(foundDevice2.status, DeviceStatus.OFFLINE)
+        assertNotEquals(foundDevice.lastSeen, foundDevice2.lastSeen)
     }
 
     /**
