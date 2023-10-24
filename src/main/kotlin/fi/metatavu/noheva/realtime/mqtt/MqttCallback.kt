@@ -5,7 +5,7 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttTopic
 import org.slf4j.Logger
-import javax.enterprise.inject.Any
+import javax.enterprise.inject.Instance
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,8 +13,7 @@ import javax.inject.Singleton
 class MqttCallback: MqttCallback {
 
     @Inject
-    @Any
-    lateinit var listeners: List<AbstractMqttListener<*>>
+    lateinit var listeners: Instance<AbstractMqttListener<*>>
 
     @Inject
     lateinit var logger: Logger

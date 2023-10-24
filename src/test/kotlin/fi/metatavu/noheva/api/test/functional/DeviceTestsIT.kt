@@ -425,7 +425,7 @@ class DeviceTestsIT: AbstractFunctionalTest() {
         val statusMessages = statusMessageSubscription.getMessages(1)
         assertEquals(statusMessages.size, 1)
 
-        val foundDevice = testBuilder.admin.devices.find(device.id!!)
+        val foundDevice = testBuilder.admin.devices.find(device.id)
         assertEquals(foundDevice.status, DeviceStatus.ONLINE)
         assertEquals(foundDevice.version, "1.0.0")
 
