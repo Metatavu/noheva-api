@@ -23,18 +23,15 @@ class StatusMessageListener: AbstractMqttListener<MqttDeviceStatus>(targetClass 
      * @message message
      */
     override fun onMessage(message: MqttDeviceStatus)  {
-        val deviceId = message.deviceId ?: return
-        val status = message.status ?: return
-        val version = message.version ?: return
-        val foundDevice = deviceController.findDevice(deviceId)
+        val foundDevice = deviceController.findDevice(message.deviceId)
         if (foundDevice == null) {
-            logger.warn("Received status message from unknown device: $deviceId")
+            logger.warn("Received status message from unknown device: ${message.deviceId}")
             return
         }
         deviceController.handleDeviceStatusMessage(
             device = foundDevice,
-            status = status,
-            version = version
+            status = message.status,
+            version = message.version
         )
     }
 }
