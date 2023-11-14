@@ -29,8 +29,8 @@ class MqttController {
     @ConfigProperty(name = "mqtt.topic")
     private lateinit var mqttTopic: String
 
-    @ConfigProperty(name = "mqtt.server.url")
-    private lateinit var serverUrl: String
+    @ConfigProperty(name = "mqtt.server.urls")
+    private lateinit var serverUrls: String
 
     @ConfigProperty(name = "mqtt.username")
     private lateinit var username: Optional<String>
@@ -43,7 +43,7 @@ class MqttController {
     fun postConstruct() {
         MqttConnection.connect(MqttSettings(
             publisherId = UUID.randomUUID().toString(),
-            serverUrl = serverUrl,
+            serverUrls = serverUrls.split(","),
             topic = mqttTopic,
             username = if (username.isPresent) username.get() else null,
             password = if (password.isPresent) password.get() else null,
@@ -67,6 +67,7 @@ class MqttController {
      */
     @Suppress("unused")
     fun onMessageEvent(@Observes(during = TransactionPhase.AFTER_SUCCESS) event: MqttMessage) {
+        System.out.println("Publishing message")
         if (event.transactionPhase == TransactionPhase.AFTER_SUCCESS) {
 
             MqttConnection.publish(event)

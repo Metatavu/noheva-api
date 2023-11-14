@@ -28,12 +28,13 @@ class MqttConnection {
         fun connect(settings: MqttSettings) {
             try {
                 synchronized (this) {
-                    val serverURI = settings.serverUrl
-                    val client = MqttClient(serverURI, settings.publisherId)
+                    val serverURIs = settings.serverUrls
+                    val client = MqttClient(serverURIs.first(), settings.publisherId)
                     val options = MqttConnectOptions()
                     val username = settings.username
                     val password = settings.password
 
+                    options.serverURIs = serverURIs.toTypedArray()
                     options.isAutomaticReconnect = true
                     options.isCleanSession = true
                     options.connectionTimeout = 10
@@ -126,6 +127,9 @@ class MqttConnection {
                 }
 
                 val topic = "${settings.topic}/$subtopic"
+
+                println("Publishing to topic $topic")
+
                 client.publish(topic, payload, qos, retained)
             } catch (e: Exception) {
                 throw MqttException(e)
