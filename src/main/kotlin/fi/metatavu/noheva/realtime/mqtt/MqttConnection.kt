@@ -127,9 +127,6 @@ class MqttConnection {
                 }
 
                 val topic = "${settings.topic}/$subtopic"
-
-                println("Publishing to topic $topic")
-
                 client.publish(topic, payload, qos, retained)
             } catch (e: Exception) {
                 throw MqttException(e)
