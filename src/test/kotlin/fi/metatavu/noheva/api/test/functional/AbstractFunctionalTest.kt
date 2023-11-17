@@ -64,7 +64,7 @@ abstract class AbstractFunctionalTest: AbstractResourceTest() {
      * @param deviceGroup device group
      * @return created device
      */
-    protected fun createDefaultDevice(testBuilder: TestBuilder, exhibition: Exhibition, deviceGroup: ExhibitionDeviceGroup): ExhibitionDevice {
+    protected fun createDefaultExhibitionDevice(testBuilder: TestBuilder, exhibition: Exhibition, deviceGroup: ExhibitionDeviceGroup): ExhibitionDevice {
         return testBuilder.admin.exhibitionDevices.create(exhibition = exhibition, group = deviceGroup)
     }
 

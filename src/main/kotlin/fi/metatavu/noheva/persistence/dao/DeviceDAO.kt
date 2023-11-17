@@ -5,6 +5,7 @@ import fi.metatavu.noheva.api.spec.model.DeviceStatus
 import fi.metatavu.noheva.persistence.model.Device
 import fi.metatavu.noheva.persistence.model.DeviceModel
 import fi.metatavu.noheva.persistence.model.Device_
+import java.time.OffsetDateTime
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.persistence.criteria.CriteriaQuery
@@ -38,7 +39,7 @@ class DeviceDAO: AbstractDAO<Device>() {
         device.serialNumber = serialNumber
         device.name = name
         device.description = description
-        device.status = DeviceStatus.ONLINE
+        device.status = DeviceStatus.OFFLINE
         device.approvalStatus = DeviceApprovalStatus.PENDING
         device.version = version
 
@@ -201,6 +202,58 @@ class DeviceDAO: AbstractDAO<Device>() {
      */
     fun updateDeviceKey(device: Device, deviceKey: ByteArray?): Device {
         device.deviceKey = deviceKey
+
+        return persist(device)
+    }
+
+    /**
+     * Updates devices last connected
+     *
+     * @param device device
+     * @param lastConnected last connected
+     * @return updated device
+     */
+    fun updateLastConnected(device: Device, lastConnected: OffsetDateTime): Device {
+        device.lastConnected = lastConnected
+
+        return persist(device)
+    }
+
+    /**
+     * Updates devices usage hours
+     *
+     * @param device device
+     * @param usageHours usage hours
+     * @return updated device
+     */
+    fun updateUsageHours(device: Device, usageHours: Double): Device {
+        device.usageHours = usageHours
+
+        return persist(device)
+    }
+
+    /**
+     * Updates devices warranty expire
+     *
+     * @param device device
+     * @param warrantyExpire warranty expire
+     * @return updated device
+     */
+    fun updateWarrantyExpire(device: Device, warrantyExpire: OffsetDateTime?): Device {
+        device.warrantyExpiry = warrantyExpire
+
+        return persist(device)
+    }
+
+    /**
+     * Updates devices last seen
+     *
+     * @param device device
+     * @param lastSeen last seen
+     * @return updated device
+     */
+    fun updateLastSeen(device: Device, lastSeen: OffsetDateTime): Device {
+        device.lastSeen = lastSeen
 
         return persist(device)
     }

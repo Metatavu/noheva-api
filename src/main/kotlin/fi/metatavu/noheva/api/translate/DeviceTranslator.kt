@@ -30,7 +30,10 @@ class DeviceTranslator: AbstractTranslator<Device, fi.metatavu.noheva.api.spec.m
             lastSeen = entity.lastSeen,
             lastModifierId = entity.lastModifierId,
             createdAt = entity.createdAt,
-            modifiedAt = entity.modifiedAt
+            modifiedAt = entity.modifiedAt,
+            usageHours = entity.usageHours,
+            warrantyExpiry = entity.warrantyExpiry,
+            lastConnected = entity.lastConnected
         )
     }
 }

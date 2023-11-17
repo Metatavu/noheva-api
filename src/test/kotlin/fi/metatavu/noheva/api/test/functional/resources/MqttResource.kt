@@ -12,7 +12,7 @@ class MqttResource : QuarkusTestResourceLifecycleManager {
     override fun start(): Map<String, String> {
         hivemqCe.start()
         val config: MutableMap<String, String> = HashMap()
-        config["mqtt.server.url"] = hivemqCe.host +":"+ hivemqCe.mqttPort
+        config["mqtt.server.urls"] = "tcp://" + hivemqCe.host +":"+ hivemqCe.mqttPort
         config["mqtt.topic"] = "test"
         return config
     }

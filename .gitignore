@@ -5,3 +5,4 @@ api-client/src/
 api-spec/src/
 *-tcplocalhost
 api.env
+.env

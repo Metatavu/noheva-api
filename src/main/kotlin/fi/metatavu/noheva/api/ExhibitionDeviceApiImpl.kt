@@ -98,6 +98,15 @@ class ExhibitionDeviceApiImpl : ExhibitionDevicesApi, AbstractApi() {
 
         realtimeNotificationController.notifyDeviceCreate(id = result.id!!, exhibitionId = exhibitionId)
 
+        if (result.device != null) {
+            realtimeNotificationController.notifyDeviceAttachedToExhibition(
+                exhibitionId = exhibitionId,
+                deviceId = result.device!!.id,
+                exhibitionDeviceId = result.id!!,
+                exhibitionDeviceGroupId = result.exhibitionDeviceGroup!!.id!!
+            )
+        }
+
         return createOk(exhibitionDeviceTranslator.translate(result))
     }
 
@@ -131,6 +140,7 @@ class ExhibitionDeviceApiImpl : ExhibitionDevicesApi, AbstractApi() {
         }
         val foundExhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(deviceId)
             ?: return createNotFound("Device $deviceId not found")
+        val originalDeviceId = foundExhibitionDevice.device?.id
         val groupChanged = foundExhibitionDevice.exhibitionDeviceGroup?.id != exhibitionGroup.id
         val location = exhibitionDevice.location
         val screenOrientation = exhibitionDevice.screenOrientation
@@ -158,6 +168,24 @@ class ExhibitionDeviceApiImpl : ExhibitionDevicesApi, AbstractApi() {
             exhibitionId = exhibitionId,
             groupChanged = groupChanged
         )
+
+        if (originalDeviceId != null && (device == null || originalDeviceId != device.id)) {
+            realtimeNotificationController.notifyDeviceDetachedFromExhibition(
+                exhibitionId = exhibitionId,
+                deviceId = originalDeviceId,
+                exhibitionDeviceId = result.id!!,
+                exhibitionDeviceGroupId = result.exhibitionDeviceGroup!!.id!!
+            )
+        }
+
+        if (device != null && (originalDeviceId == null || originalDeviceId != device.id)) {
+            realtimeNotificationController.notifyDeviceAttachedToExhibition(
+                exhibitionId = exhibitionId,
+                deviceId = result.device!!.id,
+                exhibitionDeviceId = result.id!!,
+                exhibitionDeviceGroupId = result.exhibitionDeviceGroup!!.id!!
+            )
+        }
 
         return createOk(exhibitionDeviceTranslator.translate(result))
     }

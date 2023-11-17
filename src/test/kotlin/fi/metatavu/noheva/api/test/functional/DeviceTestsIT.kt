@@ -1,6 +1,7 @@
 package fi.metatavu.noheva.api.test.functional
 
 import fi.metatavu.noheva.api.client.models.*
+import fi.metatavu.noheva.api.test.functional.builder.TestBuilder
 import fi.metatavu.noheva.api.test.functional.resources.KeycloakResource
 import fi.metatavu.noheva.api.test.functional.resources.MqttResource
 import fi.metatavu.noheva.api.test.functional.resources.MysqlResource
@@ -36,7 +37,7 @@ class DeviceTestsIT: AbstractFunctionalTest() {
             assertEquals(createdDevice.serialNumber, "123abc")
             assertEquals(createdDevice.version, "1.0.0")
             assertEquals(createdDevice.approvalStatus, DeviceApprovalStatus.PENDING)
-            assertEquals(createdDevice.status, DeviceStatus.ONLINE)
+            assertEquals(createdDevice.status, DeviceStatus.OFFLINE)
             assertEquals(createdDevice.lastSeen, createdDevice.createdAt)
             assertNull(createdDevice.name)
             assertNull(createdDevice.description)
@@ -145,7 +146,7 @@ class DeviceTestsIT: AbstractFunctionalTest() {
             assertEquals(foundDevice.serialNumber, "123abc")
             assertEquals(foundDevice.version, "1.0.0")
             assertEquals(foundDevice.approvalStatus, DeviceApprovalStatus.PENDING)
-            assertEquals(foundDevice.status, DeviceStatus.ONLINE)
+            assertEquals(foundDevice.status, DeviceStatus.OFFLINE)
             assertEquals(foundDevice.lastSeen, foundDevice.createdAt)
             assertNull(foundDevice.name)
             assertNull(foundDevice.description)
@@ -178,7 +179,7 @@ class DeviceTestsIT: AbstractFunctionalTest() {
             assertEquals(updatedDevice.name, "Test device")
             assertEquals(updatedDevice.description, "Test device description")
             assertEquals(updatedDevice.approvalStatus, DeviceApprovalStatus.APPROVED)
-            assertEquals(updatedDevice.status, DeviceStatus.ONLINE)
+            assertEquals(updatedDevice.status, DeviceStatus.OFFLINE)
             assertEquals(updatedDevice.lastSeen, updatedDevice.createdAt)
             assertEquals(updatedDevice.deviceModelId, deviceModel.id)
             assertNotNull(updatedDevice.lastModifierId)
@@ -228,7 +229,7 @@ class DeviceTestsIT: AbstractFunctionalTest() {
             val createdDevice = testBuilder.admin.devices.create(serialNumber = "123abc", version = "1.0.0")
             val exhibition = testBuilder.admin.exhibitions.create()
             val exhibitionDeviceGroup = createDefaultDeviceGroup(testBuilder, exhibition)
-            val exhibitionDevice = createDefaultDevice(testBuilder, exhibition, exhibitionDeviceGroup)
+            val exhibitionDevice = createDefaultExhibitionDevice(testBuilder, exhibition, exhibitionDeviceGroup)
             val updatedExhibitionDevice = testBuilder.admin.exhibitionDevices.updateExhibitionDevice(exhibition.id!!, exhibitionDevice.copy(deviceId = createdDevice.id!!))
 
             assertEquals(updatedExhibitionDevice.deviceId, createdDevice.id)
@@ -409,4 +410,59 @@ class DeviceTestsIT: AbstractFunctionalTest() {
         testBuilder.getDevice("fake-key").deviceDatas.assertListDeviceDataPages(404, UUID.randomUUID())
     }
 
+    @Test
+    fun testHandleDeviceStatusMessages() = createTestBuilder().use { testBuilder ->
+        val device = setupApprovedDevice(testBuilder)
+        val statusMessageSubscription = testBuilder.mqtt.subscribe(MqttDeviceAttachedToExhibition::class.java, "${device.id}/status")
+        testBuilder.mqtt.publish(
+            message = MqttDeviceStatus(
+                deviceId = device.id!!,
+                status = DeviceStatus.ONLINE,
+                version = "1.0.0"
+            ),
+            subTopic = "${device.id}/status"
+        )
+        val statusMessages = statusMessageSubscription.getMessages(1)
+        assertEquals(statusMessages.size, 1)
+
+        val foundDevice = testBuilder.admin.devices.find(device.id)
+        assertEquals(foundDevice.status, DeviceStatus.ONLINE)
+        assertEquals(foundDevice.version, "1.0.0")
+
+        Thread.sleep(60000)
+
+        testBuilder.mqtt.publish(
+            message = MqttDeviceStatus(
+                deviceId = device.id,
+                status = DeviceStatus.OFFLINE,
+                version = "1.0.0"
+            ),
+            subTopic = "${device.id}/status"
+        )
+        val statusMessages2 = statusMessageSubscription.getMessages(2)
+        assertEquals(statusMessages2.size, 2)
+
+        val foundDevice2 = testBuilder.admin.devices.find(device.id)
+        val usageHours = foundDevice2.usageHours ?: 0.0
+        // Assert usage hours is greater than one minute (0.01)
+        assertTrue(usageHours > 0.01)
+        assertEquals(foundDevice2.status, DeviceStatus.OFFLINE)
+        assertNotEquals(foundDevice.lastSeen, foundDevice2.lastSeen)
+    }
+
+    /**
+     * Setups approved device
+     *
+     * @return approved device
+     */
+    private fun setupApprovedDevice(testBuilder: TestBuilder): Device {
+        val createdDevice = testBuilder.admin.devices.create(serialNumber = "123abc", version = "0.9.0")
+        assertEquals(createdDevice.approvalStatus, DeviceApprovalStatus.PENDING)
+        assertEquals(createdDevice.version, "0.9.0")
+
+        return testBuilder.admin.devices.update(
+            deviceId = createdDevice.id!!,
+            device = createdDevice.copy(approvalStatus = DeviceApprovalStatus.APPROVED)
+        )
+    }
 }

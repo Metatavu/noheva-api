@@ -43,4 +43,11 @@ class TestMqttSubscription <T>(private val targetClass: Class<T>) {
         return messages.toList()
     }
 
+    /**
+     * Clears message list
+     */
+    fun clearMessages() {
+        messages.clear()
+    }
+
 }

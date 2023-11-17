@@ -42,6 +42,15 @@ class Device {
     @Column(nullable = true)
     var deviceKey: ByteArray? = null
 
+    @Column(nullable = true)
+    var warrantyExpiry: OffsetDateTime? = null
+
+    @Column(nullable = true)
+    var usageHours: Double? = null
+
+    @Column(nullable = true)
+    var lastConnected: OffsetDateTime? = null
+
     @Column(nullable = false)
     lateinit var lastSeen: OffsetDateTime
 

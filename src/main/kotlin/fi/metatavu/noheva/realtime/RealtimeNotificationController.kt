@@ -284,6 +284,50 @@ class RealtimeNotificationController {
     }
 
     /**
+     * Notify Device of being attached to an Exhibition
+     *
+     * @param exhibitionId exhibition id
+     * @param deviceId device id
+     * @param exhibitionDeviceId exhibition device id
+     * @param exhibitionDeviceGroupId exhibition device group id
+     */
+    fun notifyDeviceAttachedToExhibition(
+        exhibitionId: UUID,
+        deviceId: UUID,
+        exhibitionDeviceId: UUID,
+        exhibitionDeviceGroupId: UUID
+    ) {
+        val mqttMessage = MqttDeviceAttachedToExhibition(
+            exhibitionId = exhibitionId,
+            deviceId = deviceId,
+            exhibitionDeviceId = exhibitionDeviceId,
+            exhibitionDeviceGroupId = exhibitionDeviceGroupId
+        )
+        publishMqttTransactionSuccess("devices/$deviceId/attached", mqttMessage)
+    }
+
+    /**
+     * Notify Device of being detached from an Exhibition
+     *
+     * @param exhibitionId exhibition id
+     * @param deviceId device id
+     */
+    fun notifyDeviceDetachedFromExhibition(
+        exhibitionId: UUID,
+        deviceId: UUID,
+        exhibitionDeviceId: UUID,
+        exhibitionDeviceGroupId: UUID
+    ) {
+        val mqttMessage = MqttDeviceDetachedFromExhibition(
+            exhibitionId = exhibitionId,
+            deviceId = deviceId,
+            exhibitionDeviceId = exhibitionDeviceId,
+            exhibitionDeviceGroupId = exhibitionDeviceGroupId
+        )
+        publishMqttTransactionSuccess("devices/$deviceId/detached", mqttMessage)
+    }
+
+    /**
      * Enqueues MQTT message to be published when transaction ends successfully
      *
      * @param subtopic message subtopic
