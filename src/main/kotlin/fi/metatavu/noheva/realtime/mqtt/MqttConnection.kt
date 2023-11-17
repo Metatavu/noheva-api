@@ -28,12 +28,13 @@ class MqttConnection {
         fun connect(settings: MqttSettings) {
             try {
                 synchronized (this) {
-                    val serverURI = settings.serverUrl
-                    val client = MqttClient(serverURI, settings.publisherId)
+                    val serverURIs = settings.serverUrls
+                    val client = MqttClient(serverURIs.first(), settings.publisherId)
                     val options = MqttConnectOptions()
                     val username = settings.username
                     val password = settings.password
 
+                    options.serverURIs = serverURIs.toTypedArray()
                     options.isAutomaticReconnect = true
                     options.isCleanSession = true
                     options.connectionTimeout = 10
