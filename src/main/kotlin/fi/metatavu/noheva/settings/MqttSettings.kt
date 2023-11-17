@@ -3,7 +3,7 @@ package fi.metatavu.noheva.settings
 /**
  * MQTT settings
  *
- * @param serverUrl MQTT server URL
+ * @param serverUrls MQTT server URLs
  * @param topic MQTT server main topic
  * @param username optional username for MQTT server
  * @param password optional password for MQTT server
@@ -11,7 +11,7 @@ package fi.metatavu.noheva.settings
  */
 data class MqttSettings (
     var publisherId: String,
-    var serverUrl: String,
+    var serverUrls: List<String>,
     var topic: String,
     var username: String?,
     var password: String?,

@@ -23,7 +23,7 @@ class TestMqttClient : MqttCallback, AutoCloseable {
     init {
         MqttConnection.connect(MqttSettings(
             publisherId = UUID.randomUUID().toString(),
-            serverUrl = ConfigProvider.getConfig().getValue("mqtt.server.url", String::class.java),
+            serverUrls = ConfigProvider.getConfig().getValue("mqtt.server.urls", String::class.java).split(",").toList(),
             topic = ConfigProvider.getConfig().getValue("mqtt.topic", String::class.java),
             username = null,
             password = null
