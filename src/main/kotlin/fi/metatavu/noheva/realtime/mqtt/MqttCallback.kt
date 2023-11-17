@@ -9,6 +9,9 @@ import javax.enterprise.inject.Instance
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * MQTT Client callback
+ */
 @Singleton
 class MqttCallback: MqttCallback {
 
