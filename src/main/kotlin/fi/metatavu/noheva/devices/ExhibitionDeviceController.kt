@@ -107,6 +107,16 @@ class ExhibitionDeviceController {
     }
 
     /**
+     * Find exhibition device by exhibition and device
+     *
+     * @param exhibition exhibition
+     * @param device device
+     * @return found exhibition device or null if not found
+     */
+    fun findExhibitionDeviceByExhibitionAndDevice(exhibition: Exhibition, device: Device): ExhibitionDevice? =
+        exhibitionDeviceDAO.findByExhibitionAndDevice(exhibition = exhibition, device = device)
+
+    /**
      * Lists devices in an exhibitions
      *
      * @param exhibition exhibition

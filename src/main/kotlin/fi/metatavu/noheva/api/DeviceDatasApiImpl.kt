@@ -7,6 +7,7 @@ import fi.metatavu.noheva.api.translate.DeviceDataPageTranslator
 import fi.metatavu.noheva.contents.ExhibitionPageController
 import fi.metatavu.noheva.contents.PageLayoutController
 import fi.metatavu.noheva.devices.ExhibitionDeviceController
+import fi.metatavu.noheva.exhibitions.ExhibitionController
 import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
@@ -20,6 +21,9 @@ import javax.ws.rs.core.Response
 @Transactional
 @Suppress("UNUSED")
 class DeviceDatasApiImpl: DeviceDataApi, AbstractApi() {
+
+    @Inject
+    lateinit var exhibitionController: ExhibitionController
 
     @Inject
     lateinit var exhibitionDeviceController: ExhibitionDeviceController
@@ -36,12 +40,13 @@ class DeviceDatasApiImpl: DeviceDataApi, AbstractApi() {
     @Inject
     lateinit var deviceDataLayoutTranslator: DeviceDataLayoutTranslator
 
-    override fun listDeviceDataLayouts(exhibitionDeviceId: UUID): Response {
-        val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(id = exhibitionDeviceId) ?: return createNotFound("Device $exhibitionDeviceId not found")
-        val device = exhibitionDevice.device ?: return createNotFound("Device not found")
+    override fun listDeviceDataLayouts(deviceId: UUID): Response {
+        val device = deviceController.findDevice(id = deviceId) ?: return createNotFound("Device $deviceId not found")
+        val activeExhibition = exhibitionController.findActiveExhibition() ?: return createNotFound("Active exhibition not found")
+        val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceByExhibitionAndDevice(exhibition = activeExhibition, device = device) ?: return createNotFound("Exhibition device not found")
 
         if (!isAuthorizedDevice(deviceId = device.id)) {
-            return createForbidden("Device $exhibitionDeviceId is not authorized to access this exhibition")
+            return createForbidden("Device $deviceId is not authorized to access this exhibition")
         }
 
         val layouts = pageLayoutController.listPageLayoutsForDevice(
@@ -51,17 +56,17 @@ class DeviceDatasApiImpl: DeviceDataApi, AbstractApi() {
         return createOk(layouts.map { deviceDataLayoutTranslator.translate(it) })
     }
 
-    override fun listDeviceDataPages(exhibitionDeviceId: UUID): Response {
-        val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceById(id = exhibitionDeviceId) ?: return createNotFound("Device $exhibitionDeviceId not found")
-        val exhibition = exhibitionDevice.exhibition ?: return createNotFound("Exhibition not found")
-        val device = exhibitionDevice.device ?: return createNotFound("Device not found")
+    override fun listDeviceDataPages(deviceId: UUID): Response {
+        val device = deviceController.findDevice(id = deviceId) ?: return createNotFound("Device $deviceId not found")
+        val activeExhibition = exhibitionController.findActiveExhibition() ?: return createNotFound("Active exhibition not found")
+        val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceByExhibitionAndDevice(exhibition = activeExhibition, device = device) ?: return createNotFound("Exhibition device not found")
 
         if (!isAuthorizedDevice(deviceId = device.id)) {
-            return createForbidden("Device $exhibitionDeviceId is not authorized to access this exhibition")
+            return createForbidden("Device $deviceId is not authorized to access this exhibition")
         }
 
         val pages = exhibitionPageController.listExhibitionPages(
-            exhibition = exhibition,
+            exhibition = activeExhibition,
             exhibitionDevice = exhibitionDevice,
             contentVersion = null,
             pageLayout = null,

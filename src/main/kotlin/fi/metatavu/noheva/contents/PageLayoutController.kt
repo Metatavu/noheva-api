@@ -166,10 +166,10 @@ class PageLayoutController {
                     styleParts[0].trim() to styleParts[1].trim()
                 }
 
-            styles.forEach() { (key, value) ->
+            styles.forEach { (key, value) ->
                 if (value.startsWith("@resources/")) {
                     val resourceId = value.substringAfter("@resources/").trim()
-                    result[resourceId] = Pair(componentName, "style-$key")
+                    result[resourceId] = Pair(componentName, "@style:$key")
                 }
             }
 

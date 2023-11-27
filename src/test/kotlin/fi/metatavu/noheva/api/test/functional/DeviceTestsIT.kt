@@ -59,7 +59,8 @@ class DeviceTestsIT: AbstractFunctionalTest() {
                 expectedStatus = 409,
                 deviceRequest = DeviceRequest(
                     serialNumber = "123abc",
-                    version = "1.0.0"
+                    version = "1.0.0",
+                    deviceType = DeviceType.NOHEVA_ANDROID
                 )
             )
         }
@@ -110,7 +111,8 @@ class DeviceTestsIT: AbstractFunctionalTest() {
                 expectedStatus = 409,
                 deviceRequest = DeviceRequest(
                     serialNumber = "123abc",
-                    version = "1.0.0"
+                    version = "1.0.0",
+                    deviceType = DeviceType.NOHEVA_ANDROID
                 )
             )
             testBuilder.admin.devices.getDeviceKey(createdDevice.id)
@@ -240,7 +242,11 @@ class DeviceTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListDeviceDatas() = createTestBuilder().use { testBuilder ->
-        val exhibition = testBuilder.admin.exhibitions.create()
+        val exhibition = testBuilder.admin.exhibitions.create(Exhibition(
+            name = "default exhibition",
+            active = true
+        ))
+
         val exhibitionId = exhibition.id!!
 
         val devices = (1..3).map {
@@ -318,13 +324,13 @@ class DeviceTestsIT: AbstractFunctionalTest() {
 
         val deviceLayouts = exhibitionDevices.mapIndexed { index, exhibitionDevice ->
             testBuilder.getDevice(deviceKeys[index]).deviceDatas.listDeviceDataLayouts(
-                exhibitionDevice.id!!
+                devices[index].id!!
             )
         }
 
         val devicePages = exhibitionDevices.mapIndexed { index, exhibitionDevice ->
             testBuilder.getDevice(deviceKeys[index]).deviceDatas.listDeviceDataPages(
-                exhibitionDevice.id!!
+                devices[index].id!!
             )
         }
 
@@ -452,7 +458,11 @@ class DeviceTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testDeviceDataResources() = createTestBuilder().use { testBuilder ->
-        val exhibition = testBuilder.admin.exhibitions.create()
+        val exhibition = testBuilder.admin.exhibitions.create(Exhibition(
+            name = "Test exhibition",
+            active = true
+        ))
+
         val exhibitionId = exhibition.id!!
         val deviceGroup = createDefaultDeviceGroup(testBuilder, exhibition)
         val device = setupApprovedDevice(testBuilder)
@@ -569,7 +579,7 @@ class DeviceTestsIT: AbstractFunctionalTest() {
         )
 
         val devicePages = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataPages(
-            exhibitionDeviceId = exhibitionDeviceId
+            deviceId = deviceId
         )
 
         devicePages.sortBy { it.name }
@@ -582,7 +592,7 @@ class DeviceTestsIT: AbstractFunctionalTest() {
         assertEquals(ExhibitionPageResourceType.IMAGE, devicePages[0].resources[0].type)
         assertEquals(PageResourceMode.STATIC, devicePages[0].resources[0].mode)
         assertEquals("Page background", devicePages[0].resources[0].component)
-        assertEquals("style-background-image", devicePages[0].resources[0].property)
+        assertEquals("@style:background-image", devicePages[0].resources[0].property)
 
         assertEquals("9056A552-4E7D-4988-9DAF-F381F3EA7131", devicePages[0].resources[1].id)
         assertEquals("Text content", devicePages[0].resources[1].data)

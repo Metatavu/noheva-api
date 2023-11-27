@@ -14,6 +14,7 @@ class ExhibitionTranslator :
         return Exhibition(
             id = entity.id,
             name = entity.name!!,
+            active = entity.active,
             creatorId = entity.creatorId,
             lastModifierId = entity.lastModifierId,
             createdAt = entity.createdAt,

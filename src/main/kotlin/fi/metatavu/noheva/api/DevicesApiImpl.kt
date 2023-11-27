@@ -53,6 +53,7 @@ class DevicesApiImpl: DevicesApi, AbstractApi() {
         val createdDevice = deviceController.createDevice(
             serialNumber = deviceRequest.serialNumber,
             name = deviceRequest.name,
+            deviceType = deviceRequest.deviceType,
             description = deviceRequest.description,
             version = deviceRequest.version
         )
