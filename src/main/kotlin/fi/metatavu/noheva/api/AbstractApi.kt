@@ -1,9 +1,11 @@
 package fi.metatavu.noheva.api
 
+import fi.metatavu.noheva.api.spec.model.DeviceApprovalStatus
 import fi.metatavu.noheva.api.spec.model.Error
 import fi.metatavu.noheva.api.spec.model.ScreenOrientation
 import fi.metatavu.noheva.crypto.CryptoController
 import fi.metatavu.noheva.devices.DeviceController
+import fi.metatavu.noheva.persistence.model.Device
 import org.apache.commons.lang3.EnumUtils
 import org.apache.commons.lang3.StringUtils
 import org.eclipse.microprofile.jwt.JsonWebToken
@@ -116,27 +118,31 @@ abstract class AbstractApi {
     /**
      * Checks whether incoming request from Device has authorized device key as a header
      *
-     * @param deviceId device id
+     * @param device device
      * @return whether device key is authorized
      */
-    protected fun isAuthorizedDevice(deviceId: UUID): Boolean {
+    protected fun isAuthorizedDevice(device: Device): Boolean {
+        if (device.approvalStatus != DeviceApprovalStatus.READY) {
+            return false
+        }
+
         val deviceKeyHeader = httpHeaders.requestHeaders[DEVICE_KEY_HEADER]
         if (deviceKeyHeader.isNullOrEmpty()) {
             return false
         }
         val token = deviceKeyHeader.firstOrNull() ?: return false
         val privateKey = cryptoController.loadPrivateKeyBase64(token) ?: return false
-        val deviceKey = deviceController.getDeviceKey(deviceId) ?: return false
+        val deviceKey = deviceController.getDeviceKey(device.id!!) ?: return false
         val publicKey = cryptoController.loadPublicKey(deviceKey) ?: return false
         val challenge = cryptoController.signUUID(
             privateKey = privateKey,
-            id = deviceId
+            id = device.id
         ) ?: return false
 
         return cryptoController.verifyUUID(
             publicKey = publicKey,
             signature = challenge,
-            id = deviceId
+            id = device.id
         )
     }
 

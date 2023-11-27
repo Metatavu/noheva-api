@@ -32,7 +32,6 @@ class DevicesApiImpl: DevicesApi, AbstractApi() {
     override fun createDevice(deviceRequest: DeviceRequest): Response {
         val existingDevice = deviceController.findDevice(serialNumber = deviceRequest.serialNumber)
 
-
         existingDevice?.let {
             if (it.approvalStatus != DeviceApprovalStatus.PENDING_REAPPROVAL) {
                 return createConflict("Device with serial number $deviceRequest.serialNumber already exists.")

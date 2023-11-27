@@ -45,7 +45,7 @@ class DeviceDatasApiImpl: DeviceDataApi, AbstractApi() {
         val activeExhibition = exhibitionController.findActiveExhibition() ?: return createNotFound("Active exhibition not found")
         val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceByExhibitionAndDevice(exhibition = activeExhibition, device = device) ?: return createNotFound("Exhibition device not found")
 
-        if (!isAuthorizedDevice(deviceId = device.id)) {
+        if (!isAuthorizedDevice(device = device)) {
             return createForbidden("Device $deviceId is not authorized to access this exhibition")
         }
 
@@ -61,7 +61,7 @@ class DeviceDatasApiImpl: DeviceDataApi, AbstractApi() {
         val activeExhibition = exhibitionController.findActiveExhibition() ?: return createNotFound("Active exhibition not found")
         val exhibitionDevice = exhibitionDeviceController.findExhibitionDeviceByExhibitionAndDevice(exhibition = activeExhibition, device = device) ?: return createNotFound("Exhibition device not found")
 
-        if (!isAuthorizedDevice(deviceId = device.id)) {
+        if (!isAuthorizedDevice(device = device)) {
             return createForbidden("Device $deviceId is not authorized to access this exhibition")
         }
 

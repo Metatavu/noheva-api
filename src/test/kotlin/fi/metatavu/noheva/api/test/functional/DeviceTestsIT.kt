@@ -363,11 +363,18 @@ class DeviceTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testListDeviceDataUnauthorized() = createTestBuilder().use { testBuilder ->
-        val exhibition = testBuilder.admin.exhibitions.create()
+        val exhibition = testBuilder.admin.exhibitions.create(
+            Exhibition(
+                name = "default exhibition",
+                active = true
+            )
+        )
+
         val exhibitionId = exhibition.id!!
         val device = testBuilder.admin.devices.create(serialNumber = "device", version = "1.0.0")
         val deviceGroup = createDefaultDeviceGroup(testBuilder, exhibition)
-        val exhibitionDevice = testBuilder.admin.exhibitionDevices.create(
+
+        testBuilder.admin.exhibitionDevices.create(
             exhibitionId = exhibitionId,
             payload = ExhibitionDevice(
                 deviceId = device.id!!,
@@ -381,12 +388,26 @@ class DeviceTestsIT: AbstractFunctionalTest() {
         )
 
         // No device key
-        testBuilder.getDevice(null).deviceDatas.assertListDeviceDataLayouts(403, exhibitionDevice.id!!)
-        testBuilder.getDevice(null).deviceDatas.assertListDeviceDataLayouts(403, exhibitionDevice.id)
+        testBuilder.getDevice(null).deviceDatas.assertListDeviceDataLayouts(
+            expectedStatus = 403,
+            deviceId = device.id!!
+        )
+
+        testBuilder.getDevice(null).deviceDatas.assertListDeviceDataLayouts(
+            expectedStatus = 403,
+            deviceId = device.id
+        )
 
         // Invalid key
-        testBuilder.getDevice("fake-key").deviceDatas.assertListDeviceDataLayouts(403, exhibitionDevice.id)
-        testBuilder.getDevice("fake-key").deviceDatas.assertListDeviceDataPages(403, exhibitionDevice.id)
+        testBuilder.getDevice("fake-key").deviceDatas.assertListDeviceDataLayouts(
+            expectedStatus =  403,
+            deviceId = device.id
+        )
+
+        testBuilder.getDevice("fake-key").deviceDatas.assertListDeviceDataPages(
+            expectedStatus =  403,
+            deviceId = device.id
+        )
 
         testBuilder.admin.devices.update(
             deviceId = device.id,
@@ -396,17 +417,24 @@ class DeviceTestsIT: AbstractFunctionalTest() {
         val key = testBuilder.admin.devices.getDeviceKey(device.id).key
 
         // Assert it works with the key
-        assertEquals(testBuilder.getDevice(key).deviceDatas.listDeviceDataLayouts(exhibitionDevice.id).size, 0)
-        assertEquals(testBuilder.getDevice(key).deviceDatas.listDeviceDataPages(exhibitionDevice.id).size, 0)
+        assertEquals(testBuilder.getDevice(key).deviceDatas.listDeviceDataLayouts(deviceId = device.id).size, 0)
+        assertEquals(testBuilder.getDevice(key).deviceDatas.listDeviceDataPages(deviceId = device.id).size, 0)
 
         testBuilder.admin.devices.update(
             deviceId = device.id,
-            device = device .copy(approvalStatus = DeviceApprovalStatus.PENDING_REAPPROVAL)
+            device = device.copy(approvalStatus = DeviceApprovalStatus.PENDING_REAPPROVAL)
         )
 
         // Unapproved device
-        testBuilder.getDevice(key).deviceDatas.assertListDeviceDataLayouts(404, device.id)
-        testBuilder.getDevice(key).deviceDatas.assertListDeviceDataPages(404, device.id)
+        testBuilder.getDevice(key).deviceDatas.assertListDeviceDataLayouts(
+            expectedStatus = 403,
+            deviceId = device.id
+        )
+
+        testBuilder.getDevice(key).deviceDatas.assertListDeviceDataPages(
+            expectedStatus = 403,
+            deviceId = device.id
+        )
     }
 
     @Test
