@@ -2,11 +2,13 @@ package fi.metatavu.noheva.contents
 
 import fi.metatavu.noheva.api.spec.model.ExhibitionPageResource
 import fi.metatavu.noheva.api.spec.model.LayoutType
+import fi.metatavu.noheva.api.spec.model.PageLayoutViewHtml
 import fi.metatavu.noheva.api.spec.model.ScreenOrientation
 import fi.metatavu.noheva.persistence.dao.PageLayoutDAO
 import fi.metatavu.noheva.persistence.model.DeviceModel
 import fi.metatavu.noheva.persistence.model.ExhibitionDevice
 import fi.metatavu.noheva.persistence.model.PageLayout
+import org.jsoup.Jsoup
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -136,6 +138,65 @@ class PageLayoutController {
      */
     fun deletePageLayout(pageLayout: PageLayout) {
         return pageLayoutDAO.delete(pageLayout)
+    }
+
+    /**
+     * Returns HTML layout resource name map.
+     *
+     * Map contains resource id as key and component name and property pair as value.
+     *
+     * Property can be one of the following:
+     * - #text (element text content)
+     * - style-<style name> (element style)
+     *
+     * @param layout layout
+     * @return HTML layout resource name map
+     */
+    fun getHtmlLayoutResourceNameMap(layout: PageLayout?): Map<String, Pair<String, String>> {
+        val result = mutableMapOf<String, Pair<String, String>>()
+        val layoutDocument = getParsedHtmlLayoutDocument(layout) ?: return result
+
+        layoutDocument.getElementsByAttribute("data-component-type").forEach { componentElement ->
+            val componentName = componentElement.attr("name")
+
+            val styles = componentElement.attr("style")
+                .split(";")
+                .associate { style ->
+                    val styleParts = style.split(":")
+                    styleParts[0].trim() to styleParts[1].trim()
+                }
+
+            styles.forEach() { (key, value) ->
+                if (value.startsWith("@resources/")) {
+                    val resourceId = value.substringAfter("@resources/").trim()
+                    result[resourceId] = Pair(componentName, "style-$key")
+                }
+            }
+
+            val text = componentElement.text()
+            if (text.startsWith("@resources/")) {
+                val resourceId = text.substringAfter("@resources/").trim()
+                result[resourceId] = Pair(componentName, "#text")
+            }
+        }
+
+        return result
+    }
+
+    /**
+     * Returns parsed HTML layout document
+     *
+     * @param layout layout
+     * @return parsed HTML layout document
+     */
+    private fun getParsedHtmlLayoutDocument(layout: PageLayout?): org.jsoup.nodes.Document? {
+        layout ?: return null
+        if (layout.layoutType != LayoutType.HTML) return null
+
+        val htmlLayout = dataSerializationController.getStringDataAsRestObject(layout.data, layout.layoutType) as PageLayoutViewHtml
+        val html = htmlLayout.html
+
+        return Jsoup.parse(html)
     }
 
 }

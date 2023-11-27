@@ -277,7 +277,7 @@ class DeviceTestsIT: AbstractFunctionalTest() {
         val deviceKeys = devices.map { device ->
             testBuilder.admin.devices.update(
                 deviceId = device.id!!,
-                device = device .copy(approvalStatus = DeviceApprovalStatus.APPROVED)
+                device = device.copy(approvalStatus = DeviceApprovalStatus.APPROVED)
             )
 
             testBuilder.admin.devices.getDeviceKey(device.id).key
@@ -448,6 +448,160 @@ class DeviceTestsIT: AbstractFunctionalTest() {
         assertTrue(usageHours > 0.01)
         assertEquals(foundDevice2.status, DeviceStatus.OFFLINE)
         assertNotEquals(foundDevice.lastSeen, foundDevice2.lastSeen)
+    }
+
+    @Test
+    fun testDeviceDataResources() = createTestBuilder().use { testBuilder ->
+        val exhibition = testBuilder.admin.exhibitions.create()
+        val exhibitionId = exhibition.id!!
+        val deviceGroup = createDefaultDeviceGroup(testBuilder, exhibition)
+        val device = setupApprovedDevice(testBuilder)
+        val deviceId = device.id!!
+        val deviceKey = testBuilder.admin.devices.getDeviceKey(deviceId).key
+
+        val deviceModel = testBuilder.admin.deviceModels.create()
+
+        val exhibitionDeviceId = testBuilder.admin.exhibitionDevices.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionDevice(
+                deviceId = deviceId,
+                exhibitionId = exhibitionId,
+                groupId = deviceGroup.id!!,
+                location = Point(0.0, 0.0),
+                name = "Exhibition device",
+                screenOrientation = ScreenOrientation.LANDSCAPE,
+                imageLoadStrategy = DeviceImageLoadStrategy.DISK
+            )
+        ).id!!
+
+        val testLayoutHtml = javaClass.getResource("/test-html-layout.html")?.readText()
+        assertNotNull(testLayoutHtml)
+
+        val layoutId = testBuilder.admin.pageLayouts.create(
+            payload = PageLayout(
+                name = "Test layout",
+                modelId = deviceModel.id!!,
+                layoutType = LayoutType.HTML,
+                data = PageLayoutViewHtml(
+                    html = testLayoutHtml!!
+                ),
+                screenOrientation = ScreenOrientation.LANDSCAPE
+            )
+        ).id!!
+
+        val floorId = testBuilder.admin.exhibitionFloors.create(exhibitionId).id!!
+        val roomId = testBuilder.admin.exhibitionRooms.create(exhibitionId, floorId).id!!
+
+        val contentVersionId = testBuilder.admin.contentVersions.create(
+            exhibitionId = exhibitionId,
+            payload = ContentVersion(name = "content version", language = "FI", rooms = arrayOf(roomId))
+        ).id!!
+
+        // Page with all resources defined
+        val page1 = testBuilder.admin.exhibitionPages.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionPage(
+                deviceId = exhibitionDeviceId,
+                layoutId = layoutId,
+                contentVersionId = contentVersionId,
+                exhibitionId = exhibitionId,
+                name = "page 1",
+                enterTransitions = arrayOf(),
+                eventTriggers = arrayOf(),
+                exitTransitions = arrayOf(),
+                orderNumber = 0,
+                resources = arrayOf(
+                    ExhibitionPageResource(
+                        id = "62206AFF-74A1-44A6-8EFC-C8FDB1CE2890",
+                        data = "https://www.example.com/image1.png",
+                        type = ExhibitionPageResourceType.IMAGE,
+                        mode = PageResourceMode.STATIC
+                    ),
+                    ExhibitionPageResource(
+                        id = "9056A552-4E7D-4988-9DAF-F381F3EA7131",
+                        data = "Text content",
+                        type = ExhibitionPageResourceType.TEXT,
+                        mode = PageResourceMode.STATIC
+                    )
+                ),
+            )
+        )
+
+        // Page with no resources defined
+        val page2 = testBuilder.admin.exhibitionPages.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionPage(
+                deviceId = exhibitionDeviceId,
+                layoutId = layoutId,
+                contentVersionId = contentVersionId,
+                exhibitionId = exhibitionId,
+                name = "page 2",
+                enterTransitions = arrayOf(),
+                eventTriggers = arrayOf(),
+                exitTransitions = arrayOf(),
+                orderNumber = 0,
+                resources = arrayOf(),
+            )
+        )
+
+        // Page with invalid resource id defined
+        val page3 = testBuilder.admin.exhibitionPages.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionPage(
+                deviceId = exhibitionDeviceId,
+                layoutId = layoutId,
+                contentVersionId = contentVersionId,
+                exhibitionId = exhibitionId,
+                name = "page 3",
+                enterTransitions = arrayOf(),
+                eventTriggers = arrayOf(),
+                exitTransitions = arrayOf(),
+                orderNumber = 0,
+                resources = arrayOf(
+                    ExhibitionPageResource(
+                        id = "A3B33F4A-A80A-4CE1-9949-8DAC9F8E7B71",
+                        data = "https://www.example.com/image2.png",
+                        type = ExhibitionPageResourceType.IMAGE,
+                        mode = PageResourceMode.STATIC
+                    )
+                ),
+            )
+        )
+
+        val devicePages = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataPages(
+            exhibitionDeviceId = exhibitionDeviceId
+        )
+
+        devicePages.sortBy { it.name }
+
+        assertEquals(devicePages.size, 3)
+        assertEquals(page1.id, devicePages[0].id)
+        assertEquals(2, devicePages[0].resources.size)
+        assertEquals("62206AFF-74A1-44A6-8EFC-C8FDB1CE2890", devicePages[0].resources[0].id)
+        assertEquals("https://www.example.com/image1.png", devicePages[0].resources[0].data)
+        assertEquals(ExhibitionPageResourceType.IMAGE, devicePages[0].resources[0].type)
+        assertEquals(PageResourceMode.STATIC, devicePages[0].resources[0].mode)
+        assertEquals("Page background", devicePages[0].resources[0].component)
+        assertEquals("style-background-image", devicePages[0].resources[0].property)
+
+        assertEquals("9056A552-4E7D-4988-9DAF-F381F3EA7131", devicePages[0].resources[1].id)
+        assertEquals("Text content", devicePages[0].resources[1].data)
+        assertEquals(ExhibitionPageResourceType.TEXT, devicePages[0].resources[1].type)
+        assertEquals(PageResourceMode.STATIC, devicePages[0].resources[1].mode)
+        assertEquals("Text contents", devicePages[0].resources[1].component)
+        assertEquals("#text", devicePages[0].resources[1].property)
+
+        assertEquals(page2.id, devicePages[1].id)
+        assertEquals(0, devicePages[1].resources.size)
+
+        assertEquals(page3.id, devicePages[2].id)
+        assertEquals(1, devicePages[2].resources.size)
+        assertEquals("A3B33F4A-A80A-4CE1-9949-8DAC9F8E7B71", devicePages[2].resources[0].id)
+        assertEquals("https://www.example.com/image2.png", devicePages[2].resources[0].data)
+        assertEquals(ExhibitionPageResourceType.IMAGE, devicePages[2].resources[0].type)
+        assertEquals(PageResourceMode.STATIC, devicePages[2].resources[0].mode)
+        assertNull(devicePages[2].resources[0].component)
+        assertNull(devicePages[2].resources[0].property)
     }
 
     /**
