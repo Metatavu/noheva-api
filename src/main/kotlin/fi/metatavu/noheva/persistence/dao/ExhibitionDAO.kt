@@ -40,13 +40,40 @@ class ExhibitionDAO : AbstractDAO<Exhibition>() {
      * @return found exhibition or null if not found
      */
     fun findByName(name: String): Exhibition? {
-        
         val criteriaBuilder = getEntityManager().criteriaBuilder
         val criteria: CriteriaQuery<Exhibition> = criteriaBuilder.createQuery(Exhibition::class.java)
         val root: Root<Exhibition> = criteria.from(Exhibition::class.java)
         criteria.select(root)
         criteria.where(criteriaBuilder.equal(root.get(Exhibition_.name), name))
         return getSingleResult(getEntityManager().createQuery<Exhibition>(criteria))
+    }
+
+    /**
+     * Finds an active exhibition
+     *
+     * @return found exhibition or null if not found
+     */
+    fun findActive(): Exhibition? {
+        val criteriaBuilder = getEntityManager().criteriaBuilder
+        val criteria: CriteriaQuery<Exhibition> = criteriaBuilder.createQuery(Exhibition::class.java)
+        val root: Root<Exhibition> = criteria.from(Exhibition::class.java)
+        criteria.select(root)
+        criteria.where(criteriaBuilder.equal(root.get(Exhibition_.active), true))
+        return getSingleResult(getEntityManager().createQuery<Exhibition>(criteria))
+    }
+
+    /**
+     * Lists active exhibitions
+     *
+     * @return list of exhibitions
+     */
+    fun listActive(): List<Exhibition> {
+        val criteriaBuilder = getEntityManager().criteriaBuilder
+        val criteria: CriteriaQuery<Exhibition> = criteriaBuilder.createQuery(Exhibition::class.java)
+        val root: Root<Exhibition> = criteria.from(Exhibition::class.java)
+        criteria.select(root)
+        criteria.where(criteriaBuilder.equal(root.get(Exhibition_.active), true))
+        return getEntityManager().createQuery<Exhibition>(criteria).resultList
     }
 
     /**
@@ -62,4 +89,16 @@ class ExhibitionDAO : AbstractDAO<Exhibition>() {
         return persist(exhibition)
     }
 
+    /**
+     * Updates active
+     *
+     * @param active active
+     * @param lastModifierId last modifier's id
+     * @return updated exhibition
+     */
+    fun updateActive(exhibition: Exhibition, active: Boolean, lastModifierId: UUID): Exhibition {
+        exhibition.lastModifierId = lastModifierId
+        exhibition.active = active
+        return persist(exhibition)
+    }
 }

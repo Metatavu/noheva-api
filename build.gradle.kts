@@ -30,6 +30,7 @@ val moshiVersion: String by project
 val testContainersVersion: String by project
 val camelPahoVersion: String by project
 val registerReflectionVersion: String by project
+val jsoupVersion: String by project
 
 dependencies {
     kapt("org.hibernate:hibernate-jpamodelgen:5.4.11.Final")
@@ -56,6 +57,7 @@ dependencies {
     implementation("software.amazon.awssdk:s3:$awssdkVersion")
     implementation("software.amazon.awssdk:apache-client:$awssdkVersion")
     implementation("com.github.metatavu.quarkus-register-reflection:quarkus-register-reflection:$registerReflectionVersion")
+    implementation("org.jsoup:jsoup:$jsoupVersion")
 
     /**
      * Spatial dependencies
@@ -99,7 +101,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
     kotlinOptions.javaParameters = true
 }
-
 
 val generateApiSpec = tasks.register("generateApiSpec", GenerateTask::class) {
     setProperty("generatorName", "kotlin-server")

@@ -2,6 +2,7 @@ package fi.metatavu.noheva.persistence.model
 
 import fi.metatavu.noheva.api.spec.model.DeviceApprovalStatus
 import fi.metatavu.noheva.api.spec.model.DeviceStatus
+import fi.metatavu.noheva.api.spec.model.DeviceType
 import java.time.OffsetDateTime
 import java.util.UUID
 import javax.persistence.*
@@ -34,6 +35,10 @@ class Device {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     lateinit var approvalStatus: DeviceApprovalStatus
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    lateinit var deviceType: DeviceType
 
     @Column(nullable = false)
     lateinit var version: String

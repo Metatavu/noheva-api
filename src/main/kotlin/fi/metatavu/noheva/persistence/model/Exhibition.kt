@@ -16,12 +16,16 @@ import javax.validation.constraints.NotNull
 @Entity
 @Cacheable(true)
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-open class Exhibition {
+class Exhibition {
 
     @Id
     var id: UUID? = null
 
     var name: @NotNull @NotEmpty String? = null
+
+    @NotNull
+    @Column(nullable = false)
+    var active: Boolean = false
 
     @Column(nullable = false)
     var createdAt: OffsetDateTime? = null

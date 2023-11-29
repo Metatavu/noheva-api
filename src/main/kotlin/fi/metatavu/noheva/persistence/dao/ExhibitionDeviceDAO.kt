@@ -67,6 +67,29 @@ class ExhibitionDeviceDAO : AbstractDAO<ExhibitionDevice>() {
     }
 
     /**
+     * Finds exhibition device by exhibition and device
+     *
+     * @param exhibition exhibition
+     * @param device device
+     * @return found exhibition device or null if not found
+     */
+    fun findByExhibitionAndDevice(exhibition: Exhibition, device: Device): ExhibitionDevice? {
+        val entityManager = getEntityManager()
+        val criteriaBuilder = entityManager.criteriaBuilder
+        val criteria: CriteriaQuery<ExhibitionDevice> = criteriaBuilder.createQuery(ExhibitionDevice::class.java)
+        val root: Root<ExhibitionDevice> = criteria.from(ExhibitionDevice::class.java)
+
+        criteria.select(root)
+        criteria.where(
+            criteriaBuilder.equal(root.get(ExhibitionDevice_.exhibition), exhibition),
+            criteriaBuilder.equal(root.get(ExhibitionDevice_.device), device)
+        )
+
+        val query: TypedQuery<ExhibitionDevice> = entityManager.createQuery(criteria)
+        return getSingleResult(query)
+    }
+
+    /**
      * Lists exhibition devices
      *
      * @param exhibition exhibition

@@ -1010,4 +1010,26 @@
             <column name="lastconnected" type="datetime(6)"/>
         </addColumn>
     </changeSet>
+
+    <changeSet id="activeexhibition" author="Antti Leppä">
+        <addColumn tableName="exhibition">
+            <column name="active" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <sql>UPDATE exhibition SET active = false</sql>
+        <sql>UPDATE exhibition JOIN (SELECT id FROM exhibition LIMIT 1) AS first_row ON exhibition.id = first_row.id SET active = TRUE</sql>
+    </changeSet>
+
+    <changeSet id="devicetype" author="Antti Leppä">
+        <addColumn tableName="device">
+            <column name="devicetype" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <sql>UPDATE device SET devicetype = 'NOHEVA_ANDROID'</sql>
+    </changeSet>
+
 </databaseChangeLog>
