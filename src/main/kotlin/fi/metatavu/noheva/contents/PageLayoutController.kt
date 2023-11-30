@@ -161,6 +161,7 @@ class PageLayoutController {
 
             val styles = componentElement.attr("style")
                 .split(";")
+                .filter{ it.isNotEmpty() }
                 .associate { style ->
                     val styleParts = style.split(":")
                     styleParts[0].trim() to styleParts[1].trim()
