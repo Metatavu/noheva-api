@@ -65,6 +65,7 @@ class ExhibitionsApiImpl : ExhibitionsApi, AbstractApi() {
 
             exhibitionController.createExhibition(
                 name = exhibition.name,
+                active = exhibition.active ?: false,
                 creatorId = userId
             )
         }
@@ -87,7 +88,14 @@ class ExhibitionsApiImpl : ExhibitionsApi, AbstractApi() {
 
         val foundExhibition = exhibitionController.findExhibitionById(exhibitionId)
             ?: return createNotFound("Exhibition $exhibitionId not found")
-        val updatedExhibition = exhibitionController.updateExhibition(foundExhibition, exhibition.name, userId)
+        var updatedExhibition = exhibitionController.updateExhibition(foundExhibition, exhibition.name, userId)
+
+        if (exhibition.active == true) {
+            updatedExhibition = exhibitionController.activateExhibition(
+                exhibition = updatedExhibition,
+                modifierId = userId
+            )
+        }
 
         return createOk(exhibitionTranslator.translate(updatedExhibition))
     }

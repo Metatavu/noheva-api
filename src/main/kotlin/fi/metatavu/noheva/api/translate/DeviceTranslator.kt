@@ -23,6 +23,7 @@ class DeviceTranslator: AbstractTranslator<Device, fi.metatavu.noheva.api.spec.m
             deviceModelId = entity.deviceModel?.id,
             name = entity.name,
             serialNumber = entity.serialNumber,
+            deviceType = entity.deviceType,
             description = entity.description,
             status = deviceStatus,
             approvalStatus = entity.approvalStatus,

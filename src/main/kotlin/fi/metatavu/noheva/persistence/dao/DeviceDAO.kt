@@ -2,6 +2,7 @@ package fi.metatavu.noheva.persistence.dao
 
 import fi.metatavu.noheva.api.spec.model.DeviceApprovalStatus
 import fi.metatavu.noheva.api.spec.model.DeviceStatus
+import fi.metatavu.noheva.api.spec.model.DeviceType
 import fi.metatavu.noheva.persistence.model.Device
 import fi.metatavu.noheva.persistence.model.DeviceModel
 import fi.metatavu.noheva.persistence.model.Device_
@@ -22,6 +23,7 @@ class DeviceDAO: AbstractDAO<Device>() {
      *
      * @param id id
      * @param serialNumber serial number
+     * @param deviceType device type
      * @param name name
      * @param description description
      * @param version version
@@ -30,6 +32,7 @@ class DeviceDAO: AbstractDAO<Device>() {
     fun create(
         id: UUID,
         serialNumber: String,
+        deviceType: DeviceType,
         name: String?,
         description: String?,
         version: String
@@ -37,6 +40,7 @@ class DeviceDAO: AbstractDAO<Device>() {
         val device = Device()
         device.id = id
         device.serialNumber = serialNumber
+        device.deviceType = deviceType
         device.name = name
         device.description = description
         device.status = DeviceStatus.OFFLINE
@@ -164,6 +168,18 @@ class DeviceDAO: AbstractDAO<Device>() {
     fun updateSerialNumber(device: Device, serialNumber: String): Device {
         device.serialNumber = serialNumber
 
+        return persist(device)
+    }
+
+    /**
+     * Updates device type
+     *
+     * @param device device
+     * @param deviceType device type
+     * @return updated device
+     */
+    fun updateDeviceType(device: Device, deviceType: DeviceType): Device {
+        device.deviceType = deviceType
         return persist(device)
     }
 

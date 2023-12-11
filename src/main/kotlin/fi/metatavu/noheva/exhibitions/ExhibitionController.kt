@@ -46,8 +46,21 @@ class ExhibitionController {
      * @param creatorId creating user id
      * @return created exhibition
      */
-    fun createExhibition(name: String, creatorId: UUID): Exhibition {
-        return exhibitionDAO.create(UUID.randomUUID(), name, creatorId, creatorId)
+    fun createExhibition(
+        name: String,
+        active: Boolean,
+        creatorId: UUID
+    ): Exhibition {
+        val result = exhibitionDAO.create(UUID.randomUUID(), name, creatorId, creatorId)
+
+        if (active) {
+            return activateExhibition(
+                exhibition = result,
+                modifierId = creatorId
+            )
+        }
+
+        return result
     }
 
     /**
@@ -312,6 +325,13 @@ class ExhibitionController {
     }
 
     /**
+     * Finds an active exhibition
+     *
+     * @return active exhibition or null if no exhibition is currently active
+     */
+    fun findActiveExhibition(): Exhibition? =  exhibitionDAO.findActive()
+
+    /**
      * Lists all exhibitions in a system
      *
      * @returns all exhibitions in a system
@@ -329,7 +349,33 @@ class ExhibitionController {
      * @return updated exhibition
      */
     fun updateExhibition(exhibition: Exhibition, name: String, modifierId: UUID): Exhibition {
-      return exhibitionDAO.updateName(exhibition, name, modifierId)
+        return exhibitionDAO.updateName(exhibition, name, modifierId)
+    }
+
+    /**
+     * Activates an exhibition
+     *
+     * @param exhibition exhibition to be activated
+     * @param modifierId modifying user id
+     * @return activated exhibition
+     */
+    fun activateExhibition(
+        exhibition: Exhibition,
+        modifierId: UUID
+    ): Exhibition {
+        exhibitionDAO.listActive().forEach { activeExhibition ->
+            exhibitionDAO.updateActive(
+                exhibition = activeExhibition,
+                active = false,
+                lastModifierId = modifierId
+            )
+        }
+
+        return exhibitionDAO.updateActive(
+            exhibition = exhibition,
+            active = true,
+            lastModifierId = modifierId
+        )
     }
 
     /**

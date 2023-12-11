@@ -2,6 +2,7 @@ package fi.metatavu.noheva.devices
 
 import fi.metatavu.noheva.api.spec.model.DeviceApprovalStatus
 import fi.metatavu.noheva.api.spec.model.DeviceStatus
+import fi.metatavu.noheva.api.spec.model.DeviceType
 import fi.metatavu.noheva.persistence.dao.DeviceDAO
 import fi.metatavu.noheva.persistence.model.Device
 import fi.metatavu.noheva.persistence.model.DeviceModel
@@ -31,6 +32,7 @@ class DeviceController {
      */
     fun createDevice(
         serialNumber: String,
+        deviceType: DeviceType,
         name: String?,
         description: String?,
         version: String
@@ -40,7 +42,8 @@ class DeviceController {
             serialNumber = serialNumber,
             name = name,
             description = description,
-            version = version
+            version = version,
+            deviceType = deviceType
         )
     }
 
@@ -97,6 +100,7 @@ class DeviceController {
         result = deviceDAO.updateDeviceModel(result, deviceModel)
         result = deviceDAO.updateSerialNumber(result, newDevice.serialNumber)
         result = deviceDAO.updateWarrantyExpire(result, newDevice.warrantyExpiry)
+        result = deviceDAO.updateDeviceType(device = result, deviceType = newDevice.deviceType)
 
         return deviceDAO.updateLastModifierId(result, userId)
     }

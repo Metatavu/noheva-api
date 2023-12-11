@@ -44,14 +44,16 @@ class DevicesTestBuilderResource(
         serialNumber: String = "123",
         name: String? = null,
         description: String? = null,
-        version: String = "1.0.0"
+        version: String = "1.0.0",
+        deviceType: DeviceType = DeviceType.NOHEVA_ANDROID
     ): Device {
         val result: Device = api.createDevice(
             DeviceRequest(
                 serialNumber = serialNumber,
                 name = name,
                 description = description,
-                version = version
+                version = version,
+                deviceType = deviceType
             )
         )
         if (!createdDeviceIds.contains(result.id)) {

@@ -32,28 +32,28 @@ class DeviceDatasTestBuilderResource(
     /**
      * Lists device data pages from API
      *
-     * @param exhibitionDeviceId exhibition device id
+     * @param deviceId device id
      * @return device data pages
      */
     fun listDeviceDataPages(
-        exhibitionDeviceId: UUID
+        deviceId: UUID
     ): Array<DevicePage> {
         return api.listDeviceDataPages(
-            exhibitionDeviceId = exhibitionDeviceId
+            deviceId = deviceId
         )
     }
 
     /**
      * Lists device data layouts from API
      *
-     * @param exhibitionDeviceId exhibition device id
+     * @param deviceId device id
      * @return device data layouts
      */
     fun listDeviceDataLayouts(
-        exhibitionDeviceId: UUID
+        deviceId: UUID
     ): Array<DeviceLayout> {
         return api.listDeviceDataLayouts(
-            exhibitionDeviceId = exhibitionDeviceId
+            deviceId = deviceId
         )
     }
 
@@ -61,12 +61,12 @@ class DeviceDatasTestBuilderResource(
      * Asserts that listing device data pages fails with given status code
      *
      * @param expectedStatus expectedStatusCode
-     * @param exhibitionDeviceId exhibitionDeviceId
+     * @param deviceId device id
      */
-    fun assertListDeviceDataPages(expectedStatus: Int, exhibitionDeviceId: UUID) {
+    fun assertListDeviceDataPages(expectedStatus: Int, deviceId: UUID) {
         try {
             api.listDeviceDataPages(
-                exhibitionDeviceId = exhibitionDeviceId
+                deviceId = deviceId
             )
             Assert.fail(String.format("Expected list to fail with message %d", expectedStatus))
         } catch (e: ClientException) {
@@ -77,13 +77,13 @@ class DeviceDatasTestBuilderResource(
     /**
      * Asserts that listing device data layouts fails with given status code
      *
-     * @param expectedStatus expectedStatusCode
-     * @param exhibitionDeviceId exhibitionDeviceId
+     * @param expectedStatus expected status code
+     * @param deviceId device id
      */
-    fun assertListDeviceDataLayouts(expectedStatus: Int, exhibitionDeviceId: UUID) {
+    fun assertListDeviceDataLayouts(expectedStatus: Int, deviceId: UUID) {
         try {
             api.listDeviceDataLayouts(
-                exhibitionDeviceId = exhibitionDeviceId
+                deviceId = deviceId
             )
             Assert.fail(String.format("Expected list to fail with message %d", expectedStatus))
         } catch (e: ClientException) {

@@ -547,14 +547,7 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
             assertEquals(createdExhibition.id, foundCreatedExhibition?.id)
             assertEquals(createdExhibition.name, foundCreatedExhibition?.name)
 
-            val updateBody = Exhibition(
-                "new name",
-                createdExhibition.id,
-                createdExhibition.creatorId,
-                createdExhibition.lastModifierId,
-                createdExhibition.createdAt,
-                createdExhibition.modifiedAt
-            )
+            val updateBody = createdExhibition.copy(name = "new name")
 
             val updatedExhibition = it.admin.exhibitions.updateExhibition(updateBody)
             assertEquals(updateBody.id, updatedExhibition.id)
@@ -567,23 +560,25 @@ class ExhibitionTestsIT : AbstractFunctionalTest() {
             it.admin.exhibitions.assertUpdateFail(
                 404,
                 Exhibition(
-                    "fail name",
-                    UUID.randomUUID(),
-                    createdExhibition.creatorId,
-                    createdExhibition.lastModifierId,
-                    createdExhibition.createdAt,
-                    createdExhibition.modifiedAt
+                    name = "fail name",
+                    id = UUID.randomUUID(),
+                    active = false,
+                    creatorId = createdExhibition.creatorId,
+                    lastModifierId = createdExhibition.lastModifierId,
+                    createdAt = createdExhibition.createdAt,
+                    modifiedAt = createdExhibition.modifiedAt
                 )
             )
             it.admin.exhibitions.assertUpdateFail(
                 400,
                 Exhibition(
-                    "",
-                    UUID.randomUUID(),
-                    createdExhibition.creatorId,
-                    createdExhibition.lastModifierId,
-                    createdExhibition.createdAt,
-                    createdExhibition.modifiedAt
+                    name = "",
+                    id = UUID.randomUUID(),
+                    active = false,
+                    creatorId = createdExhibition.creatorId,
+                    lastModifierId = createdExhibition.lastModifierId,
+                    createdAt = createdExhibition.createdAt,
+                    modifiedAt = createdExhibition.modifiedAt
                 )
             )
         }
