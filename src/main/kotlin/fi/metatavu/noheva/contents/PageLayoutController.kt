@@ -179,6 +179,27 @@ class PageLayoutController {
                 val resourceId = text.substringAfter("@resources/").trim()
                 result[resourceId] = Pair(componentName, "#text")
             }
+
+            componentElement.attributes()
+                .filter { it.key != "style" }
+                .forEach { attribute ->
+                    val value = attribute.value
+                    if (value.startsWith("@resources/")) {
+                        val resourceId = value.substringAfter("@resources/").trim()
+                        result[resourceId] = Pair(componentName, "@${attribute.key}")
+                    }
+            }
+
+            if (componentElement.tagName() == "video") {
+                val source = componentElement.getElementsByTag("source").firstOrNull()
+                source?.let {
+                    val src = it.attr("src")
+                    if (src.startsWith("@resources/")) {
+                        val resourceId = src.substringAfter("@resources/").trim()
+                        result[resourceId] = Pair(componentName, "@src")
+                    }
+                }
+            }
         }
 
         return result
