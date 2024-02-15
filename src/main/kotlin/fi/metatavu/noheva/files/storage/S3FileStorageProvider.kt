@@ -91,7 +91,7 @@ class S3FileStorageProvider : FileStorageProvider {
     override fun store(inputFile: InputFile): StoredFile {
         val meta: FileMeta = inputFile.meta
         val folder: String = inputFile.folder
-        val fileKey = "$folder/${inputFile.meta.fileName}"
+        val fileKey = "$folder/${inputFile.meta.fileName}".trimStart('/')
         val data = inputFile.data
         data ?: throw FileStorageException("Input file does not contain data")
 
