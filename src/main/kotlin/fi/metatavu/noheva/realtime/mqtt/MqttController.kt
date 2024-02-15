@@ -52,6 +52,15 @@ class MqttController {
     }
 
     /**
+     * Checks connection status
+     *
+     * @return true if connected, false otherwise
+     */
+    fun checkConnectionStatus(): Boolean {
+        return MqttConnection.checkConnectionStatus()
+    }
+
+    /**
      * Schedules a message to be published
      *
      * @param message message
