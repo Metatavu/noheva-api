@@ -108,6 +108,16 @@ class MqttConnection {
         }
 
         /**
+         * Checks if MQTT connection is active
+         *
+         * @return true if connection is active; false otherwise
+         */
+        fun checkConnectionStatus(): Boolean {
+            val client = CLIENT
+            return client != null && client.isConnected
+        }
+
+        /**
          * Publishes message into given MQTT topic
          *
          * @param subtopic subtopic to deliver the message to.

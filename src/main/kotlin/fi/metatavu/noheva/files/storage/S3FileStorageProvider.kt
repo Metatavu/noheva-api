@@ -39,6 +39,7 @@ import javax.inject.Inject
  * @author Antti Leppä
  */
 @ApplicationScoped
+@Suppress("unused")
 class S3FileStorageProvider : FileStorageProvider {
 
     @Inject
@@ -90,7 +91,7 @@ class S3FileStorageProvider : FileStorageProvider {
     override fun store(inputFile: InputFile): StoredFile {
         val meta: FileMeta = inputFile.meta
         val folder: String = inputFile.folder
-        val fileKey = "$folder/${UUID.randomUUID()}"
+        val fileKey = "$folder/${inputFile.meta.fileName}".trimStart('/')
         val data = inputFile.data
         data ?: throw FileStorageException("Input file does not contain data")
 
@@ -106,7 +107,6 @@ class S3FileStorageProvider : FileStorageProvider {
                 filename = meta.fileName,
                 tempFile = tempFile
             )
-
 
             return translateObject(fileKey = fileKey, objectMeta = objectMeta)
         } catch (e: SdkClientException) {
