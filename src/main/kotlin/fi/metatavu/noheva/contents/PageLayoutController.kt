@@ -9,6 +9,7 @@ import fi.metatavu.noheva.persistence.model.DeviceModel
 import fi.metatavu.noheva.persistence.model.ExhibitionDevice
 import fi.metatavu.noheva.persistence.model.PageLayout
 import org.jsoup.Jsoup
+import org.slf4j.Logger
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -18,6 +19,9 @@ import javax.inject.Inject
  */
 @ApplicationScoped
 class PageLayoutController {
+
+    @Inject
+    lateinit var logger: Logger
 
     @Inject
     lateinit var pageLayoutDAO: PageLayoutDAO
@@ -158,7 +162,7 @@ class PageLayoutController {
 
         layoutDocument.getElementsByAttribute("data-component-type").forEach { componentElement ->
             val componentName = componentElement.attr("name")
-
+            val componentType = componentElement.attr("data-component-type")
             val styles = componentElement.attr("style")
                 .split(";")
                 .filter{ it.isNotEmpty() }
@@ -188,15 +192,34 @@ class PageLayoutController {
                         val resourceId = value.substringAfter("@resources/").trim()
                         result[resourceId] = Pair(componentName, "@${attribute.key}")
                     }
-            }
+                }
 
-            if (componentElement.tagName() == "video") {
-                val source = componentElement.getElementsByTag("source").firstOrNull()
-                source?.let {
-                    val src = it.attr("src")
-                    if (src.startsWith("@resources/")) {
-                        val resourceId = src.substringAfter("@resources/").trim()
-                        result[resourceId] = Pair(componentName, "@src")
+            when (componentType) {
+                "image-button" -> {
+                    val imageElement = componentElement.selectFirst("img")
+
+                    if (imageElement == null) {
+                        logger.error("No image element found for image-button component $componentName")
+                    } else {
+                        val src = imageElement.attr("src")
+                        if (src.startsWith("@resources/")) {
+                            val resourceId = src.substringAfter("@resources/").trim()
+                            result[resourceId] = Pair(componentName, "@src")
+                        }
+                    }
+                }
+
+                "video" -> {
+                    val sourceElement = componentElement.selectFirst("source")
+
+                    if (sourceElement == null) {
+                        logger.error("No source element found for video component $componentName")
+                    } else {
+                        val src = sourceElement.attr("src")
+                        if (src.startsWith("@resources/")) {
+                            val resourceId = src.substringAfter("@resources/").trim()
+                            result[resourceId] = Pair(componentName, "@src")
+                        }
                     }
                 }
             }
