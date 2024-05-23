@@ -573,6 +573,24 @@ class DeviceTestsIT: AbstractFunctionalTest() {
                         type = ExhibitionPageResourceType.VIDEO,
                         mode = PageResourceMode.STATIC
                     ),
+                    ExhibitionPageResource(
+                        id = "95e4d27f-43da-4349-9e86-431c31de2ffe",
+                        data = "https://www.example.com/video-under-control.mp4",
+                        type = ExhibitionPageResourceType.VIDEO,
+                        mode = PageResourceMode.STATIC
+                    ),
+                    ExhibitionPageResource(
+                        id = "e363a01e-31b1-4766-931d-8cf54ff1f811",
+                        data = "https://www.example.com/play.png",
+                        type = ExhibitionPageResourceType.IMAGE,
+                        mode = PageResourceMode.STATIC
+                    ),
+                    ExhibitionPageResource(
+                        id = "8b2ef0ea-c5fa-4add-8240-26f759a8bd2a",
+                        data = "https://www.example.com/close.png",
+                        type = ExhibitionPageResourceType.IMAGE,
+                        mode = PageResourceMode.STATIC
+                    ),
                 ),
             )
         )
@@ -626,7 +644,7 @@ class DeviceTestsIT: AbstractFunctionalTest() {
 
         assertEquals(devicePages.size, 3)
         assertEquals(page1.id, devicePages[0].id)
-        assertEquals(4, devicePages[0].resources.size)
+        assertEquals(7, devicePages[0].resources.size)
         assertEquals("62206AFF-74A1-44A6-8EFC-C8FDB1CE2890", devicePages[0].resources[0].id)
         assertEquals("https://www.example.com/image1.png", devicePages[0].resources[0].data)
         assertEquals(ExhibitionPageResourceType.IMAGE, devicePages[0].resources[0].type)
@@ -654,6 +672,21 @@ class DeviceTestsIT: AbstractFunctionalTest() {
         assertEquals(PageResourceMode.STATIC, devicePages[0].resources[3].mode)
         assertEquals("Video", devicePages[0].resources[3].component)
         assertEquals("@src", devicePages[0].resources[3].property)
+
+        assertEquals("95e4d27f-43da-4349-9e86-431c31de2ffe", devicePages[0].resources[4].id)
+        assertEquals("https://www.example.com/video-under-control.mp4", devicePages[0].resources[4].data)
+        assertEquals(ExhibitionPageResourceType.VIDEO, devicePages[0].resources[4].type)
+        assertEquals(PageResourceMode.STATIC, devicePages[0].resources[4].mode)
+
+        assertEquals("e363a01e-31b1-4766-931d-8cf54ff1f811", devicePages[0].resources[5].id)
+        assertEquals("https://www.example.com/play.png", devicePages[0].resources[5].data)
+        assertEquals(ExhibitionPageResourceType.IMAGE, devicePages[0].resources[5].type)
+        assertEquals(PageResourceMode.STATIC, devicePages[0].resources[5].mode)
+
+        assertEquals("8b2ef0ea-c5fa-4add-8240-26f759a8bd2a", devicePages[0].resources[6].id)
+        assertEquals("https://www.example.com/close.png", devicePages[0].resources[6].data)
+        assertEquals(ExhibitionPageResourceType.IMAGE, devicePages[0].resources[6].type)
+        assertEquals(PageResourceMode.STATIC, devicePages[0].resources[6].mode)
 
         assertEquals(page2.id, devicePages[1].id)
         assertEquals(0, devicePages[1].resources.size)
