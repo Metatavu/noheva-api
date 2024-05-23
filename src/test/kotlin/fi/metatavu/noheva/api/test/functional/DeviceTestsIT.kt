@@ -677,16 +677,22 @@ class DeviceTestsIT: AbstractFunctionalTest() {
         assertEquals("https://www.example.com/video-under-control.mp4", devicePages[0].resources[4].data)
         assertEquals(ExhibitionPageResourceType.VIDEO, devicePages[0].resources[4].type)
         assertEquals(PageResourceMode.STATIC, devicePages[0].resources[4].mode)
+        assertEquals("Video component with controls", devicePages[0].resources[4].component)
+        assertEquals("@src", devicePages[0].resources[4].property)
 
         assertEquals("e363a01e-31b1-4766-931d-8cf54ff1f811", devicePages[0].resources[5].id)
         assertEquals("https://www.example.com/play.png", devicePages[0].resources[5].data)
         assertEquals(ExhibitionPageResourceType.IMAGE, devicePages[0].resources[5].type)
         assertEquals(PageResourceMode.STATIC, devicePages[0].resources[5].mode)
+        assertEquals("Play button", devicePages[0].resources[5].component)
+        assertEquals("@src", devicePages[0].resources[5].property)
 
         assertEquals("8b2ef0ea-c5fa-4add-8240-26f759a8bd2a", devicePages[0].resources[6].id)
         assertEquals("https://www.example.com/close.png", devicePages[0].resources[6].data)
         assertEquals(ExhibitionPageResourceType.IMAGE, devicePages[0].resources[6].type)
         assertEquals(PageResourceMode.STATIC, devicePages[0].resources[6].mode)
+        assertEquals("Close button", devicePages[0].resources[6].component)
+        assertEquals("@src", devicePages[0].resources[6].property)
 
         assertEquals(page2.id, devicePages[1].id)
         assertEquals(0, devicePages[1].resources.size)
