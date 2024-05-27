@@ -1,7 +1,6 @@
 package fi.metatavu.noheva.api
 
 import fi.metatavu.noheva.api.spec.DeviceDataApi
-import fi.metatavu.noheva.api.spec.model.*
 import fi.metatavu.noheva.api.translate.DeviceDataLayoutTranslator
 import fi.metatavu.noheva.api.translate.DeviceDataPageTranslator
 import fi.metatavu.noheva.contents.ExhibitionPageController
