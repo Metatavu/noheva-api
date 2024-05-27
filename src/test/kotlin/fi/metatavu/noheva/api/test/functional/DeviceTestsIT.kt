@@ -503,8 +503,8 @@ class DeviceTestsIT: AbstractFunctionalTest() {
             device = readyDevice.copy(deviceModelId = deviceModel.id!!)
         )
 
-        val devicePages = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
-        assertEquals(devicePages.size, 0)
+        val deviceSettings = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
+        assertEquals(deviceSettings.size, 0)
 
         testBuilder.admin.devices.update(
             deviceId = deviceId,
@@ -534,11 +534,11 @@ class DeviceTestsIT: AbstractFunctionalTest() {
             device = readyDevice.copy(deviceModelId = deviceModel.id!!)
         )
 
-        val devicePages = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
-        assertEquals(devicePages.size, 1)
-        assertEquals(devicePages[0].key, DeviceSettingKey.SCREEN_DENSITY)
-        assertEquals(devicePages[0].value, "77.0")
-        assertEquals(devicePages[0].modifiedAt, deviceModel.modifiedAt)
+        val deviceSettings = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
+        assertEquals(deviceSettings.size, 1)
+        assertEquals(deviceSettings[0].key, DeviceSettingKey.SCREEN_DENSITY)
+        assertEquals(deviceSettings[0].value, "77.0")
+        assertEquals(deviceSettings[0].modifiedAt, deviceModel.modifiedAt)
 
         testBuilder.admin.devices.update(
             deviceId = deviceId,
@@ -568,8 +568,8 @@ class DeviceTestsIT: AbstractFunctionalTest() {
             device = readyDevice.copy(deviceModelId = deviceModel.id!!)
         )
 
-        val devicePages = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
-        assertEquals(devicePages.size, 0)
+        val deviceSettings = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
+        assertEquals(deviceSettings.size, 0)
 
         testBuilder.admin.devices.update(
             deviceId = deviceId,
@@ -815,6 +815,5 @@ class DeviceTestsIT: AbstractFunctionalTest() {
             device = createdDevice.copy(approvalStatus = DeviceApprovalStatus.APPROVED)
         )
 
-        // return testBuilder.admin.devices.find(createdDevice.id!!)
     }
 }

@@ -78,7 +78,7 @@ class DeviceDatasApiImpl: DeviceDataApi, AbstractApi() {
         val device = deviceController.findDevice(id = deviceId) ?: return createNotFound("Device $deviceId not found")
 
         if (!isAuthorizedDevice(device = device)) {
-            return createForbidden("Device $deviceId is not authorized to access this exhibition")
+            return createForbidden("Incorrect device key for  $deviceId")
         }
 
         return createOk(deviceController.listDeviceSettings(device = device))
