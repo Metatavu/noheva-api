@@ -75,4 +75,14 @@ class DeviceDatasApiImpl: DeviceDataApi, AbstractApi() {
         return createOk(pages.map { deviceDataPageTranslator.translate(it) })
     }
 
+    override fun listDeviceDataSettings(deviceId: UUID): Response {
+        val device = deviceController.findDevice(id = deviceId) ?: return createNotFound("Device $deviceId not found")
+
+        if (!isAuthorizedDevice(device = device)) {
+            return createForbidden("Device $deviceId is not authorized to access this exhibition")
+        }
+
+        return createOk(deviceController.listDeviceSettings(device = device))
+    }
+
 }
