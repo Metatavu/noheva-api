@@ -58,6 +58,20 @@ class DeviceDatasTestBuilderResource(
     }
 
     /**
+     * Lists device data settings from API
+     *
+     * @param deviceId device id
+     * @return device data settings
+     */
+    fun listDeviceDataSettings(
+        deviceId: UUID
+    ): Array<DeviceSetting> {
+        return api.listDeviceDataSettings(
+            deviceId = deviceId
+        )
+    }
+
+    /**
      * Asserts that listing device data pages fails with given status code
      *
      * @param expectedStatus expectedStatusCode
@@ -83,6 +97,23 @@ class DeviceDatasTestBuilderResource(
     fun assertListDeviceDataLayouts(expectedStatus: Int, deviceId: UUID) {
         try {
             api.listDeviceDataLayouts(
+                deviceId = deviceId
+            )
+            Assert.fail(String.format("Expected list to fail with message %d", expectedStatus))
+        } catch (e: ClientException) {
+            assertClientExceptionStatus(expectedStatus, e)
+        }
+    }
+
+    /**
+     * Asserts that listing device data settings fails with given status code
+     *
+     * @param expectedStatus expected status code
+     * @param deviceId device id
+     */
+    fun assertListDeviceDataSettings(expectedStatus: Int, deviceId: UUID) {
+        try {
+            api.listDeviceDataSettings(
                 deviceId = deviceId
             )
             Assert.fail(String.format("Expected list to fail with message %d", expectedStatus))

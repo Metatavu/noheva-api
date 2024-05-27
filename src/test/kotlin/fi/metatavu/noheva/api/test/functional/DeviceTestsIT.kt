@@ -409,6 +409,11 @@ class DeviceTestsIT: AbstractFunctionalTest() {
             deviceId = device.id
         )
 
+        testBuilder.getDevice("fake-key").deviceDatas.assertListDeviceDataSettings(
+            expectedStatus =  403,
+            deviceId = device.id
+        )
+
         testBuilder.admin.devices.update(
             deviceId = device.id,
             device = device .copy(approvalStatus = DeviceApprovalStatus.APPROVED)
@@ -442,6 +447,7 @@ class DeviceTestsIT: AbstractFunctionalTest() {
         // Invalid device id
         testBuilder.getDevice("fake-key").deviceDatas.assertListDeviceDataLayouts(404, UUID.randomUUID())
         testBuilder.getDevice("fake-key").deviceDatas.assertListDeviceDataPages(404, UUID.randomUUID())
+        testBuilder.getDevice("fake-key").deviceDatas.assertListDeviceDataSettings(404, UUID.randomUUID())
     }
 
     @Test
@@ -482,6 +488,93 @@ class DeviceTestsIT: AbstractFunctionalTest() {
         assertTrue(usageHours > 0.01)
         assertEquals(foundDevice2.status, DeviceStatus.OFFLINE)
         assertNotEquals(foundDevice.lastSeen, foundDevice2.lastSeen)
+    }
+
+    @Test
+    fun testDeviceSettingsEmpty(): Unit = createTestBuilder().use { testBuilder ->
+        val device = setupApprovedDevice(testBuilder)
+        val deviceId = device.id!!
+        val deviceKey = testBuilder.admin.devices.getDeviceKey(deviceId).key
+        val deviceModel = testBuilder.admin.deviceModels.create()
+        val readyDevice = testBuilder.admin.devices.find(deviceId = deviceId)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = deviceModel.id!!)
+        )
+
+        val deviceSettings = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
+        assertEquals(deviceSettings.size, 0)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = null)
+        )
+    }
+
+    @Test
+    fun testDeviceSettingsDensity(): Unit = createTestBuilder().use { testBuilder ->
+        val device = setupApprovedDevice(testBuilder)
+        val deviceId = device.id!!
+        val deviceKey = testBuilder.admin.devices.getDeviceKey(deviceId).key
+        val deviceModel = testBuilder.admin.deviceModels.create(DeviceModel(
+            manufacturer = "Manufacturer with Density setting",
+            model = "Model with Density setting",
+            dimensions = DeviceModelDimensions(),
+            displayMetrics = DeviceModelDisplayMetrics(
+                density = 77.0
+            ),
+            capabilities = DeviceModelCapabilities(touch = true),
+            screenOrientation = ScreenOrientation.PORTRAIT
+        ))
+        val readyDevice = testBuilder.admin.devices.find(deviceId = deviceId)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = deviceModel.id!!)
+        )
+
+        val deviceSettings = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
+        assertEquals(deviceSettings.size, 1)
+        assertEquals(deviceSettings[0].key, DeviceSettingKey.SCREEN_DENSITY)
+        assertEquals(deviceSettings[0].value, "77.0")
+        assertEquals(deviceSettings[0].modifiedAt, deviceModel.modifiedAt)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = null)
+        )
+    }
+
+    @Test
+    fun testDeviceSettingsDensityNull(): Unit = createTestBuilder().use { testBuilder ->
+        val device = setupApprovedDevice(testBuilder)
+        val deviceId = device.id!!
+        val deviceKey = testBuilder.admin.devices.getDeviceKey(deviceId).key
+        val deviceModel = testBuilder.admin.deviceModels.create(DeviceModel(
+            manufacturer = "Manufacturer with Density setting",
+            model = "Model with Density setting",
+            dimensions = DeviceModelDimensions(),
+            displayMetrics = DeviceModelDisplayMetrics(
+                density = null
+            ),
+            capabilities = DeviceModelCapabilities(touch = true),
+            screenOrientation = ScreenOrientation.PORTRAIT
+        ))
+        val readyDevice = testBuilder.admin.devices.find(deviceId = deviceId)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = deviceModel.id!!)
+        )
+
+        val deviceSettings = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
+        assertEquals(deviceSettings.size, 0)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = null)
+        )
     }
 
     @Test
@@ -721,5 +814,6 @@ class DeviceTestsIT: AbstractFunctionalTest() {
             deviceId = createdDevice.id!!,
             device = createdDevice.copy(approvalStatus = DeviceApprovalStatus.APPROVED)
         )
+
     }
 }

@@ -1,8 +1,6 @@
 package fi.metatavu.noheva.devices
 
-import fi.metatavu.noheva.api.spec.model.DeviceApprovalStatus
-import fi.metatavu.noheva.api.spec.model.DeviceStatus
-import fi.metatavu.noheva.api.spec.model.DeviceType
+import fi.metatavu.noheva.api.spec.model.*
 import fi.metatavu.noheva.persistence.dao.DeviceDAO
 import fi.metatavu.noheva.persistence.model.Device
 import fi.metatavu.noheva.persistence.model.DeviceModel
@@ -171,6 +169,25 @@ class DeviceController {
             DeviceStatus.ONLINE -> handleOnlineStatusMessage(updatedDevice)
             DeviceStatus.OFFLINE -> handleOfflineStatusMessage(updatedDevice)
         }
+    }
+
+    /**
+     * Lists device settings for given device
+     *
+     * @param device device
+     * @return list of device settings for given device
+     */
+    fun listDeviceSettings(device: Device): List<DeviceSetting> {
+        val deviceModel = device.deviceModel ?: return emptyList()
+        val screenDensity = deviceModel.density ?: return emptyList()
+
+        return listOf(
+            DeviceSetting(
+                key = DeviceSettingKey.SCREEN_DENSITY,
+                value = screenDensity.toString(),
+                modifiedAt = deviceModel.modifiedAt
+            )
+        )
     }
 
     /**
