@@ -1,7 +1,6 @@
 package fi.metatavu.noheva.api
 
 import fi.metatavu.noheva.api.spec.DeviceDataApi
-import fi.metatavu.noheva.api.spec.model.*
 import fi.metatavu.noheva.api.translate.DeviceDataLayoutTranslator
 import fi.metatavu.noheva.api.translate.DeviceDataPageTranslator
 import fi.metatavu.noheva.contents.ExhibitionPageController
@@ -73,6 +72,16 @@ class DeviceDatasApiImpl: DeviceDataApi, AbstractApi() {
         )
 
         return createOk(pages.map { deviceDataPageTranslator.translate(it) })
+    }
+
+    override fun listDeviceDataSettings(deviceId: UUID): Response {
+        val device = deviceController.findDevice(id = deviceId) ?: return createNotFound("Device $deviceId not found")
+
+        if (!isAuthorizedDevice(device = device)) {
+            return createForbidden("Incorrect device key for  $deviceId")
+        }
+
+        return createOk(deviceController.listDeviceSettings(device = device))
     }
 
 }
