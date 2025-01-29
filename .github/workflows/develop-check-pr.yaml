@@ -29,4 +29,4 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Build and test native image
         run: |
-          ./gradlew -x test testNative -Dquarkus.package.type=native -Dquarkus.native.container-build=true -Dquarkus.native.native-image-xmx=32G --info
+          ./gradlew -x test testNative -Dquarkus.package.type=native -Dquarkus.native.container-build=true -Dquarkus.native.native-image-xmx=32G -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:22.2.0.0-Final-java11 --info
