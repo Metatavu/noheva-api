@@ -932,91 +932,92 @@
         </addColumn>
     </changeSet>
     
-<changeSet id="remove_group_contentversion" author="katja danilova">
-    <addColumn tableName="contentversion">
-        <column name="status" type="varchar(191)" />
-        <column name="devicegroup_id" type="binary(16)" />
-    </addColumn>
+    <changeSet id="remove_group_contentversion" author="katja danilova">
+        <validCheckSum>8:b406ccc3c838a22b7c263693cfcfac70</validCheckSum>
+        <addColumn tableName="contentversion">
+           <column name="status" type="varchar(191)" />
+           <column name="devicegroup_id" type="binary(16)" />
+        </addColumn>
 
-    <addForeignKeyConstraint 
-        baseTableName="contentversion" 
-        baseColumnNames="devicegroup_id" 
-        constraintName="FK_CONTENT_VERSION_DEVICE_GROUP_ID" 
-        referencedTableName="exhibitiondevicegroup" 
-        referencedColumnNames="id" />
+        <addForeignKeyConstraint 
+           baseTableName="contentversion" 
+           baseColumnNames="devicegroup_id" 
+           constraintName="FK_CONTENT_VERSION_DEVICE_GROUP_ID" 
+           referencedTableName="exhibitiondevicegroup" 
+           referencedColumnNames="id" />
 
-    <addColumn tableName="groupcontentversion">
-        <column name="language" type="varchar(191)" />
-    </addColumn>
-    <addColumn tableName="groupcontentversion">
-        <column name="activeConditionUserVariable" type="varchar(191)" />
-    </addColumn>
-    <addColumn tableName="groupcontentversion">
-        <column name="activeConditionEquals" type="varchar(191)" />
-    </addColumn>
+        <addColumn tableName="groupcontentversion">
+            <column name="language" type="varchar(191)" />
+        </addColumn>
+        <addColumn tableName="groupcontentversion">
+            <column name="activeConditionUserVariable" type="varchar(191)" />
+        </addColumn>
+        <addColumn tableName="groupcontentversion">
+            <column name="activeConditionEquals" type="varchar(191)" />
+        </addColumn>
 
-    <dropForeignKeyConstraint 
-        baseTableName="groupcontentversion" 
-        constraintName="FK_GROUP_CONTENT_VERSION_CONTENT_VERSION_ID" />
-    <dropForeignKeyConstraint 
-        baseTableName="contentversionroom" 
-        constraintName="FK_CONTENT_VERSION_ROOM_CONTENTVERSION_ID" />
-    <dropForeignKeyConstraint 
-        baseTableName="exhibitionpage" 
-        constraintName="FK_EXHIBITION_PAGE_CONTENT_VERSION_ID" />
+        <dropForeignKeyConstraint 
+            baseTableName="groupcontentversion" 
+            constraintName="FK_GROUP_CONTENT_VERSION_CONTENT_VERSION_ID" />
+        <dropForeignKeyConstraint 
+            baseTableName="contentversionroom" 
+            constraintName="FK_CONTENT_VERSION_ROOM_CONTENTVERSION_ID" />
+        <dropForeignKeyConstraint 
+            baseTableName="exhibitionpage" 
+            constraintName="FK_EXHIBITION_PAGE_CONTENT_VERSION_ID" />
 
-    <sql>
-        -- Clean up data with SQL commands
-        DELETE FROM contentversionroom WHERE contentversion_id NOT IN (SELECT contentversion_id FROM groupcontentversion);
-        UPDATE exhibitiondevice SET idlePage_id = NULL WHERE idlePage_id IN (SELECT id FROM exhibitionpage WHERE contentversion_id NOT IN (SELECT contentversion_id FROM groupcontentversion));
-        DELETE FROM exhibitionpage WHERE contentversion_id NOT IN (SELECT contentversion_id FROM groupcontentversion);
-        DELETE FROM contentversion WHERE id NOT IN (SELECT contentversion_id FROM groupcontentversion);
+        <sql>
+            --Delete contenversions without groupcontentversions
+            DELETE FROM contentversionroom WHERE contentversion_id NOT IN (SELECT contentversion_id FROM groupcontentversion);
+            UPDATE exhibitiondevice SET idlePage_id = NULL WHERE idlePage_id IN (SELECT id FROM exhibitionpage WHERE contentversion_id NOT IN (SELECT contentversion_id FROM groupcontentversion));
+            DELETE FROM exhibitionpage WHERE contentversion_id NOT IN (SELECT contentversion_id FROM groupcontentversion);
+            DELETE FROM contentversion WHERE id NOT IN (SELECT contentversion_id FROM groupcontentversion);
 
-        -- Merge content version data into group content version
-        UPDATE groupcontentversion gcv
-        INNER JOIN contentversion cv ON gcv.contentversion_id = cv.id
-        SET gcv.name = CONCAT(cv.name, " > ", gcv.name),
-            gcv.language = cv.language,
-            gcv.activeConditionUserVariable = cv.activeConditionUserVariable,
-            gcv.activeConditionEquals = cv.activeConditionEquals;
+            -- Merge content version data into group content version
+            UPDATE groupcontentversion gcv
+            INNER JOIN contentversion cv ON gcv.contentversion_id = cv.id
+            SET gcv.name = CONCAT(cv.name, " > ", gcv.name),
+               gcv.language = cv.language,
+               gcv.activeConditionUserVariable = cv.activeConditionUserVariable,
+               gcv.activeConditionEquals = cv.activeConditionEquals;
 
-        -- Delete content version data
-        DELETE FROM contentversion;
+            -- Delete content version data
+            DELETE FROM contentversion;
 
-        -- Copy data from group content version to content version
-        INSERT INTO contentversion (id, name, exhibition_id, status, devicegroup_id, createdat, modifiedat, creatorid, lastmodifierid, language, activeConditionUserVariable, activeConditionEquals)
-        SELECT id, name, exhibition_id, status, devicegroup_id, createdat, modifiedat, creatorid, lastmodifierid, language, activeConditionUserVariable, activeConditionEquals
-        FROM groupcontentversion;
+            -- Copy data from group content version to content version
+            INSERT INTO contentversion (id, name, exhibition_id, status, devicegroup_id, createdat, modifiedat, creatorid, lastmodifierid, language, activeConditionUserVariable, activeConditionEquals)
+            SELECT id, name, exhibition_id, status, devicegroup_id, createdat, modifiedat, creatorid, lastmodifierid, language, activeConditionUserVariable, activeConditionEquals
+            FROM groupcontentversion;
 
-        -- Migrate content version rooms to point to new content versions
-        UPDATE contentversionroom cvr
-        INNER JOIN groupcontentversion gcv ON cvr.contentversion_id = gcv.contentversion_id
-        SET cvr.contentversion_id = gcv.id;
+           -- Migrate content version rooms to point to new content versions
+           UPDATE contentversionroom cvr
+           INNER JOIN groupcontentversion gcv ON cvr.contentversion_id = gcv.contentversion_id
+           SET cvr.contentversion_id = gcv.id;
 
-        -- Migrate exhibition pages to point to new content versions
-        UPDATE exhibitionpage ep
-        INNER JOIN groupcontentversion gcv ON ep.contentversion_id = gcv.contentversion_id
-        INNER JOIN exhibitiondevice ed ON ep.device_id = ed.id
-        INNER JOIN exhibitiondevicegroup edg ON ed.exhibitionDeviceGroup_id = edg.id
-        SET ep.contentversion_id = gcv.id;
-    </sql>
+           -- Migrate exhibition pages to point to new content versions
+           UPDATE exhibitionpage ep
+           INNER JOIN groupcontentversion gcv ON ep.contentversion_id = gcv.contentversion_id
+           INNER JOIN exhibitiondevice ed ON ep.device_id = ed.id
+           INNER JOIN exhibitiondevicegroup edg ON ed.exhibitionDeviceGroup_id = edg.id
+           SET ep.contentversion_id = gcv.id;
+        </sql>
 
-    <addForeignKeyConstraint 
-        baseTableName="contentversionroom" 
-        baseColumnNames="contentversion_id" 
-        constraintName="FK_CONTENT_VERSION_ROOM_CONTENTVERSION_ID" 
-        referencedTableName="contentversion" 
-        referencedColumnNames="id" />
+        <addForeignKeyConstraint 
+           baseTableName="contentversionroom" 
+           baseColumnNames="contentversion_id" 
+           constraintName="FK_CONTENT_VERSION_ROOM_CONTENTVERSION_ID" 
+           referencedTableName="contentversion" 
+           referencedColumnNames="id" />
 
-    <addForeignKeyConstraint 
-        baseTableName="exhibitionpage" 
-        baseColumnNames="contentversion_id" 
-        constraintName="FK_EXHIBITION_PAGE_CONTENT_VERSION_ID" 
-        referencedTableName="contentversion" 
-        referencedColumnNames="id" />
+        <addForeignKeyConstraint 
+           baseTableName="exhibitionpage" 
+           baseColumnNames="contentversion_id" 
+           constraintName="FK_EXHIBITION_PAGE_CONTENT_VERSION_ID" 
+           referencedTableName="contentversion" 
+           referencedColumnNames="id" />
 
-    <dropTable tableName="groupcontentversion"/>
-</changeSet>
+        <dropTable tableName="groupcontentversion"/>
+    </changeSet>
 
     <changeSet id="initial_devices" author="Ville Juutila">
         <createTable tableName="device">
