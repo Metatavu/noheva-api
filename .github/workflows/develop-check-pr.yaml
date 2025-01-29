@@ -1,0 +1,32 @@
+name: Run native image tests
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    name: Run native tests
+    runs-on: linux_x64_8_cpu_32_gb
+    environment: develop
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 11
+          server-id: github
+          settings-path: ${{ github.workspace }}
+      - name: Checkout Main Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build and test native image
+        run: |
+          ./gradlew -x test testNative -Dquarkus.package.type=native -Dquarkus.native.container-build=true -Dquarkus.native.native-image-xmx=32G --info
