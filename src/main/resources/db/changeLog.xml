@@ -935,16 +935,16 @@
     <changeSet id="remove_group_contentversion" author="katja danilova">
         <validCheckSum>8:b406ccc3c838a22b7c263693cfcfac70</validCheckSum>
         <addColumn tableName="contentversion">
-           <column name="status" type="varchar(191)" />
-           <column name="devicegroup_id" type="binary(16)" />
+            <column name="status" type="varchar(191)" />
+            <column name="devicegroup_id" type="binary(16)" />
         </addColumn>
 
         <addForeignKeyConstraint 
-           baseTableName="contentversion" 
-           baseColumnNames="devicegroup_id" 
-           constraintName="FK_CONTENT_VERSION_DEVICE_GROUP_ID" 
-           referencedTableName="exhibitiondevicegroup" 
-           referencedColumnNames="id" />
+            baseTableName="contentversion" 
+            baseColumnNames="devicegroup_id" 
+            constraintName="FK_CONTENT_VERSION_DEVICE_GROUP_ID" 
+            referencedTableName="exhibitiondevicegroup" 
+            referencedColumnNames="id" />
 
         <addColumn tableName="groupcontentversion">
             <column name="language" type="varchar(191)" />
@@ -989,32 +989,32 @@
             SELECT id, name, exhibition_id, status, devicegroup_id, createdat, modifiedat, creatorid, lastmodifierid, language, activeConditionUserVariable, activeConditionEquals
             FROM groupcontentversion;
 
-           -- Migrate content version rooms to point to new content versions
-           UPDATE contentversionroom cvr
-           INNER JOIN groupcontentversion gcv ON cvr.contentversion_id = gcv.contentversion_id
-           SET cvr.contentversion_id = gcv.id;
+            -- Migrate content version rooms to point to new content versions
+            UPDATE contentversionroom cvr
+            INNER JOIN groupcontentversion gcv ON cvr.contentversion_id = gcv.contentversion_id
+            SET cvr.contentversion_id = gcv.id;
 
-           -- Migrate exhibition pages to point to new content versions
-           UPDATE exhibitionpage ep
-           INNER JOIN groupcontentversion gcv ON ep.contentversion_id = gcv.contentversion_id
-           INNER JOIN exhibitiondevice ed ON ep.device_id = ed.id
-           INNER JOIN exhibitiondevicegroup edg ON ed.exhibitionDeviceGroup_id = edg.id
-           SET ep.contentversion_id = gcv.id;
+            -- Migrate exhibition pages to point to new content versions
+            UPDATE exhibitionpage ep
+            INNER JOIN groupcontentversion gcv ON ep.contentversion_id = gcv.contentversion_id
+            INNER JOIN exhibitiondevice ed ON ep.device_id = ed.id
+            INNER JOIN exhibitiondevicegroup edg ON ed.exhibitionDeviceGroup_id = edg.id
+            SET ep.contentversion_id = gcv.id;
         </sql>
 
         <addForeignKeyConstraint 
-           baseTableName="contentversionroom" 
-           baseColumnNames="contentversion_id" 
-           constraintName="FK_CONTENT_VERSION_ROOM_CONTENTVERSION_ID" 
-           referencedTableName="contentversion" 
-           referencedColumnNames="id" />
+            baseTableName="contentversionroom" 
+            baseColumnNames="contentversion_id" 
+            constraintName="FK_CONTENT_VERSION_ROOM_CONTENTVERSION_ID" 
+            referencedTableName="contentversion" 
+            referencedColumnNames="id" />
 
         <addForeignKeyConstraint 
-           baseTableName="exhibitionpage" 
-           baseColumnNames="contentversion_id" 
-           constraintName="FK_EXHIBITION_PAGE_CONTENT_VERSION_ID" 
-           referencedTableName="contentversion" 
-           referencedColumnNames="id" />
+            baseTableName="exhibitionpage" 
+            baseColumnNames="contentversion_id" 
+            constraintName="FK_EXHIBITION_PAGE_CONTENT_VERSION_ID" 
+            referencedTableName="contentversion" 
+            referencedColumnNames="id" />
 
         <dropTable tableName="groupcontentversion"/>
     </changeSet>
