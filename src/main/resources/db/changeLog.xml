@@ -1006,11 +1006,38 @@
                 edg.room_id = er.id;
 
             -- Migrate exhibition pages to point to new content versions
-            UPDATE exhibitionpage ep
-            INNER JOIN groupcontentversion gcv ON ep.contentversion_id = gcv.contentversion_id
-            INNER JOIN exhibitiondevice ed ON ep.device_id = ed.id
-            INNER JOIN exhibitiondevicegroup edg ON ed.exhibitionDeviceGroup_id = edg.id
-            SET ep.contentversion_id = gcv.id;
+
+            ALTER TABLE exhibitionpage MODIFY contentVersion_id binary(16);
+            UPDATE
+                exhibitionpage
+            SET
+                contentVersion_id = (
+                    SELECT
+                        gcv.id
+                    FROM
+                        groupcontentversion gcv
+                    WHERE
+                        gcv.devicegroup_id = (
+                            SELECT
+                                ed.exhibitionDeviceGroup_id
+                            FROM
+                                exhibitiondevice ed
+                            WHERE
+                                ed.id = exhibitionpage.device_id
+                        ) AND
+                        gcv.contentversion_id = exhibitionpage.contentVersion_id
+            );
+
+            UPDATE
+                exhibitiondevice
+            SET
+                idlePage_id = null
+            WHERE
+                idlePage_id in (SELECT id FROM exhibitionpage WHERE contentVersion_id IS NULL);
+
+            DELETE FROM exhibitionpage WHERE contentVersion_id IS NULL;
+
+            ALTER TABLE exhibitionpage MODIFY contentVersion_id binary(16) NOT NULL;
         </sql>
 
         <addForeignKeyConstraint 
