@@ -990,9 +990,20 @@
             FROM groupcontentversion;
 
             -- Migrate content version rooms to point to new content versions
-            UPDATE contentversionroom cvr
-            INNER JOIN groupcontentversion gcv ON cvr.contentversion_id = gcv.contentversion_id
-            SET cvr.contentversion_id = gcv.id;
+            DELETE FROM contentversionroom;
+            INSERT INTO contentversionroom (id, contentVersion_id, exhibitionRoom_id)
+            SELECT
+                UUID_TO_BIN(UUID()) as id, cv.id as contentVersion_id, er.id as exhibitionRoom_id
+            FROM
+                contentversion cv
+            INNER JOIN
+                exhibitiondevicegroup edg
+            ON
+                cv.deviceGroup_id = edg.id
+            INNER JOIN
+                exhibitionroom er
+            ON
+                edg.room_id = er.id;
 
             -- Migrate exhibition pages to point to new content versions
             UPDATE exhibitionpage ep
