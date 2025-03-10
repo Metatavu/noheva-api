@@ -1,0 +1,73 @@
+version: "3"
+services:
+  mysql:
+    image: mysql:8
+    platform: linux/amd64
+    volumes:
+      - db_data:/var/lib/mysql
+    command: --lower_case_table_names=1
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: noheva
+      MYSQL_USER: noheva
+      MYSQL_PASSWORD: password
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.8
+    command:
+      - start-dev
+      - --import-realm
+    platform: linux/amd64
+    ports:
+      - 8080:8080
+    environment:
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_PROXY_HEADERS: xforwarded
+
+    volumes:
+      - ./kc.json:/opt/keycloak/data/import/kc.json
+
+  noheva-api:
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.jvm
+    ports:
+      - 8081:8080
+    depends_on:
+      - mysql
+      - mqtt
+    environment:
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:mysql://mysql:3306/noheva?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull
+      QUARKUS_DATASOURCE_PASSWORD: password
+      QUARKUS_DATASOURCE_USERNAME: noheva
+      QUARKUS_OIDC_AUTH_SERVER_URL: http://keycloak:8080/realms/noheva
+      NOHEVA_KEYCLOAK_URL: http://keycloak:8080
+      NOHEVA_KEYCLOAK_REALM: noheva
+      QUARKUS_OIDC_CLIENT_ID: api
+      QUARKUS_OIDC_CREDENTIALS_SECRET: H1h6WmAJK45qg61Q8Jf5eAOdnAwjGn1p
+      QUARKUS_OIDC_CONNECTION_DELAY: 60s
+      MQTT_SERVER_URLS: tcp://mqtt:1883
+      MQTT_TOPIC: fake
+      MQTT_PASSWORD:
+      MQTT_USERNAME:
+      MUISTI_KEYCLOAK_ADMIN_CLIENTID: fake
+      MUISTI_KEYCLOAK_ADMIN_HOST: http://keycloak:8080
+      MUISTI_KEYCLOAK_ADMIN_PASSWORD: fake
+      MUISTI_KEYCLOAK_ADMIN_REALM: noheva
+      MUISTI_KEYCLOAK_ADMIN_SECRET: fake
+      MUISTI_KEYCLOAK_ADMIN_USER: fake
+      S3_FILE_STORAGE_BUCKET: fake
+      S3_FILE_STORAGE_KEYID: fake
+      S3_FILE_STORAGE_PREFIX: http://example.com
+      S3_FILE_STORAGE_REGION: eu-north-1
+      S3_FILE_STORAGE_SECRET: fake
+      FILE_STORAGE_PROVIDER: S3
+
+  mqtt:
+    image: hivemq/hivemq-ce:2024.1
+    ports:
+      - 1883:1883
+
+volumes:
+  db_data: {}

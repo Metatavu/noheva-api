@@ -18,7 +18,7 @@ class DeviceDataLayoutTranslator: AbstractTranslator<fi.metatavu.noheva.persiste
     override fun translate(entity: fi.metatavu.noheva.persistence.model.PageLayout): DeviceLayout {
         return DeviceLayout(
             id = entity.id,
-            data = dataSerializationController.getStringDataAsRestObject(entity.data, entity.layoutType) as PageLayoutViewHtml,
+            data = dataSerializationController.getStringDataAsRestObject(entity.data, entity.layoutType),
             screenOrientation = entity.screenOrientation,
             modifiedAt = entity.modifiedAt
         )
