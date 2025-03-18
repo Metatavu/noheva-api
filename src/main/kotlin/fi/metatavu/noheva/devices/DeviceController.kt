@@ -195,7 +195,7 @@ class DeviceController {
         }
 
         val screenOrientation = exhibitionDevice?.screenOrientation
-        if(screenOrientation != null){
+        if (screenOrientation != null) {
             result.add(
                 DeviceSetting(
                     key = DeviceSettingKey.SCREEN_ORIENTATION,

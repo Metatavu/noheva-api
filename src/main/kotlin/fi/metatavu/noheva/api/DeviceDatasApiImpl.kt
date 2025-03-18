@@ -77,7 +77,7 @@ class DeviceDatasApiImpl: DeviceDataApi, AbstractApi() {
     override fun listDeviceDataSettings(deviceId: UUID): Response {
         val device = deviceController.findDevice(id = deviceId) ?: return createNotFound("Device $deviceId not found")
         val activeExhibition = exhibitionController.findActiveExhibition()
-        val exhibitionDevice = if(activeExhibition != null) exhibitionDeviceController.findExhibitionDeviceByExhibitionAndDevice(exhibition = activeExhibition, device = device) else null
+        val exhibitionDevice = if (activeExhibition != null) exhibitionDeviceController.findExhibitionDeviceByExhibitionAndDevice(exhibition = activeExhibition, device = device) else null
 
         if (!isAuthorizedDevice(device = device)) {
             return createForbidden("Incorrect device key for  $deviceId")
