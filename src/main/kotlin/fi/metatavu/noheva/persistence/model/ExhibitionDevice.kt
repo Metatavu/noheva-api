@@ -50,7 +50,7 @@ class ExhibitionDevice {
     var createdAt: OffsetDateTime? = null
 
     @Column(nullable = false)
-    var modifiedAt: OffsetDateTime? = null
+    lateinit var modifiedAt: OffsetDateTime
 
     @Column(nullable = false)
     var creatorId: UUID? = null
