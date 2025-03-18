@@ -514,6 +514,12 @@ class DeviceTestsIT: AbstractFunctionalTest() {
 
     @Test
     fun testDeviceSettingsDensity(): Unit = createTestBuilder().use { testBuilder ->
+        val exhibition = testBuilder.admin.exhibitions.create(Exhibition(
+            name = "Test exhibition",
+            active = true
+        ))
+        val exhibitionId = exhibition.id!!
+        val deviceGroup = createDefaultDeviceGroup(testBuilder, exhibition)
         val device = setupApprovedDevice(testBuilder)
         val deviceId = device.id!!
         val deviceKey = testBuilder.admin.devices.getDeviceKey(deviceId).key
@@ -534,7 +540,21 @@ class DeviceTestsIT: AbstractFunctionalTest() {
             device = readyDevice.copy(deviceModelId = deviceModel.id!!)
         )
 
+        testBuilder.admin.exhibitionDevices.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionDevice(
+                deviceId = deviceId,
+                exhibitionId = exhibitionId,
+                groupId = deviceGroup.id!!,
+                location = Point(0.0, 0.0),
+                name = "Exhibition device",
+                screenOrientation = ScreenOrientation.LANDSCAPE,
+                imageLoadStrategy = DeviceImageLoadStrategy.DISK
+            )
+        )
+
         val deviceSettings = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
+            .filter { it.key == DeviceSettingKey.SCREEN_DENSITY }
         assertEquals(deviceSettings.size, 1)
         assertEquals(deviceSettings[0].key, DeviceSettingKey.SCREEN_DENSITY)
         assertEquals(deviceSettings[0].value, "77.0")
@@ -547,7 +567,313 @@ class DeviceTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
+    fun testDeviceSettingsScreenOrientation(): Unit = createTestBuilder().use { testBuilder ->
+        val exhibition = testBuilder.admin.exhibitions.create(Exhibition(
+            name = "Test exhibition",
+            active = true
+        ))
+        val exhibitionId = exhibition.id!!
+        val deviceGroup = createDefaultDeviceGroup(testBuilder, exhibition)
+        val device = setupApprovedDevice(testBuilder)
+        val deviceId = device.id!!
+        val deviceKey = testBuilder.admin.devices.getDeviceKey(deviceId).key
+        val deviceModel = testBuilder.admin.deviceModels.create(DeviceModel(
+            manufacturer = "Manufacturer with Density setting",
+            model = "Model with Density setting",
+            dimensions = DeviceModelDimensions(),
+            displayMetrics = DeviceModelDisplayMetrics(
+                density = 77.0
+            ),
+            capabilities = DeviceModelCapabilities(touch = true),
+            screenOrientation = ScreenOrientation.PORTRAIT
+        ))
+        val readyDevice = testBuilder.admin.devices.find(deviceId = deviceId)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = deviceModel.id!!)
+        )
+
+       val exhibitionDevice = testBuilder.admin.exhibitionDevices.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionDevice(
+                deviceId = deviceId,
+                exhibitionId = exhibitionId,
+                groupId = deviceGroup.id!!,
+                location = Point(0.0, 0.0),
+                name = "Exhibition device",
+                screenOrientation = ScreenOrientation.LANDSCAPE,
+                imageLoadStrategy = DeviceImageLoadStrategy.DISK
+            )
+        )
+
+        val deviceSettings = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
+            .filter { it.key == DeviceSettingKey.SCREEN_ORIENTATION }
+        assertEquals(deviceSettings.size, 1)
+        assertEquals(deviceSettings[0].key, DeviceSettingKey.SCREEN_ORIENTATION)
+        assertEquals("landscape", deviceSettings[0].value)
+        assertEquals(deviceSettings[0].modifiedAt, exhibitionDevice.modifiedAt)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = null)
+        )
+    }
+
+    @Test
+    fun testDeviceSettingsVisitorSessionEndTimeout(): Unit = createTestBuilder().use { testBuilder ->
+        val exhibition = testBuilder.admin.exhibitions.create(Exhibition(
+            name = "Test exhibition",
+            active = true
+        ))
+        val exhibitionId = exhibition.id!!
+        val deviceGroup = createDefaultDeviceGroup(testBuilder, exhibition)
+        val device = setupApprovedDevice(testBuilder)
+        val deviceId = device.id!!
+        val deviceKey = testBuilder.admin.devices.getDeviceKey(deviceId).key
+        val deviceModel = testBuilder.admin.deviceModels.create(DeviceModel(
+            manufacturer = "Manufacturer with Density setting",
+            model = "Model with Density setting",
+            dimensions = DeviceModelDimensions(),
+            displayMetrics = DeviceModelDisplayMetrics(
+                density = 77.0
+            ),
+            capabilities = DeviceModelCapabilities(touch = true),
+            screenOrientation = ScreenOrientation.PORTRAIT
+        ))
+        val readyDevice = testBuilder.admin.devices.find(deviceId = deviceId)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = deviceModel.id!!)
+        )
+
+        testBuilder.admin.exhibitionDevices.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionDevice(
+                deviceId = deviceId,
+                exhibitionId = exhibitionId,
+                groupId = deviceGroup.id!!,
+                location = Point(0.0, 0.0),
+                name = "Exhibition device",
+                screenOrientation = ScreenOrientation.LANDSCAPE,
+                imageLoadStrategy = DeviceImageLoadStrategy.DISK
+            )
+        )
+
+        testBuilder.admin.exhibitionDeviceGroups.updateExhibitionDeviceGroup(
+            exhibitionId = exhibitionId,
+            body = deviceGroup.copy(visitorSessionEndTimeout = 12345)
+        )
+
+        val updatedDeviceGroup = testBuilder.admin.exhibitionDeviceGroups.findExhibitionDeviceGroup(
+            exhibitionId = exhibitionId,
+            exhibitionDeviceGroupId = deviceGroup.id
+        )
+
+        val deviceSettings = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
+            .filter { it.key == DeviceSettingKey.VISITOR_SESSION_END_TIMEOUT }
+        assertEquals(1, deviceSettings.size)
+        assertEquals(DeviceSettingKey.VISITOR_SESSION_END_TIMEOUT, deviceSettings[0].key)
+        assertEquals("12345", deviceSettings[0].value)
+        assertEquals(updatedDeviceGroup.modifiedAt, deviceSettings[0].modifiedAt,)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = null)
+        )
+    }
+
+    @Test
+    fun testDeviceSettingsAllowVisitorSessionCreation(): Unit = createTestBuilder().use { testBuilder ->
+        val exhibition = testBuilder.admin.exhibitions.create(Exhibition(
+            name = "Test exhibition",
+            active = true
+        ))
+        val exhibitionId = exhibition.id!!
+        val deviceGroup = createDefaultDeviceGroup(testBuilder, exhibition)
+        val device = setupApprovedDevice(testBuilder)
+        val deviceId = device.id!!
+        val deviceKey = testBuilder.admin.devices.getDeviceKey(deviceId).key
+        val deviceModel = testBuilder.admin.deviceModels.create(DeviceModel(
+            manufacturer = "Manufacturer with Density setting",
+            model = "Model with Density setting",
+            dimensions = DeviceModelDimensions(),
+            displayMetrics = DeviceModelDisplayMetrics(
+                density = 77.0
+            ),
+            capabilities = DeviceModelCapabilities(touch = true),
+            screenOrientation = ScreenOrientation.PORTRAIT
+        ))
+        val readyDevice = testBuilder.admin.devices.find(deviceId = deviceId)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = deviceModel.id!!)
+        )
+
+        testBuilder.admin.exhibitionDevices.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionDevice(
+                deviceId = deviceId,
+                exhibitionId = exhibitionId,
+                groupId = deviceGroup.id!!,
+                location = Point(0.0, 0.0),
+                name = "Exhibition device",
+                screenOrientation = ScreenOrientation.LANDSCAPE,
+                imageLoadStrategy = DeviceImageLoadStrategy.DISK
+            )
+        )
+
+        testBuilder.admin.exhibitionDeviceGroups.updateExhibitionDeviceGroup(
+            exhibitionId = exhibitionId,
+            body = deviceGroup.copy(allowVisitorSessionCreation = true)
+        )
+
+        val updatedDeviceGroup = testBuilder.admin.exhibitionDeviceGroups.findExhibitionDeviceGroup(
+            exhibitionId = exhibitionId,
+            exhibitionDeviceGroupId = deviceGroup.id
+        )
+
+        val deviceSettings = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
+            .filter { it.key == DeviceSettingKey.ALLOW_VISITOR_SESSION_CREATION }
+        assertEquals(1, deviceSettings.size)
+        assertEquals(DeviceSettingKey.ALLOW_VISITOR_SESSION_CREATION, deviceSettings[0].key)
+        assertEquals("true", deviceSettings[0].value)
+        assertEquals(updatedDeviceGroup.modifiedAt, deviceSettings[0].modifiedAt)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = null)
+        )
+    }
+
+    @Test
+    fun testDeviceSettingsDeviceImageLoadStrategy(): Unit = createTestBuilder().use { testBuilder ->
+        val exhibition = testBuilder.admin.exhibitions.create(Exhibition(
+            name = "Test exhibition",
+            active = true
+        ))
+        val exhibitionId = exhibition.id!!
+        val deviceGroup = createDefaultDeviceGroup(testBuilder, exhibition)
+        val device = setupApprovedDevice(testBuilder)
+        val deviceId = device.id!!
+        val deviceKey = testBuilder.admin.devices.getDeviceKey(deviceId).key
+        val deviceModel = testBuilder.admin.deviceModels.create(DeviceModel(
+            manufacturer = "Manufacturer with Density setting",
+            model = "Model with Density setting",
+            dimensions = DeviceModelDimensions(),
+            displayMetrics = DeviceModelDisplayMetrics(
+                density = 77.0
+            ),
+            capabilities = DeviceModelCapabilities(touch = true),
+            screenOrientation = ScreenOrientation.PORTRAIT
+        ))
+        val readyDevice = testBuilder.admin.devices.find(deviceId = deviceId)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = deviceModel.id!!)
+        )
+
+        val exhibitionDevice = testBuilder.admin.exhibitionDevices.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionDevice(
+                deviceId = deviceId,
+                exhibitionId = exhibitionId,
+                groupId = deviceGroup.id!!,
+                location = Point(0.0, 0.0),
+                name = "Exhibition device",
+                screenOrientation = ScreenOrientation.LANDSCAPE,
+                imageLoadStrategy = DeviceImageLoadStrategy.DISK
+            )
+        )
+
+        val deviceSettings = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
+            .filter { it.key == DeviceSettingKey.DEVICE_IMAGE_LOAD_STRATEGY}
+        assertEquals(1, deviceSettings.size)
+        assertEquals(DeviceSettingKey.DEVICE_IMAGE_LOAD_STRATEGY, deviceSettings[0].key)
+        assertEquals("DISK", deviceSettings[0].value)
+        assertEquals(exhibitionDevice.modifiedAt, deviceSettings[0].modifiedAt)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = null)
+        )
+    }
+
+    @Test
+    fun testDeviceSettingsIndexPageTimeout(): Unit = createTestBuilder().use { testBuilder ->
+        val exhibition = testBuilder.admin.exhibitions.create(Exhibition(
+            name = "Test exhibition",
+            active = true
+        ))
+        val exhibitionId = exhibition.id!!
+        val deviceGroup = createDefaultDeviceGroup(testBuilder, exhibition)
+        val device = setupApprovedDevice(testBuilder)
+        val deviceId = device.id!!
+        val deviceKey = testBuilder.admin.devices.getDeviceKey(deviceId).key
+        val deviceModel = testBuilder.admin.deviceModels.create(DeviceModel(
+            manufacturer = "Manufacturer with Density setting",
+            model = "Model with Density setting",
+            dimensions = DeviceModelDimensions(),
+            displayMetrics = DeviceModelDisplayMetrics(
+                density = 77.0
+            ),
+            capabilities = DeviceModelCapabilities(touch = true),
+            screenOrientation = ScreenOrientation.PORTRAIT
+        ))
+
+        val readyDevice = testBuilder.admin.devices.find(deviceId = deviceId)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = deviceModel.id!!)
+        )
+
+        testBuilder.admin.exhibitionDeviceGroups.updateExhibitionDeviceGroup(
+            exhibitionId = exhibitionId,
+            body = deviceGroup.copy(indexPageTimeout = 12345L)
+        )
+
+        val updatedDeviceGroup = testBuilder.admin.exhibitionDeviceGroups.findExhibitionDeviceGroup(
+            exhibitionId = exhibitionId,
+            exhibitionDeviceGroupId = deviceGroup.id!!
+        )
+            testBuilder.admin.exhibitionDevices.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionDevice(
+                deviceId = deviceId,
+                exhibitionId = exhibitionId,
+                groupId = deviceGroup.id,
+                location = Point(0.0, 0.0),
+                name = "Exhibition device",
+                screenOrientation = ScreenOrientation.LANDSCAPE,
+                imageLoadStrategy = DeviceImageLoadStrategy.DISK
+            )
+        )
+
+        val deviceSettings = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
+            .filter { it.key == DeviceSettingKey.INDEX_PAGE_TIMEOUT }
+        assertEquals(1, deviceSettings.size)
+        assertEquals(DeviceSettingKey.INDEX_PAGE_TIMEOUT, deviceSettings[0].key)
+        assertEquals("12345", deviceSettings[0].value)
+        assertEquals(updatedDeviceGroup.modifiedAt, deviceSettings[0].modifiedAt)
+
+        testBuilder.admin.devices.update(
+            deviceId = deviceId,
+            device = readyDevice.copy(deviceModelId = null)
+        )
+    }
+
+    @Test
     fun testDeviceSettingsDensityNull(): Unit = createTestBuilder().use { testBuilder ->
+        val exhibition = testBuilder.admin.exhibitions.create(Exhibition(
+            name = "Test exhibition",
+            active = true
+        ))
+        val exhibitionId = exhibition.id!!
+        val deviceGroup = createDefaultDeviceGroup(testBuilder, exhibition)
         val device = setupApprovedDevice(testBuilder)
         val deviceId = device.id!!
         val deviceKey = testBuilder.admin.devices.getDeviceKey(deviceId).key
@@ -568,7 +894,21 @@ class DeviceTestsIT: AbstractFunctionalTest() {
             device = readyDevice.copy(deviceModelId = deviceModel.id!!)
         )
 
+        testBuilder.admin.exhibitionDevices.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionDevice(
+                deviceId = deviceId,
+                exhibitionId = exhibitionId,
+                groupId = deviceGroup.id!!,
+                location = Point(0.0, 0.0),
+                name = "Exhibition device",
+                screenOrientation = ScreenOrientation.LANDSCAPE,
+                imageLoadStrategy = DeviceImageLoadStrategy.DISK
+            )
+        )
+
         val deviceSettings = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
+            .filter { it.key == DeviceSettingKey.SCREEN_DENSITY }
         assertEquals(deviceSettings.size, 0)
 
         testBuilder.admin.devices.update(

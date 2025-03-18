@@ -4,6 +4,7 @@ import fi.metatavu.noheva.api.spec.model.*
 import fi.metatavu.noheva.persistence.dao.DeviceDAO
 import fi.metatavu.noheva.persistence.model.Device
 import fi.metatavu.noheva.persistence.model.DeviceModel
+import fi.metatavu.noheva.persistence.model.ExhibitionDevice
 import java.security.PublicKey
 import java.time.OffsetDateTime
 import java.util.*
@@ -177,17 +178,78 @@ class DeviceController {
      * @param device device
      * @return list of device settings for given device
      */
-    fun listDeviceSettings(device: Device): List<DeviceSetting> {
-        val deviceModel = device.deviceModel ?: return emptyList()
-        val screenDensity = deviceModel.density ?: return emptyList()
+    fun listDeviceSettings(device: Device, exhibitionDevice: ExhibitionDevice?): List<DeviceSetting> {
+        val result = mutableListOf<DeviceSetting>()
+        val deviceGroup = exhibitionDevice?.exhibitionDeviceGroup
+        val deviceModel = device.deviceModel
 
-        return listOf(
-            DeviceSetting(
-                key = DeviceSettingKey.SCREEN_DENSITY,
-                value = screenDensity.toString(),
-                modifiedAt = deviceModel.modifiedAt
+        val screenDensity = deviceModel?.density
+        if (screenDensity != null) {
+            result.add(
+                DeviceSetting(
+                    key = DeviceSettingKey.SCREEN_DENSITY,
+                    value = screenDensity.toString(),
+                    modifiedAt = deviceModel.modifiedAt
+                )
             )
-        )
+        }
+
+        val screenOrientation = exhibitionDevice?.screenOrientation
+        if(screenOrientation != null){
+            result.add(
+                DeviceSetting(
+                    key = DeviceSettingKey.SCREEN_ORIENTATION,
+                    value = screenOrientation.toString(),
+                    modifiedAt = exhibitionDevice.modifiedAt
+                )
+            )
+        }
+
+        val visitorSessionEndTimeOut = deviceGroup?.visitorSessionEndTimeout
+        if (visitorSessionEndTimeOut != null) {
+            result.add(
+                DeviceSetting(
+                    key = DeviceSettingKey.VISITOR_SESSION_END_TIMEOUT,
+                    value = visitorSessionEndTimeOut.toString(),
+                    modifiedAt = deviceGroup.modifiedAt
+                )
+            )
+        }
+
+        val allowVisitorSessionCreation = deviceGroup?.allowVisitorSessionCreation
+        if (allowVisitorSessionCreation != null) {
+            result.add(
+                DeviceSetting(
+                    key = DeviceSettingKey.ALLOW_VISITOR_SESSION_CREATION,
+                    value = allowVisitorSessionCreation.toString(),
+                    modifiedAt = deviceGroup.modifiedAt
+                )
+            )
+        }
+
+        val deviceImageLoadStrategy = exhibitionDevice?.imageLoadStrategy
+        if (deviceImageLoadStrategy != null) {
+            result.add(
+                DeviceSetting(
+                    key = DeviceSettingKey.DEVICE_IMAGE_LOAD_STRATEGY,
+                    value = deviceImageLoadStrategy.toString(),
+                    modifiedAt = exhibitionDevice.modifiedAt
+                )
+            )
+        }
+
+        val indexPageTimeout = deviceGroup?.indexPageTimeout
+        if (indexPageTimeout != null) {
+            result.add(
+                DeviceSetting(
+                    key = DeviceSettingKey.INDEX_PAGE_TIMEOUT,
+                    value = indexPageTimeout.toString(),
+                    modifiedAt = deviceGroup.modifiedAt
+                )
+            )
+        }
+
+        return result
     }
 
     /**
