@@ -867,6 +867,92 @@ class DeviceTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
+    fun testDeviceSettingsIdlePageId(): Unit = createTestBuilder().use { testBuilder ->
+        val exhibition = testBuilder.admin.exhibitions.create(Exhibition(
+            name = "Test exhibition",
+            active = true
+        ))
+        val exhibitionId = exhibition.id!!
+        val deviceGroup = createDefaultDeviceGroup(testBuilder, exhibition)
+        val device = setupApprovedDevice(testBuilder)
+        val deviceId = device.id!!
+        val deviceKey = testBuilder.admin.devices.getDeviceKey(deviceId).key
+        val floorId = testBuilder.admin.exhibitionFloors.create(exhibitionId).id!!
+        val roomId = testBuilder.admin.exhibitionRooms.create(exhibitionId, floorId).id!!
+        val deviceModel = testBuilder.admin.deviceModels.create()
+        val testLayoutHtml = javaClass.getResource("/test-html-layout.html")?.readText()
+        assertNotNull(testLayoutHtml)
+
+        val layoutId = testBuilder.admin.pageLayouts.create(
+            payload = PageLayout(
+                name = "Test layout",
+                modelId = deviceModel.id!!,
+                layoutType = LayoutType.HTML,
+                data = PageLayoutViewHtml(
+                    html = testLayoutHtml!!
+                ),
+                screenOrientation = ScreenOrientation.LANDSCAPE
+            )
+        ).id!!
+
+        val contentVersionId = testBuilder.admin.contentVersions.create(
+            exhibitionId = exhibitionId,
+            payload = ContentVersion(name = "content version", language = "FI", rooms = arrayOf(roomId))
+        ).id!!
+
+        val exhibitionDevice = testBuilder.admin.exhibitionDevices.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionDevice(
+                deviceId = deviceId,
+                exhibitionId = exhibitionId,
+                groupId = deviceGroup.id!!,
+                location = Point(0.0, 0.0),
+                name = "Exhibition device",
+                screenOrientation = ScreenOrientation.LANDSCAPE,
+                imageLoadStrategy = DeviceImageLoadStrategy.DISK,
+            )
+        )
+
+        val idlePage = testBuilder.admin.exhibitionPages.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionPage(
+                deviceId = exhibitionDevice.id!!,
+                layoutId = layoutId,
+                contentVersionId = contentVersionId,
+                exhibitionId = exhibitionId,
+                name = "Test idle page",
+                enterTransitions = arrayOf(),
+                eventTriggers = arrayOf(),
+                exitTransitions = arrayOf(),
+                orderNumber = 0,
+                resources = arrayOf()
+            )
+        )
+
+        testBuilder.admin.exhibitionDevices.updateExhibitionDevice(
+            exhibitionId = exhibitionId,
+            payload = exhibitionDevice.copy(idlePageId = idlePage.id)
+        )
+
+        val updatedExhibitionDevice = testBuilder.admin.exhibitionDevices.findExhibitionDevice(
+            exhibitionId = exhibitionId,
+            exhibitionDeviceId = exhibitionDevice.id
+        )
+
+        val deviceSettings = testBuilder.getDevice(deviceKey).deviceDatas.listDeviceDataSettings(deviceId = deviceId)
+            .filter { it.key == DeviceSettingKey.IDLE_PAGE_ID}
+        assertEquals(1, deviceSettings.size)
+        assertEquals(DeviceSettingKey.IDLE_PAGE_ID, deviceSettings[0].key)
+        assertEquals(idlePage.id.toString(), deviceSettings[0].value)
+        assertEquals(updatedExhibitionDevice.modifiedAt, deviceSettings[0].modifiedAt)
+
+        testBuilder.admin.exhibitionDevices.updateExhibitionDevice(
+            exhibitionId = exhibitionId,
+            payload = exhibitionDevice.copy(idlePageId = null)
+        )
+    }
+
+    @Test
     fun testDeviceSettingsDensityNull(): Unit = createTestBuilder().use { testBuilder ->
         val exhibition = testBuilder.admin.exhibitions.create(Exhibition(
             name = "Test exhibition",
