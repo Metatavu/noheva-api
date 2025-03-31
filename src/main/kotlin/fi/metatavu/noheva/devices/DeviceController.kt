@@ -249,6 +249,17 @@ class DeviceController {
             )
         }
 
+        val idlePageId = exhibitionDevice?.idlePage?.id
+        if (idlePageId != null) {
+            result.add(
+                DeviceSetting(
+                    key = DeviceSettingKey.IDLE_PAGE_ID,
+                    value = idlePageId.toString(),
+                    modifiedAt = exhibitionDevice.modifiedAt
+                )
+            )
+        }
+
         return result
     }
 
