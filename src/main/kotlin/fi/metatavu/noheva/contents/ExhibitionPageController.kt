@@ -12,6 +12,7 @@ import fi.metatavu.noheva.persistence.model.ExhibitionPage
 import fi.metatavu.noheva.persistence.model.PageLayout
 import fi.metatavu.noheva.utils.CopyException
 import fi.metatavu.noheva.utils.IdMapper
+import org.jboss.logging.Logger
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -21,6 +22,9 @@ import javax.inject.Inject
  */
 @ApplicationScoped
 class ExhibitionPageController {
+
+    @Inject
+    lateinit var logger: Logger
 
     @Inject
     lateinit var exhibitionPageDAO: ExhibitionPageDAO
@@ -287,8 +291,13 @@ class ExhibitionPageController {
         idMapper: IdMapper
     ): ExhibitionPageEventProperty {
         return if (property.name == "pageId") {
-            val oldId = UUID.fromString(property.value)
-            property.copy(value = idMapper.getNewId(oldId).toString())
+            try {
+                val oldId = UUID.fromString(property.value)
+                property.copy(value = idMapper.getNewId(oldId).toString())
+            } catch (e: IllegalArgumentException) {
+                logger.warn("Could not remap page id: ${property.value}")
+                property.copy()
+            }
         } else {
             property.copy()
         }
