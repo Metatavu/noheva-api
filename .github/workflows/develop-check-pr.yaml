@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: temurin
-          java-version: 11
+          java-version: 11.0.16+8
           server-id: github
           settings-path: ${{ github.workspace }}
       - name: Checkout Main Repository
