@@ -20,7 +20,6 @@ val quarkusPlatformVersion: String by project
 val jaxrsFunctionalTestBuilderVersion: String by project
 val testContainersKeycloakVersion: String by project
 val awssdkVersion: String by project
-val jacksonVersion: String by project
 val pahoVersion: String by project
 val jtsCoreVersion: String by project
 val hibernateSpatialVersion: String by project
@@ -54,7 +53,7 @@ dependencies {
 
     implementation("commons-io:commons-io")
     implementation("org.apache.commons:commons-lang3")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("software.amazon.awssdk:s3:$awssdkVersion")
     implementation("software.amazon.awssdk:apache-client:$awssdkVersion")
     implementation("com.github.metatavu.quarkus-register-reflection:quarkus-register-reflection:$registerReflectionVersion")
