@@ -1,12 +1,11 @@
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 plugins {
-    kotlin("jvm") version "1.6.10"
-    kotlin("plugin.allopen") version "1.6.10"
+    kotlin("jvm") version "1.7.22"
+    kotlin("plugin.allopen") version "1.7.22"
     id("io.quarkus")
     id("org.openapi.generator") version "6.2.1"
-    id("org.jetbrains.kotlin.kapt") version "1.6.10"
-
+    id("org.jetbrains.kotlin.kapt") version "1.7.22"
 }
 
 repositories {
@@ -21,7 +20,6 @@ val quarkusPlatformVersion: String by project
 val jaxrsFunctionalTestBuilderVersion: String by project
 val testContainersKeycloakVersion: String by project
 val awssdkVersion: String by project
-val jacksonVersion: String by project
 val pahoVersion: String by project
 val jtsCoreVersion: String by project
 val hibernateSpatialVersion: String by project
@@ -55,7 +53,7 @@ dependencies {
 
     implementation("commons-io:commons-io")
     implementation("org.apache.commons:commons-lang3")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("software.amazon.awssdk:s3:$awssdkVersion")
     implementation("software.amazon.awssdk:apache-client:$awssdkVersion")
     implementation("com.github.metatavu.quarkus-register-reflection:quarkus-register-reflection:$registerReflectionVersion")
@@ -79,8 +77,8 @@ dependencies {
     testImplementation("com.amazonaws:aws-java-sdk-s3:1.12.393")
 }
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 allOpen {
@@ -100,10 +98,9 @@ sourceSets["test"].java {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
     kotlinOptions.javaParameters = true
 }
-
 val generateApiSpec = tasks.register("generateApiSpec", GenerateTask::class) {
     setProperty("generatorName", "kotlin-server")
     setProperty("inputSpec", "$rootDir/noheva-api-spec/swagger.yaml")
@@ -121,6 +118,7 @@ val generateApiSpec = tasks.register("generateApiSpec", GenerateTask::class) {
     this.configOptions.put("useSwaggerAnnotations", "false")
     this.configOptions.put("additionalModelTypeAnnotations", "@io.quarkus.runtime.annotations.RegisterForReflection")
 }
+
 
 val generateApiClient = tasks.register("generateApiClient", GenerateTask::class) {
     setProperty("generatorName", "kotlin")
