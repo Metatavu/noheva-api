@@ -4,7 +4,7 @@ plugins {
     kotlin("jvm") version "1.7.22"
     kotlin("plugin.allopen") version "1.7.22"
     id("io.quarkus")
-    id("org.openapi.generator") version "6.2.1"
+    id("org.openapi.generator") version "7.20.0"
     id("org.jetbrains.kotlin.kapt") version "1.7.22"
 }
 
@@ -101,7 +101,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
     kotlinOptions.javaParameters = true
 }
-
 val generateApiSpec = tasks.register("generateApiSpec", GenerateTask::class) {
     setProperty("generatorName", "kotlin-server")
     setProperty("inputSpec", "$rootDir/noheva-api-spec/swagger.yaml")
@@ -109,6 +108,7 @@ val generateApiSpec = tasks.register("generateApiSpec", GenerateTask::class) {
     setProperty("apiPackage", "fi.metatavu.noheva.api.spec")
     setProperty("invokerPackage", "fi.metatavu.noheva.api.spec.invoker")
     setProperty("modelPackage", "fi.metatavu.noheva.api.spec.model")
+    setProperty("templateDir", "$rootDir/openapi-templates/kotlin-server")
 
     this.configOptions.put("library", "jaxrs-spec")
     this.configOptions.put("dateLibrary", "java8")
@@ -119,6 +119,7 @@ val generateApiSpec = tasks.register("generateApiSpec", GenerateTask::class) {
     this.configOptions.put("useSwaggerAnnotations", "false")
     this.configOptions.put("additionalModelTypeAnnotations", "@io.quarkus.runtime.annotations.RegisterForReflection")
 }
+
 
 val generateApiClient = tasks.register("generateApiClient", GenerateTask::class) {
     setProperty("generatorName", "kotlin")
