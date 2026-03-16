@@ -1,12 +1,11 @@
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 plugins {
-    kotlin("jvm") version "1.6.10"
-    kotlin("plugin.allopen") version "1.6.10"
+    kotlin("jvm") version "1.7.22"
+    kotlin("plugin.allopen") version "1.7.22"
     id("io.quarkus")
     id("org.openapi.generator") version "6.2.1"
-    id("org.jetbrains.kotlin.kapt") version "1.6.10"
-
+    id("org.jetbrains.kotlin.kapt") version "1.7.22"
 }
 
 repositories {
@@ -79,8 +78,8 @@ dependencies {
     testImplementation("com.amazonaws:aws-java-sdk-s3:1.12.393")
 }
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 allOpen {
@@ -100,7 +99,7 @@ sourceSets["test"].java {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
     kotlinOptions.javaParameters = true
 }
 

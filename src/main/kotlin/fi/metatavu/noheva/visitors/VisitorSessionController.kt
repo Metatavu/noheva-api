@@ -13,6 +13,7 @@ import fi.metatavu.noheva.settings.SettingsController
 import org.apache.commons.lang3.BooleanUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.math.NumberUtils
+import org.jboss.logging.Logger
 import java.time.OffsetDateTime
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
@@ -23,6 +24,9 @@ import javax.inject.Inject
  */
 @ApplicationScoped
 class VisitorSessionController {
+
+    @Inject
+    lateinit var logger: Logger
 
     @Inject
     lateinit var settingsController: SettingsController
@@ -178,6 +182,9 @@ class VisitorSessionController {
             VisitorVariableType.NUMBER -> return NumberUtils.isParsable(value)
             VisitorVariableType.TEXT -> return true
             VisitorVariableType.ENUMERATED -> return visitorVariable.enum?.contains(visitorSessionVariable.value, false) ?: false
+            else -> {
+                logger.error("Unknown visitor variable type ${visitorVariable.type} for visitor variable ${visitorVariable.name}")
+            }
         }
 
         return false
