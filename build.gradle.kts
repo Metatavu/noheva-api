@@ -108,7 +108,6 @@ val generateApiSpec = tasks.register("generateApiSpec", GenerateTask::class) {
     setProperty("apiPackage", "fi.metatavu.noheva.api.spec")
     setProperty("invokerPackage", "fi.metatavu.noheva.api.spec.invoker")
     setProperty("modelPackage", "fi.metatavu.noheva.api.spec.model")
-    setProperty("templateDir", "$rootDir/openapi-templates/kotlin-server")
 
     this.configOptions.put("library", "jaxrs-spec")
     this.configOptions.put("dateLibrary", "java8")
