@@ -953,6 +953,64 @@ class DeviceTestsIT: AbstractFunctionalTest() {
     }
 
     @Test
+    fun testDeviceSettingsDeviceGroupId(): Unit = createTestBuilder().use { testBuilder ->
+        val exhibition = testBuilder.admin.exhibitions.create(
+            Exhibition(
+                name = "Test exhibition",
+                active = true
+            )
+        )
+        val exhibitionId = exhibition.id!!
+        val deviceGroup1 = createDefaultDeviceGroup(testBuilder, exhibition)
+        val deviceGroup2 = createDefaultDeviceGroup(testBuilder, exhibition)
+        val device = setupApprovedDevice(testBuilder)
+        val deviceId = device.id!!
+        val deviceKey = testBuilder.admin.devices.getDeviceKey(deviceId).key
+        val exhibitionDevice = testBuilder.admin.exhibitionDevices.create(
+            exhibitionId = exhibitionId,
+            payload = ExhibitionDevice(
+                deviceId = deviceId,
+                exhibitionId = exhibitionId,
+                groupId = deviceGroup1.id!!,
+                location = Point(0.0, 0.0),
+                name = "Exhibition device",
+                screenOrientation = ScreenOrientation.LANDSCAPE,
+                imageLoadStrategy = DeviceImageLoadStrategy.DISK,
+            )
+        )
+
+        val deviceSettings = testBuilder.getDevice(deviceKey)
+            .deviceDatas
+            .listDeviceDataSettings(deviceId = deviceId)
+            .filter { it.key == DeviceSettingKey.DEVICE_GROUP_ID }
+
+        assertEquals(1, deviceSettings.size)
+        assertEquals(DeviceSettingKey.DEVICE_GROUP_ID, deviceSettings[0].key)
+        assertEquals(deviceGroup1.id.toString(), deviceSettings[0].value)
+
+        testBuilder.admin.exhibitionDevices.updateExhibitionDevice(
+            exhibitionId = exhibitionId,
+            payload = exhibitionDevice.copy(groupId = deviceGroup2.id!!)
+        )
+
+        val updatedExhibitionDevice = testBuilder.admin.exhibitionDevices.findExhibitionDevice(
+            exhibitionId = exhibitionId,
+            exhibitionDeviceId = exhibitionDevice.id!!
+        )
+
+        val updatedDeviceSettings = testBuilder.getDevice(deviceKey)
+            .deviceDatas
+            .listDeviceDataSettings(deviceId = deviceId)
+            .filter { it.key == DeviceSettingKey.DEVICE_GROUP_ID }
+
+        assertEquals(1, updatedDeviceSettings.size)
+        assertEquals(DeviceSettingKey.DEVICE_GROUP_ID, updatedDeviceSettings[0].key)
+        assertEquals(deviceGroup2.id.toString(), updatedDeviceSettings[0].value)
+        assertEquals(updatedExhibitionDevice.modifiedAt, updatedDeviceSettings[0].modifiedAt)
+
+    }
+
+    @Test
     fun testDeviceSettingsDensityNull(): Unit = createTestBuilder().use { testBuilder ->
         val exhibition = testBuilder.admin.exhibitions.create(Exhibition(
             name = "Test exhibition",
