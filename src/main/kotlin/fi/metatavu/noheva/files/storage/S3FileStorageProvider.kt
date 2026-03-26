@@ -10,6 +10,7 @@ import io.quarkus.runtime.configuration.ConfigUtils
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
 import org.eclipse.microprofile.config.inject.ConfigProperty
+import org.jboss.logging.Logger
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.core.exception.SdkClientException
@@ -41,6 +42,9 @@ import javax.inject.Inject
 @ApplicationScoped
 @Suppress("unused")
 class S3FileStorageProvider : FileStorageProvider {
+
+    @Inject
+    lateinit var logger: Logger
 
     @Inject
     lateinit var imageReader: ImageReader
@@ -157,13 +161,19 @@ class S3FileStorageProvider : FileStorageProvider {
                 .filter { !it.key().startsWith("__") }
                 .map {
                     val key = it.key()
-                    val metadata = client.getObject(
-                        GetObjectRequest.builder()
-                            .bucket(bucket)
-                            .key(key)
-                            .build()
-                    ).response().metadata()
-                    translateObject(key, metadata)
+
+                    try {
+                        val metadata = client.getObject(
+                            GetObjectRequest.builder()
+                                .bucket(bucket)
+                                .key(key)
+                                .build()
+                        ).response().metadata()
+                        translateObject(key, metadata)
+                    } catch (e: S3Exception) {
+                        logger.error("Failed to get metadata for object $key", e)
+                        throw e
+                    }
                 }
             )
         } catch (e: Exception) {
