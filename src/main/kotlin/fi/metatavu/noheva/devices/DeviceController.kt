@@ -260,6 +260,17 @@ class DeviceController {
             )
         }
 
+        val deviceGroupId = exhibitionDevice?.exhibitionDeviceGroup?.id
+        if (deviceGroupId != null) {
+            result.add(
+                DeviceSetting(
+                    key = DeviceSettingKey.DEVICE_GROUP_ID,
+                    value = deviceGroupId.toString(),
+                    modifiedAt = exhibitionDevice.modifiedAt
+                )
+            )
+        }
+
         return result
     }
 
